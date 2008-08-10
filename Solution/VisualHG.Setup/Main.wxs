@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?ifndef visualhgVersion ?>
+  <?define visualhgVersion=1.0 ?>
+  <?endif ?>
+  <Product Id="*"
+           Name="VisualHG $(var.visualhgVersion)"
+           Language="1033"
+           Version="$(var.visualhgVersion)"
+           Manufacturer="VisualHG Team"
+           UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
+
+    <Package Languages="1033"
+             InstallerVersion="300"
+             Compressed="yes"
+             Description="VisualHG is a Visual Studio 2005/2008 source control plugin"
+             Manufacturer="VisualHG Team"/>
+
+    <Property Id="ShortProductName" Value="VisualHG" />
+    <Property Id="ARPCONTACT">VisualHG - users@visualhg.net</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.visualhg.net/</Property>
+    <Property Id="ARPHELPLINK">http://www.visualhg.net/help/</Property>
+    <Property Id="ARPURLUPDATEINFO">http://www.visualhg.net/updates/?currentVersion=$(var.visualhgVersion)</Property>
+
+    <!-- VisualHG 1.0 -->
+    <Upgrade Id="DADADA00-ceaf-4019-a2c7-26f15d5b3727">
+      <UpgradeVersion Maximum="$(var.visualhgVersion)" IncludeMaximum="yes" Property="PREVIOUSVERSIONINSTALLED"/>
+      <UpgradeVersion Minimum="$(var.visualhgVersion)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONINSTALLED"/>
+    </Upgrade>
+
+    <!-- Error messages -->
+    <Property Id="NEWER_VERSION_MSG">Unable to install because a newer version of this product is already installed.</Property>
+
+    <!-- Secure these -->
+    <Property Id="NEWERVERSIONINSTALLED" Secure="yes" />
+
+    <Media Id="1" Cabinet="VisualHG.cab" EmbedCab="yes" />
+
+    <!-- Errormessages -->
+    <CustomAction Id="ERRCA_CANCEL_NEWER_VERSION" Error="[NEWER_VERSION_MSG]" />
+
+    <!-- Make sure the packages are set up in The VS Environment -->
+    <!--
+    <CustomActionRef Id="VS90Setup"/>
+    <UI>
+      <ProgressText Action="VS2005Setup" Template="[1]">Updating Visual Studio 2005 registration</ProgressText>
+      <ProgressText Action="VS90Setup" Template="[1]">Updating Visual Studio 2008 registration</ProgressText>
+    </UI>
+    -->
+
+    <InstallExecuteSequence>
+      <Custom Action="ERRCA_CANCEL_NEWER_VERSION" After="FindRelatedProducts">NEWERVERSIONINSTALLED</Custom>
+      <RemoveExistingProducts After="InstallInitialize">PREVIOUSVERSIONINSTALLED</RemoveExistingProducts>
+    </InstallExecuteSequence>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLLOCATION" Name="VisualHG">
+          <Directory Id="APP_bin" Name="." >
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="VisualHG" Level="1">
+      <ComponentGroupRef Id="VisualHG.scc" />
+      <ComponentRef Id="C_HGLib.dll" />
+    </Feature>
+    <UI />
+  </Product>
+</Wix>

@@ -1,0 +1,16 @@
+R:\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Debug\VisualHG.msi
+R:\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Debug\VisualHG.wixpdb
+obj\Debug\HGLib.wixobj
+obj\Debug\VisualHG.wixobj
+obj\Debug\Main.wixobj
+obj\Release\HGLib.wixobj
+obj\Release\VisualHG.wixobj
+obj\Release\Main.wixobj
+R:\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.msi
+R:\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.wixpdb
+C:\Develop\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.msi
+C:\Develop\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.wixpdb
+C:\Develop\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Debug\VisualHG.msi
+C:\Develop\DevelopMain\VisualHG\Solution\VisualHG.Setup\bin\Debug\VisualHG.wixpdb
+R:\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.msi
+R:\VisualHG\Solution\VisualHG.Setup\bin\Release\VisualHG.wixpdb
