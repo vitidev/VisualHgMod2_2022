@@ -10,3 +10,4 @@ obj/Debug
 obj/Release
 /TestResults/
 /TDD/
+/obj/
