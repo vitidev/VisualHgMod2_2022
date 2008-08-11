@@ -479,7 +479,7 @@ namespace VisualHG
                                                             new string[] { fullFileName });
                 }
             }
-            
+
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
         }
@@ -492,9 +492,9 @@ namespace VisualHG
             Trace.WriteLine("QuerySaveFiles");
             for (int iFile = 0; iFile < cFiles; ++iFile)
             {
-                Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] + ", rgFileInfo: " + rgFileInfo[iFile].ToString());
+                Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
             }
-            
+
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
         }
