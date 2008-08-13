@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace HGLib
 {
@@ -51,6 +52,7 @@ namespace HGLib
 
         void SetAt(string file, HGFileStatusInfo info)
         {
+            Trace.WriteLine("status:" + info.state + " " + file);
             _dictionary[file.ToLower()] = info;
         }
 

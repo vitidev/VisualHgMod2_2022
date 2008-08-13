@@ -49,7 +49,10 @@ namespace VisualHG
                 if (!String.IsNullOrEmpty(projectFile))
                 {
                     string projectDirectory = projectFile.Substring(0, projectFile.LastIndexOf("\\") + 1);
-                    base.AddRootDirectory(projectDirectory);
+                    if( !base.AddRootDirectory(projectDirectory) )
+                    {
+                        Trace.WriteLine("AddRootDirectory failed " + projectDirectory);
+                    }
                 }
             }
         }

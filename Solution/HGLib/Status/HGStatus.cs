@@ -81,6 +81,10 @@ namespace HGLib
             StartDirectoryStatusChecker();
         }
 
+        public void SetLocalModified()
+        {
+            _LocalModifiedTimeStamp = DateTime.Now;            
+        }
         // ------------------------------------------------------------------------
         // toggle directory watching on / off
         // ------------------------------------------------------------------------
@@ -125,10 +129,7 @@ namespace HGLib
                     case 'I': status = SourceControlStatus.scsIgnored; break;
                 }
             }
-            else
-            {
-                Trace.WriteLine("Unknown file : " + fileName);
-            }
+
             return status;
         }
 
@@ -198,13 +199,15 @@ namespace HGLib
         // adds the given project/directory if not exsist. The status of the files
         // contining in the directory will be scanned by a QueryRootStatus call.
         // ------------------------------------------------------------------------
-        public void UpdateProject(string project, string projectDirectory)
+        public bool UpdateProject(string project, string projectDirectory)
         {
+            bool retval = true;
             if (!_projectMap.ContainsKey(project))
             {
                 _projectMap.Add(project, projectDirectory);
-                AddRootDirectory(projectDirectory);
+                retval = AddRootDirectory(projectDirectory);
             }
+            return retval;
         }
 
         // ------------------------------------------------------------------------
@@ -226,8 +229,9 @@ namespace HGLib
         /// Add a root directory and query the status of the contining files 
         /// by a QueryRootStatus call.
         // ------------------------------------------------------------------------
-        public void AddRootDirectory(string directory)
+        public bool AddRootDirectory(string directory)
         {
+            bool retval = false;
             string root = HG.FindRootDirectory(directory);
             if (root != null)
             {
@@ -237,24 +241,27 @@ namespace HGLib
                     containsDirectory = _rootDirWatcherMap.ContainsDirectory(root);
                     if (containsDirectory == false)
                     {
-                        _rootDirWatcherMap.AddDirectory(root);
+                        retval = _rootDirWatcherMap.AddDirectory(root);
                     }
                 }
 
-                if (containsDirectory == false)
+                if (retval && containsDirectory == false)
                 {
                     HG.QueryRootStatus(directory, QueryRootStatusCallBack);
                 }
             }
+            
+            return retval;
         }
 
         // ------------------------------------------------------------------------
         // re query the status for the given files.
         // ------------------------------------------------------------------------
-        public void UpdateFileStatus(string[] fileList)
+        /*public void UpdateFileStatus(string[] fileList)
         {
+            SetLocalModified();
             HG.QueryFileStatus(fileList, HandleFileStatusProc);
-        }
+        }*/
 
         #region dirstatus changes
         // ------------------------------------------------------------------------
@@ -387,7 +394,7 @@ namespace HGLib
                 Dictionary<string, char> fileStatusDictionary;
                 if (HG.QueryRootStatus(directoryWatcher.Value._directory, out rootDirectory, out fileStatusDictionary))
                 {
-                    Trace.WriteLine("DoFullStatusUpdate - number of files: " + fileStatusDictionary.Count.ToString());
+                    Trace.WriteLine("RebuildStatusCache - number of files: " + fileStatusDictionary.Count.ToString());
                     lock (_fileStatusDictionary)
                     {
                         _fileStatusDictionary.Add(fileStatusDictionary);
@@ -501,7 +508,11 @@ namespace HGLib
                         string fileName = dirtyFile.Key;
                         HGFileStatusInfo sccFileStatus;
 
-                        if (dirtyFile.Key.IndexOf(".hg\\dirstate") > -1)
+                        if (DirectoryWatcher.DirectoryExists(fileName))
+                        {
+                            continue;
+                        }
+                        else if (dirtyFile.Key.IndexOf(".hg\\dirstate") > -1)
                         {
                             TimeSpan elapsed = new TimeSpan(DateTime.Now.Ticks - _LocalModifiedTimeStamp.Ticks);
                             Trace.WriteLine("dirstate changed " + elapsed.ToString());
@@ -557,6 +568,7 @@ namespace HGLib
                 if (fileList.Count > 0)
                 {
                     Dictionary<string, char> fileStatusDictionary;
+                    SetLocalModified(); 
                     if (HG.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
                     {
                         Trace.WriteLine("UpdateDirtyFilesStatus: found files : " + fileStatusDictionary.Count.ToString());

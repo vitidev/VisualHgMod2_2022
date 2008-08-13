@@ -173,7 +173,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public static bool QueryRootStatus(string workingDirectory, out string rootDirectory, out Dictionary<string, char> fileStatusDictionary)
         {
-            Trace.WriteLine("Start QueryFileStatus");
+            Trace.WriteLine("Start QueryRootStatus");
 
             fileStatusDictionary = null;
             rootDirectory = HG.FindRootDirectory(workingDirectory);

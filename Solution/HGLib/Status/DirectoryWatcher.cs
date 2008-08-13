@@ -155,5 +155,21 @@ namespace HGLib
             }
             LastChangeEvent = DateTime.Now;
         }
+
+        public static bool DirectoryExists(string dir)
+        {
+            bool retval = false;
+            try
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                if (dirInfo.Exists)
+                {
+                    // exclude all directories
+                    retval = true;
+                }
+            }
+            catch { }
+            return retval;
+        }
     }
 }

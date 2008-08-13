@@ -74,17 +74,23 @@ namespace HGLib
         // ------------------------------------------------------------------------
         /// create new directory watcher for the given directory 
         // ------------------------------------------------------------------------
-        public void AddDirectory(string directory)
+        public bool AddDirectory(string directory)
         {
-            lock (dict)
+            bool retval = DirectoryWatcher.DirectoryExists(directory);
+            if (retval)
             {
-                string key = directory.ToLower();
-                DirectoryWatcher value;
-                if (!dict.TryGetValue(key, out value))
+                lock (dict)
                 {
-                    dict[key] = new DirectoryWatcher(directory);
+                    string key = directory.ToLower();
+                    DirectoryWatcher value;
+                    if (!dict.TryGetValue(key, out value))
+                    {
+                        dict[key] = new DirectoryWatcher(directory);
+                    }
+                    retval = true;
                 }
             }
+            return retval;
         }
 
         // ------------------------------------------------------------------------

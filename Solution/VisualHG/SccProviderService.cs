@@ -93,6 +93,8 @@ namespace VisualHG
         // Make visible and enable if necessary scc related menu commands
         public int SetActive()
         {
+            Trace.WriteLine("SetActive");
+            
             _active = true;
 
             // add all projects of this solution to the status file cache
@@ -107,6 +109,8 @@ namespace VisualHG
         // Hides and disable scc related menu commands
         public int SetInactive()
         {
+            Trace.WriteLine("SetInactive"); 
+            
             _active = false;
             return VSConstants.S_OK;
         }
@@ -249,6 +253,8 @@ namespace VisualHG
         /// </summary>
         public int RegisterSccProject([InAttribute] IVsSccProject2 pscp2Project, [InAttribute] string pszSccProjectName, [InAttribute] string pszSccAuxPath, [InAttribute] string pszSccLocalPath, [InAttribute] string pszProvider)
         {
+            Trace.WriteLine("RegisterSccProject"); 
+            
             if (pscp2Project != null)
             {
                 _sccStatusTracker.UpdateProject(pscp2Project);
@@ -314,6 +320,8 @@ namespace VisualHG
 
         public int OnAfterOpenSolution([InAttribute] Object pUnkReserved, [InAttribute] int fNewSolution)
         {
+            Trace.WriteLine("OnAfterOpenSolution");
+            
             if (!Active)
             {
                 /*string root = HGLib.HG.FindRootDirectory(_sccProvider.GetSolutionFileName());
@@ -338,12 +346,16 @@ namespace VisualHG
 
         public int OnAfterLoadProject([InAttribute] IVsHierarchy pStubHierarchy, [InAttribute] IVsHierarchy pRealHierarchy)
         {
+            Trace.WriteLine("OnAfterLoadProject");
+
             _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
             return VSConstants.S_OK;
         }
 
         public int OnAfterOpenProject([InAttribute] IVsHierarchy pHierarchy, [InAttribute] int fAdded)
         {
+            Trace.WriteLine("OnAfterOpenProject");
+
             if (fAdded == 1)
             {
                 IList<string> fileList = SccProvider.GetProjectFiles(pHierarchy as IVsSccProject2);
@@ -353,10 +365,8 @@ namespace VisualHG
                 _sccStatusTracker.AddNotIgnoredFiles(files); 
                 //_sccStatusTracker.AddFiles(files);
             }
-            else
-            {
-                _sccStatusTracker.UpdateProject(pHierarchy as IVsSccProject2);
-            }
+
+            _sccStatusTracker.UpdateProject(pHierarchy as IVsSccProject2);
             return VSConstants.S_OK;
         }
 

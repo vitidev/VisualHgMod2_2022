@@ -78,7 +78,7 @@ namespace HGLib.Test
             var nnList = new string[] { nName };
 
             HGStatus hgStatus = new HGStatus();
-            hgStatus.AddRootDirectory(HG.FindRootDirectory(oName));
+            Assert.IsTrue(hgStatus.AddRootDirectory(HG.FindRootDirectory(oName)));
             System.Threading.Thread.Sleep(200); // time for rquery repo
             
             // rename file
