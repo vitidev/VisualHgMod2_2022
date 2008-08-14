@@ -479,7 +479,68 @@ namespace HGLib
                 }
             }
         }
+        
+        // Check if the watched file is the hg/dirstate and set _bRebuildStatusCacheRequred to true if required
+        // Check if the file state must be refreshed
+        // Return: true if the file is dirty, false if not
+        bool PrepareWatchedFile(string fileName)
+        {
+            bool isDirty = true;
 
+            if (DirectoryWatcher.DirectoryExists(fileName))
+            {
+                // directories are not controlled
+                isDirty = false;
+            }
+            else if (fileName.IndexOf(".hg\\dirstate") > -1)
+            {
+                TimeSpan elapsed = new TimeSpan(DateTime.Now.Ticks - _LocalModifiedTimeStamp.Ticks);
+                Trace.WriteLine("dirstate changed " + elapsed.ToString());
+                if (_MaxDiffToDirstateChangeMS < elapsed.TotalMilliseconds)
+                {
+                    _bRebuildStatusCacheRequred = true;
+                    Trace.WriteLine("UpdateDirtyFilesStatus " + fileName);
+                }
+                isDirty = false;
+            }
+            else if (fileName.IndexOf("\\.hg") != -1)
+            {
+                // all other .hg files are ignored
+                isDirty = false;
+            }
+            else
+            {
+                HGFileStatusInfo hgFileStatusInfo;
+                
+                lock (_fileStatusDictionary)
+                {
+                    _fileStatusDictionary.TryGetValue(fileName, out hgFileStatusInfo);
+                }
+
+                if (hgFileStatusInfo != null)
+                {
+                    FileInfo fileInfo = new FileInfo(fileName);
+                    if (fileInfo.Exists)
+                    {
+                        // see if the file states are equal
+                        if ((hgFileStatusInfo.timeStamp == fileInfo.LastWriteTime &&
+                             hgFileStatusInfo.size == fileInfo.Length))
+                        {
+                            isDirty = false;
+                        }
+                    }
+                    else
+                    {
+                        if (hgFileStatusInfo.state == 'R' || hgFileStatusInfo.state == '?')
+                        {
+                            isDirty = false;
+                        }
+                    }
+                }
+            }
+            return isDirty;
+        }
+        
         // ------------------------------------------------------------------------
         // update file status of the watched dirty files
         // ------------------------------------------------------------------------
@@ -498,80 +559,27 @@ namespace HGLib
                 if (dirtyFilesMap.Count > 0)
                 {
                     // first collect dirty files list
-                    // the list of dirty files will be reduced by comparing them to the existing state
-                    // informations of the _fileStatusDictionary. if time and size are equal, the file
-                    // state is already ok.
                     foreach (var dirtyFile in dirtyFilesMap)
                     {
-                        bool isDirty = true;
-
-                        string fileName = dirtyFile.Key;
-                        HGFileStatusInfo sccFileStatus;
-
-                        if (DirectoryWatcher.DirectoryExists(fileName))
-                        {
-                            continue;
-                        }
-                        else if (dirtyFile.Key.IndexOf(".hg\\dirstate") > -1)
-                        {
-                            TimeSpan elapsed = new TimeSpan(DateTime.Now.Ticks - _LocalModifiedTimeStamp.Ticks);
-                            Trace.WriteLine("dirstate changed " + elapsed.ToString());
-                            if (_MaxDiffToDirstateChangeMS < elapsed.TotalMilliseconds)
-                            {
-                                _bRebuildStatusCacheRequred = true;
-                                Trace.WriteLine("UpdateDirtyFilesStatus " + dirtyFile.Key);
-                                return false; // no gui update requred
-                            }
-                            // all .hg files are ignored
-                            continue;
-                        }
-                        else if (dirtyFile.Key.IndexOf("\\.hg") != -1)
-                        {
-                            // all .hg files are ignored
-                            continue;
-                        }
-
-                        lock (_fileStatusDictionary)
-                        {
-                            _fileStatusDictionary.TryGetValue(fileName, out sccFileStatus);
-                        }
-
-                        if (sccFileStatus != null)
-                        {
-                            FileInfo fileInfo = new FileInfo(dirtyFile.Key);
-                            if (fileInfo.Exists)
-                            {
-                                // see if the file states are equal
-                                if ((sccFileStatus.timeStamp == fileInfo.LastWriteTime &&
-                                     sccFileStatus.size == fileInfo.Length))
-                                {
-                                    isDirty = false;
-                                }
-                            }
-                            else
-                            {
-                                if (sccFileStatus.state == 'R' || sccFileStatus.state == '?')
-                                {
-                                    isDirty = false;
-                                }
-                            }
-                        }
-
-                        if (isDirty)
-                        {
+                        if( PrepareWatchedFile(dirtyFile.Key) && !_bRebuildStatusCacheRequred)
+                        { 
                             fileList.Add(dirtyFile.Key);
                         }
+
+                        // could be set by PrepareWatchedFile
+                        if(_bRebuildStatusCacheRequred)
+                            break;
                     }
                 }
 
                 // now we will get HG status information for the dirty files
-                if (fileList.Count > 0)
+                if (!_bRebuildStatusCacheRequred && fileList.Count > 0)
                 {
                     Dictionary<string, char> fileStatusDictionary;
                     SetLocalModified(); 
                     if (HG.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
                     {
-                        Trace.WriteLine("UpdateDirtyFilesStatus: found files : " + fileStatusDictionary.Count.ToString());
+                        Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
                         lock (_fileStatusDictionary)
                         {
                             _fileStatusDictionary.Add(fileStatusDictionary);
