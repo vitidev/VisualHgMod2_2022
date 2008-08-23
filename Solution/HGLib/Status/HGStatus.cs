@@ -479,10 +479,12 @@ namespace HGLib
                 }
             }
         }
-        
+
+        // ------------------------------------------------------------------------
         // Check if the watched file is the hg/dirstate and set _bRebuildStatusCacheRequred to true if required
         // Check if the file state must be refreshed
         // Return: true if the file is dirty, false if not
+        // ------------------------------------------------------------------------
         bool PrepareWatchedFile(string fileName)
         {
             bool isDirty = true;
@@ -499,7 +501,7 @@ namespace HGLib
                 if (_MaxDiffToDirstateChangeMS < elapsed.TotalMilliseconds)
                 {
                     _bRebuildStatusCacheRequred = true;
-                    Trace.WriteLine("UpdateDirtyFilesStatus " + fileName);
+                    Trace.WriteLine("   ... rebuild of status cache required");
                 }
                 isDirty = false;
             }
@@ -572,7 +574,7 @@ namespace HGLib
                     }
                 }
 
-                // now we will get HG status information for the dirty files
+                // now we will get HG status information for the remaining files
                 if (!_bRebuildStatusCacheRequred && fileList.Count > 0)
                 {
                     Dictionary<string, char> fileStatusDictionary;

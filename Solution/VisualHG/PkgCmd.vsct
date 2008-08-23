@@ -123,13 +123,13 @@
         <Strings>
           <ButtonText>HG Update</ButtonText>
           <MenuText>HG Update</MenuText>
-          <CommandName>HG Update (SccProvider)</CommandName>
+          <CommandName>HG Update</CommandName>
         </Strings>
       </Button>
     </Buttons>
     <Bitmaps>
       <Bitmap guid="guidSccProviderImages" href="Resources\Images_32bit.bmp"
-              usedList="iconStatus, iconHistory, iconSynch, iconCommit"/>
+              usedList="iconCommit, iconHistory, iconSynch, iconStatus"/>
     </Bitmaps>
   </Commands>
 
@@ -209,6 +209,7 @@
       <IDSymbol name="icmdToolWindowToolbarCommand" value="0x104"/>
       <IDSymbol name="icmdHgSynchronize" value="0x105"/>
       <IDSymbol name="icmdHgUpdateToRevision" value="0x106"/>
+      <IDSymbol name="icmdHgUpdateStatus" value="0x107"/>
 
       <IDSymbol name="imnuFileSourceControlMenu" value="0x200"/>
       <IDSymbol name="imnuToolWindowToolbarMenu" value="0x201"/>
@@ -222,8 +223,8 @@
     </GuidSymbol>
 
     <GuidSymbol name="guidSccProviderImages" value="{7701C9CA-A0EF-4754-835C-23D7CB4376E9}" >
-      <IDSymbol name="iconHistory" value="1"/>
-      <IDSymbol name="iconCommit" value="2"/>
+      <IDSymbol name="iconCommit" value="1"/>
+      <IDSymbol name="iconHistory" value="2"/>
       <IDSymbol name="iconSynch" value="3"/>
       <IDSymbol name="iconStatus" value="4"/>
     </GuidSymbol>
