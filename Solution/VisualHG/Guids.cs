@@ -13,11 +13,23 @@ namespace VisualHG
     Package Load Key (PLK) 	HPCED8Z3IRZQIRZ1D9IQRHJ9H0KCKMDIPTK0Z3QQJJDDIAKPAPM1PDMQMKC2JTQIICM3KECKQJPPK9HKHQQRD8DQP8JZAJIZJRM8ZMPCM8M0H1PJE2R9JQK0MERMJ3K2
     Description 	Mercurial source control integration
     */
+    /*
+    VisualHG
+    Package Version 	1.0.0.1
+    Package GUID 	F3DB741F-B40B-40be-A606-571A4BC653AB
+    Product Name 	<none>
+    Company Name 	VisualHG@live.de
+    Visual Studio Version 	Visual Studio 2008
+    Minimum Edition 	Professional
+    Package Load Key (PLK) 	Z9IERHMDAERIDIP3CAHTJ2ZQQEZJEMAJD8R3IRA1DTD1M9DKPKEMQ9KTJQRIAPAPMZAMQJIAIZMPP9JIDRDMD2IPPMMTJ2RJAHJIJ9MJRMAPIEA2MAJ1PKZ1C2K8E3JD
+    Description 	Mercurial source control integration
+    */
+
     public static class PLK
     {
         public const string PackageGuid     = "F3DB741F-B40B-40be-A606-571A4BC653AB";
-        public const string PackageVersion  = "1.0.0.0";
-        public const string PakageName     = "VisualHG";
+        public const string PackageVersion  = "1.0.0.1";
+        public const string PakageName      = "VisualHG";
         public const string CompanyName     = "VisualHG@live.de";
     };
     
@@ -44,7 +56,6 @@ namespace VisualHG
     };
 
     /*
-        {DADADA00-3cf1-4487-89ea-08fa7772dbe2}
         {DADADA00-6281-4c70-83b6-02101aea5dc8}
         {DADADA00-348d-4eb9-95f2-de3c44642044}
         {DADADA00-19aa-4a19-a6c4-25f8d4019b4d}

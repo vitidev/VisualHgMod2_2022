@@ -222,7 +222,7 @@
       <IDSymbol name="itbrSccToolbar" value="0x400"/>
     </GuidSymbol>
 
-    <GuidSymbol name="guidSccProviderImages" value="{7701C9CA-A0EF-4754-835C-23D7CB4376E9}" >
+    <GuidSymbol name="guidSccProviderImages" value="{DADADA00-3cf1-4487-89ea-08fa7772dbe2}" >
       <IDSymbol name="iconCommit" value="1"/>
       <IDSymbol name="iconHistory" value="2"/>
       <IDSymbol name="iconSynch" value="3"/>

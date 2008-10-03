@@ -70,7 +70,7 @@ namespace VisualHG {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This package implements the Mercurial source control package..
+        ///   Looks up a localized string similar to Mercurial based source contol provider..
         /// </summary>
         internal static string _101 {
             get {
@@ -79,7 +79,7 @@ namespace VisualHG {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to HPCED8Z3IRZQIRZ1D9IQRHJ9H0KCKMDIPTK0Z3QQJJDDIAKPAPM1PDMQMKC2JTQIICM3KECKQJPPK9HKHQQRD8DQP8JZAJIZJRM8ZMPCM8M0H1PJE2R9JQK0MERMJ3K2.
+        ///   Looks up a localized string similar to Z9IERHMDAERIDIP3CAHTJ2ZQQEZJEMAJD8R3IRA1DTD1M9DKPKEMQ9KTJQRIAPAPMZAMQJIAIZMPP9JIDRDMD2IPPMMTJ2RJAHJIJ9MJRMAPIEA2MAJ1PKZ1C2K8E3JD.
         /// </summary>
         internal static string _104 {
             get {
