@@ -131,8 +131,8 @@ namespace VisualHG
             IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)GetService(typeof(IVsRegisterScciProvider));
             rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
 
-            MsVsShell.ToolWindowPane window = this.FindToolWindow(typeof(HGPendingChangesToolWindow), 0, true);
-            int n = 0;
+//            MsVsShell.ToolWindowPane window = this.FindToolWindow(typeof(HGPendingChangesToolWindow), 0, true);
+//            int n = 0;
         }
 
         protected override void Dispose(bool disposing)
