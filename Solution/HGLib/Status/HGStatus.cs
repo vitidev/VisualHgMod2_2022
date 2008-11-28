@@ -468,14 +468,7 @@ namespace HGLib
                 if (updateUI)
                 {
                     // notify ui thread about the changes
-                    if (_context != null)
-                    {
-                        _context.Post(new SendOrPostCallback(delegate(object state)
-                        {
-                            if (HGStatusChanged != null)
-                                HGStatusChanged();
-                        }), null);
-                    }
+                    FireStatusChanged(_context);
                 }
             }
         }

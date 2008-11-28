@@ -36,6 +36,9 @@ namespace VisualHG
         // solution file status cache
         HGStatusTracker _sccStatusTracker = new HGStatusTracker();
 
+        // DirtyNodesGlyphs update flag
+        bool _bNodesGlyphsDirty = true;
+
         // remember the latest OnQueryRemoveDirectories remove list
         //string[] _RemoveDirectoriesQueue = null;
 
@@ -56,8 +59,8 @@ namespace VisualHG
             tpdService.AdviseTrackProjectDocumentsEvents(this, out _tpdTrackProjectDocumentsCookie);
             Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
 
-            // Subscribe to storrage events
-            _sccStatusTracker.HGStatusChanged += new HGLib.HGStatusChangedEvent(RefreshNodesGlyphs);
+            // Subscribe to status events
+            _sccStatusTracker.HGStatusChanged += new HGLib.HGStatusChangedEvent(SetNodesGlyphsDirty);
         }
 
         public void Dispose()
@@ -652,6 +655,25 @@ namespace VisualHG
             return _sccStatusTracker.AnyItemsUnderSourceControl();
         }
 
+        /// <summary>
+        /// set the node glyphs dirty flag to true
+        /// </summary>
+        public void SetNodesGlyphsDirty()
+        {
+            _bNodesGlyphsDirty = true;
+        }
+
+        /// <summary>
+        /// call RefreshNodesGlyphs to update all Glyphs 
+        /// if the _bNodesGlyphsDirty is true
+        /// </summary>
+        public void UpdateDirtyNodesGlyphs()
+        {
+            if (_bNodesGlyphsDirty)
+                RefreshNodesGlyphs();
+
+            _bNodesGlyphsDirty = false;
+        }
 
         public void RefreshNodesGlyphs()
         {
@@ -679,21 +701,6 @@ namespace VisualHG
             }
 
             _sccProvider.RefreshNodesGlyphs(nodes);
-        }
-
-
-        static bool IsFilePartOfDirectory(string fileName, string[] dirList)
-        {
-            if(dirList != null)
-            {
-                foreach (string dir in dirList)
-                {
-                    if (fileName.IndexOf(dir) != -1)
-                        return true;
-                }
-            }
-
-            return false;
         }
 
         #endregion

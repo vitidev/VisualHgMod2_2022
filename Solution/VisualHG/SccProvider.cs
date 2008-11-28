@@ -37,7 +37,7 @@ namespace VisualHG
 
     //TODO create meaningful page
     // Register the VisualHG tool window visible only when the provider is active
-    /// [MsVsShell.ProvideToolWindow(typeof(HGPendingChangesToolWindow))]
+    //[MsVsShell.ProvideToolWindow(typeof(HGPendingChangesToolWindow))]
     /// [MsVsShell.ProvideToolWindowVisibility(typeof(HGPendingChangesToolWindow), GuidList.ProviderGuid)]
 
     // Register the source control provider's service (implementing IVsScciProvider interface)
@@ -65,6 +65,8 @@ namespace VisualHG
         // The names of the properties stored by the provider in the solution file
         private const string _strSolutionControlledProperty = "SolutionIsControlled";
         private const string _strSolutionBindingsProperty = "SolutionBindings";
+
+        private SccOnIdleEvent _OnIdleEvent = new SccOnIdleEvent();
 
         public SccProvider()
         {
@@ -131,14 +133,17 @@ namespace VisualHG
             IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)GetService(typeof(IVsRegisterScciProvider));
             rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
 
-//            MsVsShell.ToolWindowPane window = this.FindToolWindow(typeof(HGPendingChangesToolWindow), 0, true);
-//            int n = 0;
+            _OnIdleEvent.RegisterForIdleTimeCallbacks(GetGlobalService(typeof(SOleComponentManager)) as IOleComponentManager);
+            _OnIdleEvent.OnIdleEvent += new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs);
         }
 
         protected override void Dispose(bool disposing)
         {
             Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering Dispose() of: {0}", this.ToString()));
 
+            _OnIdleEvent.OnIdleEvent -= new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs); 
+            _OnIdleEvent.UnRegisterForIdleTimeCallbacks();
+            
             sccService.Dispose();
 
             base.Dispose(disposing);
