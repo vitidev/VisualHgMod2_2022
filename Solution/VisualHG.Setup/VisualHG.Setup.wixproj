@@ -1,0 +1,58 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.0</ProductVersion>
+    <ProjectGuid>{ff28d70c-7d9e-4ba7-b780-4d7ffdd160ab}</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>VisualHG</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.0\Wix.targets</WixTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+    <SuppressSpecificWarnings>1080</SuppressSpecificWarnings>
+    <SuppressIces>ICE03;ICE25;ICE61;ICE82</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressSpecificWarnings>1080</SuppressSpecificWarnings>
+    <SuppressIces>ICE03;ICE25;ICE61;ICE82</SuppressIces>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\HGLib\Setup\HGLib.wxs">
+      <Link>HGLib.wxs</Link>
+    </Compile>
+    <Compile Include="..\VisualHG\Setup\VisualHG.wxs">
+      <Link>VisualHG.wxs</Link>
+    </Compile>
+    <Compile Include="Main.wxs">
+      <Link>
+      </Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HGLib\HGLib.csproj">
+      <Name>HGLib</Name>
+      <Project>{feca7f06-4575-4de6-8fa7-49e78bcca7e5}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\VisualHG\VisualHG.csproj">
+      <Name>VisualHG</Name>
+      <Project>{adece07a-5d80-4950-9da5-a681ce2f5106}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>
