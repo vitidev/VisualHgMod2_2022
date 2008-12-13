@@ -29,10 +29,15 @@
     <Compile Include="..\VisualHG\Setup\VisualHG.wxs">
       <Link>VisualHG.wxs</Link>
     </Compile>
+    <Compile Include="SetupUI.wxs">
+      <Link>
+      </Link>
+    </Compile>
     <Compile Include="Main.wxs">
       <Link>
       </Link>
     </Compile>
+    <Compile Include="VSExtension.wxs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HGLib\HGLib.csproj">
@@ -45,6 +50,17 @@
       <Project>{adece07a-5d80-4950-9da5-a681ce2f5106}</Project>
       <Private>True</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SetupFiles" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SetupFiles\default_banner.bmp" />
+    <None Include="SetupFiles\default_dialog.bmp" />
+    <None Include="SetupFiles\FldNewBtn.ico" />
+    <None Include="SetupFiles\FldUpBtn.ico" />
+    <None Include="SetupFiles\Folder.ico" />
+    <None Include="SetupFiles\Info.ico" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--

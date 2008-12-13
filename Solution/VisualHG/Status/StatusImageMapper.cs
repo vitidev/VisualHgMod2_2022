@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace VisualHG
 {
     /// <summary>
-    /// This enum specified the usage of glyph icons by ankh
+    /// This enum specified the usage of glyph icons by VisualHG
     /// </summary>
     /// <remarks>This enum contains 16 members which should map the VsStateIcon class if possible</remarks>
     public enum HGGlyph
