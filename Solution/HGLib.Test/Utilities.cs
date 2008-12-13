@@ -8,7 +8,7 @@ namespace HGLib.Test
 {
     class Utilities
     {
-        // thanx to ankhsvn for ExtractZipResource and ExtractZipStream
+        // thanx to VisualHGsvn for ExtractZipResource and ExtractZipStream
         
         /// <summary>
         /// Extracts a ZIP file that is embedded as a resource.

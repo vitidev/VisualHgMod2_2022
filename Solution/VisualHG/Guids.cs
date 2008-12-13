@@ -56,7 +56,6 @@ namespace VisualHG
     };
 
     /*
-        {DADADA00-6281-4c70-83b6-02101aea5dc8}
         {DADADA00-348d-4eb9-95f2-de3c44642044}
         {DADADA00-19aa-4a19-a6c4-25f8d4019b4d}
         {DADADA00-4638-4cc8-b851-7b5dca468505}

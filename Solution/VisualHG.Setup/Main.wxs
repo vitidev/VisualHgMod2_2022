@@ -1,58 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef visualhgVersion ?>
-  <?define visualhgVersion=1.0.2 ?>
+  <?define visualhgVersion=1.0.3 ?>
   <?endif ?>
-  <Product Id="*"
-           Name="VisualHG $(var.visualhgVersion)"
-           Language="1033"
-           Version="$(var.visualhgVersion)"
-           Manufacturer="VisualHG Team"
-           UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
+  <Product Id="*" Name="VisualHG $(var.visualhgVersion)" Language="1033" Version="$(var.visualhgVersion)"
+           Manufacturer="VisualHG Team" UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
 
-    <Package Languages="1033"
-             InstallerVersion="300"
-             Compressed="yes"
-             Description="VisualHG is a Visual Studio 2005/2008 source control plugin"
+    <Package Languages="1033" InstallerVersion="300" Compressed="yes" Platform="x86" InstallPrivileges="elevated"
+             Description="VisualHG is a Visual Studio 2008 source control plugin"
              Manufacturer="VisualHG Team"/>
 
     <Property Id="ShortProductName" Value="VisualHG" />
-    <Property Id="ARPCONTACT">VisualHG - users@visualhg.net</Property>
-    <Property Id="ARPURLINFOABOUT">http://www.visualhg.net/</Property>
-    <Property Id="ARPHELPLINK">http://www.visualhg.net/help/</Property>
-    <Property Id="ARPURLUPDATEINFO">http://www.visualhg.net/updates/?currentVersion=$(var.visualhgVersion)</Property>
+    <Property Id="ARPCONTACT">B.Schrader - VisualHG@Live.de</Property>
+    <Property Id="ARPURLINFOABOUT">http://sharesource.org/project/visualhg/wiki/</Property>
+    <Property Id="ARPHELPLINK">http://sharesource.org/project/visualhg/wiki</Property>
+    <Property Id="ARPURLUPDATEINFO">http://sharesource.org/project/visualhg/wiki/</Property>
 
-    <!-- VisualHG 1.0 -->
+    <!-- VisualHG >= 1.0 -->
     <Upgrade Id="DADADA00-ceaf-4019-a2c7-26f15d5b3727">
-      <UpgradeVersion Maximum="$(var.visualhgVersion)" IncludeMaximum="yes" Property="PREVIOUSVERSIONINSTALLED"/>
-      <UpgradeVersion Minimum="$(var.visualhgVersion)" IncludeMinimum="no" OnlyDetect="yes" Property="NEWERVERSIONINSTALLED"/>
+      <UpgradeVersion Property="PREVIOUS_VERSION_INSTALLED" Minimum="0.0.1" Maximum="$(var.visualhgVersion)"
+							IncludeMinimum="yes" IncludeMaximum="no" />
+      <UpgradeVersion Property="EXACT_VERSION_INSTALLED" Minimum="$(var.visualhgVersion)" Maximum="$(var.visualhgVersion)"
+							IncludeMinimum="yes" IncludeMaximum="yes" />
+      <UpgradeVersion Property="NEWER_VERSION_INSTALLED" Minimum="$(var.visualhgVersion)" Maximum="99.0.0.0"
+							IncludeMinimum="no" IncludeMaximum="yes" />
     </Upgrade>
 
     <!-- Error messages -->
     <Property Id="NEWER_VERSION_MSG">Unable to install because a newer version of this product is already installed.</Property>
 
-    <!-- Secure these -->
-    <Property Id="NEWERVERSIONINSTALLED" Secure="yes" />
+    <!-- Error message id's -->
+    <CustomAction Id="ERRCA_CANCEL_NEWER_VERSION" Error="[NEWER_VERSION_MSG]" />
+    <CustomAction Id="ERRCA_CANCEL_EXACT_VERSION" Error="[NEWER_VERSION_MSG]" />
 
     <Media Id="1" Cabinet="VisualHG.cab" EmbedCab="yes" />
 
-    <!-- Errormessages -->
-    <CustomAction Id="ERRCA_CANCEL_NEWER_VERSION" Error="[NEWER_VERSION_MSG]" />
-
-    <!-- Make sure the packages are set up in The VS Environment -->
-    <!--
-    <CustomActionRef Id="VS90Setup"/>
-    <UI>
-      <ProgressText Action="VS2005Setup" Template="[1]">Updating Visual Studio 2005 registration</ProgressText>
-      <ProgressText Action="VS90Setup" Template="[1]">Updating Visual Studio 2008 registration</ProgressText>
-    </UI>
-    -->
-
-    <InstallExecuteSequence>
-      <Custom Action="ERRCA_CANCEL_NEWER_VERSION" After="FindRelatedProducts">NEWERVERSIONINSTALLED</Custom>
-      <RemoveExistingProducts After="InstallInitialize">PREVIOUSVERSIONINSTALLED</RemoveExistingProducts>
-    </InstallExecuteSequence>
-
+    <!-- Secure these -->
+    <Property Id="NEWER_VERSION_INSTALLED" Secure="yes" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLLOCATION" Name="VisualHG">
@@ -61,6 +45,25 @@
         </Directory>
       </Directory>
     </Directory>
+    <!-- Make sure the packages are set up in The VS Environment -->
+    <CustomActionRef Id="VS90Setup"/>
+    <CustomActionRef Id="VS100Setup"/>
+    <UI>
+      <InstallUISequence>
+        <Custom Action="ERRCA_CANCEL_NEWER_VERSION" After="FindRelatedProducts">NEWER_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
+        <Custom Action="ERRCA_CANCEL_EXACT_VERSION" After="ERRCA_CANCEL_NEWER_VERSION">EXACT_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
+      </InstallUISequence>
+      <ProgressText Action="VS90Setup" Template="[1]">Updating Visual Studio 2008 registration</ProgressText>
+      <ProgressText Action="VS100Setup" Template="[1]">Updating Visual Studio 2010 registration</ProgressText>
+    </UI>
+
+    <InstallExecuteSequence>
+      <Custom Action="ERRCA_CANCEL_NEWER_VERSION" After="FindRelatedProducts">NEWER_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
+      <Custom Action="ERRCA_CANCEL_EXACT_VERSION" After="ERRCA_CANCEL_NEWER_VERSION">EXACT_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
+      <RemoveExistingProducts After="InstallInitialize">PREVIOUS_VERSION_INSTALLED&lt;&gt;"" OR EXACT_VERSION_INSTALLED&lt;&gt;""</RemoveExistingProducts>
+    </InstallExecuteSequence>
+
+    <UIRef Id="VisualHGUI"/>
 
     <Feature Id="ProductFeature" Title="VisualHG" Level="1">
       <ComponentGroupRef Id="VisualHG.scc" />
