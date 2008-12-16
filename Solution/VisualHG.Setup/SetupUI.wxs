@@ -42,8 +42,9 @@
         <!-- <Property Id="LicenseForm_NextArgs">FolderForm</Property> -->
         <Property Id="WelcomeForm_InstalledNextArgs">MaintenanceForm</Property>
         <Property Id="ApplicationUsers">AllUsers</Property>
-        <Property Id="LicenseForm_PrevArgs">WelcomeForm</Property>
-        <Property Id="FolderForm_PrevArgs">LicenseForm</Property>
+        <!-- <Property Id="LicenseForm_PrevArgs">WelcomeForm</Property> -->
+        <!-- <Property Id="FolderForm_PrevArgs">LicenseForm</Property> -->
+        <Property Id="FolderForm_PrevArgs">WelcomeForm</Property>
         <Property Id="FolderForm_NextArgs">ConfirmInstallForm</Property>
         <Property Id="ConfirmInstallForm_PrevArgs">FolderForm</Property>
         <Property Id="MaintenanceForm_PrevArgs">WelcomeForm</Property>
@@ -229,6 +230,7 @@ Click Next to continue.</Text>
             </Dialog>
 
 <!-- ******************************************************-->
+            <!-- 
             <Dialog Id="LicenseForm" Width="370" Height="270" Title="[Setup] - [ProductName]"
                 NoMinimize="yes">
                 <Control Id="NextButton" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes"
@@ -274,6 +276,7 @@ terms below, click "I Agree", then "Next". Otherwise click "Cancel"]]></Text>
                 </Control>
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="374" Height="0" />
             </Dialog>
+            -->
 <!-- ******************************************************-->
 
             <Dialog Id="ConfirmInstallForm" Width="370" Height="270" Title="[Setup] - [ProductName]"
