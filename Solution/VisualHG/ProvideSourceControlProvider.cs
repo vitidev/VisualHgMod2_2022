@@ -69,7 +69,7 @@ namespace VisualHG
         public override void Register(RegistrationContext context)
 		{
             // Write to the context's log what we are about to do
-            context.Log.WriteLine(String.Format(CultureInfo.CurrentCulture, "SccProvider:\t\t{0}\n", RegName));
+            context.Log.WriteLine(String.Format(CultureInfo.CurrentCulture, "VisualHG Mercurial Support for Visual Studio:\t\t{0}\n", RegName));
 
             // Declare the source control provider, its name, the provider's service 
             // and aditionally the packages implementing this provider

@@ -199,7 +199,7 @@
   </CommandPlacements>
 
   <Symbols>
-    <GuidSymbol name="guidSccProviderPkg" value="{F3DB741F-B40B-40be-A606-571A4BC653AB}" />
+    <GuidSymbol name="guidSccProviderPkg" value="{DADADA00-348d-4eb9-95f2-de3c44642044}" />
     <GuidSymbol name="guidSccProviderCmdSet" value="{DADADA00-1fd3-4e26-9c1d-c9cb723cea0e}" >
 
       <IDSymbol name="icmdHgCommit" value="0x100"/>

@@ -22,7 +22,7 @@ namespace VisualHG
     // SccProvider
     [MsVsShell.DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
     // Register the package to have information displayed in Help/About dialog box
-    [MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.0", IconResourceID = CommandId.iiconProductIcon)]
+    [MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.0.4", IconResourceID = CommandId.iiconProductIcon)]
     // Declare that resources for the package are to be found in the managed assembly resources, and not in a satellite dll
     [MsVsShell.PackageRegistration(UseManagedResourcesOnly = true)]
     // Register the resource ID of the CTMENU section (generated from compiling the VSCT file), so the IDE will know how to merge this package's menus with the rest of the IDE when "devenv /setup" is run
@@ -48,7 +48,7 @@ namespace VisualHG
     [MsVsShell.ProvideAutoLoad(GuidList.ProviderGuid)]
     // Register the key used for persisting solution properties, so the IDE will know to load the source control package when opening a controlled solution containing properties written by this package
     [ProvideSolutionProps(_strSolutionPersistanceKey)]
-    [MsVsShell.ProvideLoadKey("Standard", PLK.PackageVersion, PLK.PakageName, PLK.CompanyName, 104)]
+    [MsVsShell.ProvideLoadKey(PLK.MinEdition, PLK.PackageVersion, PLK.PakageName, PLK.CompanyName, 104)]
     // Declare the package guid
     [Guid(PLK.PackageGuid)]
     public sealed class SccProvider : MsVsShell.Package, IOleCommandTarget
