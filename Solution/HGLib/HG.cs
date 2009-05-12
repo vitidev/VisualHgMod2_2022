@@ -169,6 +169,32 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
+        // update status dictionary with hg status cmd output
+        // ------------------------------------------------------------------------
+        public static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary)
+        {
+            char prevStatus = ' ';
+            string prevFile = "";
+            foreach (string str in lines)
+            {
+                char status = str[0];
+                string file = rootDirectory + "\\" + str.Substring(2);
+
+                if (status == ' ' && prevStatus == 'A')
+                {
+                    status = 'N';
+                    file = prevFile;
+                }
+
+                fileStatusDictionary[file] = status;
+
+                prevFile = file;
+                prevStatus = status;
+            }
+            return true;
+        }
+
+        // ------------------------------------------------------------------------
         // run a HG root status query and get the resulting status informations to a fileStatusDictionary
         // ------------------------------------------------------------------------
         public static bool QueryRootStatus(string workingDirectory, out string rootDirectory, out Dictionary<string, char> fileStatusDictionary)
@@ -185,24 +211,24 @@ namespace HGLib
                 // Start a new process for the cmd
                 Process process = HG.InvokeCommand(rootDirectory, "status -A");
 
+                List<string> lines = new List<string>();
+
                 string str = "";
                 while (!process.HasExited)
                 {
                     while ((str = process.StandardOutput.ReadLine()) != null)
                     {
-                        char status = str[0];
-                        string file = rootDirectory + "\\" + str.Substring(2);
-                        fileStatusDictionary[file] = status;
+                        lines.Add(str);
                     }
                     Thread.Sleep(0);
                 }
 
                 while ((str = process.StandardOutput.ReadLine()) != null)
                 {
-                    char status = str[0];
-                    string file = rootDirectory + "\\" + str.Substring(2);
-                    fileStatusDictionary[file] = status;
+                    lines.Add(str);
                 }
+
+                UpdateStatusDictionary(lines, rootDirectory, fileStatusDictionary);
             }
             return (fileStatusDictionary != null);
         }
@@ -262,15 +288,7 @@ namespace HGLib
                             List<string> resultList;
                             InvokeCommand(rootDirectory, "status -A " + cmlLine, out resultList);
 
-                            foreach(string line in resultList)
-                            {
-                                char status = line[0];
-                                if (status != ' ')
-                                {
-                                    string file = rootDirectory + "\\" + line.Substring(2);
-                                    fileStatusDictionary[file] = status;
-                                }
-                            }
+                            UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary);
 
                             // reset cmd line and filecounter for the next run
                             cmlLine = "";
