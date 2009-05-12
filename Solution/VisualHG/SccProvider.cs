@@ -276,7 +276,24 @@ namespace VisualHG
 
         private void Exec_icmdHgHistory(object sender, EventArgs e)
         {
-            HGLib.HGTK.LogDialog(GetSolutionFileName());
+            IList<VSITEMSELECTION> selectedNodes;
+            IList<string> list = GetSelectedFiles(out selectedNodes);
+            if (list.Count > 0)
+            {
+                string root = HGLib.HG.FindRootDirectory(list[0]);
+                if (root != string.Empty)
+                {
+                    bool isSolutionSelected = GetSolutionSelected(selectedNodes);
+
+                    string filter = ""; 
+                    if (!isSolutionSelected && list.Count == 1)
+                    {
+                        int startIndex = root.Length + 1;
+                        filter = list[0].Substring(startIndex, list[0].Length - startIndex);
+                    }
+                    HGLib.HGTK.LogDialog(root, filter);
+                }
+            }
         }
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
@@ -386,6 +403,23 @@ namespace VisualHG
         }
 
         /// <summary>
+        /// find out if the selection list contains the soloution itself
+        /// </summary>
+        /// <param name="sel"></param>
+        /// <returns>isSolutionSelected</returns>
+        private bool GetSolutionSelected(IList<VSITEMSELECTION> sel)
+        {
+            foreach (VSITEMSELECTION vsItemSel in sel)
+            {
+                if (vsItemSel.pHier == null ||
+                    (vsItemSel.pHier as IVsSolution) != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+                /// <summary>
         /// Gets the list of selected controllable project hierarchies
         /// </summary>
         /// <returns>True if a solution was created.</returns>
@@ -515,6 +549,37 @@ namespace VisualHG
         }
 
         /// <summary>
+        /// Returns a list of source controllable files in the selection
+        /// </summary>
+        private IList<string> GetSelectedFiles(out IList<VSITEMSELECTION> selectedNodes)
+        {
+            IList<string> sccFiles = new List<string>();
+
+            selectedNodes = GetSelectedNodes();
+
+            // now look in the rest of selection and accumulate scc files
+            foreach (VSITEMSELECTION vsItemSel in selectedNodes)
+            {
+                IVsSccProject2 pscp2 = vsItemSel.pHier as IVsSccProject2;
+                if (pscp2 == null)
+                {
+                    // solution case
+                    sccFiles.Add(GetSolutionFileName());
+                }
+                else
+                {
+                    IList<string> nodefilesrec = GetProjectFiles(pscp2, vsItemSel.itemid);
+                    foreach (string file in nodefilesrec)
+                    {
+                        sccFiles.Add(file);
+                    }
+                }
+            }
+
+            return sccFiles;
+        }
+            
+            /// <summary>
         /// Returns a list of source controllable files in the selection (recursive)
         /// </summary>
         private IList<string> GetSelectedFilesInControlledProjects(out IList<VSITEMSELECTION> selectedNodes)

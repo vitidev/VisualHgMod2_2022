@@ -52,9 +52,12 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // show TortoiseHG log dialog
         // ------------------------------------------------------------------------
-        static public void LogDialog(string directory)
+        static public void LogDialog(string directory, string filter)
         {
-            HGTKDialog(directory, "log");
+            if (filter == string.Empty)
+                HGTKDialog(directory, "log");
+            else
+                HGTKDialog(directory, "log " + filter);
         }
 
         // ------------------------------------------------------------------------
