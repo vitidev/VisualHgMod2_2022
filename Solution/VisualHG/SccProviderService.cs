@@ -536,7 +536,7 @@ namespace VisualHG
         public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
         {
             _sccStatusTracker.EnableRaisingEvents(true); 
-            _sccStatusTracker.AddFiles(rgpszMkDocuments);
+            _sccStatusTracker.AddNotIgnoredFiles(rgpszMkDocuments); 
             return VSConstants.S_OK;
         }
 
