@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef visualhgVersion ?>
-  <?define visualhgVersion=1.0.4 ?>
+  <?define visualhgVersion=1.0.5 ?>
   <?endif ?>
   <Product Id="*" Name="VisualHG $(var.visualhgVersion)" Language="1033" Version="$(var.visualhgVersion)"
            Manufacturer="VisualHG Team" UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
