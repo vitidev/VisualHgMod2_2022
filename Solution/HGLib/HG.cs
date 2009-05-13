@@ -204,7 +204,7 @@ namespace HGLib
             fileStatusDictionary = null;
             rootDirectory = HG.FindRootDirectory(workingDirectory);
 
-            if (rootDirectory != null)
+            if (rootDirectory != string.Empty)
             {
                 fileStatusDictionary = new Dictionary<string, char>();
 

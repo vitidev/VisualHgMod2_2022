@@ -68,6 +68,8 @@ namespace VisualHG
 
         private SccOnIdleEvent _OnIdleEvent = new SccOnIdleEvent();
 
+        public string _LastSeenProjectDir = string.Empty;
+
         public SccProvider()
         {
             Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering constructor for: {0}", this.ToString()));
@@ -271,7 +273,7 @@ namespace VisualHG
 
         private void Exec_icmdHgCommit(object sender, EventArgs e)
         {
-            HGLib.HGTK.CommitDialog(GetSolutionFileName());
+            HGLib.HGTK.CommitDialog(GetRootDirectoryOfSolution());
         }
 
         private void Exec_icmdHgHistory(object sender, EventArgs e)
@@ -285,7 +287,7 @@ namespace VisualHG
                 {
                     bool isSolutionSelected = GetSolutionSelected(selectedNodes);
 
-                    string filter = ""; 
+                    string filter = string.Empty; 
                     if (!isSolutionSelected && list.Count == 1)
                     {
                         int startIndex = root.Length + 1;
@@ -298,17 +300,17 @@ namespace VisualHG
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
         {
-            HGLib.HGTK.StatusDialog(GetSolutionFileName());
+            HGLib.HGTK.StatusDialog(GetRootDirectoryOfSolution());
         }
 
         private void Exec_icmdHgSynchronize(object sender, EventArgs e)
         {
-            HGLib.HGTK.SyncDialog(GetSolutionFileName());
+            HGLib.HGTK.SyncDialog(GetRootDirectoryOfSolution());
         }
 
         private void Exec_icmdHgUpdateToRevision(object sender, EventArgs e)
         {
-            HGLib.HGTK.UpdateDialog(GetSolutionFileName());
+            HGLib.HGTK.UpdateDialog(GetRootDirectoryOfSolution());
         }
         
 
@@ -790,6 +792,27 @@ namespace VisualHG
             }
         }
 
+        /// <summary>
+        /// Returns the root directory of the solution or first project
+        /// </summary>
+        public string GetRootDirectoryOfSolution()
+        {
+            string root = GetSolutionFileName();
+            if(root != null)
+            {
+                root = HGLib.HG.FindRootDirectory(GetSolutionFileName());
+                if (root == string.Empty)
+                {
+                    // this is for WebPage projects. the solution file is not included inside the HG root dir.
+                    if (_LastSeenProjectDir != null)
+                    {
+                        root = HGLib.HG.FindRootDirectory(_LastSeenProjectDir);
+                    }
+                }
+            }
+            return root;
+        }
+                    
         /// <summary>
         /// Returns the filename of the specified controllable project 
         /// </summary>

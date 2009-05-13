@@ -234,7 +234,7 @@ namespace HGLib
         {
             bool retval = false;
             string root = HG.FindRootDirectory(directory);
-            if (root != null)
+            if (root != string.Empty)
             {
                 bool containsDirectory = false;
                 lock (_rootDirWatcherMap)

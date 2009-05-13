@@ -356,6 +356,7 @@ namespace VisualHG
             Trace.WriteLine("OnAfterLoadProject");
 
             _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
+            _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pRealHierarchy);
             return VSConstants.S_OK;
         }
 
@@ -369,8 +370,8 @@ namespace VisualHG
                 string[] files = new string[fileList.Count];
                 fileList.CopyTo(files, 0);
                 // add only files wich are not ignored
-                _sccStatusTracker.AddNotIgnoredFiles(files); 
-                //_sccStatusTracker.AddFiles(files);
+                _sccStatusTracker.AddNotIgnoredFiles(files);
+                _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
             }
 
             _sccStatusTracker.UpdateProject(pHierarchy as IVsSccProject2);
