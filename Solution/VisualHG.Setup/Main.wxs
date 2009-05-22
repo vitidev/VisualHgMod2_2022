@@ -46,15 +46,19 @@
       </Directory>
     </Directory>
     <!-- Make sure the packages are set up in The VS Environment -->
+    <!--
     <CustomActionRef Id="VS90Setup"/>
     <CustomActionRef Id="VS100Setup"/>
+    -->
     <UI>
       <InstallUISequence>
         <Custom Action="ERRCA_CANCEL_NEWER_VERSION" After="FindRelatedProducts">NEWER_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
         <Custom Action="ERRCA_CANCEL_EXACT_VERSION" After="ERRCA_CANCEL_NEWER_VERSION">EXACT_VERSION_INSTALLED&lt;&gt;"" AND NOT Installed</Custom>
       </InstallUISequence>
+      <!--
       <ProgressText Action="VS90Setup" Template="[1]">Updating Visual Studio 2008 registration</ProgressText>
       <ProgressText Action="VS100Setup" Template="[1]">Updating Visual Studio 2010 registration</ProgressText>
+      -->
     </UI>
 
     <InstallExecuteSequence>

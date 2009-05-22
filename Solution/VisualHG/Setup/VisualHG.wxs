@@ -19,6 +19,7 @@
         <Registry Root="HKLM" Key="Software\VisualHG\VisualHG\Installation\1.0" Name="InstallLocation" Value="[INSTALLLOCATION]" Type="string"/>
         <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2005.wxi ?>
         <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2008.wxi ?>
+        <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2010.wxi ?>
       </Component>
     </DirectoryRef>
   </Fragment>
