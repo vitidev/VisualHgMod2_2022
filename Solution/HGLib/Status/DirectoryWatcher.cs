@@ -49,7 +49,7 @@ namespace HGLib
 
             // Add file changed event handler
             _watcher.Changed += new FileSystemEventHandler(OnChanged);
-            _watcher.Created += new FileSystemEventHandler(OnChanged);
+//            _watcher.Created += new FileSystemEventHandler(OnChanged);
             _watcher.Deleted += new FileSystemEventHandler(OnChanged);
             _watcher.Renamed += new RenamedEventHandler(OnRenamedEvent);
 
