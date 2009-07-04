@@ -295,32 +295,26 @@ namespace HGLib
             {
                 for (int pos = 0; pos < oldFileNames.Length; ++pos)
                 {
-                    string fileName = oldFileNames[pos];
-                    if ( fileName.EndsWith("\\") )
-                    {
-                        // this is an dictionary - exclude it
-                    }
-                    else
-                    {
-                        HGFileStatusInfo info;
-                        if (_fileStatusDictionary.TryGetValue(fileName, out info))
-                        {
-                            _fileStatusDictionary.Remove(fileName);
-                            // use the case correct filename for remove command
-                            fileName = info.caseSensitiveFileName;
-                        }
+                    string oFileName = oldFileNames[pos];
+                    string nFileName = newFileNames[pos];
 
-                        oNameList.Add(fileName);
-                        nNameList.Add(newFileNames[pos]);
+                    if (nFileName.EndsWith("\\"))
+                    {
+                        // this is an dictionary - skip it
+                    }
+                    else if (oFileName.ToLower() != nFileName.ToLower())
+                    {
+                        oNameList.Add(oFileName);
+                        nNameList.Add(nFileName);
+                        _fileStatusDictionary.Remove(oFileName);
+                        _fileStatusDictionary.Remove(nFileName);
                     }
                 }
-
-                foreach (var file in newFileNames)
-                    _fileStatusDictionary.Remove(file);
             }
 
             _LocalModifiedTimeStamp = DateTime.Now; // avoid a status requery for the repo after hg.dirstate was changed
-            HG.PropagateFileRenamed(oNameList.ToArray(), nNameList.ToArray(), HandleFileStatusProc);
+            if (oNameList.Count>0)
+                HG.PropagateFileRenamed(oNameList.ToArray(), nNameList.ToArray(), HandleFileStatusProc);
         }
 
         // ------------------------------------------------------------------------

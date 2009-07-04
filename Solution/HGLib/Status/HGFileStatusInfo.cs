@@ -14,7 +14,7 @@ namespace HGLib
         public char state;
         // file size
         public long size;
-        public string caseSensitiveFileName;
+        //public string caseSensitiveFileName;
 
         // init the file props by getting the size and time via FileInfo object
         public HGFileStatusInfo(char state, string fileName)
@@ -26,7 +26,7 @@ namespace HGLib
             {
                 timeStamp = fileInfo.LastWriteTime;
                 size = fileInfo.Length;
-                caseSensitiveFileName = fileName;
+                //caseSensitiveFileName = fileName;
             }
         }
     }

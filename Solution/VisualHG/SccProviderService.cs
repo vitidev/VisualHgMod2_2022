@@ -484,20 +484,6 @@ namespace VisualHG
             Trace.WriteLine("QuerySaveFile");
             Trace.WriteLine("    dir: " + pszMkDocument);
 
-            string fullFileName = Path.GetFullPath(pszMkDocument);
-            HGLib.HGFileStatusInfo info;
-            if (_sccStatusTracker.GetFileStatusInfo(fullFileName, out info))
-            {
-                // check case typing
-                if( Path.GetFileName(info.caseSensitiveFileName) !=
-                    Path.GetFileName(fullFileName) )
-                {
-                    // VS changed the case typing
-                    _sccStatusTracker.PropagateFileRenamed( new string[] { info.caseSensitiveFileName },
-                                                            new string[] { fullFileName });
-                }
-            }
-
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
         }
