@@ -29,19 +29,19 @@ namespace HGLib.Test
             }
         }
 
-        static void UpdateRepo(string dir, string result)
+        static void UpdateRepo(string dir, string expected)
         {
             List<string> resultList;
-            HG.InvokeCommand(dir, "update", out resultList);
+            HG.InvokeCommand(dir, "update -C", out resultList);
             Assert.AreEqual(1, resultList.Count);
-            Assert.AreEqual(resultList[0], result);
+            Assert.AreEqual(expected, resultList[0]);
         }
 
         [ClassInitialize]
         public static void ExtractRepositoryFromResource(TestContext testContext)
         {
             Assert.IsTrue(Utilities.ExtractZipResource(testContext.TestDir + "\\HGCommandsTest", typeof(HGStatusTest), "Resources.simple.hg.zip"));
-            UpdateRepo(testContext.TestDir + "\\HGCommandsTest", "10 files updated, 0 files merged, 0 files removed, 0 files unresolved");
+            UpdateRepo(testContext.TestDir + "\\HGCommandsTest", "11 files updated, 0 files merged, 0 files removed, 0 files unresolved");
         }
 
         [TestMethod]
@@ -71,7 +71,8 @@ namespace HGLib.Test
                 Dictionary<string, char> fileStatusDictionary;
                 Assert.IsTrue(HG.PropagateFileRenamed(onList, nnList, out fileStatusDictionary), "update file renamed");
                 char status = fileStatusDictionary[nName];
-                Assert.AreEqual(status, 'A');
+                Assert.AreEqual(status, 'N'); // internal VisualHG state 'N' for renamed file
+                                              // the hg state is A for added file
 
                 Dictionary<string, char> dictionary;
                 HG.QueryFileStatus(onList, out dictionary);
@@ -124,7 +125,7 @@ namespace HGLib.Test
             string dir = TestContext.TestDir + "\\HGCommandAddFilesTest";
 
             Assert.IsTrue(Utilities.ExtractZipResource(dir, typeof(HGStatusTest), "Resources.simple.hg.zip"));
-            UpdateRepo(dir, "10 files updated, 0 files merged, 0 files removed, 0 files unresolved");
+            UpdateRepo(dir, "11 files updated, 0 files merged, 0 files removed, 0 files unresolved");
 
             // create some new files on disk
             string[] fileList = new string[] { dir + "\\IgnoreFile.cs", dir + "\\NotIgnoredFile.cs" };

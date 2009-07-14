@@ -28,8 +28,8 @@ namespace HGLib
 
                 while (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
-                    char state = (char)reader.PeekChar(); 
-                    reader.BaseStream.Seek(16, SeekOrigin.Current);
+                    char state = (char)reader.ReadChar(); 
+                    reader.BaseStream.Seek(15, SeekOrigin.Current);
                     string s = reader.ReadString();
                     stateMap[s] = state;
                 }

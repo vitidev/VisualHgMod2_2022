@@ -182,7 +182,7 @@ namespace HGLib
 
                 if (status == ' ' && prevStatus == 'A')
                 {
-                    status = 'N';
+                    status = 'N'; // mark with internal VisualHG state 'N' for renamed file
                     file = prevFile;
                 }
 

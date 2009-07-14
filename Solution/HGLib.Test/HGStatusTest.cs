@@ -54,19 +54,19 @@ namespace HGLib.Test
         //
         #endregion
 
-        static void UpdateRepo(string dir, string result)
+        static void UpdateRepo(string dir, string expected)
         {
             List<string> resultList;
-            HG.InvokeCommand(dir, "update", out resultList);
+            HG.InvokeCommand(dir, "update -C", out resultList);
             Assert.AreEqual(1, resultList.Count);
-            Assert.AreEqual(resultList[0], result);
+            Assert.AreEqual(expected,resultList[0]);
         }
 
         [ClassInitialize()]
         public static void ExtractRepositoryFromResource(TestContext testContext)
         {
             Assert.IsTrue(Utilities.ExtractZipResource(testContext.TestDir + "\\HGStatus", typeof(HGStatusTest), "Resources.simple.hg.zip"));
-            UpdateRepo(testContext.TestDir + "\\HGStatus", "10 files updated, 0 files merged, 0 files removed, 0 files unresolved");
+            UpdateRepo(testContext.TestDir + "\\HGStatus", "11 files updated, 0 files merged, 0 files removed, 0 files unresolved");
         }
 
         [TestMethod]
@@ -85,10 +85,10 @@ namespace HGLib.Test
             {
                 File.Move(oName, nName);
                 hgStatus.PropagateFileRenamed(onList, nnList);
-                System.Threading.Thread.Sleep(400); // time for async task
+                System.Threading.Thread.Sleep(1000); // time for async task
 
                 SourceControlStatus nStatus = hgStatus.GetFileStatus(nName);
-                Assert.AreEqual(nStatus, SourceControlStatus.scsAdded);
+                Assert.AreEqual(nStatus, SourceControlStatus.scsRenamed);
 
                 Dictionary<string, char> dictionary;
                 HG.QueryFileStatus(onList, out dictionary);
@@ -99,7 +99,7 @@ namespace HGLib.Test
             {
                 File.Move(nName, oName);
                 hgStatus.PropagateFileRenamed(nnList, onList);
-                System.Threading.Thread.Sleep(400); // time for async task
+                System.Threading.Thread.Sleep(1000); // time for async task
 
                 SourceControlStatus oStatus = hgStatus.GetFileStatus(oName);
                 Assert.AreEqual(oStatus, SourceControlStatus.scsControlled);
@@ -120,13 +120,13 @@ namespace HGLib.Test
 
             HGStatus hgStatus = new HGStatus();
             hgStatus.AddRootDirectory(HG.FindRootDirectory(rName));
-            System.Threading.Thread.Sleep(200); // time for rquery repo
+            System.Threading.Thread.Sleep(1000); // time for rquery repo
 
             // remove file
             {
                 File.Delete(rName);
                 hgStatus.PropagateFilesRemoved(fileList);
-                System.Threading.Thread.Sleep(400); // time for async task
+                System.Threading.Thread.Sleep(1000); // time for async task
 
                 SourceControlStatus rStatus = hgStatus.GetFileStatus(rName);
                 Assert.AreEqual(rStatus, SourceControlStatus.scsRemoved);
