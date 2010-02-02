@@ -71,6 +71,26 @@ namespace HGLib
             }
         }
 
+         // ------------------------------------------------------------------------
+         /// get root dir of the given file name if already exists or string.empty
+         // ------------------------------------------------------------------------
+         public string LookupRootDirectoryOf(string path)
+         {
+             lock (dict)
+             {
+                 path = path.ToLower();
+                 foreach (string rootdir in dict.Keys)
+                 {
+                     if (path.IndexOf(rootdir) == 0)
+                     {
+                         return rootdir;
+                     }
+                 }
+             }
+
+             return String.Empty;
+         }
+
         // ------------------------------------------------------------------------
         /// create new directory watcher for the given directory 
         // ------------------------------------------------------------------------

@@ -138,7 +138,7 @@ namespace HGLib
                 // is not a root dir or the directory does not exists
                 Trace.WriteLine("HG.FindRootDirectory " + ex.Message);
             }
-            return "";
+            return string.Empty;
         }
 
         // ------------------------------------------------------------------------
@@ -150,16 +150,15 @@ namespace HGLib
         // run a async HG root status query and get the resulting status informations
         // to a fileStatusDictionary or callback method
         // ------------------------------------------------------------------------
-        static public void QueryRootStatus(string workingDirectory, HandleFileStatusProc handleFileStatusProc)
+        static public void QueryRootStatus(string rootDirectory, HandleFileStatusProc handleFileStatusProc)
         {
             SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
 
             ThreadPool.QueueUserWorkItem(o =>
             {
-                string rootDirectory;
                 Dictionary<string, char> fileStatusDictionary;
 
-                if (HG.QueryRootStatus(workingDirectory, out rootDirectory, out fileStatusDictionary))
+                if (HG.QueryRootStatus(rootDirectory, out fileStatusDictionary))
                 {
                     // notify the callee
                     if (handleFileStatusProc != null)
@@ -197,13 +196,12 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // run a HG root status query and get the resulting status informations to a fileStatusDictionary
         // ------------------------------------------------------------------------
-        public static bool QueryRootStatus(string workingDirectory, out string rootDirectory, out Dictionary<string, char> fileStatusDictionary)
+        public static bool QueryRootStatus(string rootDirectory, out Dictionary<string, char> fileStatusDictionary)
         {
             Trace.WriteLine("Start QueryRootStatus");
 
             fileStatusDictionary = null;
-            rootDirectory = HG.FindRootDirectory(workingDirectory);
-
+            
             if (rootDirectory != string.Empty)
             {
                 fileStatusDictionary = new Dictionary<string, char>();
@@ -264,7 +262,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // query the files status and get them to the fileStatusDictionary
         // ------------------------------------------------------------------------
-        static public bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        static public bool QueryFileStatus(string[] fileList, DirectoryWatcherMap rootDirectoryMap, out Dictionary<string, char> fileStatusDictionary)
         {
             fileStatusDictionary = new Dictionary<string, char>();
             try
@@ -273,7 +271,11 @@ namespace HGLib
                 {
                     string rootFile = fileList[0];
                     string directory = rootFile.Substring(0, rootFile.LastIndexOf('\\'));
-                    string rootDirectory = HG.FindRootDirectory(directory);
+                    string rootDirectory;
+                    if(rootDirectoryMap != null)
+                        rootDirectory = rootDirectoryMap.LookupRootDirectoryOf(directory);
+                    else
+                        rootDirectory = HG.FindRootDirectory(directory);
 
                     // limit the number of files per call to avois inputbuffer overflows
                     string cmlLine = "";
@@ -305,6 +307,12 @@ namespace HGLib
 
             return (fileStatusDictionary != null);
         }
+        
+        static public bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        {
+            return QueryFileStatus(fileList, null, out fileStatusDictionary);
+        }
+
         #endregion QueryFileStatusCmd
 
 

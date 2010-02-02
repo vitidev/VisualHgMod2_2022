@@ -23,6 +23,7 @@ namespace VisualHG
         IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
         IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
         IVsSccGlyphs,
+        IVsUpdateSolutionEvents,
         IDisposable
     {
         // Whether the provider is active or not
@@ -35,6 +36,8 @@ namespace VisualHG
         private uint _tpdTrackProjectDocumentsCookie;
         // solution file status cache
         HGStatusTracker _sccStatusTracker = new HGStatusTracker();
+        // service.advise IVsUpdateSolutionEvents cooky
+        uint _dwBuildManagerCooky = 0;
 
         // DirtyNodesGlyphs update flag
         bool _bNodesGlyphsDirty = true;
@@ -61,6 +64,9 @@ namespace VisualHG
 
             // Subscribe to status events
             _sccStatusTracker.HGStatusChanged += new HGLib.HGStatusChangedEvent(SetNodesGlyphsDirty);
+
+            IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+            buildManagerService.AdviseUpdateSolutionEvents(this, out _dwBuildManagerCooky);
         }
 
         public void Dispose()
@@ -83,6 +89,9 @@ namespace VisualHG
 
             // Unregister from storrage events
             _sccStatusTracker.HGStatusChanged -= new HGLib.HGStatusChangedEvent(RefreshNodesGlyphs);
+
+            IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+            buildManagerService.UnadviseUpdateSolutionEvents(_dwBuildManagerCooky);
         }
 
         #endregion
@@ -347,6 +356,8 @@ namespace VisualHG
 
         public int OnAfterCloseSolution([InAttribute] Object pUnkReserved)
         {
+            Trace.WriteLine("OnAfterCloseSolution"); 
+            
             _sccStatusTracker.ClearStatusCache();
             return VSConstants.S_OK;
         }
@@ -692,6 +703,42 @@ namespace VisualHG
             }
 
             _sccProvider.RefreshNodesGlyphs(nodes);
+        }
+
+        #endregion
+
+        #region IVsUpdateSolutionEvents Members
+
+        public int OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
+        {
+            return VSConstants.E_NOTIMPL;
+        }
+
+        public int UpdateSolution_Begin(ref int pfCancelUpdate)
+        {
+            return VSConstants.E_NOTIMPL;
+        }
+
+        public int UpdateSolution_Cancel()
+        {
+            return VSConstants.E_NOTIMPL;
+        }
+
+        public int UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
+        {
+            Trace.WriteLine("UpdateSolution_Done"); 
+            
+            _sccStatusTracker.UpdateSolution_Done();
+            return VSConstants.E_NOTIMPL;
+
+        }
+
+        public int UpdateSolution_StartUpdate(ref int pfCancelUpdate)
+        {
+            Trace.WriteLine("UpdateSolution_StartUpdate"); 
+
+            _sccStatusTracker.UpdateSolution_StartUpdate();
+            return VSConstants.E_NOTIMPL;
         }
 
         #endregion

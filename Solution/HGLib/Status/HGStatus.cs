@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
+using System.Timers;
 
 namespace HGLib
 {
@@ -50,7 +51,10 @@ namespace HGLib
         DirectoryWatcherMap _rootDirWatcherMap = new DirectoryWatcherMap();
 
         // trigger thread to observe and assimilate the directory watcher changed file dictionaries
-        System.Threading.Timer _timerDirectoryStatusChecker;
+        System.Timers.Timer _timerDirectoryStatusChecker;
+
+        // build process is active
+        volatile bool _IsSolutionBuilding = false;
         
         // synchronize to WindowsForms context
         SynchronizationContext _context;
@@ -63,12 +67,12 @@ namespace HGLib
 
         // max allowed time diff between _LocalModifiedTimeStamp and dirstate changed timestamp.
         // _bRebuildStatusCacheRequred will be set to true when exceeding
-        public int _MaxDiffToDirstateChangeMS = 3000;
+        volatile int _MaxDiffToDirstateChangeMS = 3000;
 
         // wait dead time for cache rebild action. this time must be gone without ocuring any
         // file changed events before rebuild status will start. _bRebuildStatusCacheRequred
         // flag is set to false then.
-        public int _DeadTimeIntervalForRebuildStatusCacheMS = 1000;
+        volatile int _DeadTimeIntervalForRebuildStatusCacheMS = 1000;
 
         // status cache is dirty and must be complete reloaded
         volatile bool _bRebuildStatusCacheRequred = false;
@@ -233,22 +237,16 @@ namespace HGLib
         public bool AddRootDirectory(string directory)
         {
             bool retval = false;
-            string root = HG.FindRootDirectory(directory);
-            if (root != string.Empty)
+            string root = _rootDirWatcherMap.LookupRootDirectoryOf(directory);
+            if (root == string.Empty)
             {
-                bool containsDirectory = false;
-                lock (_rootDirWatcherMap)
+                root = HG.FindRootDirectory(directory);
+                if (root != string.Empty)
                 {
-                    containsDirectory = _rootDirWatcherMap.ContainsDirectory(root);
-                    if (containsDirectory == false)
+                    if (_rootDirWatcherMap.AddDirectory(root))
                     {
-                        retval = _rootDirWatcherMap.AddDirectory(root);
+                        HG.QueryRootStatus(directory, QueryRootStatusCallBack);
                     }
-                }
-
-                if (retval && containsDirectory == false)
-                {
-                    HG.QueryRootStatus(directory, QueryRootStatusCallBack);
                 }
             }
             
@@ -379,22 +377,28 @@ namespace HGLib
 
             _bRebuildStatusCacheRequred = false;
             _LocalModifiedTimeStamp = DateTime.Now;
-
+            
+            HGFileStatusInfoDictionary newFileStatusDictionary = new HGFileStatusInfoDictionary();
             foreach (var directoryWatcher in _rootDirWatcherMap.WatcherList)
             {
                 // reset the watcher map
                 directoryWatcher.Value.PopDirtyFilesMap();
 
-                string rootDirectory;
-                Dictionary<string, char> fileStatusDictionary;
-                if (HG.QueryRootStatus(directoryWatcher.Value._directory, out rootDirectory, out fileStatusDictionary))
+                string rootDirectory = _rootDirWatcherMap.LookupRootDirectoryOf(directoryWatcher.Value._directory);
+                if (rootDirectory != string.Empty)
                 {
-                    Trace.WriteLine("RebuildStatusCache - number of files: " + fileStatusDictionary.Count.ToString());
-                    lock (_fileStatusDictionary)
+                    Dictionary<string, char> fileStatusDictionary;
+                    if (HG.QueryRootStatus(rootDirectory, out fileStatusDictionary))
                     {
-                        _fileStatusDictionary.Add(fileStatusDictionary);
+                        Trace.WriteLine("RebuildStatusCache - number of files: " + fileStatusDictionary.Count.ToString());
+                        newFileStatusDictionary.Add(fileStatusDictionary);
                     }
                 }
+            }
+
+            lock (_fileStatusDictionary)
+            {
+                _fileStatusDictionary = newFileStatusDictionary;
             }
         }
 
@@ -408,18 +412,31 @@ namespace HGLib
         // ------------------------------------------------------------------------
         void StartDirectoryStatusChecker()
         {
-            _timerDirectoryStatusChecker = new System.Threading.Timer(
-                new TimerCallback(DirectoryStatusCheckerProc),
-                new AutoResetEvent(true),
-                5000, 100);
+            _timerDirectoryStatusChecker = new System.Timers.Timer();
+            _timerDirectoryStatusChecker.Elapsed += new ElapsedEventHandler(DirectoryStatusCheckerProc);
+            _timerDirectoryStatusChecker.AutoReset = false;
+            _timerDirectoryStatusChecker.Interval = 300;
+            _timerDirectoryStatusChecker.Enabled  = true;
         }
 
+        public void UpdateSolution_StartUpdate()
+        {
+            _IsSolutionBuilding = true;
+            _timerDirectoryStatusChecker.Enabled = false;
+        }
+
+        public void UpdateSolution_Done()
+        {
+            _IsSolutionBuilding = false;
+            _timerDirectoryStatusChecker.Enabled = true;
+        }
+            
         // ------------------------------------------------------------------------
         // async proc to assimilate the directory watcher state dictionaries
         // ------------------------------------------------------------------------
-        void DirectoryStatusCheckerProc(Object stateInfo)
+        void DirectoryStatusCheckerProc(object source, ElapsedEventArgs e)
         {
-            lock (this)
+            if (!_IsSolutionBuilding)
             {
                 long numberOfControlledFiles = 0;
                 lock (_fileStatusDictionary)
@@ -466,6 +483,9 @@ namespace HGLib
                     FireStatusChanged(_context);
                 }
             }
+
+            if (!_IsSolutionBuilding)
+                _timerDirectoryStatusChecker.Enabled = true;
         }
 
         // ------------------------------------------------------------------------
@@ -567,7 +587,7 @@ namespace HGLib
                 {
                     Dictionary<string, char> fileStatusDictionary;
                     SetLocalModified(); 
-                    if (HG.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
+                    if (HG.QueryFileStatus(fileList.ToArray(), _rootDirWatcherMap, out fileStatusDictionary))
                     {
                         Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
                         lock (_fileStatusDictionary)
