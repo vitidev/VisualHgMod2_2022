@@ -22,7 +22,7 @@ namespace VisualHG
     // SccProvider
     [MsVsShell.DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
     // Register the package to have information displayed in Help/About dialog box
-    [MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.0.6", IconResourceID = CommandId.iiconProductIcon)]
+    [MsVsShell.InstalledProductRegistration(false, "#100", "#101", "1.0.7", IconResourceID = CommandId.iiconProductIcon)]
     // Declare that resources for the package are to be found in the managed assembly resources, and not in a satellite dll
     [MsVsShell.PackageRegistration(UseManagedResourcesOnly = true)]
     // Register the resource ID of the CTMENU section (generated from compiling the VSCT file), so the IDE will know how to merge this package's menus with the rest of the IDE when "devenv /setup" is run
