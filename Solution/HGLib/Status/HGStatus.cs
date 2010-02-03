@@ -41,9 +41,6 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public event HGStatusChangedEvent HGStatusChanged;
 
-        // projects to project directory mapmap
-        Dictionary<string, string> _projectMap = new Dictionary<string, string>();
-        
         // file status cache
         HGFileStatusInfoDictionary _fileStatusDictionary = new HGFileStatusInfoDictionary();
         
@@ -206,13 +203,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public bool UpdateProject(string project, string projectDirectory)
         {
-            bool retval = true;
-            if (!_projectMap.ContainsKey(project))
-            {
-                _projectMap.Add(project, projectDirectory);
-                retval = AddRootDirectory(projectDirectory);
-            }
-            return retval;
+            return AddRootDirectory(projectDirectory);
         }
 
         // ------------------------------------------------------------------------
@@ -236,7 +227,9 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public bool AddRootDirectory(string directory)
         {
-            bool retval = false;
+            if (directory == string.Empty)
+                return false;
+
             string root = _rootDirWatcherMap.LookupRootDirectoryOf(directory);
             if (root == string.Empty)
             {
@@ -245,12 +238,12 @@ namespace HGLib
                 {
                     if (_rootDirWatcherMap.AddDirectory(root))
                     {
-                        HG.QueryRootStatus(directory, QueryRootStatusCallBack);
+                        HG.QueryRootStatus(root, QueryRootStatusCallBack);
                     }
                 }
             }
             
-            return retval;
+            return true;
         }
 
         // ------------------------------------------------------------------------
@@ -356,10 +349,6 @@ namespace HGLib
                 _rootDirWatcherMap.Clear();
             }
 
-            lock (_projectMap)
-            {
-                _projectMap.Clear();
-            }
             lock (_fileStatusDictionary)
             {
                 _fileStatusDictionary.Clear();

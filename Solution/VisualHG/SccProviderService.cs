@@ -88,7 +88,7 @@ namespace VisualHG
             }
 
             // Unregister from storrage events
-            _sccStatusTracker.HGStatusChanged -= new HGLib.HGStatusChangedEvent(RefreshNodesGlyphs);
+            _sccStatusTracker.HGStatusChanged -= new HGLib.HGStatusChangedEvent(SetNodesGlyphsDirty);
 
             IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManagerService.UnadviseUpdateSolutionEvents(_dwBuildManagerCooky);
