@@ -33,7 +33,7 @@ namespace HGLib
             Process process = new Process();
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardError = false;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = "HG.exe";
             process.StartInfo.Arguments = arguments;
