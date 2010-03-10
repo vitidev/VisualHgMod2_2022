@@ -797,8 +797,16 @@ namespace VisualHG
         /// </summary>
         public string GetRootDirectoryOfSolution()
         {
-            string root = GetSolutionFileName();
-            if(root != null)
+            string root = string.Empty;
+
+            IList<VSITEMSELECTION> selectedNodes;
+            IList<string> list = GetSelectedFiles(out selectedNodes);
+            if (list.Count > 0)
+            {
+                root = HGLib.HG.FindRootDirectory(list[0]);
+            }
+
+            if (root == string.Empty)
             {
                 root = HGLib.HG.FindRootDirectory(GetSolutionFileName());
                 if (root == string.Empty)
@@ -810,6 +818,7 @@ namespace VisualHG
                     }
                 }
             }
+
             return root;
         }
                     
