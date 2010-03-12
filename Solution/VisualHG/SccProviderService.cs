@@ -312,15 +312,37 @@ namespace VisualHG
             HGLib.SourceControlStatus status = _sccStatusTracker.GetFileStatus(files[0]);
             switch (status)
             {
-//TODO implement meaningful stuff here
-//                case HGLib.SourceControlStatus.scsCheckedIn:
-//                    pbstrTooltipText = Resources.ResourceManager.GetString("Status_CheckedIn");
-//                    break;
-//                case HGLib.SourceControlStatus.scsCheckedOut:
-//                    pbstrTooltipText = Resources.ResourceManager.GetString("Status_CheckedOut");
-//                    break;
+              // my states
+              case HGLib.SourceControlStatus.scsControlled:
+                pbstrTooltipText = "Controlled";
+                break;
+
+              case HGLib.SourceControlStatus.scsModified:
+                pbstrTooltipText = "Modified";
+                break;
+
+              case HGLib.SourceControlStatus.scsAdded:
+                pbstrTooltipText = "Added";
+                break;
+
+              case HGLib.SourceControlStatus.scsRenamed:
+                pbstrTooltipText = "Renamed";
+                break;
+
+              case HGLib.SourceControlStatus.scsRemoved:
+                pbstrTooltipText = "Removed";
+                break;
+
+              case HGLib.SourceControlStatus.scsIgnored:
+                pbstrTooltipText = "Ignored";
+                break;
+
+              case HGLib.SourceControlStatus.scsUncontrolled:
+                pbstrTooltipText = "Uncontrolled";
+                break;
+
                 default:
-                    pbstrTooltipText = Resources.ResourceManager.GetString("Status_PendingAdd");
+                    pbstrTooltipText = "";
                     break;
             }
 

@@ -239,6 +239,7 @@ namespace HGLib
                     if (_rootDirWatcherMap.AddDirectory(root))
                     {
                         HG.QueryRootStatus(root, QueryRootStatusCallBack);
+                        SetCacheDirty();
                     }
                 }
             }
