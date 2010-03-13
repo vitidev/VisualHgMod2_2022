@@ -235,11 +235,11 @@ namespace VisualHG
                     break;
 
                 case HGLib.SourceControlStatus.scsRenamed:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 2);
+                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
                     break;
 
                 case HGLib.SourceControlStatus.scsRemoved:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
+                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
 
                 case HGLib.SourceControlStatus.scsIgnored:
