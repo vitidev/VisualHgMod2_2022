@@ -314,7 +314,7 @@ namespace VisualHG
             {
               // my states
               case HGLib.SourceControlStatus.scsControlled:
-                pbstrTooltipText = "Controlled";
+                pbstrTooltipText = "Clean";
                 break;
 
               case HGLib.SourceControlStatus.scsModified:
@@ -362,7 +362,7 @@ namespace VisualHG
             
             if (!Active)
             {
-                /*string root = HGLib.HG.FindRootDirectory(_sccProvider.GetSolutionFileName());
+                /*string root = HGLib.HG.LookupRootDirectory(_sccProvider.GetSolutionFileName());
                 if (root.Length > 0)
                 {
                     IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)_sccProvider.GetService(typeof(IVsRegisterScciProvider));
@@ -370,16 +370,16 @@ namespace VisualHG
                     {
                         rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
                     }
-                }*/
+                }
+                */
             }
-
             return VSConstants.S_OK;
         }
 
         public int OnAfterCloseSolution([InAttribute] Object pUnkReserved)
         {
-            Trace.WriteLine("OnAfterCloseSolution"); 
-            
+            Trace.WriteLine("OnAfterCloseSolution");
+
             _sccStatusTracker.ClearStatusCache();
             return VSConstants.S_OK;
         }
@@ -390,6 +390,7 @@ namespace VisualHG
 
             _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pRealHierarchy);
+
             return VSConstants.S_OK;
         }
 

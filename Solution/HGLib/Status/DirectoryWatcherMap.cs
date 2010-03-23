@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace HGLib
 {
@@ -71,30 +72,10 @@ namespace HGLib
             }
         }
 
-         // ------------------------------------------------------------------------
-         /// get root dir of the given file name if already exists or string.empty
-         // ------------------------------------------------------------------------
-         public string LookupRootDirectoryOf(string path)
-         {
-             lock (dict)
-             {
-                 path = path.ToLower();
-                 foreach (string rootdir in dict.Keys)
-                 {
-                     if (path.IndexOf(rootdir) == 0)
-                     {
-                         return rootdir;
-                     }
-                 }
-             }
-
-             return String.Empty;
-         }
-
         // ------------------------------------------------------------------------
-        /// create new directory watcher for the given directory 
+        /// update watcher objects for the given directory 
         // ------------------------------------------------------------------------
-        public bool AddDirectory(string directory)
+        public bool WatchDirectory(string directory)
         {
             bool retval = DirectoryWatcher.DirectoryExists(directory);
             if (retval)
@@ -105,9 +86,32 @@ namespace HGLib
                     DirectoryWatcher value;
                     if (!dict.TryGetValue(key, out value))
                     {
-                        dict[key] = new DirectoryWatcher(directory);
+                        bool addNewWatcher = true;
+                        List<DirectoryWatcher> removeWatcher = new List<DirectoryWatcher>();
+                        string directorySlash = directory + "\\";
+                        foreach (DirectoryWatcher watcher in dict.Values)
+                        {
+                            string watcherDirectorySlash = watcher._directory + "\\";
+                            if (watcherDirectorySlash.IndexOf(directorySlash) == 0)
+                                removeWatcher.Add(watcher); // sub-directory of new watcher
+                            else if (directorySlash.IndexOf(watcherDirectorySlash) == 0)
+                                addNewWatcher = false; // directory already watched
+                        }
+
+                        if (addNewWatcher)
+                        {
+                            // remove no longer used watcher objects
+                            for (int pos = 0; pos < removeWatcher.Count; ++pos)
+                            {
+                                DirectoryWatcher watcher = removeWatcher[pos];
+                                dict.Remove(watcher._directory);
+                                watcher.EnableRaisingEvents(false);
+                                watcher = null;
+                            }
+
+                            dict[directory] = new DirectoryWatcher(directory);
+                        }
                     }
-                    retval = true;
                 }
             }
             return retval;
