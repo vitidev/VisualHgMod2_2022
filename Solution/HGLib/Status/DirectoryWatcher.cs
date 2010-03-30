@@ -35,7 +35,6 @@ namespace HGLib
 
             _watcher.Path = directory;
             _watcher.IncludeSubdirectories = true;
-            //_fileSystemWatcher.Filter = m_filter.Text;
             _watcher.NotifyFilter =
                             NotifyFilters.FileName
                             | NotifyFilters.Attributes
@@ -104,42 +103,26 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // filter the changed file name
-        // ------------------------------------------------------------------------
-        static bool Filter(string fullPath, Dictionary<string, bool> extensionWhiteList)
-        {
-            int index = fullPath.LastIndexOf('\\');
-            if (index != -1 )
-            {
-                string fileName = fullPath.Substring(index + 1).ToLower();
-
-                index = fileName.LastIndexOf('.');
-                if (index > 0)
-                {
-                    if (fileName.Contains("csproj.filelistabsolute.txt"))
-                    {
-                        return false;
-                    }
-
-                    string extension = fileName.Substring(index + 1).ToLower();
-                    if (extensionWhiteList.ContainsKey(extension))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // ------------------------------------------------------------------------
         // file changed event received from directory watcher object
         // ------------------------------------------------------------------------
         void OnChanged(object source, FileSystemEventArgs fsea)
         {
+            // skip MSVC temp files - because these files may lock HG.exe when
+            // a status is queried for one of these and MSCV removes it at the
+            // same moment
+            if( fsea.FullPath.EndsWith(".TMP") || fsea.FullPath.EndsWith(".tmp") )
+            {
+                if(fsea.FullPath.IndexOf("~RF")>=0 ||  fsea.FullPath.IndexOf("\\ve-")>=0)
+                {
+                    return;
+                }
+            }
+            
             lock (_dirtyFilesMap)
             {
                 _dirtyFilesMap[fsea.FullPath] = true;
             }
+            
             LastChangeEvent = DateTime.Now;
         }
 
