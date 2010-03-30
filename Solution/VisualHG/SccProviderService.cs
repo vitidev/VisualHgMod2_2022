@@ -561,8 +561,8 @@ namespace VisualHG
             if (info == null || info.state == '?')
             {
                 _sccStatusTracker.AddNotIgnoredFiles(rgpszMkDocuments);
-                _sccStatusTracker.EnableRaisingEvents(true);
-            } 
+            }
+            _sccStatusTracker.EnableRaisingEvents(true);
             return VSConstants.S_OK;
         }
 
