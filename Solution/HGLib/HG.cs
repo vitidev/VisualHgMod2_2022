@@ -148,12 +148,12 @@ namespace HGLib
         {
             path = path.ToLower();
 
-            if (!path.EndsWith("\\"))
+            if (path.EndsWith("\\"))
                 path = path.Substring(0, path.Length - 1);
 
             while (path.Length > 0)
             {
-                if (File.Exists(path + "\\.hg\\dirstate"))
+              if (File.Exists(path + "\\.hg\\thgstatus"))
                     return path;
 
                 int index = path.LastIndexOf('\\');
