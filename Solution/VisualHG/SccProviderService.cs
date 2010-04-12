@@ -607,7 +607,9 @@ namespace VisualHG
             if (rgpProjects == null || rgpszMkDocuments == null)
                 return VSConstants.E_POINTER;
 
-            _sccStatusTracker.PropagateFilesRemoved(rgpszMkDocuments);
+            if (!File.Exists(rgpszMkDocuments[0])) // PropagateFilesRemoved only if the file was actually removed
+                _sccStatusTracker.PropagateFilesRemoved(rgpszMkDocuments);
+                
             return VSConstants.S_OK;
         }
 
