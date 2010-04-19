@@ -305,7 +305,7 @@ namespace HGLib
                         cmlLine += " \"" + fileList[iFile].Substring(rootDirectory.Length+1) + "\" ";
                         fileCounter++;
 
-                        if (fileCounter >= 150 || (fileList.Length == iFile + 1))
+                        if (cmlLine.Length>=(2048)|| (fileList.Length == iFile + 1))
                         {
                             List<string> resultList;
                             InvokeCommand(rootDirectory, "status -A " + cmlLine, out resultList);
