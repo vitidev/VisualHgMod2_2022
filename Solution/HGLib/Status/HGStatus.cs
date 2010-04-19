@@ -47,6 +47,9 @@ namespace HGLib
         // directory watcher map - one for each main directory
         DirectoryWatcherMap _directoryWatcherMap = new DirectoryWatcherMap();
 
+        // queued user commands or events from the IDE
+        WorkItemQueue _workItemQueue = new WorkItemQueue();
+        
         // HG repo root directories - also SubRepo dirs
         Dictionary<string,bool> _rootDirMap = new Dictionary<string, bool>();
 
@@ -54,31 +57,24 @@ namespace HGLib
         System.Timers.Timer _timerDirectoryStatusChecker;
 
         // build process is active
-        volatile bool _IsSolutionBuilding = false;
+        volatile bool       _IsSolutionBuilding = false;
         
         // synchronize to WindowsForms context
         SynchronizationContext _context;
 
         // Flag to avoid to much rebuild action when .HG\dirstate was changed.
-        // Extenal changes of the dirstate file results definitely in cache rebuild
-        // action, changes caused by ourself should not. To differ an external
-        // from a local change we track a timstamp for our repo modifications.
-        DateTime _LocalModifiedTimeStamp = DateTime.Today;
+        // Extenal changes of the dirstate file results definitely in cache rebuild.
+        // Changes caused by ourself should not.
+        bool         _SkipDirstate = false;
 
-        // max allowed time diff between _LocalModifiedTimeStamp and dirstate changed timestamp.
-        // _bRebuildStatusCacheRequred will be set to true when exceeding
-        volatile int _MaxDiffToDirstateChangeMS = 3000;
+        // min elapsed time before cache rebild trigger.
+        volatile int _MinElapsedTimeForStatusCacheRebuildMS = 1000;
 
-        // wait dead time for cache rebild action. this time must be gone without ocuring any
-        // file changed events before rebuild status will start. _bRebuildStatusCacheRequred
-        // flag is set to false then.
-        volatile int _TimeIntervalForRebuildStatusCacheMS = 1000;
-
-        // status cache is dirty and must be complete reloaded
-        volatile bool _bRebuildStatusCacheRequred = false;
+        // complete cache rebuild is required
+        volatile bool _bRebuildStatusCacheRequired = false;
 
         // ------------------------------------------------------------------------
-        // init objects and activate the watcher
+        // init objects and starts the directory watcher
         // ------------------------------------------------------------------------
         public HGStatus()
         {
@@ -86,21 +82,32 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // avoid a status requery after hg.dirstate was changed by
-        // using this timestamp
+        // skip / enable dirstate file changes
         // ------------------------------------------------------------------------
-        public void SetDirstateModifiedTimeStamp()
+        public void SkipDirstate(bool skip)
         {
-            _LocalModifiedTimeStamp = DateTime.Now;            
+            _SkipDirstate = skip;            
         }
+        
         // ------------------------------------------------------------------------
         // toggle directory watching on / off
         // ------------------------------------------------------------------------
-        public void EnableRaisingEvents(bool enable)
+        public void EnableDirectoryWatching(bool enable)
         {
-            _directoryWatcherMap.EnableRaisingEvents(enable);
+            _directoryWatcherMap.EnableDirectoryWatching(enable);
         }
-        
+
+        // ------------------------------------------------------------------------
+        // add one work item to work queue
+        // ------------------------------------------------------------------------
+        public void AddWorkItem(IHGWorkItem workItem)
+        {
+            lock (_workItemQueue)
+            {
+                _workItemQueue.Enqueue(workItem);
+            }    
+        }
+
         // ------------------------------------------------------------------------
         // GetFileStatus info for the given filename
         // ------------------------------------------------------------------------
@@ -163,34 +170,6 @@ namespace HGLib
             }
         }
 
-        // ------------------------------------------------------------------------
-        // async query callback
-        // ------------------------------------------------------------------------
-        void QueryRootStatusCallBack(string rootDirectory, Dictionary<string, char> fileStatusDictionary, SynchronizationContext context)
-        {
-            lock (_fileStatusDictionary)
-            {
-                _fileStatusDictionary.Add(fileStatusDictionary);
-            }
-
-            // notify calling thread
-            FireStatusChanged(context);
-        }
-
-        // ------------------------------------------------------------------------
-        // async query callback
-        // ------------------------------------------------------------------------
-        void HandleFileStatusProc(string rootDirectory, Dictionary<string, char> fileStatusDictionary, SynchronizationContext context)
-        {
-            lock (_fileStatusDictionary)
-            {
-                _fileStatusDictionary.Add(fileStatusDictionary);
-            }
-            
-            // notify calling thread
-            FireStatusChanged(context);
-        }
-
         public bool AnyItemsUnderSourceControl()
         {
             return (_directoryWatcherMap.Count > 0);
@@ -201,31 +180,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public void SetCacheDirty()
         {
-            _bRebuildStatusCacheRequred = true;
-        }
-
-        // ------------------------------------------------------------------------
-        // adds the given project/directory if not exsist. The status of the files
-        // contining in the directory will be scanned by a QueryRootStatus call.
-        // ------------------------------------------------------------------------
-        public bool UpdateProject(string project, string projectDirectory)
-        {
-            return AddRootDirectory(projectDirectory);
-        }
-
-        // ------------------------------------------------------------------------
-        // adds the given projects/directories if not exsist. The status of the files
-        // contining in the directory will be scanned by a QueryRootStatus call.
-        // ------------------------------------------------------------------------
-        public void UpdateProjects(Dictionary<string, string> projects)
-        {
-            foreach (var kp in projects)
-            {
-                if (!String.IsNullOrEmpty(kp.Key) && !String.IsNullOrEmpty(kp.Value))
-                {
-                    UpdateProject(kp.Key, kp.Value);
-                }
-            }
+            _bRebuildStatusCacheRequired = true;
         }
 
         // ------------------------------------------------------------------------
@@ -246,36 +201,37 @@ namespace HGLib
                 {
                     _directoryWatcherMap.WatchDirectory(root);
                 }
-                
-                HGLib.HG.QueryRootStatus(root, HandleFileStatusProc);
+
+                Dictionary<string, char> fileStatusDictionary;
+                if (HG.QueryRootStatus(root, out fileStatusDictionary))
+                {
+                    _fileStatusDictionary.Add(fileStatusDictionary);
+                }
             }
-            
+
             return true;
         }
 
         #region dirstatus changes
-        // ------------------------------------------------------------------------
-        /// add file to the repositiry
-        // ------------------------------------------------------------------------
-        public void AddFiles(string[] fileList)
-        {
-            _LocalModifiedTimeStamp = DateTime.Now; // avoid a status requery for the repo after hg.dirstate was changed
-            HG.AddFiles(fileList, HandleFileStatusProc);
-        }
 
         // ------------------------------------------------------------------------
         /// add file to the repositiry if they are not on the ignore list
         // ------------------------------------------------------------------------
         public void AddNotIgnoredFiles(string[] fileList)
         {
-            _LocalModifiedTimeStamp = DateTime.Now; // avoid a status requery for the repo after hg.dirstate was changed
-            HG.AddFilesNotIgnored(fileList, HandleFileStatusProc);
+            SkipDirstate(true);
+            Dictionary<string, char> fileStatusDictionary;
+            if (HG.AddFilesNotIgnored(fileList, out fileStatusDictionary))
+            {
+                _fileStatusDictionary.Add(fileStatusDictionary);
+            }
+            SkipDirstate(false);
         }
 
         // ------------------------------------------------------------------------
-        /// file was renamed , now update hg repository
+        /// enter file renamed to hg repository
         // ------------------------------------------------------------------------
-        public void PropagateFileRenamed(string[] oldFileNames, string[] newFileNames)
+        public void EnterFileRenamed(string[] oldFileNames, string[] newFileNames)
         {
             var oNameList = new List<string> ();
             var nNameList = new List<string>();
@@ -301,9 +257,12 @@ namespace HGLib
                 }
             }
 
-            _LocalModifiedTimeStamp = DateTime.Now; // avoid a status requery for the repo after hg.dirstate was changed
             if (oNameList.Count>0)
-                HG.PropagateFileRenamed(oNameList.ToArray(), nNameList.ToArray(), HandleFileStatusProc);
+            {
+                SkipDirstate(true);
+                HG.EnterFileRenamed(oNameList.ToArray(), nNameList.ToArray());
+                SkipDirstate(false);
+            }
         }
 
         // ------------------------------------------------------------------------
@@ -320,7 +279,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // file was removed - now update the hg repository
         // ------------------------------------------------------------------------
-        public void PropagateFilesRemoved(string[] fileList)
+        public void EnterFilesRemoved(string[] fileList)
         {
             lock (_fileStatusDictionary)
             {
@@ -330,8 +289,13 @@ namespace HGLib
                 }
             }
 
-            _LocalModifiedTimeStamp = DateTime.Now; // avoid a status requery for the repo after hg.dirstate was changed
-            HG.PropagateFileRemoved(fileList, HandleFileStatusProc);
+            SkipDirstate(true); // avoid a status requery for the repo after hg.dirstate was changed
+            Dictionary<string, char> fileStatusDictionary;
+            if (HG.EnterFileRemoved(fileList, out fileStatusDictionary))
+            {
+                _fileStatusDictionary.Add(fileStatusDictionary);
+            }
+            SkipDirstate(false);
         }
 
         #endregion dirstatus changes
@@ -368,8 +332,9 @@ namespace HGLib
             // remove all status entries
             _fileStatusDictionary.Clear();
 
-            _bRebuildStatusCacheRequred = false;
-            _LocalModifiedTimeStamp = DateTime.Now;
+            _bRebuildStatusCacheRequired = false;
+            
+            SkipDirstate(true);
             
             HGFileStatusInfoDictionary newFileStatusDictionary = new HGFileStatusInfoDictionary();
             foreach (var directoryWatcher in _directoryWatcherMap.WatcherList)
@@ -403,6 +368,8 @@ namespace HGLib
             {
                 _fileStatusDictionary = newFileStatusDictionary;
             }
+            
+            SkipDirstate(false);
         }
 
         // ------------------------------------------------------------------------
@@ -416,7 +383,7 @@ namespace HGLib
         void StartDirectoryStatusChecker()
         {
             _timerDirectoryStatusChecker = new System.Timers.Timer();
-            _timerDirectoryStatusChecker.Elapsed += new ElapsedEventHandler(DirectoryStatusCheckerProc);
+            _timerDirectoryStatusChecker.Elapsed += new ElapsedEventHandler(DirectoryStatusCheckerThread);
             _timerDirectoryStatusChecker.AutoReset = false;
             _timerDirectoryStatusChecker.Interval = 300;
             _timerDirectoryStatusChecker.Enabled  = true;
@@ -425,22 +392,46 @@ namespace HGLib
         public void UpdateSolution_StartUpdate()
         {
             _IsSolutionBuilding = true;
-            _timerDirectoryStatusChecker.Enabled = false;
         }
 
         public void UpdateSolution_Done()
         {
             _IsSolutionBuilding = false;
-            _timerDirectoryStatusChecker.Enabled = true;
         }
             
         // ------------------------------------------------------------------------
         // async proc to assimilate the directory watcher state dictionaries
         // ------------------------------------------------------------------------
-        void DirectoryStatusCheckerProc(object source, ElapsedEventArgs e)
+        void DirectoryStatusCheckerThread(object source, ElapsedEventArgs e)
         {
-            if (!_IsSolutionBuilding)
+            // handle user and IDE commands first
+            Queue<IHGWorkItem> workItemQueue = _workItemQueue.PopWorkItems();
+            if (workItemQueue.Count > 0)
             {
+                List<string> ditryFilesList = new List<string>();
+                foreach (IHGWorkItem item in workItemQueue)
+                {
+                    item.Do(this, ditryFilesList);
+                }
+
+                if (ditryFilesList.Count>0)
+                {
+                    Dictionary<string, char> fileStatusDictionary;
+                    if (HG.QueryFileStatus(ditryFilesList.ToArray(), out fileStatusDictionary))
+                    {
+                        lock (_fileStatusDictionary)
+                        {
+                            _fileStatusDictionary.Add(fileStatusDictionary);
+                        }
+                    }
+                }
+                
+                // update status icons
+                FireStatusChanged(_context);
+            }
+            else if (!_IsSolutionBuilding)
+            {
+                // handle modified files list
                 long numberOfControlledFiles = 0;
                 lock (_fileStatusDictionary)
                 {
@@ -456,39 +447,33 @@ namespace HGLib
                     elapsedMS = timeSpan.TotalMilliseconds;
                 }
 
-                // ui update required flag - only if there were some changes detected
-                long dirtyPercent = 100 * numberOfChangedFiles / numberOfControlledFiles;
-                //dirtyPercent > 20 ||
-                if (_bRebuildStatusCacheRequred || numberOfChangedFiles > 200)
+                if (_bRebuildStatusCacheRequired || numberOfChangedFiles > 200)
                 {
-                    // time interval for a full update is 1000 ms
-                    if (elapsedMS > _TimeIntervalForRebuildStatusCacheMS)
+                    if (elapsedMS > _MinElapsedTimeForStatusCacheRebuildMS)
                     {
                         Trace.WriteLine("DoFullStatusUpdate (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
                         RebuildStatusCache();
-                        // notify ui thread about the changes
+                        // update status icons
                         FireStatusChanged(_context);
                     }
                 }
                 else if (numberOfChangedFiles > 0)
                 {
-                    // dead time interval for file updates are 100 ms
+                    // min elapsed time before do anything
                     if (elapsedMS > 100)
                     {
                         Trace.WriteLine("UpdateDirtyFilesStatus (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
                         var fileList = PopDirtyWatcherFiles();
                         if( UpdateFileStatusDictionary(fileList) )
                         {
-                            // notify ui thread about the changes
+                            // update status icons
                             FireStatusChanged(_context);
                         }
                     }
                 }
-
             }
-
-            if (!_IsSolutionBuilding)
-                _timerDirectoryStatusChecker.Enabled = true;
+        
+            _timerDirectoryStatusChecker.Enabled = true;
         }
 
         // ------------------------------------------------------------------------
@@ -507,11 +492,9 @@ namespace HGLib
             }
             else if (fileName.IndexOf(".hg\\dirstate") > -1)
             {
-                TimeSpan elapsed = new TimeSpan(DateTime.Now.Ticks - _LocalModifiedTimeStamp.Ticks);
-                Trace.WriteLine("dirstate changed " + elapsed.ToString());
-                if (_MaxDiffToDirstateChangeMS < elapsed.TotalMilliseconds)
+                if (!_SkipDirstate)
                 {
-                    _bRebuildStatusCacheRequred = true;
+                    _bRebuildStatusCacheRequired = true;
                     Trace.WriteLine("   ... rebuild of status cache required");
                 }
                 isDirty = false;
@@ -570,13 +553,13 @@ namespace HGLib
                     // first collect dirty files list
                     foreach (var dirtyFile in dirtyFilesMap)
                     {
-                        if (PrepareWatchedFile(dirtyFile.Key) && !_bRebuildStatusCacheRequred)
+                        if (PrepareWatchedFile(dirtyFile.Key) && !_bRebuildStatusCacheRequired)
                         {
                             fileList.Add(dirtyFile.Key);
                         }
 
                         // could be set by PrepareWatchedFile
-                        if (_bRebuildStatusCacheRequred)
+                        if (_bRebuildStatusCacheRequired)
                             break;
                     }
                 }
@@ -591,14 +574,14 @@ namespace HGLib
         {
             bool updateUI = false;
 
-            if (_bRebuildStatusCacheRequred)
+            if (_bRebuildStatusCacheRequired)
                 return false;
 
             // now we will get HG status information for the remaining files
-            if (!_bRebuildStatusCacheRequred && fileList.Count > 0)
+            if (!_bRebuildStatusCacheRequired && fileList.Count > 0)
             {
                 Dictionary<string, char> fileStatusDictionary;
-                SetDirstateModifiedTimeStamp(); 
+                SkipDirstate(true); 
                 if (HG.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
                 {
                     Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
@@ -607,7 +590,7 @@ namespace HGLib
                         _fileStatusDictionary.Add(fileStatusDictionary);
                     }
                 }
-
+                SkipDirstate(false); 
                 updateUI = true;
             }
             return updateUI;

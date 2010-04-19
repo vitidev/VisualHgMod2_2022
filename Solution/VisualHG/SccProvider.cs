@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
 using Microsoft.Win32;
+using System.Windows.Forms;
 
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -73,6 +74,12 @@ namespace VisualHG
         public SccProvider()
         {
             Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering constructor for: {0}", this.ToString()));
+        }
+
+        void PromptSolutionNotControlled()
+        {
+            string solutionName = GetSolutionFileName();
+            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + solutionName, "VisualHG", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -273,7 +280,11 @@ namespace VisualHG
 
         private void Exec_icmdHgCommit(object sender, EventArgs e)
         {
-            HGLib.HGTK.CommitDialog(GetRootDirectoryOfSolution());
+            string root = GetRootDirectoryOfSolution();
+            if (root!=string.Empty)
+                HGLib.HGTK.CommitDialog(root);
+            else
+                PromptSolutionNotControlled();
         }
 
         private void Exec_icmdHgHistory(object sender, EventArgs e)
@@ -293,24 +304,40 @@ namespace VisualHG
                         int startIndex = root.Length + 1;
                         filter = list[0].Substring(startIndex, list[0].Length - startIndex);
                     }
+
                     HGLib.HGTK.LogDialog(root, filter);
                 }
+                else 
+                    PromptSolutionNotControlled();
             }
         }
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
         {
-            HGLib.HGTK.StatusDialog(GetRootDirectoryOfSolution());
+            string root = GetRootDirectoryOfSolution();
+            if (root!=string.Empty)
+                HGLib.HGTK.StatusDialog(root);
+            else
+                PromptSolutionNotControlled();
+
         }
 
         private void Exec_icmdHgSynchronize(object sender, EventArgs e)
         {
-            HGLib.HGTK.SyncDialog(GetRootDirectoryOfSolution());
+            string root = GetRootDirectoryOfSolution();
+            if (root != string.Empty)
+                HGLib.HGTK.SyncDialog(root);
+            else
+                PromptSolutionNotControlled();
         }
 
         private void Exec_icmdHgUpdateToRevision(object sender, EventArgs e)
         {
-            HGLib.HGTK.UpdateDialog(GetRootDirectoryOfSolution());
+            string root = GetRootDirectoryOfSolution();
+            if (root != string.Empty)
+                HGLib.HGTK.UpdateDialog(root);
+            else
+                PromptSolutionNotControlled();
         }
         
 

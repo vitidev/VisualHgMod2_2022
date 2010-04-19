@@ -381,6 +381,8 @@ namespace VisualHG
             Trace.WriteLine("OnAfterCloseSolution");
 
             _sccStatusTracker.ClearStatusCache();
+            _sccProvider._LastSeenProjectDir = string.Empty;
+            
             return VSConstants.S_OK;
         }
 
@@ -388,9 +390,8 @@ namespace VisualHG
         {
             Trace.WriteLine("OnAfterLoadProject");
 
-            _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pRealHierarchy);
-
+            _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
             return VSConstants.S_OK;
         }
 
@@ -404,10 +405,10 @@ namespace VisualHG
                 string[] files = new string[fileList.Count];
                 fileList.CopyTo(files, 0);
                 // add only files wich are not ignored
-                _sccStatusTracker.AddNotIgnoredFiles(files);
-                _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
+                _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
             }
 
+            _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
             _sccStatusTracker.UpdateProject(pHierarchy as IVsSccProject2);
             return VSConstants.S_OK;
         }
@@ -546,7 +547,7 @@ namespace VisualHG
 
         public int OnQueryAddFiles([InAttribute] IVsProject pProject, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSQUERYADDFILEFLAGS[] rgFlags, [OutAttribute] VSQUERYADDFILERESULTS[] pSummaryResult, [OutAttribute] VSQUERYADDFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.EnableRaisingEvents(false); 
+            _sccStatusTracker.EnableDirectoryWatching(false); 
             return VSConstants.S_OK;
         }
 
@@ -556,13 +557,15 @@ namespace VisualHG
         /// </summary>
         public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
         {
+            _sccStatusTracker.EnableDirectoryWatching(true);
+             
             HGLib.HGFileStatusInfo info;
             _sccStatusTracker.GetFileStatusInfo(rgpszMkDocuments[0], out info);
-            if (info == null || info.state == '?')
+            if (info == null || info.state == '?') // do not add files twice
             {
-                _sccStatusTracker.AddNotIgnoredFiles(rgpszMkDocuments);
+                // add only files wich are not ignored
+                _sccStatusTracker.AddWorkItem(new HGLib.TrackFilesAddedNotIgnored(rgpszMkDocuments));
             }
-            _sccStatusTracker.EnableRaisingEvents(true);
             return VSConstants.S_OK;
         }
 
@@ -594,22 +597,20 @@ namespace VisualHG
         /// </summary>
         public int OnQueryRemoveFiles([InAttribute] IVsProject pProject, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSQUERYREMOVEFILEFLAGS[] rgFlags, [OutAttribute] VSQUERYREMOVEFILERESULTS[] pSummaryResult, [OutAttribute] VSQUERYREMOVEFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.EnableRaisingEvents(false);
+            _sccStatusTracker.EnableDirectoryWatching(false);
             return VSConstants.S_OK;
         }
         
         public int OnAfterRemoveFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEFILEFLAGS[] rgFlags)
         {
-            StoreSolution();
-            
-            _sccStatusTracker.EnableRaisingEvents(true);
+            _sccStatusTracker.EnableDirectoryWatching(true);
 
             if (rgpProjects == null || rgpszMkDocuments == null)
                 return VSConstants.E_POINTER;
 
-            if (!File.Exists(rgpszMkDocuments[0])) // PropagateFilesRemoved only if the file was actually removed
-                _sccStatusTracker.PropagateFilesRemoved(rgpszMkDocuments);
-                
+            if (!File.Exists(rgpszMkDocuments[0])) // EnterFileRemoved only if the file was actually removed
+                _sccStatusTracker.AddWorkItem( new HGLib.TrackFileRemoved(rgpszMkDocuments) );
+
             return VSConstants.S_OK;
         }
 
@@ -633,7 +634,7 @@ namespace VisualHG
 
         public int OnQueryRenameFiles([InAttribute] IVsProject pProject, [InAttribute] int cFiles, [InAttribute] string[] rgszMkOldNames, [InAttribute] string[] rgszMkNewNames, [InAttribute] VSQUERYRENAMEFILEFLAGS[] rgFlags, [OutAttribute] VSQUERYRENAMEFILERESULTS[] pSummaryResult, [OutAttribute] VSQUERYRENAMEFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.EnableRaisingEvents(false); 
+            _sccStatusTracker.EnableDirectoryWatching(false); 
             return VSConstants.S_OK;
         }
 
@@ -643,9 +644,8 @@ namespace VisualHG
         /// </summary>
         public int OnAfterRenameFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgszMkOldNames, [InAttribute] string[] rgszMkNewNames, [InAttribute] VSRENAMEFILEFLAGS[] rgFlags)
         {
-            _sccStatusTracker.EnableRaisingEvents(true); 
-            _sccStatusTracker.PropagateFileRenamed(rgszMkOldNames, rgszMkNewNames);
-            StoreSolution();            
+            _sccStatusTracker.EnableDirectoryWatching(true);
+            _sccStatusTracker.AddWorkItem(new HGLib.TrackFilesRenamed(rgszMkOldNames, rgszMkNewNames));
             return VSConstants.S_OK;
         }
 

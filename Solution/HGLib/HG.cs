@@ -3,16 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
-using System.Threading;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace HGLib
 {
-    // ------------------------------------------------------------------------
-    // async query callback method
-    // ------------------------------------------------------------------------
-    public delegate void HandleFileStatusProc(string rootDirectory, Dictionary<string, char> fileStatusDictionary, SynchronizationContext context);
-
     // ------------------------------------------------------------------------
     // HG interface class - here we cover HG.exe commands in sync and async manner.
     // There are methods for file status queries, rename, add or remove files from
@@ -116,32 +111,6 @@ namespace HGLib
         #endregion invoke commands
 
         // ------------------------------------------------------------------------
-        // find the HG root directory (archive directory) staring from the given dir
-        // ------------------------------------------------------------------------
-        static public string xxxFindRootDirectory(string directory)
-        {
-            try
-            {
-                while (!Directory.Exists(directory) && directory.Length > 0)
-                {
-                    directory = directory.Substring(0, directory.LastIndexOf('\\'));
-                }
-
-                List<string> list;
-                if (HG.InvokeCommand(directory, "root", out list))
-                {
-                    return list[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                // is not a root dir or the directory does not exists
-                Trace.WriteLine("HG.FindRootDirectory " + ex.Message);
-            }
-            return string.Empty;
-        }
-
-        // ------------------------------------------------------------------------
         /// get (lower case) root dir of the given file name
         // ------------------------------------------------------------------------
         public static string FindRootDirectory(string path)
@@ -163,32 +132,6 @@ namespace HGLib
                     break;
             }
             return string.Empty;
-        }
-
-        // ------------------------------------------------------------------------
-        // get all states of the files inside the directory
-        // ------------------------------------------------------------------------
-        #region QueryRootStatus
-
-        // ------------------------------------------------------------------------
-        // run a async HG root status query and get the resulting status informations
-        // to a fileStatusDictionary or callback method
-        // ------------------------------------------------------------------------
-        static public void QueryRootStatus(string rootDirectory, HandleFileStatusProc handleFileStatusProc)
-        {
-            SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-
-                if (HG.QueryRootStatus(rootDirectory, out fileStatusDictionary))
-                {
-                    // notify the callee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc(rootDirectory, fileStatusDictionary, context);
-                }
-            });
         }
 
         // ------------------------------------------------------------------------
@@ -255,34 +198,6 @@ namespace HGLib
             return (fileStatusDictionary != null);
         }
 
-        #endregion QueryRootStatus
-
-        // ------------------------------------------------------------------------
-        // get all states of the requested files
-        // ------------------------------------------------------------------------
-        #region QueryFileStatusCmd
-
-        // ------------------------------------------------------------------------
-        // Run async query.
-        // query the file status and call handleFileStatusProc with the resulting dictionary
-        // ------------------------------------------------------------------------
-        static public void QueryFileStatus(string[] fileList, HandleFileStatusProc handleFileStatusProc)
-        {
-            SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                // query the files status and get them to the fileStatusDictionary
-                if (HG.QueryFileStatus(fileList, out fileStatusDictionary))
-                {
-                    // and notity the calee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc("", fileStatusDictionary, context);
-                }
-            });
-        }
-
         // ------------------------------------------------------------------------
         // query the files status and get them to the fileStatusDictionary
         // ------------------------------------------------------------------------
@@ -321,42 +236,15 @@ namespace HGLib
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("HGProcess.StartHGProcess: " + ex.Message);
+                Trace.WriteLine("HGProcess.QueryFileStatus: " + ex.Message);
                 return false;
             }
 
             return (fileStatusDictionary != null);
         }
         
-        #endregion QueryFileStatusCmd
-
-
         // ------------------------------------------------------------------------
         // put file under source control
-        // ------------------------------------------------------------------------
-        #region AddFiles
-
-        // ------------------------------------------------------------------------
-        // async handle AddFiles event - update hg repository
-        // ------------------------------------------------------------------------
-        static public void AddFiles(string[] fileList, HandleFileStatusProc handleFileStatusProc)
-        {
-            SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                if (AddFiles(fileList, out fileStatusDictionary))
-                {
-                    // and notity the calee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc("", fileStatusDictionary, context);
-                }
-            });
-        }
-
-        // ------------------------------------------------------------------------
-        // handle file removed event - update hg repository
         // ------------------------------------------------------------------------
         static public bool AddFiles(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
         {
@@ -364,24 +252,8 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // async add file to the repositiry if they are not on the ignore list
+        // add file to the repositiry if they are not on the ignore list
         // ------------------------------------------------------------------------
-        static public void AddFilesNotIgnored(string[] fileList, HandleFileStatusProc handleFileStatusProc)
-        {
-            SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                if (AddFilesNotIgnored(fileList, out fileStatusDictionary))
-                {
-                    // and notity the calee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc("", fileStatusDictionary, context);
-                }
-            });
-        }
-
         static public bool AddFilesNotIgnored(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
         {
             List<string> addFilesList = new List<string>();
@@ -390,48 +262,24 @@ namespace HGLib
             QueryFileStatus(fileList, out statusDictionary);
             foreach (var k in statusDictionary)
             {
-                if (k.Value != 'I')
+                if (k.Value == '?')
                 {
                     addFilesList.Add(k.Key);
                 }
             }
 
-            return InvokeCommandGetStatus("add", addFilesList.ToArray(), out fileStatusDictionary);
-        }
-
-        #endregion AddFiles
-
-
-        // ------------------------------------------------------------------------
-        // propagate file renamed in the hg repository
-        // ------------------------------------------------------------------------
-        #region PropagateFileRenamed
-
-        // ------------------------------------------------------------------------
-        // async handle renamed file event - update hg repository
-        // ------------------------------------------------------------------------
-        static public void PropagateFileRenamed(string[] orgFileName, string[] newFileName, HandleFileStatusProc handleFileStatusProc)
-        {
-             SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                if (PropagateFileRenamed(orgFileName, newFileName, out fileStatusDictionary))
-                {
-                    // and notity the calee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc("", fileStatusDictionary, context);
-                }
-            });
-        }
-
-        // ------------------------------------------------------------------------
-        // handle renamed file event - update hg repository
-        // ------------------------------------------------------------------------
-        static public bool PropagateFileRenamed(string[] orgFileName, string[] newFileName, out Dictionary<string, char> fileStatusDictionary)
-        {
+            if (addFilesList.Count>0)
+                return InvokeCommandGetStatus("add", addFilesList.ToArray(), out fileStatusDictionary);
+            
             fileStatusDictionary = null;
+            return false;
+        }
+
+        // ------------------------------------------------------------------------
+        // enter file renamed to hg repository
+        // ------------------------------------------------------------------------
+        static public bool EnterFileRenamed(string[] orgFileName, string[] newFileName)
+        {
             try
             {
                 for (int pos = 0; pos < orgFileName.Length; ++pos)
@@ -445,55 +293,23 @@ namespace HGLib
                     HG.InvokeCommand(rootDirectory,
                         "rename  -A \"" + ofile + "\" \"" + nfile + "\"", out list);
                 }
-
-                if (!QueryFileStatus(newFileName, out fileStatusDictionary))
-                    fileStatusDictionary = null;
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("HG.PropagateFileRenamed exception- " + ex.Message);
+                Trace.WriteLine("HG.EnterFileRenamed exception- " + ex.Message);
                 return false;
-
             }
 
-            return (fileStatusDictionary != null);
-        }
-
-        #endregion PropagateFileRenamed
-
-        // ------------------------------------------------------------------------
-        // propagate file removed in the hg repository
-        // ------------------------------------------------------------------------
-        #region PropagateFileRemoved
-
-        // ------------------------------------------------------------------------
-        // async handle file removed event - update hg repository
-        // ------------------------------------------------------------------------
-        static public void PropagateFileRemoved(string[] fileList, HandleFileStatusProc handleFileStatusProc)
-        {
-            SynchronizationContext context = WindowsFormsSynchronizationContext.Current;
-
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                if (PropagateFileRemoved(fileList, out fileStatusDictionary))
-                {
-                    // and notity the calee
-                    if (handleFileStatusProc != null)
-                        handleFileStatusProc("", fileStatusDictionary, context);
-                }
-            });
+            return true;
         }
 
         // ------------------------------------------------------------------------
-        // handle file removed event - update hg repository
+        // enter file removed to hg repository
         // ------------------------------------------------------------------------
-        static public bool PropagateFileRemoved(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        static public bool EnterFileRemoved(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
         {
             return InvokeCommandGetStatus("remove", fileList, out fileStatusDictionary);
         }
-
-        #endregion PropagateFileRemoved
 
 
         // ------------------------------------------------------------------------

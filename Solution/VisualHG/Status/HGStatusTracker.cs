@@ -33,7 +33,8 @@ namespace VisualHG
             {
                 string projectDirectory = SccProjectData.ProjectDirectory((IVsHierarchy)project);
                 string projectName = SccProjectData.ProjectName((IVsHierarchy)project);
-                base.UpdateProject(projectName, projectDirectory);
+
+                AddWorkItem(new HGLib.UpdateRootDirectoryAdded(projectDirectory));
             }
         }
         
@@ -49,10 +50,7 @@ namespace VisualHG
                 if (!String.IsNullOrEmpty(projectFile))
                 {
                     string projectDirectory = projectFile.Substring(0, projectFile.LastIndexOf("\\") + 1);
-                    if( !base.AddRootDirectory(projectDirectory) )
-                    {
-                        Trace.WriteLine("AddRootDirectory failed " + projectDirectory);
-                    }
+                    AddWorkItem(new HGLib.UpdateRootDirectoryAdded(projectDirectory));
                 }
             }
         }

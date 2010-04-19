@@ -19,14 +19,19 @@ namespace HGLib
         // ------------------------------------------------------------------------
         static Process InvokeCommand(string workingDirectory, string arguments)
         {
-            Process process = new Process();
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "HGTK.exe";
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.WorkingDirectory = workingDirectory;
-            process.Start();
-            return process;
+            if (workingDirectory != null && workingDirectory != string.Empty)
+            {
+                Process process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = "HGTK.exe";
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.WorkingDirectory = workingDirectory;
+                process.Start();
+                return process;
+            }
+            
+            return null;    
         }
 
         // ------------------------------------------------------------------------

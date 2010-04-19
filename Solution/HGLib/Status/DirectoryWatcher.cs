@@ -59,7 +59,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // enable / disable raising event
         // ------------------------------------------------------------------------
-        public void EnableRaisingEvents(bool enable)
+        public void EnableDirectoryWatching(bool enable)
         {
             lock (_watcher)
             {

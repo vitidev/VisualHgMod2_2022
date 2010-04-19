@@ -47,13 +47,13 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // toggle directory watching on / off
         // ------------------------------------------------------------------------
-        public void EnableRaisingEvents(bool enable)
+        public void EnableDirectoryWatching(bool enable)
         {
             lock (dict)
             {
                 foreach (var kvp in dict)
                 {
-                    kvp.Value.EnableRaisingEvents(enable);
+                    kvp.Value.EnableDirectoryWatching(enable);
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace HGLib
                             {
                                 DirectoryWatcher watcher = removeWatcher[pos];
                                 dict.Remove(watcher._directory);
-                                watcher.EnableRaisingEvents(false);
+                                watcher.EnableDirectoryWatching(false);
                                 watcher = null;
                             }
 

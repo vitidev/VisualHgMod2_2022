@@ -47,6 +47,7 @@
     <Compile Include="Status\HGStatus.cs" />
     <Compile Include="HGTK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Status\WorkItems.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Setup\HGLib.wxs" />
