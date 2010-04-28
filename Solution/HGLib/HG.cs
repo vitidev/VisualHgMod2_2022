@@ -122,7 +122,7 @@ namespace HGLib
 
             while (path.Length > 0)
             {
-              if (File.Exists(path + "\\.hg\\thgstatus"))
+              if (Directory.Exists(path + "\\.hg"))
                     return path;
 
                 int index = path.LastIndexOf('\\');
