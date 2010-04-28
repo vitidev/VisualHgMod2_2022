@@ -350,7 +350,7 @@ namespace HGLib
             }
 
             // sort dirs by lenght to query from root top to down root
-            rootDirList.Sort((a, b) => a.Length>b.Length?1:-1);
+            rootDirList.Sort((a, b) => ((a.Length == b.Length) ? 0 : ((a.Length > b.Length) ? 1 : -1)) );
             foreach (string rootDirectory in rootDirList)
             {
                 if (rootDirectory != string.Empty)
