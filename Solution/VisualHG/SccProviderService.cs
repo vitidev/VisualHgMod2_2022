@@ -342,9 +342,18 @@ namespace VisualHG
                 break;
 
                 default:
-                    pbstrTooltipText = "";
+                    pbstrTooltipText = string.Empty;
                     break;
             }
+
+            if (pbstrTooltipText  != string.Empty)
+            {
+              string root = HGLib.HG.FindRootDirectory(files[0]);
+              //string branchName = HGLib.HG.GetCurrentBranchName(root);
+              string branchName = _sccStatusTracker.GetCurrentBranchOf(root);
+
+              pbstrTooltipText += " [" + branchName + "]";
+            }  
 
             return VSConstants.S_OK;
         }

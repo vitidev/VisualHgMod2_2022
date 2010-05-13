@@ -135,6 +135,22 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
+        // get current used brunchname of repository
+        // ------------------------------------------------------------------------
+        public static string GetCurrentBranchName(string rootDirectory)
+        {
+          string branchName = "";
+
+          List<string> resultList;
+          HG.InvokeCommand(rootDirectory, "branch", out resultList);
+
+          if (resultList.Count > 0)
+            branchName = resultList[0];
+
+          return branchName;
+        }
+
+        // ------------------------------------------------------------------------
         // update status dictionary with hg status cmd output
         // ------------------------------------------------------------------------
         public static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary)

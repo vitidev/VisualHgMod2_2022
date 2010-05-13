@@ -50,9 +50,16 @@ namespace HGLib
         // queued user commands or events from the IDE
         WorkItemQueue _workItemQueue = new WorkItemQueue();
         
+        // root info class
+        class RootInfo
+        {
+          // current branch name of root
+          public string _Branch;
+        };
+        
         // HG repo root directories - also SubRepo dirs
-        Dictionary<string,bool> _rootDirMap = new Dictionary<string, bool>();
-
+        Dictionary<string, RootInfo> _rootDirMap = new Dictionary<string, RootInfo>();
+        
         // trigger thread to observe and assimilate the directory watcher changed file dictionaries
         System.Timers.Timer _timerDirectoryStatusChecker;
 
@@ -195,7 +202,7 @@ namespace HGLib
             string root = HG.FindRootDirectory(directory);
             if (root != string.Empty && !_rootDirMap.ContainsKey(root))
             {
-                _rootDirMap[root] = true;
+                _rootDirMap[root] = new RootInfo() { _Branch = HG.GetCurrentBranchName(root) };
 
                 if (!_directoryWatcherMap.ContainsDirectory(root))
                 {
@@ -210,6 +217,20 @@ namespace HGLib
             }
 
             return true;
+        }
+
+        // ------------------------------------------------------------------------
+        // get current used brunch of the given roor directory
+        // ------------------------------------------------------------------------
+        public string GetCurrentBranchOf(string root)
+        {
+          RootInfo info;
+          
+          if( _rootDirMap.TryGetValue(root, out info) )
+            return info._Branch;
+          
+          return string.Empty;  
+          
         }
 
         #region dirstatus changes
@@ -355,6 +376,8 @@ namespace HGLib
             {
                 if (rootDirectory != string.Empty)
                 {
+                    _rootDirMap[rootDirectory]._Branch = HG.GetCurrentBranchName(rootDirectory); 
+                    
                     Dictionary<string, char> fileStatusDictionary;
                     if (HG.QueryRootStatus(rootDirectory, out fileStatusDictionary))
                     {
