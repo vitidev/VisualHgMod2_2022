@@ -171,22 +171,5 @@ namespace HGLib.Test
             Assert.AreEqual(0, watcher.DirtyFilesCount);
             Assert.IsTrue(dirtyFilesMap.ContainsKey("\\file.h"));
         }
-
-        /// <summary>
-        ///A test for extensionWhiteList Filter
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("HGLib.dll")]
-        public void FilterTest()
-        {
-            var extensionWhiteList = new Dictionary<string, bool>();
-            extensionWhiteList["cs"]=true;
-            extensionWhiteList["h"]=true;
-            Assert.IsTrue(DirectoryWatcher_Accessor.Filter("\\MyText.cs", extensionWhiteList));
-            Assert.IsTrue(DirectoryWatcher_Accessor.Filter("\\MyText.h", extensionWhiteList));
-            Assert.IsFalse(DirectoryWatcher_Accessor.Filter("MyText.h", extensionWhiteList));
-            Assert.IsFalse(DirectoryWatcher_Accessor.Filter("\\MyText.hpp", extensionWhiteList));
-            Assert.IsFalse(DirectoryWatcher_Accessor.Filter("\\MyText.temp", extensionWhiteList));
-        }
     }
 }
