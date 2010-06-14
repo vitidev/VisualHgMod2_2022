@@ -668,6 +668,28 @@ namespace VisualHG
         }
 
         /// <summary>
+        /// Returns a list of file names associated with the specified pathStr
+        /// </summary>
+        static string[] GetFileNamesFromOleBuffer(CALPOLESTR[] pathStr, bool free)
+        {
+          int nEls = (int)pathStr[0].cElems;
+          string[] files = new string[nEls];
+
+          for (int i = 0; i < nEls; i++)
+          {
+            IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, i * IntPtr.Size);
+            files[i] = Marshal.PtrToStringUni(pathIntPtr);
+
+            if (free)
+              Marshal.FreeCoTaskMem(pathIntPtr);
+          }
+          if (free && pathStr[0].pElems != IntPtr.Zero)
+            Marshal.FreeCoTaskMem(pathStr[0].pElems);
+
+          return files;
+        }
+
+        /// <summary>
         /// Returns a list of source controllable files associated with the specified node
         /// </summary>
         public static IList<string> GetNodeFiles(IVsHierarchy hier, uint itemid)
@@ -694,11 +716,14 @@ namespace VisualHG
 
                 if (pscp2.GetSccFiles(itemid, pathStr, flags) == 0)
                 {
+                    //#4  BugFix : Visual Studio Crashing when clicking on Web Reference
+                    // The previus MS sample code used 'Marshal.PtrToStringAuto' which caused
+                    // a chrash of the studio (2010 only) in some conditions. This also could
+                    // be the reason for some further bugs e.g. in commit, update tasks.
+                    string[] files = GetFileNamesFromOleBuffer(pathStr, true);
                     for (int elemIndex = 0; elemIndex < pathStr[0].cElems; elemIndex++)
                     {
-                        IntPtr pathIntPtr = Marshal.ReadIntPtr(pathStr[0].pElems, elemIndex);
-                        String path = Marshal.PtrToStringAuto(pathIntPtr);
-
+                        String path = files[elemIndex];
                         sccFiles.Add(path);
 
                         // See if there are special files
@@ -713,27 +738,13 @@ namespace VisualHG
                                 CADWORD[] specialFlags = new CADWORD[1];
 
                                 pscp2.GetSccSpecialFiles(itemid, path, specialFiles, specialFlags);
-                                for (int i = 0; i < specialFiles[0].cElems; i++)
+                                string[] specialFileNames = GetFileNamesFromOleBuffer(specialFiles, true);
+                                foreach (var f in specialFileNames)
                                 {
-                                    IntPtr specialPathIntPtr = Marshal.ReadIntPtr(specialFiles[0].pElems, i * IntPtr.Size);
-                                    String specialPath = Marshal.PtrToStringAuto(specialPathIntPtr);
-
-                                    sccFiles.Add(specialPath);
-                                    Marshal.FreeCoTaskMem(specialPathIntPtr);
-                                }
-
-                                if (specialFiles[0].cElems > 0)
-                                {
-                                    Marshal.FreeCoTaskMem(specialFiles[0].pElems);
+                                    sccFiles.Add(f);
                                 }
                             }
                         }
-
-                        Marshal.FreeCoTaskMem(pathIntPtr);
-                    }
-                    if (pathStr[0].cElems > 0)
-                    {
-                        Marshal.FreeCoTaskMem(pathStr[0].pElems);
                     }
                 }
             }
