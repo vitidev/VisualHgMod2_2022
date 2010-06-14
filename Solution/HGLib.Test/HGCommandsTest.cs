@@ -57,68 +57,12 @@ namespace HGLib.Test
         }
 
         [TestMethod]
-        public void PropagateFileRenamed()
-        {
-            string oName = TestContext.TestDir + "\\HGCommandsTest\\TheApp\\TheApp.sln";
-            string nName = TestContext.TestDir + "\\HGCommandsTest\\TheApp\\TheApp1.sln";
-            var onList = new string[] { oName };
-            var nnList = new string[] { nName };
-
-            // rename file
-            {
-                File.Move(oName, nName);
-
-                Dictionary<string, char> fileStatusDictionary;
-                Assert.IsTrue(HG.PropagateFileRenamed(onList, nnList, out fileStatusDictionary), "update file renamed");
-                char status = fileStatusDictionary[nName];
-                Assert.AreEqual(status, 'N'); // internal VisualHG state 'N' for renamed file
-                                              // the hg state is A for added file
-
-                Dictionary<string, char> dictionary;
-                HG.QueryFileStatus(onList, out dictionary);
-                Assert.AreEqual(dictionary[onList[0]], 'R');
-
-            }
-
-            // and back - here it should be as nothing had happened
-            {
-                File.Move(nName, oName);
-
-                Dictionary<string, char> fileStatusDictionary;
-                Assert.IsTrue(HG.PropagateFileRenamed(nnList, onList, out fileStatusDictionary), "update file renamed to prev name");
-                char status = fileStatusDictionary[oName];
-                Assert.AreEqual(status, 'C');
-
-                Dictionary<string, char> dictionary;
-                HG.QueryFileStatus(nnList, out dictionary);
-                Assert.AreEqual(dictionary.Count, 0);
-            }
-        }
-
-        [TestMethod]
         public void PropagateFileRemoved()
         {
             string rName = TestContext.TestDir + "\\HGCommandsTest\\TheApp\\TheApp.sln";
             var fileList = new string[] { rName };
-
-            // remove file
-            {
-                File.Delete(rName);
-
-                Dictionary<string, char> fileStatusDictionary;
-                Assert.IsTrue(HG.PropagateFileRemoved(fileList, out fileStatusDictionary));
-                char status = fileStatusDictionary[rName];
-                Assert.AreEqual(status, 'R');
-            }
-
-            // revert remove file
-            {
-                Dictionary<string, char> fileStatusDictionary;
-                Assert.IsTrue(HG.Revert(fileList, out fileStatusDictionary));
-                char status = fileStatusDictionary[rName];
-                Assert.AreEqual(status, 'C');
-            }
         }
+
         [TestMethod]
         public void AddFiles()
         {
