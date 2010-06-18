@@ -8,8 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Tests", "Solution Tests", "{8E65D0E4-41D7-41D4-A255-BA21891E452C}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "VisualHG.Setup", "VisualHG.Setup\VisualHG.Setup.wixproj", "{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualHG2010", "VisualHG\VisualHG2010.csproj", "{ADECE07A-5D80-4950-9DA5-A681CE2F5106}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HGLib2010", "HGLib\HGLib2010.csproj", "{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}"
@@ -26,16 +24,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|x86.ActiveCfg = Debug|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|x86.Build.0 = Debug|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Any CPU.ActiveCfg = Release|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Mixed Platforms.Build.0 = Release|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|x86.ActiveCfg = Release|x86
-		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|x86.Build.0 = Release|x86
 		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
