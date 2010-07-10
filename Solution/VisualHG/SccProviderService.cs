@@ -238,6 +238,10 @@ namespace VisualHG
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
                     break;
 
+                case HGLib.SourceControlStatus.scsCopied:
+                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3); // no better icon 
+                    break;
+
                 case HGLib.SourceControlStatus.scsRemoved:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
@@ -331,6 +335,10 @@ namespace VisualHG
 
               case HGLib.SourceControlStatus.scsRemoved:
                 pbstrTooltipText = "Removed";
+                break;
+
+              case HGLib.SourceControlStatus.scsCopied:
+                pbstrTooltipText = "Copied";
                 break;
 
               case HGLib.SourceControlStatus.scsIgnored:

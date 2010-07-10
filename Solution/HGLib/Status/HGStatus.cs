@@ -22,6 +22,7 @@ namespace HGLib
         scsAdded,
         scsRemoved,
         scsRenamed,
+        scsCopied,
         scsIgnored,
     };
 
@@ -150,6 +151,7 @@ namespace HGLib
                     case 'R': status = SourceControlStatus.scsRemoved; break;
                     case 'I': status = SourceControlStatus.scsIgnored; break;
                     case 'N': status = SourceControlStatus.scsRenamed; break;
+                    case 'P': status = SourceControlStatus.scsCopied; break;
                 }
             }
 

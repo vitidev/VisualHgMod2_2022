@@ -155,16 +155,19 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary)
         {
+            Dictionary<string,string> copyRenamedFiles = new Dictionary<string,string>();
+            
             char prevStatus = ' ';
             string prevFile = "";
-            foreach (string str in lines)
+            for(int pos=0; pos<lines.Count; ++pos)
             {
+                string str  = lines[pos];
                 char status = str[0];
                 string file = rootDirectory + "\\" + str.Substring(2);
 
                 if (status == ' ' && prevStatus == 'A')
                 {
-                    status = 'N'; // mark with internal VisualHG state 'N' for renamed file
+                    copyRenamedFiles[file] = prevFile;
                     file = prevFile;
                 }
 
@@ -173,6 +176,24 @@ namespace HGLib
                 prevFile = file;
                 prevStatus = status;
             }
+
+            foreach(var entry in copyRenamedFiles)
+            {
+                char orgFileStatus;
+                if (!fileStatusDictionary.TryGetValue(entry.Key, out orgFileStatus))
+                {
+                    Dictionary<string, char> fileStatusOriginalFile;
+                    string[] fileList = { entry.Key};
+                    if(QueryFileStatus(fileList, out fileStatusOriginalFile))
+                        fileStatusOriginalFile.TryGetValue(entry.Key, out orgFileStatus);
+                }
+
+                if (orgFileStatus=='R')
+                    fileStatusDictionary[entry.Value] = 'N';
+                else
+                    fileStatusDictionary[entry.Value] = 'P';    
+            }
+
             return true;
         }
 
