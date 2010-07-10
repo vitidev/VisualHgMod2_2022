@@ -280,6 +280,8 @@ namespace VisualHG
 
         private void Exec_icmdHgCommit(object sender, EventArgs e)
         {
+            StoreSolution();
+
             string root = GetRootDirectoryOfSolution();
             if (root!=string.Empty)
                 HGLib.HGTK.CommitDialog(root);
@@ -289,6 +291,8 @@ namespace VisualHG
 
         private void Exec_icmdHgHistory(object sender, EventArgs e)
         {
+            StoreSolution();
+
             IList<VSITEMSELECTION> selectedNodes;
             IList<string> list = GetSelectedFiles(out selectedNodes);
             if (list.Count > 0)
@@ -314,6 +318,8 @@ namespace VisualHG
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
         {
+            StoreSolution();
+
             string root = GetRootDirectoryOfSolution();
             if (root!=string.Empty)
                 HGLib.HGTK.StatusDialog(root);
@@ -324,6 +330,8 @@ namespace VisualHG
 
         private void Exec_icmdHgSynchronize(object sender, EventArgs e)
         {
+            StoreSolution();
+
             string root = GetRootDirectoryOfSolution();
             if (root != string.Empty)
                 HGLib.HGTK.SyncDialog(root);
@@ -333,6 +341,8 @@ namespace VisualHG
 
         private void Exec_icmdHgUpdateToRevision(object sender, EventArgs e)
         {
+            StoreSolution();
+            
             string root = GetRootDirectoryOfSolution();
             if (root != string.Empty)
                 HGLib.HGTK.UpdateDialog(root);
@@ -369,6 +379,13 @@ namespace VisualHG
         #endregion
 
         #region Source Control Utility Functions
+
+        public void StoreSolution()
+        {
+            // store project and solution files to disk
+            IVsSolution solution = (IVsSolution)GetService(typeof(IVsSolution));
+            solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
+        }
 
         /// <summary>
         /// Returns a list of controllable projects in the solution
