@@ -376,19 +376,16 @@ namespace VisualHG
         public int OnAfterOpenSolution([InAttribute] Object pUnkReserved, [InAttribute] int fNewSolution)
         {
             Trace.WriteLine("OnAfterOpenSolution");
-            
+
+            // Make VisualHG the active SCC controler on Mercurial solution types
             if (!Active)
             {
-                /*string root = HGLib.HG.LookupRootDirectory(_sccProvider.GetSolutionFileName());
+                string root = this._sccProvider.GetRootDirectoryOfSolution();
                 if (root.Length > 0)
                 {
-                    IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)_sccProvider.GetService(typeof(IVsRegisterScciProvider));
-                    if (rscp != null)
-                    {
-                        rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
-                    }
+                    IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)this._sccProvider.GetService(typeof(IVsRegisterScciProvider));
+                    rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
                 }
-                */
             }
             return VSConstants.S_OK;
         }
