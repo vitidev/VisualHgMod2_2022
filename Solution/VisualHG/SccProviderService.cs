@@ -702,6 +702,16 @@ namespace VisualHG
         }
 
         /// <summary>
+        /// query for scc file status
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public HGLib.SourceControlStatus GetFileStatus(String filename)
+        {
+            return _sccStatusTracker.GetFileStatus(filename);
+        }    
+
+        /// <summary>
         /// set the node glyphs dirty flag to true
         /// </summary>
         public void SetNodesGlyphsDirty()

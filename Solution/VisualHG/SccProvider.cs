@@ -293,27 +293,44 @@ namespace VisualHG
         {
             StoreSolution();
 
-            IList<VSITEMSELECTION> selectedNodes;
-            IList<string> list = GetSelectedFiles(out selectedNodes);
-            if (list.Count > 0)
+            string root = String.Empty;
+            string filter = String.Empty;
+
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count > 0)
             {
-                string root = HGLib.HG.FindRootDirectory(list[0]);
-                if (root != string.Empty)
+                string filename;
+                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
+                if (pscp != null && GetSelectedItemFileName(pscp, selectedNodes[0], out filename))
                 {
-                    bool isSolutionSelected = GetSolutionSelected(selectedNodes);
-
-                    string filter = string.Empty; 
-                    if (!isSolutionSelected && list.Count == 1)
+                    root = HGLib.HG.FindRootDirectory(filename);
+                    if (root != string.Empty)
                     {
-                        int startIndex = root.Length + 1;
-                        filter = list[0].Substring(startIndex, list[0].Length - startIndex);
+                        if (selectedNodes.Count == 1)
+                        {
+                            HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                            if (status == HGLib.SourceControlStatus.scsControlled ||
+                                status == HGLib.SourceControlStatus.scsModified )
+                            {
+                                int startIndex = root.Length + 1;
+                                filter = filename.Substring(startIndex, filename.Length - startIndex);
+                            }
+                        }
                     }
-
-                    HGLib.HGTK.LogDialog(root, filter);
                 }
-                else 
-                    PromptSolutionNotControlled();
             }
+
+            if (root == String.Empty)
+            {
+                root = GetRootDirectoryOfSolution();
+            }
+
+            if (root != null && root != String.Empty)
+            {
+                HGLib.HGTK.LogDialog(root, filter);
+            }
+            else
+                PromptSolutionNotControlled();
         }
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
@@ -446,6 +463,28 @@ namespace VisualHG
         bool IsThereASolution()
         {
             return (GetSolutionFileName() != null);
+        }
+
+        /// <summary>
+        /// get the file name of the selected item/document
+        /// </summary>
+        /// <param name="project"></param>
+        /// <param name="selected_item"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private bool GetSelectedItemFileName(IVsProject project, VSITEMSELECTION selected_item, out string filename)
+        {
+            string bstrMKDocument;
+
+            if (project.GetMkDocument(selected_item.itemid, out bstrMKDocument) == VSConstants.S_OK
+                && !string.IsNullOrEmpty(bstrMKDocument))
+            {
+                filename = bstrMKDocument;
+                return true;
+            }
+
+            filename = null;
+            return false;
         }
 
         /// <summary>
