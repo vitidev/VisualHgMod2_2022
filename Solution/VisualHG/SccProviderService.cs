@@ -380,7 +380,7 @@ namespace VisualHG
             // Make VisualHG the active SCC controler on Mercurial solution types
             if (!Active)
             {
-                string root = this._sccProvider.GetRootDirectoryOfSolution();
+                string root = this._sccProvider.GetRootDirectory();
                 if (root.Length > 0)
                 {
                     IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)this._sccProvider.GetService(typeof(IVsRegisterScciProvider));

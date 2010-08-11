@@ -153,7 +153,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // update status dictionary with hg status cmd output
         // ------------------------------------------------------------------------
-        public static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary)
+        public static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary, Dictionary<string, string> renamedToOrgFileDictionary)
         {
             Dictionary<string,string> copyRenamedFiles = new Dictionary<string,string>();
             
@@ -168,6 +168,7 @@ namespace HGLib
                 if (status == ' ' && prevStatus == 'A')
                 {
                     copyRenamedFiles[file] = prevFile;
+                    renamedToOrgFileDictionary[prevFile.ToLower()] = file;
                     file = prevFile;
                 }
 
@@ -230,7 +231,8 @@ namespace HGLib
                     lines.Add(str);
                 }
 
-                UpdateStatusDictionary(lines, rootDirectory, fileStatusDictionary);
+                Dictionary<string, string> renamedToOrgFileDictionary = new Dictionary<string, string>();
+                UpdateStatusDictionary(lines, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
             }
             return (fileStatusDictionary != null);
         }
@@ -238,9 +240,10 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // query the files status and get them to the fileStatusDictionary
         // ------------------------------------------------------------------------
-        static public bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        static public bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary, out Dictionary<string, string> renamedToOrgFileDictionary)
         {
             fileStatusDictionary = new Dictionary<string, char>();
+            renamedToOrgFileDictionary = new Dictionary<string, string>();
             try
             {
                 if (fileList.Length > 0)
@@ -262,7 +265,7 @@ namespace HGLib
                             List<string> resultList;
                             InvokeCommand(rootDirectory, "status -A " + cmlLine, out resultList);
 
-                            UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary);
+                            UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
 
                             // reset cmd line and filecounter for the next run
                             cmlLine = "";
@@ -280,6 +283,15 @@ namespace HGLib
             return (fileStatusDictionary != null);
         }
         
+        // ------------------------------------------------------------------------
+        // query the files status and get them to the fileStatusDictionary
+        // ------------------------------------------------------------------------
+        static public bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        {
+            Dictionary<string, string> renamedToOrgFileDictionary;
+            return QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary);
+        }
+
         // ------------------------------------------------------------------------
         // put file under source control
         // ------------------------------------------------------------------------

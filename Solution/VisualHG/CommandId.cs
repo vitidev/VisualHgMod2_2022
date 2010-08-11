@@ -21,7 +21,8 @@ namespace VisualHG
         public const int icmdToolWindowToolbarCommand   = 0x104;
         public const int icmdHgSynchronize              = 0x105;
         public const int icmdHgUpdateToRevision         = 0x106;
-
+        public const int icmdHgDiff                     = 0x107;
+        
         // Define the list of icons (use decimal numbers here, to match the resource IDs)
         public const int iiconProductIcon               = 400;
 

@@ -14,24 +14,32 @@ namespace HGLib
     // ------------------------------------------------------------------------
     public static class HGTK
     {
-        // ------------------------------------------------------------------------
+      // ------------------------------------------------------------------------
+      // invoke arbitrary command
+      // ------------------------------------------------------------------------
+      static Process InvokeCommand(string executable, string workingDirectory, string arguments)
+      {
+        Process process = new Process();
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.FileName = executable;
+        process.StartInfo.Arguments = arguments;
+        process.StartInfo.WorkingDirectory = workingDirectory;
+        process.Start();
+        return process;
+      }
+
+      // ------------------------------------------------------------------------
         // invoke HGTK exe commands
         // ------------------------------------------------------------------------
         static Process InvokeCommand(string workingDirectory, string arguments)
         {
-            if (workingDirectory != null && workingDirectory != string.Empty)
-            {
-                Process process = new Process();
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.FileName = "HGTK.exe";
-                process.StartInfo.Arguments = arguments;
-                process.StartInfo.WorkingDirectory = workingDirectory;
-                process.Start();
-                return process;
-            }
-            
-            return null;    
+          if (workingDirectory != null && workingDirectory != string.Empty)
+          {
+            return InvokeCommand("HGTK.exe", workingDirectory, arguments); 
+          }
+          
+          return null;  
         }
 
         // ------------------------------------------------------------------------
@@ -81,6 +89,24 @@ namespace HGLib
             HGTKDialog(directory, "status");
         }
 
+        // ------------------------------------------------------------------------
+        // show TortoiseHG status dialog
+        // ------------------------------------------------------------------------
+        static public void DiffDialog(string sccFile, string file)
+        {
+          String root = HGLib.HG.FindRootDirectory(file); 
+          if(root != String.Empty)
+          {
+            string currentFile = file;
+
+            string versionedFile = Path.GetTempPath() + sccFile.Substring(sccFile.LastIndexOf("\\") + 1);
+            string cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
+            InvokeCommand("hg.exe", root, cmd);
+            cmd = "\"" + versionedFile + "\" \"" + currentFile + "\"";
+            InvokeCommand("kdiff3.exe", root, cmd);
+          }
+        }
+        
         // ------------------------------------------------------------------------
         // show TortoiseHG clone dialog
         // ------------------------------------------------------------------------

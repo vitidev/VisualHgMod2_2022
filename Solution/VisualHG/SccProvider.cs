@@ -118,6 +118,11 @@ namespace VisualHG
                 cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgStatus);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgStatus), cmd);
                 mcs.AddCommand(menuCmd);
+                
+                // Source control menu commmads
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgDiff);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgDiff), cmd);
+                mcs.AddCommand(menuCmd);
 
                 cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommit);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommit), cmd);
@@ -209,34 +214,34 @@ namespace VisualHG
             switch (prgCmds[0].cmdID)
             {
                 case CommandId.icmdHgStatus: // status
-                    cmdf |= QueryStatus_icmdHgStatus();
-                    cmdf |= OLECMDF.OLECMDF_ENABLED; 
+                    cmdf = QueryStatus_icmdHgStatus();
                     break;
 
                 case CommandId.icmdHgCommit: // commit
-                    cmdf |= QueryStatus_icmdHgCommit();
-                    cmdf |= OLECMDF.OLECMDF_ENABLED; 
+                    cmdf = QueryStatus_icmdHgCommit();
                     break;
 
                 case CommandId.icmdHgHistory: // history
-                    cmdf |= QueryStatus_icmdHgHistory();
-                    cmdf |= OLECMDF.OLECMDF_ENABLED; 
+                    cmdf = QueryStatus_icmdHgHistory();
                     break;
 
                 case CommandId.icmdHgSynchronize:
-                    cmdf |= QueryStatus_icmdHgSynchronize();
-                    cmdf |= OLECMDF.OLECMDF_ENABLED; 
+                    cmdf = QueryStatus_icmdHgSynchronize();
                     break;
 
                 case CommandId.icmdHgUpdateToRevision:
-                    cmdf |= QueryStatus_icmdHgUpdateToRevision();
-                    cmdf |= OLECMDF.OLECMDF_ENABLED;
+                    cmdf = QueryStatus_icmdHgUpdateToRevision();
+                    break;
+
+                case CommandId.icmdHgDiff: // file diff
+                    cmdf = QueryStatus_icmdHgDiff();
                     break;
 
                 case CommandId.icmdViewToolWindow:
                 case CommandId.icmdToolWindowToolbarCommand:
                     // These commmands are always enabled when the provider is active
-                    cmdf |= OLECMDF.OLECMDF_ENABLED;
+                    cmdf = OLECMDF.OLECMDF_INVISIBLE;
+                    cmdf &= ~OLECMDF.OLECMDF_ENABLED;
                     break;
 
                 default:
@@ -250,27 +255,58 @@ namespace VisualHG
 
         OLECMDF QueryStatus_icmdHgCommit()
         {
-            return OLECMDF.OLECMDF_SUPPORTED;
+          return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
         }
    
         OLECMDF QueryStatus_icmdHgHistory()
         {
-            return OLECMDF.OLECMDF_SUPPORTED;
+          return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
         }
 
         OLECMDF QueryStatus_icmdHgStatus()
         {
-            return OLECMDF.OLECMDF_SUPPORTED;
+          return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
         }
 
         OLECMDF QueryStatus_icmdHgSynchronize()
         {
-            return OLECMDF.OLECMDF_ENABLED;
+          return OLECMDF.OLECMDF_SUPPORTED|OLECMDF.OLECMDF_ENABLED;
         }
 
         OLECMDF QueryStatus_icmdHgUpdateToRevision()
         {
-            return OLECMDF.OLECMDF_ENABLED;
+          return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+        }
+
+        OLECMDF QueryStatus_icmdHgDiff()
+        {
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count == 1)
+            {
+                string filename = String.Empty;
+                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
+                if (pscp != null)
+                {
+                    GetSelectedItemFileName(pscp, selectedNodes[0], out filename);
+                }
+                else
+                {
+                    filename = GetSolutionFileName();
+                }
+
+                if (filename != String.Empty)
+                {
+                    HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                    if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                        status != HGLib.SourceControlStatus.scsAdded &&
+                        status != HGLib.SourceControlStatus.scsIgnored)
+                        return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+
+                }
+            }
+
+            
+            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
         }
 
 
@@ -282,7 +318,7 @@ namespace VisualHG
         {
             StoreSolution();
 
-            string root = GetRootDirectoryOfSolution();
+            string root = GetRootDirectory();
             if (root!=string.Empty)
                 HGLib.HGTK.CommitDialog(root);
             else
@@ -322,7 +358,7 @@ namespace VisualHG
 
             if (root == String.Empty)
             {
-                root = GetRootDirectoryOfSolution();
+                root = GetRootDirectory();
             }
 
             if (root != null && root != String.Empty)
@@ -337,7 +373,7 @@ namespace VisualHG
         {
             StoreSolution();
 
-            string root = GetRootDirectoryOfSolution();
+            string root = GetRootDirectory();
             if (root!=string.Empty)
                 HGLib.HGTK.StatusDialog(root);
             else
@@ -345,11 +381,59 @@ namespace VisualHG
 
         }
 
+        private void Exec_icmdHgDiff(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count == 1)
+            {
+                string fileName = String.Empty;
+                string versionedFile = String.Empty;
+                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
+                if (pscp != null)
+                {
+                    GetSelectedItemFileName(pscp, selectedNodes[0], out fileName);
+                }
+                else
+                {
+                    fileName = GetSolutionFileName();
+                }
+
+                if (fileName != String.Empty)
+                {
+                    versionedFile = fileName;
+
+                    HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                    if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                        status != HGLib.SourceControlStatus.scsAdded &&
+                        status != HGLib.SourceControlStatus.scsIgnored)
+                    {
+                        if (status == HGLib.SourceControlStatus.scsRenamed ||
+                            status == HGLib.SourceControlStatus.scsCopied)
+                        {
+                            // get original filename
+                            string[] fileList = { fileName };
+                            Dictionary<string, char> fileStatusDictionary;
+                            Dictionary<string, string> renamedToOrgFileDictionary;
+                            if (HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary))
+                            {
+                                renamedToOrgFileDictionary.TryGetValue(fileName.ToLower(), out versionedFile);
+                            }
+                        }
+
+                        if (versionedFile != null)
+                            HGLib.HGTK.DiffDialog(versionedFile, fileName);
+                    }
+                }
+            }
+        }
+
         private void Exec_icmdHgSynchronize(object sender, EventArgs e)
         {
             StoreSolution();
 
-            string root = GetRootDirectoryOfSolution();
+            string root = GetRootDirectory();
             if (root != string.Empty)
                 HGLib.HGTK.SyncDialog(root);
             else
@@ -360,7 +444,7 @@ namespace VisualHG
         {
             StoreSolution();
             
-            string root = GetRootDirectoryOfSolution();
+            string root = GetRootDirectory();
             if (root != string.Empty)
                 HGLib.HGTK.UpdateDialog(root);
             else
@@ -889,21 +973,26 @@ namespace VisualHG
         /// <summary>
         /// Returns the root directory of the solution or first project
         /// </summary>
-        public string GetRootDirectoryOfSolution()
+        public string GetRootDirectory()
         {
             string root = string.Empty;
 
-            IList<VSITEMSELECTION> selectedNodes;
-            IList<string> list = GetSelectedFiles(out selectedNodes);
-            if (list.Count > 0)
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count > 0)
             {
-                root = HGLib.HG.FindRootDirectory(list[0]);
+              IVsProject pscp = selectedNodes[0].pHier as IVsProject;
+              if (pscp != null)
+              {
+                  String filename;
+                  if (GetSelectedItemFileName(pscp, selectedNodes[0], out filename))
+                    root = HGLib.HG.FindRootDirectory(filename);
+              }
             }
 
             if (root == string.Empty)
             {
                 root = HGLib.HG.FindRootDirectory(GetSolutionFileName());
-                if (root == string.Empty)
+                if (root == String.Empty)
                 {
                     // this is for WebPage projects. the solution file is not included inside the HG root dir.
                     if (_LastSeenProjectDir != null)
