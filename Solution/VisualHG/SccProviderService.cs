@@ -532,6 +532,18 @@ namespace VisualHG
         {
             Trace.WriteLine("QuerySaveFile");
             Trace.WriteLine("    dir: " + pszMkDocument);
+            if (Active && File.Exists(pszMkDocument))
+			{
+              try
+              {
+                  FileAttributes attribures = File.GetAttributes(pszMkDocument);
+
+                  // Make the file writable and allow the save
+                  if ((attribures & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                    File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
+              }
+              catch{}
+            }
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
