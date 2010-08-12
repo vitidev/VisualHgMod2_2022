@@ -207,6 +207,8 @@ namespace VisualHG
             // Return the icons and the status. While the status is a combination a flags, we'll return just values 
             // with one bit set, to make life easier for GetSccGlyphsFromStatus
             HGLib.SourceControlStatus status = _sccStatusTracker.GetFileStatus(rgpszFullPaths[0]);
+            if (rgdwSccStatus != null)
+                rgdwSccStatus[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
             switch (status)
             {
                 // STATEICON_CHECKEDIN schloss
@@ -251,7 +253,7 @@ namespace VisualHG
                     break;
 
                 case HGLib.SourceControlStatus.scsUncontrolled:
-                    rgsiGlyphs[0] = 0;// (VsStateIcon)(_baseIndex + 3); 
+                    rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
                     break;
             }
 
