@@ -415,7 +415,7 @@ namespace VisualHG
         {
             Trace.WriteLine("OnAfterOpenProject");
 
-            if (fAdded == 1)
+            //if (fAdded == 1)
             {
                 IList<string> fileList = SccProvider.GetProjectFiles(pHierarchy as IVsSccProject2);
                 string[] files = new string[fileList.Count];

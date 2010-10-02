@@ -65,6 +65,11 @@ namespace HGLib
         }
         public virtual void Do(HGStatus status, List<string> ditryFilesList)
         {
+            // check also for new sub root dir
+            foreach(string file in fileList)
+                status.AddRootDirectory(file); 
+            
+            // add files
             status.AddNotIgnoredFiles(fileList);
         }
     }
