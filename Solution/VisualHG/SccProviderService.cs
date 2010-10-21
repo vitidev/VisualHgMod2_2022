@@ -208,7 +208,7 @@ namespace VisualHG
             // with one bit set, to make life easier for GetSccGlyphsFromStatus
             HGLib.SourceControlStatus status = _sccStatusTracker.GetFileStatus(rgpszFullPaths[0]);
             if (rgdwSccStatus != null)
-                rgdwSccStatus[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
+                rgdwSccStatus[0] = 1; //__SccStatus.SCC_STATUS_CONTROLLED; -> SCC_STATUS_CONTROLLED = 1
             switch (status)
             {
                 // STATEICON_CHECKEDIN schloss
@@ -586,7 +586,7 @@ namespace VisualHG
         public int OnAfterAddFilesEx([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSADDFILEFLAGS[] rgFlags)
         {
             _sccStatusTracker.EnableDirectoryWatching(true);
-             
+
             HGLib.HGFileStatusInfo info;
             _sccStatusTracker.GetFileStatusInfo(rgpszMkDocuments[0], out info);
             if (info == null || info.state == '?') // do not add files twice

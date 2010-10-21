@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef visualhgVersion ?>
-  <?define visualhgVersion=1.0.9 ?>
+  <?define visualhgVersion=1.1.0 ?>
   <?endif ?>
   <Product Id="*" Name="VisualHG $(var.visualhgVersion)" Language="1033" Version="$(var.visualhgVersion)"
            Manufacturer="VisualHG Team" UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
@@ -12,9 +12,9 @@
 
     <Property Id="ShortProductName" Value="VisualHG" />
     <Property Id="ARPCONTACT">B.Schrader - VisualHG@Live.de</Property>
-    <Property Id="ARPURLINFOABOUT">http://sharesource.org/project/visualhg/wiki/</Property>
-    <Property Id="ARPHELPLINK">http://sharesource.org/project/visualhg/wiki</Property>
-    <Property Id="ARPURLUPDATEINFO">http://sharesource.org/project/visualhg/wiki/</Property>
+    <Property Id="ARPURLINFOABOUT">http://visualhg.codeplex.com</Property>
+    <Property Id="ARPHELPLINK">http://visualhg.codeplex.com</Property>
+    <Property Id="ARPURLUPDATEINFO">http://visualhg.codeplex.com</Property>
 
     <!-- VisualHG >= 1.0 -->
     <Upgrade Id="DADADA00-ceaf-4019-a2c7-26f15d5b3727">

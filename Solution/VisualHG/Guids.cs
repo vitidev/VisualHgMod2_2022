@@ -3,8 +3,7 @@ using System;
 namespace VisualHG
 {
     // How to: Obtain a PLK for a VSPackage
-    // http://msdn.microsoft.com/de-de/library/bb165795.aspx
-    // http://www.mstoolspartners.com/anonymous/default.aspx
+    // http://msdn.microsoft.com/en-us/vstudio/cc655795.aspx
 
     /*
     VisualHG
@@ -38,12 +37,28 @@ namespace VisualHG
     Minimum Edition 	Standard
     Package Load Key (PLK) 		Q3KCEJI0DJC8A2ARAZQREIC2RDQPRPEIIZD2M1I8AMZQQ9H3IQPHKTAMIDP9H1MTC1J1RCJIAKZZHEZERMADPTJCRAD1A2KQECM3CHPAH8ETR2QPDEHQH8C8K8C2CRIK
     Description 	Mercurial source control integration
-    */
+
+    public const string PackageGuid     = "DADADA00-348D-4EB9-95F2-DE3C44642044";
+    public const string PackageVersion  = "1.0.0.3";
+    public const string PakageName      = "VisualHG";
+    public const string CompanyName     = "VisualHG@live.de";
+    public const string MinEdition      = "Standard";
+    Q3KCEJI0DJC8A2ARAZQREIC2RDQPRPEIIZD2M1I8AMZQQ9H3IQPHKTAMIDP9H1MTC1J1RCJIAKZZHEZERMADPTJCRAD1A2KQECM3CHPAH8ETR2QPDEHQH8C8K8C2CRIK
+
+     * 
+    Ver 1.1.0
+    public const string PackageGuid     = "DADADA00-19aa-4a19-a6c4-25f8d4019b4d";
+    public const string PackageVersion  = "1.0.0.4";
+    public const string PakageName      = "VisualHG";
+    public const string CompanyName     = "VisualHG@live.de";
+    public const string MinEdition      = "Standard";
+	AMRKJQE1ECKIDED1APDZMIE3ZPDACCPCAQA3M3KRC3KKI0M8PHQKQTD0JZJ2A2MDJ2C2H0AZA9DPC0R2PECECIJ9P1IRJPZ9I0EKJDR8QAJ1QAEHMAD2EAMMR2KEIIHD
+  */
 
     public static class PLK
     {
-        public const string PackageGuid     = "DADADA00-348D-4EB9-95F2-DE3C44642044";
-        public const string PackageVersion  = "1.0.0.3";
+        public const string PackageGuid     = "DADADA00-19aa-4a19-a6c4-25f8d4019b4d";
+        public const string PackageVersion  = "1.0.0.4";
         public const string PakageName      = "VisualHG";
         public const string CompanyName     = "VisualHG@live.de";
         public const string MinEdition      = "Standard";
@@ -72,7 +87,6 @@ namespace VisualHG
     };
 
     /*
-        {DADADA00-19aa-4a19-a6c4-25f8d4019b4d}
         {DADADA00-4638-4cc8-b851-7b5dca468505}
         {DADADA00-3c79-4caf-b74a-610ab4ffa451}
         {DADADA00-caaf-423f-b21d-2df00fa25ca3}
