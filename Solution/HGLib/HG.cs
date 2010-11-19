@@ -5,6 +5,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace HGLib
 {
@@ -18,7 +19,35 @@ namespace HGLib
     {
         #region invoke HG commands
 
-        // ------------------------------------------------------------------------
+      /// <summary>
+      /// get hg.exe with full path
+      /// </summary>
+      /// <returns></returns>
+      static string hgDir = null;
+      public static string GetHGFileName()
+      {
+        if (hgDir == null || hgDir == string.Empty)
+        {
+          RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\TortoiseHg");
+          if (regKey != null)
+          {
+            hgDir = (string)regKey.GetValue(null);
+          }
+        }
+
+        string hgFileName = "HG.exe";
+        if (hgDir != null && hgDir != string.Empty)
+        {
+          if (hgDir.EndsWith("\\"))
+            hgFileName = hgDir + "HG.exe";
+          else
+            hgFileName = hgDir + "\\HG.exe";
+        }
+
+        return hgFileName;
+      }
+      
+      // ------------------------------------------------------------------------
         // invoke HG exe commands
         // ------------------------------------------------------------------------
         static Process InvokeCommand(string workingDirectory, string arguments)
@@ -30,7 +59,7 @@ namespace HGLib
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "HG.exe";
+            process.StartInfo.FileName = GetHGFileName();
             process.StartInfo.Arguments = arguments;
             process.StartInfo.WorkingDirectory = workingDirectory;
             process.Start();
