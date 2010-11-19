@@ -17,7 +17,7 @@
     <Property Id="ARPURLUPDATEINFO">http://visualhg.codeplex.com</Property>
 
     <!-- VisualHG >= 1.0 -->
-    <Upgrade Id="DADADA00-ceaf-4019-a2c7-26f15d5b3727">
+    <Upgrade Id="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
       <UpgradeVersion Property="PREVIOUS_VERSION_INSTALLED" Minimum="0.0.1" Maximum="$(var.visualhgVersion)"
 							IncludeMinimum="yes" IncludeMaximum="no" />
       <UpgradeVersion Property="EXACT_VERSION_INSTALLED" Minimum="$(var.visualhgVersion)" Maximum="$(var.visualhgVersion)"
