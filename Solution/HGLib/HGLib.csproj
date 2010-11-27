@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HGDirstate.cs" />
+    <Compile Include="HGSetup.cs" />
     <Compile Include="Status\DirectoryWatcherMap.cs" />
     <Compile Include="HG.cs" />
     <Compile Include="Status\DirectoryWatcher.cs" />

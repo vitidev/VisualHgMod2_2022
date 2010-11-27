@@ -97,13 +97,14 @@ namespace HGLib
           String root = HGLib.HG.FindRootDirectory(file); 
           if(root != String.Empty)
           {
+            // copy latest file revision from repo temp folder
             string currentFile = file;
-
             string versionedFile = Path.GetTempPath() + sccFile.Substring(sccFile.LastIndexOf("\\") + 1);
             string cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
             InvokeCommand("hg.exe", root, cmd);
+            // run diff tool
             cmd = "\"" + versionedFile + "\" \"" + currentFile + "\"";
-            InvokeCommand("kdiff3.exe", root, cmd);
+            InvokeCommand(HGSetup.GetDiffTool(root), root, cmd);
           }
         }
         
