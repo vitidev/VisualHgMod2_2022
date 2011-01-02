@@ -2,6 +2,9 @@
 syntax: glob
 Command Prompt.lnk
 *.suo
+*.user
+*/_ReSharper.*
+
 
 syntax: regexp
 bin/Debug
