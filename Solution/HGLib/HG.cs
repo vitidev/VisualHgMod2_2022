@@ -144,8 +144,6 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public static string FindRootDirectory(string path)
         {
-            path = path.ToLower();
-
             if (path.EndsWith("\\"))
                 path = path.Substring(0, path.Length - 1);
 
