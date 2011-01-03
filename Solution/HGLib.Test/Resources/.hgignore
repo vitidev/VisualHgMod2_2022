@@ -1,0 +1,14 @@
+# use glob syntax.
+syntax: glob
+Command Prompt.lnk
+VisualHG.Setup\obj\VisualHG.Setup.wixproj.FileList.txt
+*.suo
+
+syntax: regexp
+bin/Debug
+bin/Release
+obj/Debug
+obj/Release
+IgnoreFile.cs
+/TestResults/
+

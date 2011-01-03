@@ -1,0 +1,42 @@
+<Include>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\InstalledProducts\SccProvider" Value="#100" Type="string">
+    <Registry Name="Package" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string" />
+    <Registry Name="ProductDetails" Value="#101" Type="string" />
+    <Registry Name="PID" Value="1.1.0" Type="string" />
+    <Registry Name="LogoID" Value="#400" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\Packages\{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Value="VisualHG.SccProvider, VisualHG, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null" Type="string">
+    <Registry Name="InprocServer32" Value="[SystemFolder]mscoree.dll" Type="string" />
+    <Registry Name="Class" Value="VisualHG.SccProvider" Type="string" />
+    <Registry Name="CodeBase" Value="[#File_VisualHG.dll]" Type="string" />
+    <Registry Name="ID" Value="104" Type="integer" />
+    <Registry Name="MinEdition" Value="Standard" Type="string" />
+    <Registry Name="ProductVersion" Value="1.0.0.4" Type="string" />
+    <Registry Name="ProductName" Value="VisualHG" Type="string" />
+    <Registry Name="CompanyName" Value="VisualHG@live.de" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\AutoLoadPackages\{dadada00-63c7-4363-b107-ad5d9d915d45}">
+    <Registry Name="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Value="0" Type="integer" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\Menus">
+    <Registry Name="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Value=", 1000, 1" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\Services\{dadada00-d8ac-4ba7-8b05-5166c8f08ef5}" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string">
+    <Registry Name="Name" Value="VisualHG" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\SolutionPersistence\VisualHGProperties" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string" />
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\SourceControlProviders\{dadada00-63c7-4363-b107-ad5d9d915d45}" Value="VisualHG" Type="string">
+    <Registry Name="Service" Value="{dadada00-d8ac-4ba7-8b05-5166c8f08ef5}" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\SourceControlProviders\{dadada00-63c7-4363-b107-ad5d9d915d45}\Name" Value="#100" Type="string">
+    <Registry Name="Package" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string" />
+  </Registry>
+</Include>
