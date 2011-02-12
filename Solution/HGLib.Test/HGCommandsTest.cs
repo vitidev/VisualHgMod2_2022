@@ -87,5 +87,23 @@ namespace HGLib.Test
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
         }
         
+        [TestMethod]
+        public void StatusSubrepo()
+        {
+            string dir = TestContext.TestDir + "\\HGCommandStatusSubrepoTest";
+
+            Assert.IsTrue(Utilities.ExtractZipResource(dir, typeof(HGStatusTest), "Resources.subrepo.hg.zip"));
+            UpdateRepo(dir, "0 files updated, 0 files merged, 0 files removed, 0 files unresolved");
+
+            string[] fileList = new string[] { Path.Combine("subrepo", "subrepofile.cs"), "file.cs" };
+            for (int i = 0; i < fileList.Length; i++)
+                fileList[i] = Path.Combine(dir, fileList[i]);
+
+            foreach (var file in fileList)
+                File.Create(Path.Combine(dir, file));
+
+            Dictionary<string, char> fileStatusDictionary;
+            Assert.IsTrue(HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary));
+        }
     }
 }

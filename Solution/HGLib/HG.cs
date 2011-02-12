@@ -144,8 +144,6 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public static string FindRootDirectory(string path)
         {
-            path = path.ToLower();
-
             if (path.EndsWith("\\"))
                 path = path.Substring(0, path.Length - 1);
 
@@ -273,33 +271,42 @@ namespace HGLib
         {
             fileStatusDictionary = new Dictionary<string, char>();
             renamedToOrgFileDictionary = new Dictionary<string, string>();
+            Dictionary<string, string> commandLines = new Dictionary<string, string>();
+
             try
             {
                 if (fileList.Length > 0)
                 {
-                    string rootFile = fileList[0];
-                    string directory = rootFile.Substring(0, rootFile.LastIndexOf('\\'));
-                    string rootDirectory = HG.FindRootDirectory(directory);
-
-                    // limit the number of files per call to avois inputbuffer overflows
-                    string cmlLine = "";
-                    int fileCounter = 0;
                     for (int iFile = 0; iFile < fileList.Length; ++iFile)
                     {
-                        cmlLine += " \"" + fileList[iFile].Substring(rootDirectory.Length+1) + "\" ";
-                        fileCounter++;
+                        string file = fileList[iFile];
+                        string rootDirectory = HG.FindRootDirectory(file);
 
-                        if (cmlLine.Length>=(2048)|| (fileList.Length == iFile + 1))
+                        string commandLine = "";
+                        commandLines.TryGetValue(rootDirectory, out commandLine);
+                        commandLine += " \"" + file.Substring(rootDirectory.Length + 1) + "\" ";
+                        
+                        if (commandLine.Length>=(2000))
                         {
                             List<string> resultList;
-                            InvokeCommand(rootDirectory, "status -A " + cmlLine, out resultList);
-
+                            InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
                             UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
 
                             // reset cmd line and filecounter for the next run
-                            cmlLine = "";
-                            fileCounter = 0;
+                            commandLine = "";
                         }
+
+                        commandLines[rootDirectory] = commandLine;
+                    }
+
+                    foreach (KeyValuePair<string, string> directoryCommandLine in commandLines)
+                    {
+                        string rootDirectory = directoryCommandLine.Key;
+                        string commandLine = directoryCommandLine.Value;
+
+                        List<string> resultList;
+                        InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
+                        UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
                     }
                 }
             }
