@@ -16,13 +16,13 @@ namespace VisualHG
 	/// </summary>
 	public class SccProviderOptionsControl : System.Windows.Forms.UserControl
     {
-        private Label label1;
 
 		/// <summary> 
 		/// Required designer variable.
 		/// </summary>
-		private System.ComponentModel.Container components = null;
-        private Button UpdateGlyphs;
+        private System.ComponentModel.Container components = null;
+        private CheckBox autoAddFiles;
+        private CheckBox autoActivatePlugin;
         // The parent page, use to persist data
         private SccProviderOptions _customPage;
 
@@ -58,36 +58,41 @@ namespace VisualHG
 		/// </summary>
 		private void InitializeComponent()
 		{
-            this.label1 = new System.Windows.Forms.Label();
-            this.UpdateGlyphs = new System.Windows.Forms.Button();
+            this.autoAddFiles = new System.Windows.Forms.CheckBox();
+            this.autoActivatePlugin = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
-            // label1
+            // autoAddFiles
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 28);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(88, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "VisualHG options";
+            this.autoAddFiles.AutoSize = true;
+            this.autoAddFiles.Checked = true;
+            this.autoAddFiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.autoAddFiles.Location = new System.Drawing.Point(3, 26);
+            this.autoAddFiles.Name = "autoAddFiles";
+            this.autoAddFiles.Size = new System.Drawing.Size(299, 17);
+            this.autoAddFiles.TabIndex = 0;
+            this.autoAddFiles.Text = "Add files automatically to Mercurial ( except ignored ones )";
+            this.autoAddFiles.UseVisualStyleBackColor = true;
             // 
-            // UpdateGlyphs
+            // autoActivatePlugin
             // 
-            this.UpdateGlyphs.Location = new System.Drawing.Point(126, 18);
-            this.UpdateGlyphs.Name = "UpdateGlyphs";
-            this.UpdateGlyphs.Size = new System.Drawing.Size(112, 23);
-            this.UpdateGlyphs.TabIndex = 3;
-            this.UpdateGlyphs.Text = "Update Glyphs";
-            this.UpdateGlyphs.UseVisualStyleBackColor = true;
-            this.UpdateGlyphs.Click += new System.EventHandler(this.UpdateGlyphs_Click);
+            this.autoActivatePlugin.AutoSize = true;
+            this.autoActivatePlugin.Checked = true;
+            this.autoActivatePlugin.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.autoActivatePlugin.Location = new System.Drawing.Point(3, 3);
+            this.autoActivatePlugin.Name = "autoActivatePlugin";
+            this.autoActivatePlugin.Size = new System.Drawing.Size(228, 17);
+            this.autoActivatePlugin.TabIndex = 1;
+            this.autoActivatePlugin.Text = "Autoselect VisualHG for Mercurial solutions";
+            this.autoActivatePlugin.UseVisualStyleBackColor = true;
             // 
             // SccProviderOptionsControl
             // 
             this.AllowDrop = true;
-            this.Controls.Add(this.UpdateGlyphs);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.autoActivatePlugin);
+            this.Controls.Add(this.autoAddFiles);
             this.Name = "SccProviderOptionsControl";
-            this.Size = new System.Drawing.Size(292, 195);
+            this.Size = new System.Drawing.Size(400, 271);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -100,6 +105,18 @@ namespace VisualHG
             {
                 _customPage = value;
             }
+        }
+
+        public void StoreConfiguration(Configuration config)
+        {
+            config._autoActivatePlugin = autoActivatePlugin.Checked;
+            config._autoAddFiles       = autoAddFiles.Checked;
+        }
+
+        public void RestoreConfiguration(Configuration config)
+        {
+            autoActivatePlugin.Checked = config._autoActivatePlugin;
+            autoAddFiles.Checked = config._autoAddFiles;
         }
 
         private void UpdateGlyphs_Click(object sender, EventArgs e)

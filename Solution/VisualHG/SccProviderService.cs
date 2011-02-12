@@ -380,7 +380,7 @@ namespace VisualHG
             Trace.WriteLine("OnAfterOpenSolution");
 
             // Make VisualHG the active SCC controler on Mercurial solution types
-            if (!Active)
+            if (!Active && Configuration.Global._autoActivatePlugin)
             {
                 string root = this._sccProvider.GetRootDirectory();
                 if (root.Length > 0)
@@ -421,7 +421,8 @@ namespace VisualHG
                 string[] files = new string[fileList.Count];
                 fileList.CopyTo(files, 0);
                 // add only files wich are not ignored
-                _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
+                if(Configuration.Global._autoAddFiles)
+                    _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
             }
 
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
@@ -592,7 +593,8 @@ namespace VisualHG
             if (info == null || info.state == '?') // do not add files twice
             {
                 // add only files wich are not ignored
-                _sccStatusTracker.AddWorkItem(new HGLib.TrackFilesAddedNotIgnored(rgpszMkDocuments));
+                if (Configuration.Global._autoAddFiles)
+                    _sccStatusTracker.AddWorkItem(new HGLib.TrackFilesAddedNotIgnored(rgpszMkDocuments));
             }
             return VSConstants.S_OK;
         }

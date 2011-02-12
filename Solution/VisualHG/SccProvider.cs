@@ -31,10 +31,9 @@ namespace VisualHG
     // Everytime the version number changes VS will automatically update the menus on startup; if the version doesn't change, you will need to run manually "devenv /setup /rootsuffix:Exp" to see VSCT changes reflected in IDE
     [MsVsShell.ProvideMenuResource(1000, 1)]
     
-    //TODO create meaningful page
     // Register the VisualHG options page visible as Tools/Options/SourceControl/VisualHG when the provider is active
-    /// [MsVsShell.ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHG", 106, 107, false)]
-    /// [ProvideToolsOptionsPageVisibility("Source Control", "VisualHG", GuidList.ProviderGuid)]
+    [MsVsShell.ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHG", 106, 107, false)]
+    [ProvideToolsOptionsPageVisibility("Source Control", "VisualHG", GuidList.ProviderGuid)]
 
     //TODO create meaningful page
     // Register the VisualHG tool window visible only when the provider is active
