@@ -58,7 +58,11 @@ namespace HGLib
 
         public bool TryGetValue(string file, out HGFileStatusInfo info)
         {
-            return _dictionary.TryGetValue(file.ToLower(), out info);
+            if (file != null)
+                return _dictionary.TryGetValue(file.ToLower(), out info);
+
+            info = null;
+            return false;
         }
     }
 }

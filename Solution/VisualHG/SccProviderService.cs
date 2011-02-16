@@ -224,7 +224,7 @@ namespace VisualHG
                 // STATEICON_READONLY schloss
 
                 // my states
-                case HGLib.SourceControlStatus.scsControlled:
+                case HGLib.SourceControlStatus.scsClean:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 0);
                     break;
 
@@ -319,7 +319,7 @@ namespace VisualHG
             switch (status)
             {
               // my states
-              case HGLib.SourceControlStatus.scsControlled:
+              case HGLib.SourceControlStatus.scsClean:
                 pbstrTooltipText = "Clean";
                 break;
 

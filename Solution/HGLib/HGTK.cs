@@ -161,6 +161,33 @@ namespace HGLib
         {
             HGTKDialog(directory, "commit");
         }
+        
+        static public void CommitDialog(string [] files)
+        {
+            string lastRoot = string.Empty;
+            string fileList = string.Empty;
+            for (int n = 0; n < files.Length; ++n)
+            {
+                string root = HGLib.HG.FindRootDirectory(files[n]);
+                if (lastRoot == string.Empty)
+                {
+                    lastRoot = root;
+                }
+                else if (lastRoot != root)
+                {
+                    HGTKDialog(root, "commit " + fileList);    
+                    fileList = string.Empty;
+                }
+
+                if(fileList.Length>0)
+                    fileList += " , " + files[n];
+                else
+                    fileList += files[n];
+            }
+            
+            if (fileList != string.Empty)
+                HGTKDialog(lastRoot, "commit " + fileList);
+        }
 
         // ------------------------------------------------------------------------
         // show TortoiseHG datamine dialog
@@ -168,6 +195,30 @@ namespace HGLib
         static public void DataMineDialog(string directory)
         {
             HGTKDialog(directory, "datamine");
+        }
+        
+        // ------------------------------------------------------------------------
+        // show TortoiseHG revert dialog
+        // ------------------------------------------------------------------------
+        static public void RevertDialog(string file)
+        {
+            String root = HGLib.HG.FindRootDirectory(file);
+            if(root != String.Empty)
+            {
+                HGTKDialog(root, "revert " + file);
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // show TortoiseHG datamine dialog
+        // ------------------------------------------------------------------------
+        static public void AnnotateDialog(string file)
+        {
+            String root = HGLib.HG.FindRootDirectory(file);
+            if(root != String.Empty)
+            {
+                HGTKDialog(root, "annotate " + file);
+            }
         }
     }
 }

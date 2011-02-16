@@ -17,7 +17,7 @@ namespace HGLib
         scsUncontrolled = 0,
 //        scsCheckedIn,
 //        scsCheckedOut,
-        scsControlled,
+        scsClean,
         scsModified,
         scsAdded,
         scsRemoved,
@@ -145,7 +145,7 @@ namespace HGLib
             {
                 switch (value.state)
                 {
-                    case 'C': status = SourceControlStatus.scsControlled; break;
+                    case 'C': status = SourceControlStatus.scsClean; break;
                     case 'M': status = SourceControlStatus.scsModified; break;
                     case 'A': status = SourceControlStatus.scsAdded; break;
                     case 'R': status = SourceControlStatus.scsRemoved; break;

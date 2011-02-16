@@ -123,12 +123,20 @@ namespace VisualHG
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgDiff), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommit);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommit), cmd);
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommitRoot);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitRoot), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgHistory);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistory), cmd);
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitSelected), cmd);
+                mcs.AddCommand(menuCmd);
+
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgHistoryRoot);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistoryRoot), cmd);
+                mcs.AddCommand(menuCmd);
+
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgHistorySelected);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistorySelected), cmd);
                 mcs.AddCommand(menuCmd);
 
                 cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
@@ -138,7 +146,14 @@ namespace VisualHG
                 cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgUpdateToRevision);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgUpdateToRevision), cmd);
                 mcs.AddCommand(menuCmd);
-                
+
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgRevert);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgRevert), cmd);
+                mcs.AddCommand(menuCmd);
+
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAnnotate), cmd);
+                mcs.AddCommand(menuCmd);
             }
 
             // Register the provider with the source control manager
@@ -203,7 +218,6 @@ namespace VisualHG
             if (!sccService.Active)
             {
                 cmdf = cmdf | OLECMDF.OLECMDF_INVISIBLE;
-                cmdf = cmdf & ~(OLECMDF.OLECMDF_ENABLED);
 
                 prgCmds[0].cmdf = (uint)cmdf;
                 return VSConstants.S_OK;
@@ -212,16 +226,24 @@ namespace VisualHG
             // Process our Commands
             switch (prgCmds[0].cmdID)
             {
-                case CommandId.icmdHgStatus: // status
+                case CommandId.icmdHgStatus:
                     cmdf = QueryStatus_icmdHgStatus();
                     break;
 
-                case CommandId.icmdHgCommit: // commit
-                    cmdf = QueryStatus_icmdHgCommit();
+                case CommandId.icmdHgCommitRoot:
+                    cmdf = QueryStatus_icmdHgCommitRoot();
                     break;
 
-                case CommandId.icmdHgHistory: // history
-                    cmdf = QueryStatus_icmdHgHistory();
+                case CommandId.icmdHgCommitSelected:
+                    cmdf = QueryStatus_icmdHgCommitSelected();
+                    break;
+
+                case CommandId.icmdHgHistoryRoot:
+                    cmdf = QueryStatus_icmdHgHistoryRoot();
+                    break;
+
+                case CommandId.icmdHgHistorySelected:
+                    cmdf = QueryStatus_icmdHgHistorySelected();
                     break;
 
                 case CommandId.icmdHgSynchronize:
@@ -232,8 +254,16 @@ namespace VisualHG
                     cmdf = QueryStatus_icmdHgUpdateToRevision();
                     break;
 
-                case CommandId.icmdHgDiff: // file diff
+                case CommandId.icmdHgDiff:
                     cmdf = QueryStatus_icmdHgDiff();
+                    break;
+
+                case CommandId.icmdHgRevert:
+                    cmdf = QueryStatus_icmdHgRevert();
+                    break;
+
+                case CommandId.icmdHgAnnotate:
+                    cmdf = QueryStatus_icmdHgAnnotate();
                     break;
 
                 case CommandId.icmdViewToolWindow:
@@ -252,14 +282,50 @@ namespace VisualHG
             return VSConstants.S_OK;
         }
 
-        OLECMDF QueryStatus_icmdHgCommit()
+        OLECMDF QueryStatus_icmdHgCommitRoot()
         {
           return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
         }
+
+        OLECMDF QueryStatus_icmdHgCommitSelected()
+        {
+            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+
+            List<string> array = GetSelectedFileNameArray();
+            foreach(string filename in array)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsClean &&
+                    status != HGLib.SourceControlStatus.scsIgnored)
+                { 
+                    cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+                    break;
+                }
+            }
+            
+            return cmdf;
+        }
+        
    
-        OLECMDF QueryStatus_icmdHgHistory()
+        OLECMDF QueryStatus_icmdHgHistoryRoot()
         {
           return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+        }
+        
+        OLECMDF QueryStatus_icmdHgHistorySelected()
+        {
+            string filename = GetSingleSelectedFileName();
+            if (filename != string.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsIgnored &&
+                    status != HGLib.SourceControlStatus.scsAdded)
+                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            }
+
+            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
         }
 
         OLECMDF QueryStatus_icmdHgStatus()
@@ -279,32 +345,49 @@ namespace VisualHG
 
         OLECMDF QueryStatus_icmdHgDiff()
         {
-            var selectedNodes = GetSelectedNodes();
-            if (selectedNodes.Count == 1)
+            string filename = GetSingleSelectedFileName();
+
+            if (filename != String.Empty)
             {
-                string filename = String.Empty;
-                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
-                if (pscp != null)
-                {
-                    GetSelectedItemFileName(pscp, selectedNodes[0], out filename);
-                }
-                else
-                {
-                    filename = GetSolutionFileName();
-                }
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsAdded &&
+                    status != HGLib.SourceControlStatus.scsIgnored &&
+                    status != HGLib.SourceControlStatus.scsClean)
+                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
-                if (filename != String.Empty)
-                {
-                    HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                    if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                        status != HGLib.SourceControlStatus.scsAdded &&
-                        status != HGLib.SourceControlStatus.scsIgnored)
-                        return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-
-                }
             }
 
-            
+            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+        }
+
+        OLECMDF QueryStatus_icmdHgRevert()
+        {
+            string filename = GetSingleSelectedFileName();
+            if (filename != String.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsClean)
+                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+
+            }
+
+            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+        }
+
+        OLECMDF QueryStatus_icmdHgAnnotate()
+        {
+            string filename = GetSingleSelectedFileName();
+            if (filename != String.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsIgnored)
+                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+
+            }
+
             return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
         }
 
@@ -313,7 +396,7 @@ namespace VisualHG
 
         #region Source Control Commands Execution
 
-        private void Exec_icmdHgCommit(object sender, EventArgs e)
+        private void Exec_icmdHgCommitRoot(object sender, EventArgs e)
         {
             StoreSolution();
 
@@ -324,48 +407,50 @@ namespace VisualHG
                 PromptSolutionNotControlled();
         }
 
-        private void Exec_icmdHgHistory(object sender, EventArgs e)
+        private void Exec_icmdHgCommitSelected(object sender, EventArgs e)
         {
             StoreSolution();
 
-            string root = String.Empty;
-            string filter = String.Empty;
-
-            var selectedNodes = GetSelectedNodes();
-            if (selectedNodes.Count > 0)
+            List<string> array = GetSelectedFileNameArray();
+            if (array.Count > 0)
             {
-                string filename;
-                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
-                if (pscp != null && GetSelectedItemFileName(pscp, selectedNodes[0], out filename))
-                {
-                    root = HGLib.HG.FindRootDirectory(filename);
-                    if (root != string.Empty)
-                    {
-                        if (selectedNodes.Count == 1)
-                        {
-                            HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                            if (status == HGLib.SourceControlStatus.scsControlled ||
-                                status == HGLib.SourceControlStatus.scsModified )
-                            {
-                                int startIndex = root.Length + 1;
-                                filter = filename.Substring(startIndex, filename.Length - startIndex);
-                            }
-                        }
-                    }
-                }
+                string root = HGLib.HG.FindRootDirectory(array[0]);
+                if (root!=string.Empty)
+                    HGLib.HGTK.CommitDialog(array.ToArray());
+                else
+                    PromptSolutionNotControlled();
             }
+        }
 
-            if (root == String.Empty)
-            {
-                root = GetRootDirectory();
-            }
+        private void Exec_icmdHgHistoryRoot(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            string root = GetRootDirectory();
 
             if (root != null && root != String.Empty)
-            {
-                HGLib.HGTK.LogDialog(root, filter);
-            }
+                HGLib.HGTK.LogDialog(root, string.Empty);
             else
                 PromptSolutionNotControlled();
+        }
+
+        private void Exec_icmdHgHistorySelected(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            string fileName = GetSingleSelectedFileName();
+            if (fileName != string.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsAdded &&
+                    status != HGLib.SourceControlStatus.scsIgnored)
+                {
+                    string root = HGLib.HG.FindRootDirectory(fileName);
+                    if (root != string.Empty)
+                        HGLib.HGTK.LogDialog(root, fileName);        
+                }
+            }
         }
 
         private void Exec_icmdHgStatus(object sender, EventArgs e)
@@ -383,47 +468,33 @@ namespace VisualHG
         private void Exec_icmdHgDiff(object sender, EventArgs e)
         {
             StoreSolution();
-
-            var selectedNodes = GetSelectedNodes();
-            if (selectedNodes.Count == 1)
+            
+            string fileName = GetSingleSelectedFileName();
+            
+            if (fileName != String.Empty)
             {
-                string fileName = String.Empty;
-                string versionedFile = String.Empty;
-                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
-                if (pscp != null)
-                {
-                    GetSelectedItemFileName(pscp, selectedNodes[0], out fileName);
-                }
-                else
-                {
-                    fileName = GetSolutionFileName();
-                }
+                string versionedFile = fileName;
 
-                if (fileName != String.Empty)
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsAdded &&
+                    status != HGLib.SourceControlStatus.scsIgnored)
                 {
-                    versionedFile = fileName;
-
-                    HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
-                    if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                        status != HGLib.SourceControlStatus.scsAdded &&
-                        status != HGLib.SourceControlStatus.scsIgnored)
+                    if (status == HGLib.SourceControlStatus.scsRenamed ||
+                        status == HGLib.SourceControlStatus.scsCopied)
                     {
-                        if (status == HGLib.SourceControlStatus.scsRenamed ||
-                            status == HGLib.SourceControlStatus.scsCopied)
+                        // get original filename
+                        string[] fileList = { fileName };
+                        Dictionary<string, char> fileStatusDictionary;
+                        Dictionary<string, string> renamedToOrgFileDictionary;
+                        if (HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary))
                         {
-                            // get original filename
-                            string[] fileList = { fileName };
-                            Dictionary<string, char> fileStatusDictionary;
-                            Dictionary<string, string> renamedToOrgFileDictionary;
-                            if (HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary))
-                            {
-                                renamedToOrgFileDictionary.TryGetValue(fileName.ToLower(), out versionedFile);
-                            }
+                            renamedToOrgFileDictionary.TryGetValue(fileName.ToLower(), out versionedFile);
                         }
-
-                        if (versionedFile != null)
-                            HGLib.HGTK.DiffDialog(versionedFile, fileName);
                     }
+
+                    if (versionedFile != null)
+                        HGLib.HGTK.DiffDialog(versionedFile, fileName);
                 }
             }
         }
@@ -449,7 +520,39 @@ namespace VisualHG
             else
                 PromptSolutionNotControlled();
         }
-        
+
+        private void Exec_icmdHgRevert(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            string fileName = GetSingleSelectedFileName();
+            if (fileName != String.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsClean)
+                {
+                    HGLib.HGTK.RevertDialog(fileName);
+                }
+            }
+        }
+
+        private void Exec_icmdHgAnnotate(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            string fileName = GetSingleSelectedFileName();
+            if (fileName != String.Empty)
+            {
+                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
+                    status != HGLib.SourceControlStatus.scsIgnored )
+                {
+                    HGLib.HGTK.AnnotateDialog(fileName);
+                }
+            }
+        }
+
 
         // The function can be used to bring back the provider's toolwindow if it was previously closed
         private void Exec_icmdViewToolWindow(object sender, EventArgs e)
@@ -1068,7 +1171,7 @@ namespace VisualHG
         private static void DebugWalkingNode(IVsHierarchy pHier, uint itemid)
         {
             object property = null;
-            if (pHier.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out property) == VSConstants.S_OK)
+            if (pHier != null && pHier.GetProperty(itemid, (int)__VSHPROPID.VSHPROPID_Name, out property) == VSConstants.S_OK)
             {
                 Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Walking hierarchy node: {0}", (string)property));
             }
@@ -1089,6 +1192,9 @@ namespace VisualHG
         private static IList<uint> GetProjectItems(IVsHierarchy pHier, uint startItemid)
         {
             List<uint> projectNodes = new List<uint>();
+
+            if(pHier == null)
+                return projectNodes;
 
             // The method does a breadth-first traversal of the project's hierarchy tree
             Queue<uint> nodesToWalk = new Queue<uint>();
@@ -1157,6 +1263,57 @@ namespace VisualHG
             return GetProjectFiles(pscp2Project, VSConstants.VSITEMID_ROOT);
         }
 
+        /// <summary>
+        /// get current single selected filename
+        /// </summary>
+        /// <returns></returns>
+        public string GetSingleSelectedFileName()
+        {
+            string filename = string.Empty;
+            var selectedNodes = GetSelectedNodes();
+            if (selectedNodes.Count == 1)
+            {
+                IVsProject pscp = selectedNodes[0].pHier as IVsProject;
+                if (pscp != null)
+                {
+                    GetSelectedItemFileName(pscp, selectedNodes[0], out filename);
+                }
+                else
+                {
+                    filename = GetSolutionFileName();
+                }
+            }
+
+            return filename;
+        }
+
+        /// <summary>
+        /// get current selected filenames
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetSelectedFileNameArray()
+        {
+            List<string> array = new List<string>();
+            
+            var selectedNodes = GetSelectedNodes();
+            foreach(VSITEMSELECTION node in selectedNodes)
+            {
+                string filename = string.Empty; 
+                IVsProject pscp = node.pHier as IVsProject;
+                if (pscp != null)
+                {
+                    GetSelectedItemFileName(pscp, node, out filename);
+                }
+                else
+                {
+                    filename = GetSolutionFileName();
+                }
+                array.Add(filename);
+            }
+
+            return array;
+        }
+      
         /// <summary>
         /// Gets the list of source controllable files in the specified project
         /// </summary>
