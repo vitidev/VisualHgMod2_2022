@@ -33,13 +33,15 @@ namespace HGLib
     public static string GetMercurialIniFile()
     {
       // get local setting
-      string x = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-      int index = x.LastIndexOf('\\');
-      string iniFile = "";
-      if(index>0)
-        iniFile = x.Substring(0, index) + "\\mercurial.ini";
+      string x = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+      return System.IO.Path.Combine(x, "mercurial.ini");
+      //string x = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+      //int index = x.LastIndexOf('\\');
+      //string iniFile = "";
+      //if(index>0)
+      //  iniFile = x.Substring(0, index) + "\\mercurial.ini";
         
-      return iniFile;
+      //return iniFile;
     }
     
     // read THG ini setting
