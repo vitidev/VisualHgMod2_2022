@@ -1,0 +1,16 @@
+# use glob syntax.
+syntax: glob
+Command Prompt.lnk
+*.suo
+*.user
+*/_ReSharper.*
+
+
+syntax: regexp
+bin/Debug
+bin/Release
+obj/Debug
+obj/Release
+/TestResults/
+/TDD/
+/obj/
