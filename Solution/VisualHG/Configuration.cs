@@ -8,8 +8,9 @@ namespace VisualHG
     /// </summary>
     public class Configuration
     {
-        public bool _autoAddFiles = true;
-        public bool _autoActivatePlugin = true;
+        public bool   _autoAddFiles = true;
+        public bool   _autoActivatePlugin = true;
+        public string _externalDiffToolCommandMask = string.Empty; 
 
         public bool AutoActivatePlugin
         {
@@ -22,6 +23,13 @@ namespace VisualHG
             get { return _autoAddFiles; }
             set { _autoAddFiles = value; }
         }
+
+        public string ExternalDiffToolCommandMask
+        {
+            get { return _externalDiffToolCommandMask; }
+            set { _externalDiffToolCommandMask = value; }
+        }
+        
 
         
         /// <summary>

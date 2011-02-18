@@ -82,6 +82,12 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="SccProviderService.cs" />
+    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.Designer.cs">
+      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\PendingChangesWindow\HGPendingChangesToolWindow.cs" />
     <Compile Include="UI\PendingChangesWindow\HGPendingChangesToolWindowControl.cs">
       <SubType>UserControl</SubType>
@@ -113,6 +119,10 @@
     <Content Include="Resources\Images_32bit.bmp" />
     <Content Include="Setup\VisualHG.wxs" />
     <EmbeddedResource Include="Resources\StatusGlyphs.bmp" />
+    <EmbeddedResource Include="UI\OptionsPage\SelectDiffToolTemplateDialog.resx">
+      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Resources\Product.ico" />
   </ItemGroup>
   <ItemGroup>

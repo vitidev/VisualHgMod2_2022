@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
 using MsVsShell = Microsoft.VisualStudio.Shell;
+using System.Windows.Forms;
 
 namespace VisualHG
 {
@@ -390,7 +391,19 @@ namespace VisualHG
                     }
 
                     if (versionedFile != null)
-                        HGLib.HGTK.DiffDialog(versionedFile, fileName);
+                    { 
+                        try
+                        { 
+                            HGLib.HGTK.DiffDialog(versionedFile, fileName, Configuration.Global.ExternalDiffToolCommandMask);
+                        }
+                        catch
+                        {
+                            if (Configuration.Global.ExternalDiffToolCommandMask != string.Empty)
+                                MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask,
+                                                "VisualHG",
+                                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        }                        
+                    }
                 }
             }
         }

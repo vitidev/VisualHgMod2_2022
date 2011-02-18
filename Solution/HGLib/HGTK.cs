@@ -100,10 +100,33 @@ namespace HGLib
             HGTKDialog(directory, "status");
         }
 
+        /// <summary>
+        /// Replace the following token
+        /// $(ProgramFiles)
+        /// $(Base)
+        /// $(Mine)
+        /// $(BaseName)
+        /// $(MineName)
+        /// </summary>
+        /// <param name="versionedFile"></param>
+        /// <param name="currentFile"></param>
+        /// <param name="commandMask"></param>
+        /// <returns></returns>
+        static string PrepareDiffCommand(string versionedFile, string currentFile, string commandMask)
+        {
+            string command = commandMask;
+            command = command.Replace("$(ProgramFiles)", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+            command = command.Replace("$(Base)", versionedFile);
+            command = command.Replace("$(Mine)", currentFile);
+            command = command.Replace("$(BaseName)", Path.GetFileName(versionedFile) );
+            command = command.Replace("$(MineName)", Path.GetFileName(currentFile) );
+            return command;
+        }
+
         // ------------------------------------------------------------------------
         // show TortoiseHG status dialog
         // ------------------------------------------------------------------------
-        static public void DiffDialog(string sccFile, string file)
+        static public void DiffDialog(string sccFile, string file, string commandMask)
         {
           String root = HGLib.HG.FindRootDirectory(file); 
           if(root != String.Empty)
@@ -120,8 +143,16 @@ namespace HGLib
             { Thread.Sleep(1); ++counter; }
             
             // run diff tool
-            cmd = "\"" + versionedFile + "\" \"" + currentFile + "\"";
-            InvokeCommand(HGSetup.GetDiffTool(root), root, cmd);
+            if (commandMask != string.Empty)
+            {
+                cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask);
+                InvokeCommand(cmd, "", "");
+            }
+            else
+            {
+                cmd = "\"" + versionedFile + "\" \"" + currentFile + "\""; 
+                InvokeCommand(HGSetup.GetDiffTool(root), root, cmd);
+            }
           }
         }
         
