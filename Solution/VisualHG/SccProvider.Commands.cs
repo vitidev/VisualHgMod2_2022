@@ -213,7 +213,9 @@ namespace VisualHG
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
                 if (status != HGLib.SourceControlStatus.scsUncontrolled &&
                     status != HGLib.SourceControlStatus.scsIgnored &&
-                    status != HGLib.SourceControlStatus.scsAdded)
+                    status != HGLib.SourceControlStatus.scsAdded &&
+                    status != HGLib.SourceControlStatus.scsRenamed &&
+                    status != HGLib.SourceControlStatus.scsCopied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
 
@@ -276,7 +278,9 @@ namespace VisualHG
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
                 if (status != HGLib.SourceControlStatus.scsUncontrolled &&
                     status != HGLib.SourceControlStatus.scsIgnored &&
-                    status != HGLib.SourceControlStatus.scsAdded)
+                    status != HGLib.SourceControlStatus.scsAdded &&
+                    status != HGLib.SourceControlStatus.scsRenamed &&
+                    status != HGLib.SourceControlStatus.scsCopied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
             }
@@ -330,7 +334,7 @@ namespace VisualHG
             string root = GetRootDirectory();
 
             if (root != null && root != String.Empty)
-                HGLib.HGTK.LogDialog(root, string.Empty);
+                HGLib.HGTK.RepoBrowserDialog(root);
             else
                 PromptSolutionNotControlled();
         }
@@ -347,9 +351,7 @@ namespace VisualHG
                     status != HGLib.SourceControlStatus.scsAdded &&
                     status != HGLib.SourceControlStatus.scsIgnored)
                 {
-                    string root = HGLib.HG.FindRootDirectory(fileName);
-                    if (root != string.Empty)
-                        HGLib.HGTK.LogDialog(root, fileName);
+                    HGLib.HGTK.LogDialog(fileName); 
                 }
             }
         }
@@ -384,14 +386,7 @@ namespace VisualHG
                     if (status == HGLib.SourceControlStatus.scsRenamed ||
                         status == HGLib.SourceControlStatus.scsCopied)
                     {
-                        // get original filename
-                        string[] fileList = { fileName };
-                        Dictionary<string, char> fileStatusDictionary;
-                        Dictionary<string, string> renamedToOrgFileDictionary;
-                        if (HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary))
-                        {
-                            renamedToOrgFileDictionary.TryGetValue(fileName.ToLower(), out versionedFile);
-                        }
+                        versionedFile = HGLib.HG.GetOriginalOfRenamedFile(fileName); 
                     }
 
                     if (versionedFile != null)
@@ -446,6 +441,14 @@ namespace VisualHG
             if (fileName != String.Empty)
             {
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
+                if (status == HGLib.SourceControlStatus.scsRenamed)
+                {
+                    // get original filename
+                    string orgName = HGLib.HG.GetOriginalOfRenamedFile(fileName);
+                    if(orgName != string.Empty)
+                        HGLib.HGTK.AnnotateDialog(orgName);
+                }
+                
                 if (status != HGLib.SourceControlStatus.scsUncontrolled &&
                     status != HGLib.SourceControlStatus.scsIgnored)
                 {

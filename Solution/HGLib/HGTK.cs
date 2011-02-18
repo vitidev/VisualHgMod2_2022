@@ -63,14 +63,25 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // show TortoiseHG log dialog
+        // show TortoiseHG repo browser dialog
         // ------------------------------------------------------------------------
-        static public void LogDialog(string directory, string filter)
+        static public void RepoBrowserDialog(string root)
         {
-            if (filter == string.Empty)
-                HGTKDialog(directory, "log");
-            else
-                HGTKDialog(directory, "log " + filter);
+            HGTKDialog(root, "log");
+        }
+
+        
+        // ------------------------------------------------------------------------
+        // show TortoiseHG file log dialog
+        // ------------------------------------------------------------------------
+        static public void LogDialog(string file)
+        {
+            String root = HGLib.HG.FindRootDirectory(file);
+            if (root != string.Empty)
+            { 
+                file = file.Substring(root.Length + 1);
+                HGTKDialog(root, "log \"" + file + "\"");
+            }
         }
 
         // ------------------------------------------------------------------------
@@ -162,31 +173,33 @@ namespace HGLib
             HGTKDialog(directory, "commit");
         }
         
+        /// <summary>
+        /// commit dialog with preselected / filtered files
+        /// </summary>
+        /// <param name="files"></param>
         static public void CommitDialog(string [] files)
         {
-            string lastRoot = string.Empty;
-            string fileList = string.Empty;
+            StringBuilder stream = new StringBuilder();
+            string currentRoot = string.Empty;
             for (int n = 0; n < files.Length; ++n)
             {
                 string root = HGLib.HG.FindRootDirectory(files[n]);
-                if (lastRoot == string.Empty)
+                if (currentRoot == string.Empty)
                 {
-                    lastRoot = root;
+                    currentRoot = root;
                 }
-                else if (lastRoot != root)
+                else if (currentRoot != root)
                 {
-                    HGTKDialog(root, "commit " + fileList);    
-                    fileList = string.Empty;
+                    HGTKDialog(root, "commit " + stream);
+                    stream.Clear();
                 }
 
-                if (fileList.Length > 0)
-                    fileList += "\t" + files[n];
-                else
-                    fileList += files[n];
+                string file = files[n].Substring(currentRoot.Length + 1);
+                stream.AppendFormat(" \"{0}\"", file);
             }
-            
-            if (fileList != string.Empty)
-                HGTKDialog(lastRoot, "commit " + fileList);
+
+            if (stream.Length > 0 )
+                HGTKDialog(currentRoot, "commit " + stream);
         }
 
         // ------------------------------------------------------------------------
@@ -205,7 +218,8 @@ namespace HGLib
             String root = HGLib.HG.FindRootDirectory(file);
             if(root != String.Empty)
             {
-                HGTKDialog(root, "revert " + file);
+                file = file.Substring(root.Length + 1); 
+                HGTKDialog(root, "revert \"" + file + "\"");
             }
         }
 
@@ -217,7 +231,8 @@ namespace HGLib
             String root = HGLib.HG.FindRootDirectory(file);
             if(root != String.Empty)
             {
-                HGTKDialog(root, "annotate " + file);
+                file = file.Substring(root.Length + 1);
+                HGTKDialog(root, "annotate \"" + file + "\"");
             }
         }
     }

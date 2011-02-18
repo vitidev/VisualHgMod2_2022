@@ -404,5 +404,23 @@ namespace HGLib
         {
             return InvokeCommandGetStatus("revert", fileList, out fileStatusDictionary);
         }
+
+        /// <summary>
+        /// get original filename
+        /// </summary>
+        /// <param name="renamedFileName"></param>
+        /// <returns></returns>
+        public static string GetOriginalOfRenamedFile(string renamedFileName)
+        {
+            string orgFileNAme = string.Empty;
+            string[] fileList = { renamedFileName };
+            Dictionary<string, char> fileStatusDictionary;
+            Dictionary<string, string> renamedToOrgFileDictionary;
+            if (QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary))
+            {
+                renamedToOrgFileDictionary.TryGetValue(renamedFileName.ToLower(), out orgFileNAme);
+            }
+            return orgFileNAme;
+        }
     }
 }
