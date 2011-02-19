@@ -32,16 +32,14 @@ namespace HGLib
     // find mercurial users ini file
     public static string GetMercurialIniFile()
     {
-      // get local setting
-      string x = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-      return System.IO.Path.Combine(x, "mercurial.ini");
-      //string x = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-      //int index = x.LastIndexOf('\\');
-      //string iniFile = "";
-      //if(index>0)
-      //  iniFile = x.Substring(0, index) + "\\mercurial.ini";
-        
-      //return iniFile;
+      // get general setting ini file
+      // found one above user/documents. SpecialFolder.UserProfile is not available within MSVS2005
+      string iniFile = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+      int index = iniFile.LastIndexOf('\\');
+      if(index>0)
+        iniFile = iniFile.Substring(0, index);
+
+      return iniFile + "\\mercurial.ini";
     }
     
     // read THG ini setting

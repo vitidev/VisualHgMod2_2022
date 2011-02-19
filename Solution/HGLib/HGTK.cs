@@ -222,7 +222,7 @@ namespace HGLib
                 else if (currentRoot != root)
                 {
                     HGTKDialog(root, "commit " + stream);
-                    stream.Clear();
+                    stream = new StringBuilder();
                 }
 
                 string file = files[n].Substring(currentRoot.Length + 1);
