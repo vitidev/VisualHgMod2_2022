@@ -53,12 +53,22 @@ namespace VisualHG
     public const string CompanyName     = "VisualHG@live.de";
     public const string MinEdition      = "Standard";
 	AMRKJQE1ECKIDED1APDZMIE3ZPDACCPCAQA3M3KRC3KKI0M8PHQKQTD0JZJ2A2MDJ2C2H0AZA9DPC0R2PECECIJ9P1IRJPZ9I0EKJDR8QAJ1QAEHMAD2EAMMR2KEIIHD
-  */
+
+    * 
+    Ver 1.1.1
+    public const string PackageGuid     = "DADADA00-caaf-423f-b21d-2df00fa25ca3";
+    public const string PackageVersion  = "1.0.0.5";
+    public const string PakageName      = "VisualHG";
+    public const string CompanyName     = "VisualHG@live.de";
+    public const string MinEdition      = "Standard";
+    EHDKIZK1PCQCH8R2IMDHAKQQATQ3RZMEC0D1IZJDEJI2IMQCQIDRC1Z3E8CRIJPPKJIDHPMCCJQ9CQE2ADCAJQDPEQJ1D9KHZZCKHZRMPRE9JJJZP2Z1QAETHZI3K2KE
+	
+*/
 
     public static class PLK
     {
-        public const string PackageGuid     = "DADADA00-19aa-4a19-a6c4-25f8d4019b4d";
-        public const string PackageVersion  = "1.0.0.4";
+        public const string PackageGuid     = "DADADA00-caaf-423f-b21d-2df00fa25ca3";
+        public const string PackageVersion  = "1.0.0.5";
         public const string PakageName      = "VisualHG";
         public const string CompanyName     = "VisualHG@live.de";
         public const string MinEdition      = "Standard";
@@ -87,9 +97,6 @@ namespace VisualHG
     };
 
     /*
-        {DADADA00-4638-4cc8-b851-7b5dca468505}
-        {DADADA00-3c79-4caf-b74a-610ab4ffa451}
-        {DADADA00-caaf-423f-b21d-2df00fa25ca3}
         {DADADA00-dfd3-4e42-a61c-499121e136f3}
         {DADADA00-2892-4e5d-8b7a-05dfff9a1add}
         {DADADA00-4fdb-4909-ab25-aeeacf120525}

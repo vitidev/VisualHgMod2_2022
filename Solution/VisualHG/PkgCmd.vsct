@@ -346,7 +346,7 @@
   </CommandPlacements>
 
   <Symbols>
-    <GuidSymbol name="HGPackageGuid" value="{DADADA00-19aa-4a19-a6c4-25f8d4019b4d}" />
+    <GuidSymbol name="HGPackageGuid" value="{DADADA00-caaf-423f-b21d-2df00fa25ca3}" />
     <GuidSymbol name="HGCommandSet" value="{DADADA00-1fd3-4e26-9c1d-c9cb723cea0e}" >
 
       <IDSymbol name="Cmd_HgCommitRoot" value="0x100"/>
