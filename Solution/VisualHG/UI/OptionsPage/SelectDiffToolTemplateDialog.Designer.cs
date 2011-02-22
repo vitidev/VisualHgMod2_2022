@@ -56,15 +56,17 @@
                 "/t2=\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles)\\Ellié Computing\\Merge\\guimerge.exe\" \"$(Base)\" \"$(Mine)\" --mode=d" +
                 "iff2 --title1=\"$(BaseName)\" --title2=\"$(MineName)\"",
-            "\"$(ProgramFiles)\\TortoiseHG\\KDiff3.exe\" \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\"" +
-                " --fname \"$(MineName)\"",
+            "\"$(ProgramFiles (x86))\\TortoiseHG\\KDiff3.exe\" \"$(Base)\" --fname \"$(BaseName)\" \"$(" +
+                "Mine)\" --fname \"$(MineName)\"",
             "\"$(ProgramFiles)\\Perforce\\p4merge.exe\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles)\\ExamDiff\\ExamDiff.exe\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles)\\SlickEdit\\win\\VSDiff.exe\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles)\\SourceGear\\DiffMerge\\DiffMerge.exe\" \"$(Base)\" \"$(Mine)\" /t1=\"$(B" +
                 "aseName)\" /t2=\"$(MineName)\"",
             "\"$(ProgramFiles)\\WinMerge\\WinMergeU.exe\" -e -x -u -wl -dl \"$(BaseName)\" -dr \"$(Mi" +
-                "neName)\" \"$(base)\" \"$(mine)\""});
+                "neName)\" \"$(base)\" \"$(mine)\"",
+            "\"$(ProgramFiles)\\Devart\\CodeCompare\\CodeCompare.exe\" /T1\"$(BaseName)\"  /T2\"$(Mine" +
+                "Name)\" \"$(Base)\"  \"$(Mine)\""});
             this.diffToolTemplateListCtrl.Location = new System.Drawing.Point(12, 12);
             this.diffToolTemplateListCtrl.Name = "diffToolTemplateListCtrl";
             this.diffToolTemplateListCtrl.Size = new System.Drawing.Size(706, 238);

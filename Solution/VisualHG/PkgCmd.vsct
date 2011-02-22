@@ -72,11 +72,13 @@
       <Group guid="HGCommandSet" id="Group_SolutionMenu" priority="0x0800">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
       </Group>
-      <!-- 	Project menu in solution explorer-->
+      <!-- 	Project menu in solution codewindow -->
+      <!--
       <Group guid="HGCommandSet" id="Group_ProjectMenu" priority="0x0800">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
       </Group>
-      <!-- 	Single item menu in solution explorer-->
+      -->
+      <!-- 	Single item menu in tab of codewindow -->
       <Group guid="HGCommandSet" id="Group_ItemMenu" priority="0x0800">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
       </Group>
@@ -283,21 +285,21 @@
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
 
-    <!-- solution VisualHG general menu-->
+    <!-- solution VisualHG general menu on solution file soltree -->
     <CommandPlacement guid="HGCommandSet" id="Group_HGCommands" priority="0x0000">
       <Parent guid="HGCommandSet" id="Menu_SolutionMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="HGCommandSet" id="Menu_SolutionMenu" priority="0x0100">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <!-- project VisualHG general menu -->
+    <!-- project VisualHG general menu on project file in soltree -->
     <CommandPlacement guid="HGCommandSet" id="Group_HGCommands" priority="0x0000">
       <Parent guid="HGCommandSet" id="Menu_ProjectMenu"/>
     </CommandPlacement>
     <CommandPlacement guid="HGCommandSet" id="Menu_ProjectMenu" priority="0x0100">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <!-- item VisualHG general menu -->
+    <!-- item VisualHG general menu on item file soltree -->
     <CommandPlacement guid="HGCommandSet" id="Group_HGCommands" priority="0x0000">
       <Parent guid="HGCommandSet" id="Menu_ItemMenu"/>
     </CommandPlacement>
@@ -331,13 +333,14 @@
     <CommandPlacement guid="HGCommandSet" id="Cmd_HgRevert" priority="0x0602">
       <Parent guid="HGCommandSet" id="Group_CodeWin"/>
     </CommandPlacement>
+    <!--
     <CommandPlacement guid="HGCommandSet" id="Cmd_HgHistorySelected" priority="0x0603">
       <Parent guid="HGCommandSet" id="Group_CodeWin"/>
     </CommandPlacement>
     <CommandPlacement guid="HGCommandSet" id="Cmd_HgAnnotate" priority="0x0604">
       <Parent guid="HGCommandSet" id="Group_CodeWin"/>
     </CommandPlacement>
-
+    -->
 
 
   </CommandPlacements>

@@ -103,6 +103,7 @@ namespace HGLib
         /// <summary>
         /// Replace the following token
         /// $(ProgramFiles)
+        /// $(ProgramFiles (x86))
         /// $(Base)
         /// $(Mine)
         /// $(BaseName)
@@ -114,8 +115,15 @@ namespace HGLib
         /// <returns></returns>
         static string PrepareDiffCommand(string versionedFile, string currentFile, string commandMask)
         {
+            string programmFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            string programmFiles    = programmFilesX86;
+            int index = programmFiles.IndexOf(" (x86)");
+            if (index > 0)
+                programmFiles = programmFiles.Substring(0, index);
+            
             string command = commandMask;
-            command = command.Replace("$(ProgramFiles)", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
+            command = command.Replace("$(ProgramFiles (x86))", programmFilesX86);
+            command = command.Replace("$(ProgramFiles)", programmFiles);
             command = command.Replace("$(Base)", versionedFile);
             command = command.Replace("$(Mine)", currentFile);
             command = command.Replace("$(BaseName)", Path.GetFileName(versionedFile) );

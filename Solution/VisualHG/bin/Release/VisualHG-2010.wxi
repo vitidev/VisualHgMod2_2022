@@ -26,6 +26,19 @@
     <Registry Name="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Value=", 1000, 1" Type="string" />
   </Registry>
 
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\ToolsOptionsPages\Source Control" Value="#106" Type="string">
+    <Registry Name="Package" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\ToolsOptionsPages\Source Control\VisualHG" Value="#107" Type="string">
+    <Registry Name="Package" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string" />
+    <Registry Name="Page" Value="{dadada00-09a5-4795-a3ca-c3b49448184d}" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\ToolsOptionsPages\Source Control\VisualHG\VisibilityCmdUIContexts">
+    <Registry Name="{dadada00-63c7-4363-b107-ad5d9d915d45}" Value="1" Type="integer" />
+  </Registry>
+
   <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\10.0\Services\{dadada00-d8ac-4ba7-8b05-5166c8f08ef5}" Value="{dadada00-19aa-4a19-a6c4-25f8d4019b4d}" Type="string">
     <Registry Name="Name" Value="VisualHG" Type="string" />
   </Registry>
