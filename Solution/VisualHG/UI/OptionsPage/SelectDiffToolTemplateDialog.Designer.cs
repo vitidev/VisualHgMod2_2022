@@ -46,27 +46,28 @@
             this.diffToolTemplateListCtrl.Items.AddRange(new object[] {
             "\"$(ProgramFiles)\\TortoiseSVN\\bin\\TortoiseMerge.exe\" /base:\"$(Base)\" /mine:\"$(Mine" +
                 ")\" /basename:\"$(BaseName)\" /minename:\"$(MineName)\"",
-            "\"$(ProgramFiles)\\Araxis\\Araxis Merge\\Compare.exe\" /wait /2 /title1:\"$(BaseName)\" " +
-                "/title2:\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
-            "\"$(ProgramFiles)\\Beyond Compare 3\\BComp.exe\" \"$(Base)\" \"$(Mine)\" /fv /title1=\"$(B" +
-                "aseName)\" /title2=\"$(MineName)\"",
-            "\"$(ProgramFiles)\\Compare It!\\wincmp.exe\" \"$(Base)\" \"/=$(BaseName)\" \"$(Mine)\" \"/=$" +
-                "(MineName)\"",
-            "\"$(ProgramFiles)\\Devart\\CodeCompare\\CodeComp.exe\" /WAIT /SC=HG /t1=\"$(BaseName)\" " +
-                "/t2=\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
-            "\"$(ProgramFiles)\\Ellié Computing\\Merge\\guimerge.exe\" \"$(Base)\" \"$(Mine)\" --mode=d" +
-                "iff2 --title1=\"$(BaseName)\" --title2=\"$(MineName)\"",
+            "\"$(ProgramFiles (x86))\\Araxis\\Araxis Merge\\Compare.exe\" /wait /2 /title1:\"$(BaseN" +
+                "ame)\" /title2:\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\Beyond Compare 3\\BComp.exe\" \"$(Base)\" \"$(Mine)\" /fv /title" +
+                "1=\"$(BaseName)\" /title2=\"$(MineName)\"",
+            "\"$(ProgramFiles (x86))\\Compare It!\\wincmp.exe\" \"$(Base)\" \"/=$(BaseName)\" \"$(Mine)" +
+                "\" \"/=$(MineName)\"",
+            "\"$(ProgramFiles (x86))\\Devart\\CodeCompare\\CodeComp.exe\" /WAIT /SC=HG /t1=\"$(BaseN" +
+                "ame)\" /t2=\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\Ellié Computing\\Merge\\guimerge.exe\" \"$(Base)\" \"$(Mine)\" --" +
+                "mode=diff2 --title1=\"$(BaseName)\" --title2=\"$(MineName)\"",
             "\"$(ProgramFiles (x86))\\TortoiseHG\\KDiff3.exe\" \"$(Base)\" --fname \"$(BaseName)\" \"$(" +
                 "Mine)\" --fname \"$(MineName)\"",
-            "\"$(ProgramFiles)\\Perforce\\p4merge.exe\" \"$(Base)\" \"$(Mine)\"",
-            "\"$(ProgramFiles)\\ExamDiff\\ExamDiff.exe\" \"$(Base)\" \"$(Mine)\"",
-            "\"$(ProgramFiles)\\SlickEdit\\win\\VSDiff.exe\" \"$(Base)\" \"$(Mine)\"",
-            "\"$(ProgramFiles)\\SourceGear\\DiffMerge\\DiffMerge.exe\" \"$(Base)\" \"$(Mine)\" /t1=\"$(B" +
-                "aseName)\" /t2=\"$(MineName)\"",
-            "\"$(ProgramFiles)\\WinMerge\\WinMergeU.exe\" -e -x -u -wl -dl \"$(BaseName)\" -dr \"$(Mi" +
-                "neName)\" \"$(base)\" \"$(mine)\"",
-            "\"$(ProgramFiles)\\Devart\\CodeCompare\\CodeCompare.exe\" /T1\"$(BaseName)\"  /T2\"$(Mine" +
-                "Name)\" \"$(Base)\"  \"$(Mine)\""});
+            "\"$(ProgramFiles (x86))\\Perforce\\p4merge.exe\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\ExamDiff\\ExamDiff.exe\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\SlickEdit\\win\\VSDiff.exe\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\SourceGear\\DiffMerge\\DiffMerge.exe\" \"$(Base)\" \"$(Mine)\" /t" +
+                "1=\"$(BaseName)\" /t2=\"$(MineName)\"",
+            "\"$(ProgramFiles (x86))\\WinMerge\\WinMergeU.exe\" -e -x -u -wl -dl \"$(BaseName)\" -dr" +
+                " \"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\Devart\\CodeCompare\\CodeCompare.exe\" /T1\"$(BaseName)\"  /T2\"" +
+                "$(MineName)\" \"$(Base)\"  \"$(Mine)\"",
+            "\"$(ProgramFiles (x86))\\Diffuse\\diffusew.exe\" \"$(Base)\" \"$(Mine)\""});
             this.diffToolTemplateListCtrl.Location = new System.Drawing.Point(12, 12);
             this.diffToolTemplateListCtrl.Name = "diffToolTemplateListCtrl";
             this.diffToolTemplateListCtrl.Size = new System.Drawing.Size(706, 238);

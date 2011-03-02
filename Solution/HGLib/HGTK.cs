@@ -15,6 +15,27 @@ namespace HGLib
     public static class HGTK
     {
       // ------------------------------------------------------------------------
+      // tortois hgtk.exe file
+      // ------------------------------------------------------------------------
+      static string hgtkexe = null;
+      public static string GetHGTKFileName()
+      {
+        if (hgtkexe == null || hgtkexe == string.Empty)
+        {
+          hgtkexe = HG.GetTortoisHGDirectory();
+          if (hgtkexe != null && hgtkexe != string.Empty)
+          {
+
+            if (File.Exists(hgtkexe + "HGTK.exe"))
+              hgtkexe += "HGTK.exe";
+            else if (File.Exists(hgtkexe + "THG.exe"))
+              hgtkexe += "THG.exe";
+          }
+        }
+        return hgtkexe;
+      }
+
+      // ------------------------------------------------------------------------
       // invoke arbitrary command
       // ------------------------------------------------------------------------
       static Process InvokeCommand(string executable, string workingDirectory, string arguments)
@@ -36,7 +57,7 @@ namespace HGLib
         {
           if (workingDirectory != null && workingDirectory != string.Empty)
           {
-            return InvokeCommand("HGTK.exe", workingDirectory, arguments); 
+            return InvokeCommand(GetHGTKFileName(), workingDirectory, arguments); 
           }
           
           return null;  
@@ -143,7 +164,7 @@ namespace HGLib
             string currentFile = file;
             string versionedFile = Path.GetTempPath() + sccFile.Substring(sccFile.LastIndexOf("\\") + 1) + "(base)";
             string cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
-            InvokeCommand("hg.exe", root, cmd);
+            InvokeCommand(HG.GetHGFileName(), root, cmd);
             
             // wait file exists on disk
             int counter = 0;

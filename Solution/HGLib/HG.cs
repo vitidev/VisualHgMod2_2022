@@ -19,32 +19,53 @@ namespace HGLib
     {
         #region invoke HG commands
 
-      /// <summary>
-      /// get hg.exe with full path
-      /// </summary>
-      /// <returns></returns>
+      // ------------------------------------------------------------------------
+      // tortois hg install directory
+      // ------------------------------------------------------------------------
       static string hgDir = null;
-      public static string GetHGFileName()
+      public static string GetTortoisHGDirectory()
       {
         if (hgDir == null || hgDir == string.Empty)
         {
-          RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\TortoiseHg");
+          RegistryKey regKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\TortoiseHg");
           if (regKey != null)
           {
             hgDir = (string)regKey.GetValue(null);
+
+            if (hgDir != null && hgDir != string.Empty)
+            {
+              if (!hgDir.EndsWith("\\"))
+                hgDir += "\\";
+            }
+          }
+        }
+        return hgDir;
+      }
+
+      // ------------------------------------------------------------------------
+      // get hg.exe with full path
+      // ------------------------------------------------------------------------
+      static string hgexe = null;
+      public static string GetHGFileName()
+      {
+        if (hgexe == null || hgexe == string.Empty)
+        {
+          hgexe = GetTortoisHGDirectory();
+
+          if (hgexe != null && hgexe != string.Empty)
+          {
+            if (hgexe.EndsWith("\\"))
+              hgexe += "HG.exe";
+            else
+              hgexe += "\\HG.exe";
+          }
+          else
+          {
+            hgexe = "HG.exe";
           }
         }
 
-        string hgFileName = "HG.exe";
-        if (hgDir != null && hgDir != string.Empty)
-        {
-          if (hgDir.EndsWith("\\"))
-            hgFileName = hgDir + "HG.exe";
-          else
-            hgFileName = hgDir + "\\HG.exe";
-        }
-
-        return hgFileName;
+        return hgexe;
       }
       
       // ------------------------------------------------------------------------
