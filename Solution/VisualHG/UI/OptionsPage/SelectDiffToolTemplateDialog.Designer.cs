@@ -56,7 +56,7 @@
                 "ame)\" /t2=\"$(MineName)\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles (x86))\\Ellié Computing\\Merge\\guimerge.exe\" \"$(Base)\" \"$(Mine)\" --" +
                 "mode=diff2 --title1=\"$(BaseName)\" --title2=\"$(MineName)\"",
-            "\"$(ProgramFiles (x86))\\TortoiseHG\\KDiff3.exe\" \"$(Base)\" --fname \"$(BaseName)\" \"$(" +
+            "\"$(ProgramFiles)\\TortoiseHG\\KDiff3.exe\" \"$(Base)\" --fname \"$(BaseName)\" \"$(" +
                 "Mine)\" --fname \"$(MineName)\"",
             "\"$(ProgramFiles (x86))\\Perforce\\p4merge.exe\" \"$(Base)\" \"$(Mine)\"",
             "\"$(ProgramFiles (x86))\\ExamDiff\\ExamDiff.exe\" \"$(Base)\" \"$(Mine)\"",

@@ -27,7 +27,10 @@ namespace HGLib
       {
         if (hgDir == null || hgDir == string.Empty)
         {
-          RegistryKey regKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\TortoiseHg");
+          RegistryKey regKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\TortoiseHg");
+          if (regKey == null)
+            regKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\TortoiseHg");
+            
           if (regKey != null)
           {
             hgDir = (string)regKey.GetValue(null);

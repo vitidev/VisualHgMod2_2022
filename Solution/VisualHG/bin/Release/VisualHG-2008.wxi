@@ -3,11 +3,11 @@
   <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\InstalledProducts\SccProvider" Value="#100" Type="string">
     <Registry Name="Package" Value="{dadada00-caaf-423f-b21d-2df00fa25ca3}" Type="string" />
     <Registry Name="ProductDetails" Value="#101" Type="string" />
-    <Registry Name="PID" Value="1.1.2" Type="string" />
+    <Registry Name="PID" Value="1.1.3" Type="string" />
     <Registry Name="LogoID" Value="#400" Type="string" />
   </Registry>
 
-  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{dadada00-caaf-423f-b21d-2df00fa25ca3}" Value="VisualHG.SccProvider, VisualHG, Version=1.1.2.0, Culture=neutral, PublicKeyToken=null" Type="string">
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\9.0\Packages\{dadada00-caaf-423f-b21d-2df00fa25ca3}" Value="VisualHG.SccProvider, VisualHG, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null" Type="string">
     <Registry Name="InprocServer32" Value="[SystemFolder]mscoree.dll" Type="string" />
     <Registry Name="Class" Value="VisualHG.SccProvider" Type="string" />
     <Registry Name="CodeBase" Value="[#File_VisualHG.dll]" Type="string" />
