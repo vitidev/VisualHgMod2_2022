@@ -23,7 +23,7 @@ namespace HGLib
       // tortois hg install directory
       // ------------------------------------------------------------------------
       static string hgDir = null;
-      public static string GetTortoisHGDirectory()
+      public static string GetTortoiseHGDirectory()
       {
         if (hgDir == null || hgDir == string.Empty)
         {
@@ -53,7 +53,7 @@ namespace HGLib
       {
         if (hgexe == null || hgexe == string.Empty)
         {
-          hgexe = GetTortoisHGDirectory();
+          hgexe = GetTortoiseHGDirectory();
 
           if (hgexe != null && hgexe != string.Empty)
           {

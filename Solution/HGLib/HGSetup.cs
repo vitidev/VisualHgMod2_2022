@@ -58,22 +58,5 @@ namespace HGLib
       return value;  
     }
 
-    // get diff tool name from init setting, default is "kdiff3.exe"
-    public static string GetDiffTool(string rootFolder)
-    {
-      string toolName = "kdiff3.exe";
-
-      string name = HGSetup.GetTHGSetting(rootFolder, "vdiff");
-      if (name != null && name != string.Empty)
-      {
-        name = name.ToLower();
-        if (name.EndsWith(".exe"))
-          toolName = name;
-        else
-          toolName = name + ".exe";
-      }
-
-      return toolName;
-    }
   }
 }

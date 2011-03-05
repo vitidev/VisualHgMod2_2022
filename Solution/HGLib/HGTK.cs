@@ -22,7 +22,7 @@ namespace HGLib
       {
         if (hgtkexe == null || hgtkexe == string.Empty)
         {
-          hgtkexe = HG.GetTortoisHGDirectory();
+          hgtkexe = HG.GetTortoiseHGDirectory();
           if (hgtkexe != null && hgtkexe != string.Empty)
           {
 
@@ -179,8 +179,9 @@ namespace HGLib
             }
             else
             {
-                cmd = "\"" + versionedFile + "\" \"" + currentFile + "\""; 
-                InvokeCommand(HGSetup.GetDiffTool(root), root, cmd);
+                commandMask = " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ";
+                cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask); 
+                InvokeCommand(HG.GetTortoiseHGDirectory() + "kdiff3.exe", root, cmd);
             }
           }
         }
