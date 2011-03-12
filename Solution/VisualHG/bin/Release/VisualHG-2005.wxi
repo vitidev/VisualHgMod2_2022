@@ -43,6 +43,14 @@
     <Registry Name="Name" Value="VisualHG" Type="string" />
   </Registry>
 
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\8.0\ToolWindows\{dadada00-d3b4-4d5c-a138-a87ca494f6c2}" Value="{dadada00-caaf-423f-b21d-2df00fa25ca3}" Type="string">
+    <Registry Name="Name" Value="VisualHG.HGPendingChangesToolWindow" Type="string" />
+  </Registry>
+
+  <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\8.0\ToolWindows\{dadada00-d3b4-4d5c-a138-a87ca494f6c2}\Visibility">
+    <Registry Name="{dadada00-63c7-4363-b107-ad5d9d915d45}" Value="0" Type="integer" />
+  </Registry>
+
   <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\8.0\SolutionPersistence\VisualHGProperties" Value="{dadada00-caaf-423f-b21d-2df00fa25ca3}" Type="string" />
 
   <Registry Root="HKLM" Key="Software\Microsoft\VisualStudio\8.0\SourceControlProviders\{dadada00-63c7-4363-b107-ad5d9d915d45}" Value="VisualHG" Type="string">

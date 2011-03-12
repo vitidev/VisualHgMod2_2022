@@ -20,7 +20,7 @@ namespace VisualHG
     // handles directory watcher events.
     //
     // ---------------------------------------------------------------------------
-    class HGStatusTracker : HGLib.HGStatus
+    public class HGStatusTracker : HGLib.HGStatus
     {
         /// <summary>
         /// Called by SccProviderSrvice when a scc-capable project is opened

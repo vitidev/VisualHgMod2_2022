@@ -123,6 +123,17 @@ namespace HGLib
         {
             return _fileStatusDictionary.TryGetValue(fileName, out info);
         }
+        
+        // ------------------------------------------------------------------------
+        // Create pending files list
+        // ------------------------------------------------------------------------
+        public void CreatePendingFilesList(out List<HGFileStatusInfo> list )
+        {
+            lock (_fileStatusDictionary)
+            {
+              _fileStatusDictionary.CreatePendingFilesList(out list);
+            }
+        }
     
         // ------------------------------------------------------------------------
         // GetFileStatus for the given filename

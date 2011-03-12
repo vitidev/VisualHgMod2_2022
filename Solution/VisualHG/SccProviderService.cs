@@ -749,6 +749,12 @@ namespace VisualHG
 
         public void RefreshNodesGlyphs()
         {
+            object pane = _sccProvider.FindToolWindow(VisualHGToolWindow.PendingChanges);
+            if (pane != null)
+            {
+              ((HGPendingChangesToolWindow)pane).UpdatePendingList(_sccStatusTracker);
+            }
+
             var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
             var projectList = _sccProvider.GetLoadedControllableProjects();
 

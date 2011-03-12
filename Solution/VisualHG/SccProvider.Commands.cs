@@ -110,7 +110,7 @@ namespace VisualHG
             // All source control commands needs to be hidden and disabled when the provider is not active
             if (!sccService.Active)
             {
-                cmdf = cmdf | OLECMDF.OLECMDF_INVISIBLE;
+                cmdf = OLECMDF.OLECMDF_INVISIBLE;
 
                 prgCmds[0].cmdf = (uint)cmdf;
                 return VSConstants.S_OK;
@@ -162,8 +162,7 @@ namespace VisualHG
                 case CommandId.icmdViewToolWindow:
                 case CommandId.icmdToolWindowToolbarCommand:
                     // These commmands are always enabled when the provider is active
-                    cmdf = OLECMDF.OLECMDF_INVISIBLE;
-                    cmdf &= ~OLECMDF.OLECMDF_ENABLED;
+                    cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;;
                     break;
 
                 default:

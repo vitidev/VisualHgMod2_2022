@@ -35,11 +35,6 @@ namespace VisualHG
     [MsVsShell.ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHG", 106, 107, false)]
     [ProvideToolsOptionsPageVisibility("Source Control", "VisualHG", GuidList.ProviderGuid)]
 
-    //TODO create meaningful page
-    // Register the VisualHG tool window visible only when the provider is active
-    //[MsVsShell.ProvideToolWindow(typeof(HGPendingChangesToolWindow))]
-    /// [MsVsShell.ProvideToolWindowVisibility(typeof(HGPendingChangesToolWindow), GuidList.ProviderGuid)]
-
     // Register the source control provider's service (implementing IVsScciProvider interface)
     [MsVsShell.ProvideService(typeof(SccProviderService), ServiceName = "VisualHG")]
     // Register the source control provider to be visible in Tools/Options/SourceControl/Plugin dropdown selector
@@ -53,6 +48,7 @@ namespace VisualHG
     [Guid(PLK.PackageGuid)]
     public sealed partial class SccProvider : MsVsShell.Package, IOleCommandTarget
     {
+        static SccProvider _SccProvider = null;
         // The service provider implemented by the package
         private SccProviderService sccService = null;
         // The name of this provider (to be written in solution and project files)
@@ -72,7 +68,8 @@ namespace VisualHG
 
         public SccProvider()
         {
-            Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering constructor for: {0}", this.ToString()));
+          _SccProvider = this;
+          Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering constructor for: {0}", this.ToString()));
         }
 
         void PromptSolutionNotControlled()
@@ -85,9 +82,21 @@ namespace VisualHG
         // SccProvider Package Implementation
         #region Package Members
 
+        public static Object GetServiceEx(Type serviceType)
+        {
+          if (_SccProvider!=null)
+            return _SccProvider.GetService(serviceType);
+          return null;  
+        }
+        
         public new Object GetService(Type serviceType)
         {
             return base.GetService(serviceType);
+        }
+        
+        public static System.IServiceProvider ServiceProvider()
+        {
+          return (System.IServiceProvider)_SccProvider;
         }
 
         protected override void Initialize()
@@ -98,7 +107,8 @@ namespace VisualHG
             // Proffer the source control service implemented by the provider
             sccService = new SccProviderService(this);
             ((IServiceContainer)this).AddService(typeof(SccProviderService), sccService, true);
-
+            ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
+            
             // Add our command handlers for menu (commands must exist in the .vsct file)
             InitVSCTMenuCommandHandler();
             
@@ -109,6 +119,8 @@ namespace VisualHG
 
             _OnIdleEvent.RegisterForIdleTimeCallbacks(GetGlobalService(typeof(SOleComponentManager)) as IOleComponentManager);
             _OnIdleEvent.OnIdleEvent += new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs);
+            
+            //ShowToolWindow(VisualHGToolWindow.PendingChanges);
         }
 
         protected override void Dispose(bool disposing)
@@ -117,9 +129,10 @@ namespace VisualHG
 
             _OnIdleEvent.OnIdleEvent -= new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs); 
             _OnIdleEvent.UnRegisterForIdleTimeCallbacks();
-            
-            sccService.Dispose();
 
+            _SccProvider = null; 
+
+            sccService.Dispose();
             base.Dispose(disposing);
         }
 

@@ -118,20 +118,17 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="columnHeaderStatus.Text" xml:space="preserve">
-    <value>Status</value>
-  </data>
-  <data name="columnHeaderFileName.Text" xml:space="preserve">
     <value>File</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="columnHeaderFileName.Width" type="System.Int32, mscorlib">
-    <value>149</value>
+  <data name="columnHeaderStatus.Width" type="System.Int32, mscorlib">
+    <value>172</value>
   </data>
-  <data name="columnHeaderDirectory.Text" xml:space="preserve">
+  <data name="columnHeaderFileName.Text" xml:space="preserve">
     <value>Directory</value>
   </data>
-  <data name="columnHeaderDirectory.Width" type="System.Int32, mscorlib">
-    <value>180</value>
+  <data name="columnHeaderFileName.Width" type="System.Int32, mscorlib">
+    <value>149</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="_pendingItemsListView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
@@ -151,7 +148,7 @@
     <value>_pendingItemsListView</value>
   </data>
   <data name="&gt;&gt;_pendingItemsListView.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ListView, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>VisualHG.PendingItemsListView, VisualHG, Version=1.1.3.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;_pendingItemsListView.Parent" xml:space="preserve">
     <value>$this</value>
@@ -177,14 +174,8 @@
   <data name="&gt;&gt;columnHeaderFileName.Type" xml:space="preserve">
     <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;columnHeaderDirectory.Name" xml:space="preserve">
-    <value>columnHeaderDirectory</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderDirectory.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>SccProviderToolWindowControl</value>
+    <value>HGPendingChangesToolWindowControl</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.UserControl, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

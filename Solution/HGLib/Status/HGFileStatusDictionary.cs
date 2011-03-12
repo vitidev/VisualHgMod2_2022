@@ -64,5 +64,18 @@ namespace HGLib
             info = null;
             return false;
         }
+
+        // ------------------------------------------------------------------------
+        // Create pending files list
+        // ------------------------------------------------------------------------
+        public void CreatePendingFilesList(out List<HGFileStatusInfo> list)
+        {
+          list = new List<HGFileStatusInfo>();
+          foreach(HGFileStatusInfo value in _dictionary.Values)
+          {
+              if (value.caseSensitiveFileName != null && value.state != 'C' && value.state != 'I' && value.state != '?')
+                list.Add(value);
+          } 
+        }
     }
 }

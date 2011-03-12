@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
@@ -9,8 +10,8 @@ using System.Windows.Forms;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-using IServiceProvider = System.IServiceProvider;
-using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
+//using IServiceProvider = System.IServiceProvider;
+//using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
 
 namespace VisualHG
 {
@@ -28,7 +29,7 @@ namespace VisualHG
             this.Caption = Resources.ResourceManager.GetString("HGPendingChangesToolWindowCaption");
 
             // set the CommandID for the window ToolBar
-            this.ToolBar = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.imnuToolWindowToolbarMenu);
+            //this.ToolBar = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.imnuToolWindowToolbarMenu);
 
             // set the icon for the frame
             this.BitmapResourceID = CommandId.ibmpToolWindowsImages;  // bitmap strip resource ID
@@ -38,6 +39,13 @@ namespace VisualHG
             
             control = new HGPendingChangesToolWindowControl();
         }
+
+        // route update pending changes call
+        public void UpdatePendingList(HGStatusTracker tracker)
+        {
+          control.UpdatePendingList(tracker);
+        }
+
 
         override public IWin32Window Window
         {

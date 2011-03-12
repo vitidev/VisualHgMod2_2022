@@ -12,7 +12,7 @@ namespace VisualHG
 		// Define the list a set of public static members.
 
 		// Define the list of menus (these include toolbars)
-        public const int imnuToolWindowToolbarMenu      = 0x201;
+        public const int imnuToolWindowToolbarMenu      = 0x204;
 
         public const int icmdHgCommitRoot               = 0x100;
         public const int icmdHgStatus                   = 0x101;

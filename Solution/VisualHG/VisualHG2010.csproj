@@ -95,6 +95,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="RegestryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
+    <Compile Include="SccProvider.ToolWindow.cs" />
     <Compile Include="SccProvider.Utillities.cs" />
     <Compile Include="Status\HGStatusTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,6 +130,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Status\StatusImageMapper.cs" />
+    <Compile Include="UI\PendingChangesWindow\PendingItemsListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
