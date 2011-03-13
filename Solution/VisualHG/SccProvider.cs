@@ -93,10 +93,10 @@ namespace VisualHG
         {
             return base.GetService(serviceType);
         }
-        
-        public static System.IServiceProvider ServiceProvider()
+
+        public static SccProvider ServiceProvider
         {
-          return (System.IServiceProvider)_SccProvider;
+          get { return _SccProvider; }
         }
 
         protected override void Initialize()

@@ -16,14 +16,14 @@ namespace VisualHG
   {
     private ListViewItem[] _cache; //array to cache items for the virtual list
     private int _firstItem; //stores the index of the first item in the cache
-    StatusImageMapper _statusImages = new StatusImageMapper();
+    public ImageMapper _ImageMapper = new ImageMapper();
     // empty pendinf files list
     public List<HGLib.HGFileStatusInfo> _list = new List<HGLib.HGFileStatusInfo>();
     
     public PendingItemsListView()
     {
         //Create a simple ListView.
-        this.SmallImageList = _statusImages.StatusImageList;
+        this.SmallImageList = _ImageMapper.StatusImageList;
         
         //Hook up handlers for VirtualMode events.
         this.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this_RetrieveVirtualItem);

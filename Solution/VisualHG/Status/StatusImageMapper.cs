@@ -40,28 +40,63 @@ namespace VisualHG
         InConflict,
     }
 
-    sealed class StatusImageMapper
+    sealed class ImageMapper
     {
         ImageList _statusImageList;
+        ImageList _menuImageList;
 
         public ImageList StatusImageList
         {
             get { return _statusImageList ?? (_statusImageList = CreateStatusImageList()); }
         }
 
+        public ImageList MenuImageList
+        {
+          get { return _menuImageList ?? (_menuImageList = CreateMenuImageList()); }
+        }
+
         public ImageList CreateStatusImageList()
         {
-            using (Stream images = typeof(StatusImageMapper).Assembly.GetManifestResourceStream(typeof(StatusImageMapper).Namespace + ".Resources.StatusGlyphs.bmp"))
+            using (Stream images = typeof(ImageMapper).Assembly.GetManifestResourceStream(typeof(ImageMapper).Namespace + ".Resources.StatusGlyphs.bmp"))
             {
                 if (images == null)
                     return null;
 
                 Bitmap bitmap = (Bitmap)Image.FromStream(images, true);
-
+                
                 ImageList imageList = new ImageList();
 
                 imageList.ImageSize = new Size(8, bitmap.Height);
                 bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
+
+                try
+                {
+                    imageList.Images.AddStrip(bitmap);
+                }
+                catch(Exception e)
+                {
+                    Trace.WriteLine(e.ToString());
+                }
+
+                return imageList;
+            }
+         }
+
+        public ImageList CreateMenuImageList()
+        {
+            using (Stream images = typeof(ImageMapper).Assembly.GetManifestResourceStream(typeof(ImageMapper).Namespace + ".Resources.Images_32bit.bmp"))
+            {
+                if (images == null)
+                    return null;
+
+                Image image = Image.FromStream(images, true, true);
+                Bitmap bitmap = (Bitmap)image;
+
+                ImageList imageList = new ImageList();
+
+                imageList.ImageSize = new Size(16, bitmap.Height);
+                bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
+                bitmap.MakeTransparent(Color.Black);
 
                 try
                 {

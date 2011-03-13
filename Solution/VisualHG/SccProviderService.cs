@@ -173,7 +173,7 @@ namespace VisualHG
             return VSConstants.S_OK;
         }
 
-        StatusImageMapper _statusImages = new StatusImageMapper();
+        ImageMapper _statusImages = new ImageMapper();
         uint _baseIndex;
         ImageList _glyphList;
         /// <summary>

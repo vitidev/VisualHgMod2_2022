@@ -306,9 +306,14 @@ namespace VisualHG
 
         private void Exec_icmdHgCommitSelected(object sender, EventArgs e)
         {
+          List<string> array = GetSelectedFileNameArray(true);
+          HgCommitSelected(array);
+        }
+
+        public void HgCommitSelected(List<string> array)
+        {
             StoreSolution();
 
-            List<string> array = GetSelectedFileNameArray(true);
             List<string> commitList = new List<string>();
             foreach (string name in array)
             {
@@ -341,9 +346,14 @@ namespace VisualHG
 
         private void Exec_icmdHgHistorySelected(object sender, EventArgs e)
         {
-            StoreSolution();
+          string fileName = GetSingleSelectedFileName();
+          ShowHgHistoryDlg(fileName);
+        }
 
-            string fileName = GetSingleSelectedFileName();
+        public void ShowHgHistoryDlg(string fileName)
+        {
+            StoreSolution();
+            
             if (fileName != string.Empty)
             {
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
@@ -370,9 +380,13 @@ namespace VisualHG
 
         private void Exec_icmdHgDiff(object sender, EventArgs e)
         {
-            StoreSolution();
+          string fileName = GetSingleSelectedFileName();
+          ShowHgDiffDlg(fileName);
+        }
 
-            string fileName = GetSingleSelectedFileName();
+        public void ShowHgDiffDlg(string fileName)
+        {
+            StoreSolution();
 
             if (fileName != String.Empty)
             {
@@ -431,9 +445,14 @@ namespace VisualHG
 
         private void Exec_icmdHgRevert(object sender, EventArgs e)
         {
+          string fileName = GetSingleSelectedFileName();
+          HgRevertFileDlg(fileName);
+        }
+
+        public void HgRevertFileDlg(string fileName)
+        {
             StoreSolution();
 
-            string fileName = GetSingleSelectedFileName();
             if (fileName != String.Empty)
             {
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
@@ -447,9 +466,15 @@ namespace VisualHG
 
         private void Exec_icmdHgAnnotate(object sender, EventArgs e)
         {
+          string fileName = GetSingleSelectedFileName();
+          HgAnnotateDlg(fileName);
+        }
+        
+        public void HgAnnotateDlg(string fileName)
+        {
+
             StoreSolution();
 
-            string fileName = GetSingleSelectedFileName();
             if (fileName != String.Empty)
             {
                 HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
@@ -468,7 +493,6 @@ namespace VisualHG
                 }
             }
         }
-
 
         // The function can be used to bring back the provider's toolwindow if it was previously closed
         private void Exec_icmdViewToolWindow(object sender, EventArgs e)

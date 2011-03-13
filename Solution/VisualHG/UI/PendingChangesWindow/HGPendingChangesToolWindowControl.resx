@@ -117,6 +117,55 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="pendingChangesContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="commitToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="commitToolStripMenuItem.Text" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="diffToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="diffToolStripMenuItem.Text" xml:space="preserve">
+    <value>Diff</value>
+  </data>
+  <data name="revertToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="revertToolStripMenuItem.Text" xml:space="preserve">
+    <value>Revert Changes</value>
+  </data>
+  <data name="historyToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="historyToolStripMenuItem.Text" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="annotateFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="annotateFileToolStripMenuItem.Text" xml:space="preserve">
+    <value>Annotate File</value>
+  </data>
+  <data name="OpenInEditorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 22</value>
+  </data>
+  <data name="OpenInEditorToolStripMenuItem.Text" xml:space="preserve">
+    <value>Open in Editor</value>
+  </data>
+  <data name="pendingChangesContextMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>157, 158</value>
+  </data>
+  <data name="&gt;&gt;pendingChangesContextMenu.Name" xml:space="preserve">
+    <value>pendingChangesContextMenu</value>
+  </data>
+  <data name="&gt;&gt;pendingChangesContextMenu.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="columnHeaderStatus.Text" xml:space="preserve">
     <value>File</value>
   </data>
@@ -134,7 +183,6 @@
   <data name="_pendingItemsListView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="_pendingItemsListView.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -154,13 +202,19 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;_pendingItemsListView.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
     <value>283, 145</value>
+  </data>
+  <data name="&gt;&gt;commitToolStripMenuItem.Name" xml:space="preserve">
+    <value>commitToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;commitToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;columnHeaderStatus.Name" xml:space="preserve">
     <value>columnHeaderStatus</value>
@@ -173,6 +227,36 @@
   </data>
   <data name="&gt;&gt;columnHeaderFileName.Type" xml:space="preserve">
     <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;diffToolStripMenuItem.Name" xml:space="preserve">
+    <value>diffToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;diffToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;revertToolStripMenuItem.Name" xml:space="preserve">
+    <value>revertToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;revertToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;historyToolStripMenuItem.Name" xml:space="preserve">
+    <value>historyToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;historyToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;annotateFileToolStripMenuItem.Name" xml:space="preserve">
+    <value>annotateFileToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;annotateFileToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;oPenInEditorToolStripMenuItem.Name" xml:space="preserve">
+    <value>oPenInEditorToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;oPenInEditorToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>HGPendingChangesToolWindowControl</value>

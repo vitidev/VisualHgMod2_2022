@@ -135,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Images_24bit.bmp" />
-    <Content Include="Resources\Images_32bit.bmp" />
+    <EmbeddedResource Include="Resources\Images_32bit.bmp" />
     <Content Include="Setup\VisualHG.wxs" />
     <EmbeddedResource Include="Resources\StatusGlyphs.bmp" />
     <EmbeddedResource Include="UI\OptionsPage\SelectDiffToolTemplateDialog.resx">
