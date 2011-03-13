@@ -65,14 +65,14 @@ namespace VisualHG
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HGPendingChangesToolWindowControl));
       this.pendingChangesContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this._pendingItemsListView = new VisualHG.PendingItemsListView();
-      this.columnHeaderStatus = new System.Windows.Forms.ColumnHeader();
-      this.columnHeaderFileName = new System.Windows.Forms.ColumnHeader();
       this.diffToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.revertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.historyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.annotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.openInEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this._pendingItemsListView = new VisualHG.PendingItemsListView();
+      this.columnHeaderStatus = new System.Windows.Forms.ColumnHeader();
+      this.columnHeaderFileName = new System.Windows.Forms.ColumnHeader();
       this.pendingChangesContextMenu.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -92,13 +92,44 @@ namespace VisualHG
       // 
       this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
       resources.ApplyResources(this.commitToolStripMenuItem, "commitToolStripMenuItem");
-      this.commitToolStripMenuItem.Click += new System.EventHandler(this.OnCommitSelected);
+      this.commitToolStripMenuItem.Click += new System.EventHandler(this.OnCommitSelectedFiles);
+      // 
+      // diffToolStripMenuItem
+      // 
+      this.diffToolStripMenuItem.Name = "diffToolStripMenuItem";
+      resources.ApplyResources(this.diffToolStripMenuItem, "diffToolStripMenuItem");
+      this.diffToolStripMenuItem.Click += new System.EventHandler(this.OnDiffSelectedFile);
+      // 
+      // revertToolStripMenuItem
+      // 
+      this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
+      resources.ApplyResources(this.revertToolStripMenuItem, "revertToolStripMenuItem");
+      this.revertToolStripMenuItem.Click += new System.EventHandler(this.OnRevertSelectedFile);
+      // 
+      // historyToolStripMenuItem
+      // 
+      this.historyToolStripMenuItem.Name = "historyToolStripMenuItem";
+      resources.ApplyResources(this.historyToolStripMenuItem, "historyToolStripMenuItem");
+      this.historyToolStripMenuItem.Click += new System.EventHandler(this.OnShowSelectedFileHistory);
+      // 
+      // annotateFileToolStripMenuItem
+      // 
+      this.annotateFileToolStripMenuItem.Name = "annotateFileToolStripMenuItem";
+      resources.ApplyResources(this.annotateFileToolStripMenuItem, "annotateFileToolStripMenuItem");
+      this.annotateFileToolStripMenuItem.Click += new System.EventHandler(this.OnAnnotateSelectedFile);
+      // 
+      // openInEditorToolStripMenuItem
+      // 
+      this.openInEditorToolStripMenuItem.Name = "openInEditorToolStripMenuItem";
+      resources.ApplyResources(this.openInEditorToolStripMenuItem, "openInEditorToolStripMenuItem");
+      this.openInEditorToolStripMenuItem.Click += new System.EventHandler(this.OnOpenSelectedFiles);
       // 
       // _pendingItemsListView
       // 
       this._pendingItemsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderStatus,
             this.columnHeaderFileName});
+      this._pendingItemsListView.ContextMenuStrip = this.pendingChangesContextMenu;
       resources.ApplyResources(this._pendingItemsListView, "_pendingItemsListView");
       this._pendingItemsListView.FullRowSelect = true;
       this._pendingItemsListView.GridLines = true;
@@ -111,7 +142,7 @@ namespace VisualHG
       this._pendingItemsListView.VirtualMode = true;
       this._pendingItemsListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this._pendingItemsListView_MouseDoubleClick);
       this._pendingItemsListView.Resize += new System.EventHandler(this._pendingItemsListView_Resize);
-      this._pendingItemsListView.MouseClick += new System.Windows.Forms.MouseEventHandler(this._pendingItemsListView_MouseClick);
+      this._pendingItemsListView.SelectedIndexChanged += new System.EventHandler(this._pendingItemsListView_SelectedIndexChanged);
       this._pendingItemsListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this._pendingItemsListView_KeyDown);
       // 
       // columnHeaderStatus
@@ -121,36 +152,6 @@ namespace VisualHG
       // columnHeaderFileName
       // 
       resources.ApplyResources(this.columnHeaderFileName, "columnHeaderFileName");
-      // 
-      // diffToolStripMenuItem
-      // 
-      this.diffToolStripMenuItem.Name = "diffToolStripMenuItem";
-      resources.ApplyResources(this.diffToolStripMenuItem, "diffToolStripMenuItem");
-      this.diffToolStripMenuItem.Click += new System.EventHandler(this.OnDiffSelected);
-      // 
-      // revertToolStripMenuItem
-      // 
-      this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-      resources.ApplyResources(this.revertToolStripMenuItem, "revertToolStripMenuItem");
-      this.revertToolStripMenuItem.Click += new System.EventHandler(this.OnRevertFile);
-      // 
-      // historyToolStripMenuItem
-      // 
-      this.historyToolStripMenuItem.Name = "historyToolStripMenuItem";
-      resources.ApplyResources(this.historyToolStripMenuItem, "historyToolStripMenuItem");
-      this.historyToolStripMenuItem.Click += new System.EventHandler(this.OnShowHistoryOfSelected);
-      // 
-      // annotateFileToolStripMenuItem
-      // 
-      this.annotateFileToolStripMenuItem.Name = "annotateFileToolStripMenuItem";
-      resources.ApplyResources(this.annotateFileToolStripMenuItem, "annotateFileToolStripMenuItem");
-      this.annotateFileToolStripMenuItem.Click += new System.EventHandler(this.OnAnnotateFile);
-      // 
-      // oPenInEditorToolStripMenuItem
-      // 
-      this.openInEditorToolStripMenuItem.Name = "oPenInEditorToolStripMenuItem";
-      resources.ApplyResources(this.openInEditorToolStripMenuItem, "oPenInEditorToolStripMenuItem");
-      this.openInEditorToolStripMenuItem.Click += new System.EventHandler(this.OnOpenFileInInEditor);
       // 
       // HGPendingChangesToolWindowControl
       // 
@@ -213,23 +214,7 @@ namespace VisualHG
       */
     }
 
-    private void _pendingItemsListView_MouseClick(object sender, MouseEventArgs e)
-    {
-      if (e.Button == MouseButtons.Right)
-      {
-        if (_pendingItemsListView.SelectedIndices.Count > 0)
-        {
-          bool singleSel = (_pendingItemsListView.SelectedIndices.Count == 1) ? true : false;
-          revertToolStripMenuItem.Visible = singleSel;
-          annotateFileToolStripMenuItem.Visible = singleSel;
-          diffToolStripMenuItem.Visible = singleSel;
-          historyToolStripMenuItem.Visible = singleSel;
-          pendingChangesContextMenu.Show(_pendingItemsListView, e.Location);
-        }
-      }
-    }
-
-    private void OnCommitSelected(object sender, EventArgs e)
+    private void OnCommitSelectedFiles(object sender, EventArgs e)
     {
       List<string> array = new List<string>();
       foreach (int index in _pendingItemsListView.SelectedIndices)
@@ -241,7 +226,7 @@ namespace VisualHG
       SccProvider.ServiceProvider.HgCommitSelected(array);
     }
 
-    private void OnDiffSelected(object sender, EventArgs e)
+    private void OnDiffSelectedFile(object sender, EventArgs e)
     {
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
@@ -251,7 +236,7 @@ namespace VisualHG
       }
     }
 
-    private void OnRevertFile(object sender, EventArgs e)
+    private void OnRevertSelectedFile(object sender, EventArgs e)
     {
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
@@ -261,7 +246,7 @@ namespace VisualHG
       }
     }
 
-    private void OnShowHistoryOfSelected(object sender, EventArgs e)
+    private void OnShowSelectedFileHistory(object sender, EventArgs e)
     {
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
@@ -271,7 +256,7 @@ namespace VisualHG
       }
     }
 
-    private void OnAnnotateFile(object sender, EventArgs e)
+    private void OnAnnotateSelectedFile(object sender, EventArgs e)
     {
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
@@ -281,9 +266,30 @@ namespace VisualHG
       }
     }
 
-    private void OnOpenFileInInEditor(object sender, EventArgs e)
+    private void OnOpenSelectedFiles(object sender, EventArgs e)
     {
       OpenSelectedFiles();
+    }
+
+    private void _pendingItemsListView_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      // enable menu commands
+      bool singleSel = false;
+      char state = ' ';
+      if (_pendingItemsListView.SelectedIndices.Count > 0)
+      {
+        singleSel = (_pendingItemsListView.SelectedIndices.Count == 1) ? true : false;
+        int index  = _pendingItemsListView.SelectedIndices[0];
+        HGLib.HGFileStatusInfo info = _pendingItemsListView._list[index];
+        state = info.state;
+      }  
+        
+      revertToolStripMenuItem.Visible = singleSel;
+      annotateFileToolStripMenuItem.Visible = singleSel && state != 'A' && state != 'R' && state != 'N';
+      diffToolStripMenuItem.Visible = singleSel && state != 'R' && state != 'A';
+      historyToolStripMenuItem.Visible = singleSel && state != 'A' && state != 'N';
+      openInEditorToolStripMenuItem.Visible = state != 'R';
+      
     }
   }
 }

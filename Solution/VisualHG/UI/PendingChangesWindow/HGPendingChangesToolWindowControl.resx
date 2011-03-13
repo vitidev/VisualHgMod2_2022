@@ -151,14 +151,14 @@
   <data name="annotateFileToolStripMenuItem.Text" xml:space="preserve">
     <value>Annotate File</value>
   </data>
-  <data name="OpenInEditorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="openInEditorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>156, 22</value>
   </data>
-  <data name="OpenInEditorToolStripMenuItem.Text" xml:space="preserve">
-    <value>Open in Editor</value>
+  <data name="openInEditorToolStripMenuItem.Text" xml:space="preserve">
+    <value>Open Files</value>
   </data>
   <data name="pendingChangesContextMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>157, 158</value>
+    <value>157, 136</value>
   </data>
   <data name="&gt;&gt;pendingChangesContextMenu.Name" xml:space="preserve">
     <value>pendingChangesContextMenu</value>
@@ -216,18 +216,6 @@
   <data name="&gt;&gt;commitToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;columnHeaderStatus.Name" xml:space="preserve">
-    <value>columnHeaderStatus</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderStatus.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderFileName.Name" xml:space="preserve">
-    <value>columnHeaderFileName</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderFileName.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;diffToolStripMenuItem.Name" xml:space="preserve">
     <value>diffToolStripMenuItem</value>
   </data>
@@ -252,11 +240,23 @@
   <data name="&gt;&gt;annotateFileToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;oPenInEditorToolStripMenuItem.Name" xml:space="preserve">
-    <value>oPenInEditorToolStripMenuItem</value>
+  <data name="&gt;&gt;openInEditorToolStripMenuItem.Name" xml:space="preserve">
+    <value>openInEditorToolStripMenuItem</value>
   </data>
-  <data name="&gt;&gt;oPenInEditorToolStripMenuItem.Type" xml:space="preserve">
+  <data name="&gt;&gt;openInEditorToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderStatus.Name" xml:space="preserve">
+    <value>columnHeaderStatus</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderStatus.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderFileName.Name" xml:space="preserve">
+    <value>columnHeaderFileName</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderFileName.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>HGPendingChangesToolWindowControl</value>
