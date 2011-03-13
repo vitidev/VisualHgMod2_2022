@@ -73,7 +73,10 @@ namespace HGLib
           list = new List<HGFileStatusInfo>();
           foreach(HGFileStatusInfo value in _dictionary.Values)
           {
-              if (value.caseSensitiveFileName != null && value.state != 'C' && value.state != 'I' && value.state != '?')
+              if (  value.fullPath != null &&
+                    value.state != 'C' &&
+                    value.state != 'I' &&
+                    value.state != '?')
                 list.Add(value);
           } 
         }

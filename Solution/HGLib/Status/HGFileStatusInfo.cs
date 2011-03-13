@@ -14,33 +14,37 @@ namespace HGLib
         public char state;
         // file size
         public long size;
-        public string caseSensitiveFileName;
+        // case sensitive full path
+        public string fullPath;
+        // case sensitive file name
+        public string fileName;
 
         // init the file props by getting the size and time via FileInfo object
-        public HGFileStatusInfo(char state, string fileName)
+        public HGFileStatusInfo(char state, string path)
         {
             this.state = state;
 
-            FileInfo fileInfo = new FileInfo(fileName);
-            if (fileInfo.Exists)
+            if (state == 'R')
             {
-                timeStamp = fileInfo.LastWriteTime;
-                size = fileInfo.Length;
-                caseSensitiveFileName = fileName;
-            }
-        }
-        
-        public string FileName()
-        {
-            if (caseSensitiveFileName != null)
-            {
-                int i = caseSensitiveFileName.LastIndexOf('\\');
-                if (i > 0)
-                    return caseSensitiveFileName.Substring(i + 1);
+              timeStamp = DateTime.Now;
+              size = 0;
+              fullPath = path;
 
-                return caseSensitiveFileName;
+              int i = path.LastIndexOf('\\');
+              if (i > 0)
+                fileName = path.Substring(i + 1);
             }
-            return "";
+            else
+            {
+              FileInfo fileInfo = new FileInfo(path);
+              if (fileInfo.Exists)
+              {
+                  timeStamp = fileInfo.LastWriteTime;
+                  size = fileInfo.Length;
+                  fullPath = fileInfo.FullName;
+                  fileName = fileInfo.Name;
+              }
+           }   
         }
     }
 }

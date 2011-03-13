@@ -103,7 +103,7 @@ namespace VisualHG
           {
             HGLib.HGFileStatusInfo info = _pendingItemsListView._list[index];
             try{
-              VsShellUtilities.OpenDocument(SccProvider.ServiceProvider(), info.caseSensitiveFileName);
+              VsShellUtilities.OpenDocument(SccProvider.ServiceProvider(), info.fullPath);
             }
             catch (Exception e)
             {

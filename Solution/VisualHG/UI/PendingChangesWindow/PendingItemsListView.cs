@@ -14,10 +14,11 @@ namespace VisualHG
 {
   class PendingItemsListView : ListView
   {
-    private ListViewItem[] myCache; //array to cache items for the virtual list
-    private int firstItem; //stores the index of the first item in the cache
+    private ListViewItem[] _cache; //array to cache items for the virtual list
+    private int _firstItem; //stores the index of the first item in the cache
     StatusImageMapper _statusImages = new StatusImageMapper();
-    public List<HGLib.HGFileStatusInfo> _list = null;
+    // empty pendinf files list
+    public List<HGLib.HGFileStatusInfo> _list = new List<HGLib.HGFileStatusInfo>();
     
     public PendingItemsListView()
     {
@@ -28,32 +29,40 @@ namespace VisualHG
         this.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this_RetrieveVirtualItem);
         this.CacheVirtualItems += new CacheVirtualItemsEventHandler(this_CacheVirtualItems);
         this.SearchForVirtualItem += new SearchForVirtualItemEventHandler(this_SearchForVirtualItem);
-        
-        /*
-        //Search for a particular virtual item.
-        //Notice that we never manually populate the collection!
-        //If you leave out the SearchForVirtualItem handler, this will return null.
-        ListViewItem lvi = this.FindItemWithText("111111");
-
-        //Select the item found and scroll it into view.
-        if (lvi != null)
-        {
-            this.SelectedIndices.Add(lvi.Index);
-            this.EnsureVisible(lvi.Index);
-        }
-         */
     }
+
+      public int compareAscanding(HGLib.HGFileStatusInfo a, HGLib.HGFileStatusInfo b)
+      {
+        return a.fileName.CompareTo(b.fileName);
+      }
 
       public void UpdatePendingList(HGStatusTracker tracker)
       {
-        this.SuspendLayout(); 
-        this.VirtualListSize = 0;
-        tracker.CreatePendingFilesList(out _list);
-        myCache = null; // clear cache
-        this.VirtualListSize = _list.Count;
-        this.ResumeLayout();
+        List<HGLib.HGFileStatusInfo> newList;
+        tracker.CreatePendingFilesList(out newList);
+        newList.Sort(compareAscanding);
         
+        bool somethingChanged = false; 
+        if (_list == null || newList.Count != _list.Count)
+          somethingChanged=true;
+
+        for (int pos = 0; !somethingChanged && pos < _list.Count; ++pos)
+        {
+          if(_list[pos].state != newList[pos].state)
+            somethingChanged = true;
+          if (_list[pos].fullPath.CompareTo(newList[pos].fullPath)!=0)
+            somethingChanged = true;
+        }   
+
+        if (somethingChanged)
+        {
+          _list = newList;
+          _cache = null; // clear cache
+          this.VirtualListSize = _list.Count;
+          this.Invalidate(false);
+        }
       }
+      
 
     int GetStateIcon(char state)
     {
@@ -61,7 +70,7 @@ namespace VisualHG
       {
         case 'M': return 1;
         case 'A': return 2;
-        case 'R': return 1;
+        case 'R': return 4; //TODO: create removed icon
         case 'N': return 3; // renamed
         case 'P': return 3; // copied
         case '?': return 2; // unknown
@@ -73,22 +82,23 @@ namespace VisualHG
     void this_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
     {
         //check to see if the requested item is currently in the cache
-        if (myCache != null && e.ItemIndex >= firstItem && e.ItemIndex < firstItem + myCache.Length)
+      if (_cache != null && e.ItemIndex >= _firstItem && e.ItemIndex < _firstItem + _cache.Length)
         {
             //A cache hit, so get the ListViewItem from the cache instead of making a new one.
-            e.Item = myCache[e.ItemIndex - firstItem];
+          e.Item = _cache[e.ItemIndex - _firstItem];
         }
         else
         {
             //A cache miss, so create a new ListViewItem and pass it back.
-            HGLib.HGFileStatusInfo info = _list[e.ItemIndex];
-            e.Item = new ListViewItem(info.FileName());
-            e.Item.ImageIndex = GetStateIcon(info.state);
-            e.Item.SubItems.Add(info.caseSensitiveFileName);
+            if (e.ItemIndex < _list.Count)
+            {
+              HGLib.HGFileStatusInfo info = _list[e.ItemIndex];
+              e.Item = new ListViewItem(info.fileName);
+              e.Item.ImageIndex = GetStateIcon(info.state);
+              e.Item.SubItems.Add(info.fullPath);
+            }   
         }
     }
-    ListViewItem item = null;
-    
 
     //Manages the cache. ListView calls this when it might need a 
     //cache refresh.
@@ -96,7 +106,7 @@ namespace VisualHG
     {
         //We've gotten a request to refresh the cache.
         //First check if it's really neccesary.
-        if (myCache != null && e.StartIndex >= firstItem && e.EndIndex <= firstItem + myCache.Length)
+      if (_cache != null && e.StartIndex >= _firstItem && e.EndIndex <= _firstItem + _cache.Length)
         {
             //If the newly requested cache is a subset of the old cache, 
             //no need to rebuild everything, so do nothing.
@@ -104,45 +114,36 @@ namespace VisualHG
         }
 
         //Now we need to rebuild the cache.
-        firstItem = e.StartIndex;
+        _firstItem = e.StartIndex;
         int length = e.EndIndex - e.StartIndex + 1; //indexes are inclusive
-        myCache = new ListViewItem[length];
+        _cache = new ListViewItem[length];
 
-        //int x = 0;
         for (int i = 0; i < length; i++)
         {
-          int index = (i + firstItem);
-          HGLib.HGFileStatusInfo info = _list[index];
-          item = new ListViewItem(info.FileName());
-          item.ImageIndex = GetStateIcon(info.state);
-          item.SubItems.Add(info.caseSensitiveFileName);
-          myCache[i] = item;
-            
+          int index = (i + _firstItem);
+          if (index < _list.Count)
+          {
+            HGLib.HGFileStatusInfo info = _list[index];
+            ListViewItem item = new ListViewItem(info.fileName);
+            item.ImageIndex = GetStateIcon(info.state);
+            item.SubItems.Add(info.fullPath);
+            _cache[i] = item;
+          }  
         }
-
     }
 
     //This event handler enables search functionality, and is called
     //for every search request when in Virtual mode.
     void this_SearchForVirtualItem(object sender, SearchForVirtualItemEventArgs e)
     {
-        //We've gotten a search request.
-        //In this example, finding the item is easy since it's
-        //just the square of its index.  We'll take the square root
-        //and round.
-        double x = 0;
-        if (Double.TryParse(e.Text, out x)) //check if this is a valid search
+        for (int pos = 0; pos < _list.Count; ++pos)
         {
-            x = Math.Sqrt(x);
-            x = Math.Round(x);
-            e.Index = (int)x;
-
+          if (_list[pos].fileName.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
+          {
+            e.Index = pos;
+            break;
+          }  
         }
-        //If e.Index is not set, the search returns null.
-        //Note that this only handles simple searches over the entire
-        //list, ignoring any other settings.  Handling Direction, StartIndex,
-        //and the other properties of SearchForVirtualItemEventArgs is up
-        //to this handler.
     }
   }
 }
