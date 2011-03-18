@@ -40,7 +40,7 @@ namespace VisualHG
             SccProviderService service = (SccProviderService)SccProvider.GetServiceEx(typeof(SccProviderService));
             if(service!=null)
             {
-                service.RefreshNodesGlyphs();
+                UpdatePendingList(service.StatusTracker);
             }
 
         }

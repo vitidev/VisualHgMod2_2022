@@ -68,12 +68,13 @@ namespace VisualHG
     {
       switch(state)
       {
-        case 'M': return 1;
-        case 'A': return 2;
-        case 'R': return 4; //TODO: create removed icon
+        case '!': return 5; // missing
+        case 'M': return 1; // modified
+        case 'A': return 2; // added
+        case 'R': return 4; // removed
         case 'N': return 3; // renamed
-        case 'P': return 3; // copied
-        case '?': return 2; // unknown
+        case 'P': return 6; // copied
+        case '?': return 5; // unknown
       }
       return 0;
     }

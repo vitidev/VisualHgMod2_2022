@@ -272,7 +272,7 @@ namespace HGLib
                 fileStatusDictionary = new Dictionary<string, char>();
 
                 // Start a new process for the cmd
-                Process process = HG.InvokeCommand(rootDirectory, "status -A");
+                Process process = HG.InvokeCommand(rootDirectory, "status -m -a -r -d -c -C ");
 
                 List<string> lines = new List<string>();
 
@@ -338,7 +338,7 @@ namespace HGLib
                         string commandLine = directoryCommandLine.Value;
 
                         List<string> resultList;
-                        InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
+                        InvokeCommand(rootDirectory, "status -" + commandLine, out resultList);
                         UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
                     }
                 }

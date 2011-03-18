@@ -96,6 +96,12 @@ namespace VisualHG
 
         #endregion
 
+        // access to the tracker object
+        public HGStatusTracker StatusTracker
+        {
+            get { return _sccStatusTracker; }
+        }
+
         //--------------------------------------------------------------------------------
         // IVsSccProvider specific functions
         //--------------------------------------------------------------------------------
