@@ -418,11 +418,14 @@ namespace VisualHG
             //if (fAdded == 1)
             {
                 IList<string> fileList = SccProvider.GetProjectFiles(pHierarchy as IVsSccProject2);
-                string[] files = new string[fileList.Count];
-                fileList.CopyTo(files, 0);
-                // add only files wich are not ignored
-                if(Configuration.Global._autoAddFiles)
-                    _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
+                if (fileList.Count>0)
+                {
+                  string[] files = new string[fileList.Count];
+                  fileList.CopyTo(files, 0);
+                  // add only files wich are not ignored
+                  if(Configuration.Global._autoAddFiles)
+                      _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
+                }
             }
 
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
@@ -544,6 +547,9 @@ namespace VisualHG
                   // Make the file writable and allow the save
                   if ((attribures & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
                     File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
+
+                  string[] files = new string[] { pszMkDocument};
+                  _sccStatusTracker.AddWorkItem(new HGLib.TriggerQueryFilesStatus(files));
               }
               catch{}
             }
@@ -562,6 +568,8 @@ namespace VisualHG
             {
                 Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
             }
+
+            _sccStatusTracker.AddWorkItem(new HGLib.TriggerQueryFilesStatus(rgpszMkDocuments));
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
@@ -739,12 +747,15 @@ namespace VisualHG
         /// call RefreshNodesGlyphs to update all Glyphs 
         /// if the _bNodesGlyphsDirty is true
         /// </summary>
+        long lastUpdate = 0;
         public void UpdateDirtyNodesGlyphs()
         {
-            if (_bNodesGlyphsDirty)
+            if (_bNodesGlyphsDirty && (DateTime.Now.Ticks - lastUpdate) > 100)
+            {
                 RefreshNodesGlyphs();
-
-            _bNodesGlyphsDirty = false;
+                lastUpdate = DateTime.Now.Ticks;
+                _bNodesGlyphsDirty = false;
+            }
         }
 
         public void RefreshNodesGlyphs()

@@ -93,6 +93,24 @@ namespace HGLib
         }
     }
 
+    // ------------------------------------------------------------------------
+    // triggers an status update for the given file
+    // ------------------------------------------------------------------------
+    public class TriggerQueryFilesStatus : IHGWorkItem
+    {
+        string[] file = null;
+
+        public TriggerQueryFilesStatus(string[] file)
+        {
+            this.file = file;
+        }
+
+        public virtual void Do(HGStatus status, List<string> ditryFilesList)
+        {
+            status.UpdateFileStatus(file);
+        }
+    }
+
     // ---------------------------------------
     // queued user commands or events from the IDE
     // ---------------------------------------

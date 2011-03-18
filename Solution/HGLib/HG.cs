@@ -124,17 +124,26 @@ namespace HGLib
         {
             string workingDirectory = fileList[0].Substring(0, fileList[0].LastIndexOf('\\'));
             string rootDirectory = HG.FindRootDirectory(workingDirectory);
-
+            List<string> list;
             string commandString = command;
+            int counter = 0;
             foreach (var file in fileList)
             {
-                if(!directoriesAllowed && file.EndsWith("\\"))
+                ++counter; 
+
+                if (!directoriesAllowed && file.EndsWith("\\"))
                     continue;
 
                 commandString += " \"" + file.Substring(rootDirectory.Length + 1) + "\" ";
+
+                if (counter > 20 || commandString.Length > 1024)
+                { 
+                    HG.InvokeCommand(rootDirectory, commandString, out list);
+                    commandString = command;
+                }
             }
 
-            List<string> list;
+            
             HG.InvokeCommand(rootDirectory, commandString, out list);
         }
 
@@ -313,7 +322,7 @@ namespace HGLib
                         if (commandLine.Length>=(2000))
                         {
                             List<string> resultList;
-                            InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
+                            InvokeCommand(rootDirectory, "status " + commandLine, out resultList);
                             UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
 
                             // reset cmd line and filecounter for the next run

@@ -33,12 +33,15 @@ namespace VisualHG
       InitializeComponent();
 
       ImageList menuImageList = _pendingItemsListView._ImageMapper.MenuImageList;
-      this.commitToolStripMenuItem.Image = menuImageList.Images[0];
-      this.diffToolStripMenuItem.Image = menuImageList.Images[4];
-      this.revertToolStripMenuItem.Image = menuImageList.Images[8];
-      this.historyToolStripMenuItem.Image = menuImageList.Images[9];
-      this.annotateFileToolStripMenuItem.Image = menuImageList.Images[7];
-      this.openInEditorToolStripMenuItem.Image = menuImageList.Images[1];
+      if (menuImageList != null)
+      { 
+          this.commitToolStripMenuItem.Image = menuImageList.Images[0];
+          this.diffToolStripMenuItem.Image = menuImageList.Images[4];
+          this.revertToolStripMenuItem.Image = menuImageList.Images[8];
+          this.historyToolStripMenuItem.Image = menuImageList.Images[9];
+          this.annotateFileToolStripMenuItem.Image = menuImageList.Images[7];
+          this.openInEditorToolStripMenuItem.Image = menuImageList.Images[1];
+      }
     }
 
     /// <summary> 

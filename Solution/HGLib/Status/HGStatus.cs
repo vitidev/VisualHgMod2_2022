@@ -76,7 +76,7 @@ namespace HGLib
         bool         _SkipDirstate = false;
 
         // min elapsed time before cache rebild trigger.
-        volatile int _MinElapsedTimeForStatusCacheRebuildMS = 1000;
+        volatile int _MinElapsedTimeForStatusCacheRebuildMS = 2000;
 
         // complete cache rebuild is required
         volatile bool _bRebuildStatusCacheRequired = false;
@@ -204,6 +204,18 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
+        /// update given file status.
+        // ------------------------------------------------------------------------
+        public void UpdateFileStatus(string[] file)
+        {
+            Dictionary<string, char> fileStatusDictionary;
+            if (HG.QueryFileStatus(file, out fileStatusDictionary)) 
+            {
+                _fileStatusDictionary.Add(fileStatusDictionary);
+            }
+        }
+
+        // ------------------------------------------------------------------------
         /// Add a root directory and query the status of the contining files 
         /// by a QueryRootStatus call.
         // ------------------------------------------------------------------------
@@ -251,11 +263,28 @@ namespace HGLib
         // ------------------------------------------------------------------------
         /// add file to the repositiry if they are not on the ignore list
         // ------------------------------------------------------------------------
-        public void AddNotIgnoredFiles(string[] fileList)
+        public void AddNotIgnoredFiles(string[] fileListRaw)
         {
+          List<string> fileList = new List<string>();
+            lock (_fileStatusDictionary)
+            {
+              foreach (string file in fileListRaw)
+              {
+                HGFileStatusInfo info;
+                if(!_fileStatusDictionary.TryGetValue(file.ToLower(), out info)||info.state == '?')
+                {
+                  fileList.Add(file);
+                }
+              }
+            }
+
+            if (fileList.Count==0)
+              return;
+            
+            
             SkipDirstate(true);
             Dictionary<string, char> fileStatusDictionary;
-            if (HG.AddFilesNotIgnored(fileList, out fileStatusDictionary))
+            if (HG.AddFilesNotIgnored(fileList.ToArray(), out fileStatusDictionary))
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -496,7 +525,7 @@ namespace HGLib
                 else if (numberOfChangedFiles > 0)
                 {
                     // min elapsed time before do anything
-                    if (elapsedMS > 100)
+                    if (elapsedMS > 1000)
                     {
                         Trace.WriteLine("UpdateDirtyFilesStatus (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
                         var fileList = PopDirtyWatcherFiles();

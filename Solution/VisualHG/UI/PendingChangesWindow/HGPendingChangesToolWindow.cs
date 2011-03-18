@@ -35,9 +35,14 @@ namespace VisualHG
             this.BitmapResourceID = CommandId.ibmpToolWindowsImages;  // bitmap strip resource ID
             this.BitmapIndex = CommandId.iconSccProviderToolWindow;   // index in the bitmap strip
 
-            //IServiceContainer _container = UISite.GetService<IServiceContainer>(); 
-            
             control = new HGPendingChangesToolWindowControl();
+
+            SccProviderService service = (SccProviderService)SccProvider.GetServiceEx(typeof(SccProviderService));
+            if(service!=null)
+            {
+                service.RefreshNodesGlyphs();
+            }
+
         }
 
         // route update pending changes call
