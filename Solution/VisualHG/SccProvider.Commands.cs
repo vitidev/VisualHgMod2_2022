@@ -75,6 +75,11 @@ namespace VisualHG
                 cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAnnotate), cmd);
                 mcs.AddCommand(menuCmd);
+
+                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
+                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAddSelected), cmd);
+                mcs.AddCommand(menuCmd);
+
             }
         }
 
@@ -159,6 +164,10 @@ namespace VisualHG
                     cmdf = QueryStatus_icmdHgAnnotate();
                     break;
 
+                case CommandId.icmdHgAddSelected:
+                    cmdf = QueryStatus_icmdHgAddSelected();
+                    break;
+
                 case CommandId.icmdViewToolWindow:
                 case CommandId.icmdToolWindowToolbarCommand:
                     // These commmands are always enabled when the provider is active
@@ -179,21 +188,33 @@ namespace VisualHG
             return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
         }
 
+        OLECMDF QueryStatus_icmdHgAddSelected()
+        {
+            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+
+            long stateMask  =  (long)HGLib.HGFileStatus.scsUncontrolled |
+                               (long)HGLib.HGFileStatus.scsIgnored;
+
+            if (FindSelectedFirstMask(false, stateMask))
+            {
+                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            }
+
+            return cmdf;
+        }
         OLECMDF QueryStatus_icmdHgCommitSelected()
         {
             OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
 
-            List<string> array = GetSelectedFileNameArray(true);
-            foreach (string filename in array)
+            long stateMask = (long)HGLib.HGFileStatus.scsModified |
+                             (long)HGLib.HGFileStatus.scsAdded|
+                             (long)HGLib.HGFileStatus.scsCopied|
+                             (long)HGLib.HGFileStatus.scsRenamed|
+                             (long)HGLib.HGFileStatus.scsRemoved;
+
+            if (FindSelectedFirstMask(true, stateMask))
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsClean &&
-                    status != HGLib.SourceControlStatus.scsIgnored)
-                {
-                    cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-                    break;
-                }
+                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
 
             return cmdf;
@@ -210,12 +231,12 @@ namespace VisualHG
             string filename = GetSingleSelectedFileName();
             if (filename != string.Empty)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsIgnored &&
-                    status != HGLib.SourceControlStatus.scsAdded &&
-                    status != HGLib.SourceControlStatus.scsRenamed &&
-                    status != HGLib.SourceControlStatus.scsCopied)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsIgnored &&
+                    status != HGLib.HGFileStatus.scsAdded &&
+                    status != HGLib.HGFileStatus.scsRenamed &&
+                    status != HGLib.HGFileStatus.scsCopied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
 
@@ -243,11 +264,11 @@ namespace VisualHG
 
             if (filename != String.Empty)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsAdded &&
-                    status != HGLib.SourceControlStatus.scsIgnored &&
-                    status != HGLib.SourceControlStatus.scsClean)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsAdded &&
+                    status != HGLib.HGFileStatus.scsIgnored &&
+                    status != HGLib.HGFileStatus.scsClean)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
             }
@@ -257,17 +278,20 @@ namespace VisualHG
 
         OLECMDF QueryStatus_icmdHgRevert()
         {
-            string filename = GetSingleSelectedFileName();
-            if (filename != String.Empty)
-            {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsClean)
-                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
 
+            long stateMask = (long)HGLib.HGFileStatus.scsAdded |
+                             (long)HGLib.HGFileStatus.scsCopied |
+                             (long)HGLib.HGFileStatus.scsModified|
+                             (long)HGLib.HGFileStatus.scsRenamed |
+                             (long)HGLib.HGFileStatus.scsRemoved;
+
+            if (FindSelectedFirstMask(false, stateMask))
+            {
+                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
 
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+            return cmdf;
         }
 
         OLECMDF QueryStatus_icmdHgAnnotate()
@@ -275,12 +299,12 @@ namespace VisualHG
             string filename = GetSingleSelectedFileName();
             if (filename != String.Empty)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsIgnored &&
-                    status != HGLib.SourceControlStatus.scsAdded &&
-                    status != HGLib.SourceControlStatus.scsRenamed &&
-                    status != HGLib.SourceControlStatus.scsCopied)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(filename);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsIgnored &&
+                    status != HGLib.HGFileStatus.scsAdded &&
+                    status != HGLib.HGFileStatus.scsRenamed &&
+                    status != HGLib.HGFileStatus.scsCopied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
             }
@@ -299,28 +323,28 @@ namespace VisualHG
 
             string root = GetRootDirectory();
             if (root != string.Empty)
-                HGLib.HGTK.CommitDialog(root);
+              CommitDialog(root);
             else
-                PromptSolutionNotControlled();
+              PromptSolutionNotControlled();
         }
 
         private void Exec_icmdHgCommitSelected(object sender, EventArgs e)
         {
           List<string> array = GetSelectedFileNameArray(true);
-          HgCommitSelected(array);
+          CommitDialog(array);
         }
 
-        public void HgCommitSelected(List<string> array)
+        public void CommitDialog(List<string> array)
         {
             StoreSolution();
 
             List<string> commitList = new List<string>();
             foreach (string name in array)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(name);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsClean &&
-                    status != HGLib.SourceControlStatus.scsIgnored)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(name);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsClean &&
+                    status != HGLib.HGFileStatus.scsIgnored)
                 {
                     commitList.Add(name);
                 }
@@ -328,7 +352,34 @@ namespace VisualHG
 
             if (commitList.Count > 0)
             {
-                HGLib.HGTK.CommitDialog(commitList.ToArray());
+                CommitDialog(commitList.ToArray());
+            }
+        }
+
+        private void Exec_icmdHgAddSelected(object sender, EventArgs e)
+        {
+            List<string> array = GetSelectedFileNameArray(false);
+            HgAddSelected(array);
+        }
+
+        public void HgAddSelected(List<string> array)
+        {
+            StoreSolution();
+
+            List<string> addList = new List<string>();
+            foreach (string name in array)
+            {
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(name);
+                if (status == HGLib.HGFileStatus.scsUncontrolled ||
+                    status == HGLib.HGFileStatus.scsIgnored)
+                {
+                    addList.Add(name);
+                }
+            }
+
+            if (addList.Count > 0)
+            {
+                AddFilesDialog(addList.ToArray());
             }
         }
 
@@ -339,7 +390,7 @@ namespace VisualHG
             string root = GetRootDirectory();
 
             if (root != null && root != String.Empty)
-                HGLib.HGTK.RepoBrowserDialog(root);
+                RepoBrowserDialog(root);
             else
                 PromptSolutionNotControlled();
         }
@@ -356,12 +407,12 @@ namespace VisualHG
             
             if (fileName != string.Empty)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsAdded &&
-                    status != HGLib.SourceControlStatus.scsIgnored)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsAdded &&
+                    status != HGLib.HGFileStatus.scsIgnored)
                 {
-                    HGLib.HGTK.LogDialog(fileName); 
+                    LogDialog(fileName); 
                 }
             }
         }
@@ -372,7 +423,7 @@ namespace VisualHG
 
             string root = GetRootDirectory();
             if (root != string.Empty)
-                HGLib.HGTK.StatusDialog(root);
+                StatusDialog(root);
             else
                 PromptSolutionNotControlled();
 
@@ -392,13 +443,13 @@ namespace VisualHG
             {
                 string versionedFile = fileName;
 
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsAdded &&
-                    status != HGLib.SourceControlStatus.scsIgnored)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(fileName);
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsAdded &&
+                    status != HGLib.HGFileStatus.scsIgnored)
                 {
-                    if (status == HGLib.SourceControlStatus.scsRenamed ||
-                        status == HGLib.SourceControlStatus.scsCopied)
+                    if (status == HGLib.HGFileStatus.scsRenamed ||
+                        status == HGLib.HGFileStatus.scsCopied)
                     {
                         versionedFile = HGLib.HG.GetOriginalOfRenamedFile(fileName); 
                     }
@@ -407,7 +458,7 @@ namespace VisualHG
                     { 
                         try
                         { 
-                            HGLib.HGTK.DiffDialog(versionedFile, fileName, Configuration.Global.ExternalDiffToolCommandMask);
+                            DiffDialog(versionedFile, fileName, Configuration.Global.ExternalDiffToolCommandMask);
                         }
                         catch
                         {
@@ -427,7 +478,7 @@ namespace VisualHG
 
             string root = GetRootDirectory();
             if (root != string.Empty)
-                HGLib.HGTK.SyncDialog(root);
+                SyncDialog(root);
             else
                 PromptSolutionNotControlled();
         }
@@ -445,22 +496,31 @@ namespace VisualHG
 
         private void Exec_icmdHgRevert(object sender, EventArgs e)
         {
-          string fileName = GetSingleSelectedFileName();
-          HgRevertFileDlg(fileName);
+            List<string> array = GetSelectedFileNameArray(false);
+            HgRevertFileDlg(array.ToArray());
         }
 
-        public void HgRevertFileDlg(string fileName)
+        public void HgRevertFileDlg(string[] array)
         {
             StoreSolution();
 
-            if (fileName != String.Empty)
+            List<string> addList = new List<string>();
+            foreach (string name in array)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsClean)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(name);
+                if (status == HGLib.HGFileStatus.scsModified ||
+                    status == HGLib.HGFileStatus.scsAdded ||
+                    status == HGLib.HGFileStatus.scsCopied ||
+                    status == HGLib.HGFileStatus.scsRemoved ||
+                    status == HGLib.HGFileStatus.scsRenamed)
                 {
-                    HGLib.HGTK.RevertDialog(fileName);
+                    addList.Add(name);
                 }
+            }
+
+            if (addList.Count > 0)
+            {
+                RevertDialog(addList.ToArray());
             }
         }
 
@@ -477,8 +537,8 @@ namespace VisualHG
 
             if (fileName != String.Empty)
             {
-                HGLib.SourceControlStatus status = this.sccService.GetFileStatus(fileName);
-                if (status == HGLib.SourceControlStatus.scsRenamed)
+                HGLib.HGFileStatus status = this.sccService.GetFileStatus(fileName);
+                if (status == HGLib.HGFileStatus.scsRenamed)
                 {
                     // get original filename
                     string orgName = HGLib.HG.GetOriginalOfRenamedFile(fileName);
@@ -486,8 +546,8 @@ namespace VisualHG
                         HGLib.HGTK.AnnotateDialog(orgName);
                 }
                 
-                if (status != HGLib.SourceControlStatus.scsUncontrolled &&
-                    status != HGLib.SourceControlStatus.scsIgnored)
+                if (status != HGLib.HGFileStatus.scsUncontrolled &&
+                    status != HGLib.HGFileStatus.scsIgnored)
                 {
                     HGLib.HGTK.AnnotateDialog(fileName);
                 }

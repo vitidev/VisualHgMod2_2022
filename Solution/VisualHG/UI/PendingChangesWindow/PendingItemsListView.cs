@@ -14,137 +14,249 @@ namespace VisualHG
 {
   class PendingItemsListView : ListView
   {
-    private ListViewItem[] _cache; //array to cache items for the virtual list
-    private int _firstItem; //stores the index of the first item in the cache
-    public ImageMapper _ImageMapper = new ImageMapper();
-    // empty pendinf files list
+    //array to cache items for the virtual list
+    private ListViewItem[] _cache;
+    //stores the index of the first item in the cache
+    private int _firstItem;
+    // pending files list
     public List<HGLib.HGFileStatusInfo> _list = new List<HGLib.HGFileStatusInfo>();
-    
+    // status images
+    public ImageMapper _ImageMapper = new ImageMapper();
+    // latest sorted column index
+    int _previouslySortedColumn = -1;
+    // remember selected files to restore selection
+    Dictionary<string, int> _storedSelection = null;
+
+    // ------------------------------------------------------------------------
+    // construction - setup virtual list handler
+    // ------------------------------------------------------------------------
     public PendingItemsListView()
     {
-        //Create a simple ListView.
-        this.SmallImageList = _ImageMapper.StatusImageList;
-        
-        //Hook up handlers for VirtualMode events.
-        this.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this_RetrieveVirtualItem);
-        this.CacheVirtualItems += new CacheVirtualItemsEventHandler(this_CacheVirtualItems);
-        this.SearchForVirtualItem += new SearchForVirtualItemEventHandler(this_SearchForVirtualItem);
+      this.SmallImageList = _ImageMapper.StatusImageList;
+
+      //Hook up handlers for VirtualMode events.
+      this.RetrieveVirtualItem += new RetrieveVirtualItemEventHandler(this_RetrieveVirtualItem);
+      this.CacheVirtualItems += new CacheVirtualItemsEventHandler(this_CacheVirtualItems);
+      this.SearchForVirtualItem += new SearchForVirtualItemEventHandler(this_SearchForVirtualItem);
+      this.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this_ColumnClick);
+      this.SelectedIndexChanged += new System.EventHandler(this_SelectedIndexChanged);
     }
 
-      public int compareAscanding(HGLib.HGFileStatusInfo a, HGLib.HGFileStatusInfo b)
-      {
-        return a.fileName.CompareTo(b.fileName);
-      }
-
-      public void UpdatePendingList(HGStatusTracker tracker)
-      {
-        List<HGLib.HGFileStatusInfo> newList;
-        tracker.CreatePendingFilesList(out newList);
-        newList.Sort(compareAscanding);
-        
-        bool somethingChanged = false; 
-        if (_list == null || newList.Count != _list.Count)
-          somethingChanged=true;
-
-        for (int pos = 0; !somethingChanged && pos < _list.Count; ++pos)
-        {
-          if(_list[pos].state != newList[pos].state)
-            somethingChanged = true;
-          if (_list[pos].fullPath.CompareTo(newList[pos].fullPath)!=0)
-            somethingChanged = true;
-        }   
-
-        if (somethingChanged)
-        {
-          _list = newList;
-          _cache = null; // clear cache
-          this.VirtualListSize = _list.Count;
-          this.Invalidate(false);
-        }
-      }
-      
-
-    int GetStateIcon(char state)
+    // ------------------------------------------------------------------------
+    // status item sorter callback routine
+    // ------------------------------------------------------------------------
+    public int compareInfoItem(HGLib.HGFileStatusInfo a, HGLib.HGFileStatusInfo b)
     {
-      switch(state)
+      if (Sorting == SortOrder.Ascending)
       {
-        case '!': return 5; // missing
-        case 'M': return 1; // modified
-        case 'A': return 2; // added
-        case 'R': return 4; // removed
-        case 'N': return 3; // renamed
-        case 'P': return 6; // copied
-        case '?': return 5; // unknown
+        if (_previouslySortedColumn <= 0)
+          return a.fileName.CompareTo(b.fileName);
+        else if (_previouslySortedColumn == 1)
+          return a.fullPath.CompareTo(b.fullPath);
+      }
+      else
+      {
+        if (_previouslySortedColumn <= 0)
+          return b.fileName.CompareTo(b.fileName);
+        else if (_previouslySortedColumn == 1)
+          return b.fullPath.CompareTo(b.fullPath);
       }
       return 0;
     }
-    
-    //Dynamically returns a ListViewItem with the required properties;
+
+    // ------------------------------------------------------------------------
+    // sort content by column
+    // ------------------------------------------------------------------------
+    void SortByColumn(int mewColumn)
+    {
+      // store current selected items
+      int selPosStart;
+
+      StoreSelection(out _storedSelection, out selPosStart);
+
+      // toggle sort order and set column icon
+      if (_previouslySortedColumn == mewColumn)
+        Sorting = (Sorting == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
+      else
+        Sorting = SortOrder.Ascending;  
+
+      ListViewSort.LVSort.SetSortIcons(this, ref _previouslySortedColumn, mewColumn);
+      _previouslySortedColumn = mewColumn;
+
+      // sort items and clear the cache
+      _list.Sort(compareInfoItem);
+      _cache = null;
+
+      this.Invalidate(false);
+    }
+
+    // ------------------------------------------------------------------------
+    // update pending items list by status tracker object
+    // ------------------------------------------------------------------------
+    public void UpdatePendingList(HGStatusTracker tracker)
+    {
+      if(_previouslySortedColumn==-1)
+        SortByColumn(0);
+      
+      // create new pending list ..
+      List<HGLib.HGFileStatusInfo> newList;
+      tracker.CreatePendingFilesList(out newList);
+      newList.Sort(compareInfoItem);
+      
+      // .. and compare it to the current one
+      bool somethingChanged = false;
+      if (_list == null || newList.Count != _list.Count)
+        somethingChanged = true;
+
+      for (int pos = 0; !somethingChanged && pos < _list.Count; ++pos)
+      {
+        if (_list[pos].status != newList[pos].status)
+          somethingChanged = true;
+        if (_list[pos].fullPath.CompareTo(newList[pos].fullPath) != 0)
+          somethingChanged = true;
+      }
+
+      // if we found changes between the lists, we now update the view
+      if (somethingChanged)
+      {
+        // store current selected items
+        int selPosStart;
+        Dictionary<string, int> selection;
+        StoreSelection(out selection, out selPosStart);
+
+        // set new list into listview
+        _list = newList;
+        _cache = null;
+        this.VirtualListSize = _list.Count;
+
+        this.Invalidate(false);
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // store current selected items to a map
+    // ------------------------------------------------------------------------
+    void StoreSelection(out Dictionary<string, int> selection, out int selPosStart)
+    {
+      selPosStart = 0;
+      selection = new Dictionary<string, int>();
+      foreach (int index in SelectedIndices)
+      {
+        if (selPosStart == 0)
+          selPosStart = index;
+
+        HGLib.HGFileStatusInfo info = _list[index];
+        selection.Add(info.fullPath, 0);
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // get item index by status
+    // ------------------------------------------------------------------------
+    int GetStateIcon(HGLib.HGFileStatus status)
+    {
+      switch (status)
+      {
+        case HGLib.HGFileStatus.scsMissing: return 5; // missing
+        case HGLib.HGFileStatus.scsModified: return 1; // modified
+        case HGLib.HGFileStatus.scsAdded: return 2; // added
+        case HGLib.HGFileStatus.scsRemoved: return 4; // removed
+        case HGLib.HGFileStatus.scsRenamed: return 3; // renamed
+        case HGLib.HGFileStatus.scsCopied: return 6; // copied
+        case HGLib.HGFileStatus.scsUncontrolled: return 5; // unknown
+      }
+      return 0;
+    }
+
+    // ------------------------------------------------------------------------
+    // Dynamically returns a ListViewItem with the required properties;
+    // ------------------------------------------------------------------------
     void this_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
     {
-        //check to see if the requested item is currently in the cache
+      //check to see if the requested item is currently in the cache
       if (_cache != null && e.ItemIndex >= _firstItem && e.ItemIndex < _firstItem + _cache.Length)
+      {
+        //A cache hit, so get the ListViewItem from the cache instead of making a new one.
+        e.Item = _cache[e.ItemIndex - _firstItem];
+      }
+      else
+      {
+        //A cache miss, so create a new ListViewItem and pass it back.
+        if (e.ItemIndex < _list.Count)
         {
-            //A cache hit, so get the ListViewItem from the cache instead of making a new one.
-          e.Item = _cache[e.ItemIndex - _firstItem];
+          HGLib.HGFileStatusInfo info = _list[e.ItemIndex];
+          e.Item = new ListViewItem(info.fileName);
+          e.Item.ImageIndex = GetStateIcon(info.status);
+          if (_storedSelection!= null && _storedSelection.ContainsKey(info.fullPath))
+            e.Item.Selected=true;
+          e.Item.SubItems.Add(info.fullPath);
         }
-        else
-        {
-            //A cache miss, so create a new ListViewItem and pass it back.
-            if (e.ItemIndex < _list.Count)
-            {
-              HGLib.HGFileStatusInfo info = _list[e.ItemIndex];
-              e.Item = new ListViewItem(info.fileName);
-              e.Item.ImageIndex = GetStateIcon(info.state);
-              e.Item.SubItems.Add(info.fullPath);
-            }   
-        }
+      }
     }
 
-    //Manages the cache. ListView calls this when it might need a 
-    //cache refresh.
+    // ------------------------------------------------------------------------
+    // Manages the cache. ListView calls this when it might need a 
+    // cache refresh.
+    // ------------------------------------------------------------------------
     void this_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
     {
-        //We've gotten a request to refresh the cache.
-        //First check if it's really neccesary.
+      //We've gotten a request to refresh the cache.
+      //First check if it's really neccesary.
       if (_cache != null && e.StartIndex >= _firstItem && e.EndIndex <= _firstItem + _cache.Length)
-        {
-            //If the newly requested cache is a subset of the old cache, 
-            //no need to rebuild everything, so do nothing.
-            return;
-        }
+      {
+        //If the newly requested cache is a subset of the old cache, 
+        //no need to rebuild everything, so do nothing.
+        return;
+      }
 
-        //Now we need to rebuild the cache.
-        _firstItem = e.StartIndex;
-        int length = e.EndIndex - e.StartIndex + 1; //indexes are inclusive
-        _cache = new ListViewItem[length];
+      // now we need to rebuild the cache.
+      _firstItem = e.StartIndex;
+      int length = e.EndIndex - e.StartIndex + 1; //indexes are inclusive
+      _cache = new ListViewItem[length];
 
-        for (int i = 0; i < length; i++)
+      for (int i = 0; i < length; i++)
+      {
+        int index = (i + _firstItem);
+        if (index < _list.Count)
         {
-          int index = (i + _firstItem);
-          if (index < _list.Count)
-          {
-            HGLib.HGFileStatusInfo info = _list[index];
-            ListViewItem item = new ListViewItem(info.fileName);
-            item.ImageIndex = GetStateIcon(info.state);
-            item.SubItems.Add(info.fullPath);
-            _cache[i] = item;
-          }  
+          HGLib.HGFileStatusInfo info = _list[index];
+          ListViewItem item = new ListViewItem(info.fileName);
+          item.ImageIndex = GetStateIcon(info.status);
+          if (_storedSelection != null && _storedSelection.ContainsKey(info.fullPath))
+              item.Selected = true;
+          item.SubItems.Add(info.fullPath);
+          _cache[i] = item;
         }
+      }
     }
 
-    //This event handler enables search functionality, and is called
-    //for every search request when in Virtual mode.
+    // ------------------------------------------------------------------------
+    // This event handler enables search functionality, and is called
+    // for every search request when in Virtual mode.
+    // ------------------------------------------------------------------------
     void this_SearchForVirtualItem(object sender, SearchForVirtualItemEventArgs e)
     {
-        for (int pos = 0; pos < _list.Count; ++pos)
+      for (int pos = 0; pos < _list.Count; ++pos)
+      {
+        if (_list[pos].fileName.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
         {
-          if (_list[pos].fileName.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
-          {
-            e.Index = pos;
-            break;
-          }  
+          e.Index = pos;
+          break;
         }
+      }
+    }
+
+    private void this_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        _storedSelection = null;
+    }
+    
+        // ------------------------------------------------------------------------
+    // column click handler - sort and upadte items
+    // ------------------------------------------------------------------------
+    void this_ColumnClick(object sender, ColumnClickEventArgs e)
+    {
+      SortByColumn(e.Column);
     }
   }
 }

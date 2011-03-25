@@ -12,18 +12,17 @@ namespace HGLib
     // ---------------------------------------------------------------------------
     // source control file status enum
     // ---------------------------------------------------------------------------
-    public enum SourceControlStatus
+    public enum HGFileStatus
     {
-        scsUncontrolled = 0,
-//        scsCheckedIn,
-//        scsCheckedOut,
-        scsClean,
-        scsModified,
-        scsAdded,
-        scsRemoved,
-        scsRenamed,
-        scsCopied,
-        scsIgnored,
+        scsUncontrolled = 0x001,
+        scsClean        = 0x002,
+        scsModified     = 0x004,
+        scsAdded        = 0x008,
+        scsRemoved      = 0x010,
+        scsRenamed      = 0x020,
+        scsCopied       = 0x040,
+        scsIgnored      = 0x080,
+        scsMissing      = 0x100,
     };
 
     // ---------------------------------------------------------------------------
@@ -94,9 +93,14 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public void SkipDirstate(bool skip)
         {
-            _SkipDirstate = skip;            
+            _SkipDirstate = skip;
         }
-        
+
+        // ------------------------------------------------------------------------
+        // set reset rebuild status flag
+        // ------------------------------------------------------------------------
+        public bool RebuildStatusCacheRequiredFlag { set { _bRebuildStatusCacheRequired = value; } }
+
         // ------------------------------------------------------------------------
         // toggle directory watching on / off
         // ------------------------------------------------------------------------
@@ -138,12 +142,11 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // GetFileStatus for the given filename
         // ------------------------------------------------------------------------
-        public SourceControlStatus GetFileStatus(string fileName)
+        public HGFileStatus GetFileStatus(string fileName)
         {
             if (_context == null)
                 _context = WindowsFormsSynchronizationContext.Current;
 
-            SourceControlStatus status = SourceControlStatus.scsUncontrolled;
             bool found = false;
             HGFileStatusInfo value;
 
@@ -152,21 +155,7 @@ namespace HGLib
                 found = _fileStatusDictionary.TryGetValue(fileName, out value);
             }
 
-            if (found)
-            {
-                switch (value.state)
-                {
-                    case 'C': status = SourceControlStatus.scsClean; break;
-                    case 'M': status = SourceControlStatus.scsModified; break;
-                    case 'A': status = SourceControlStatus.scsAdded; break;
-                    case 'R': status = SourceControlStatus.scsRemoved; break;
-                    case 'I': status = SourceControlStatus.scsIgnored; break;
-                    case 'N': status = SourceControlStatus.scsRenamed; break;
-                    case 'P': status = SourceControlStatus.scsCopied; break;
-                }
-            }
-
-            return status;
+            return (found ? value.status : HGFileStatus.scsUncontrolled);
         }
 
         // ------------------------------------------------------------------------
@@ -206,10 +195,22 @@ namespace HGLib
         // ------------------------------------------------------------------------
         /// update given file status.
         // ------------------------------------------------------------------------
-        public void UpdateFileStatus(string[] file)
+        public void UpdateFileStatus(string[] files)
         {
             Dictionary<string, char> fileStatusDictionary;
-            if (HG.QueryFileStatus(file, out fileStatusDictionary)) 
+            if (HG.QueryFileStatus(files, out fileStatusDictionary)) 
+            {
+                _fileStatusDictionary.Add(fileStatusDictionary);
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // update given root files status.
+        // ------------------------------------------------------------------------
+        public void UpdateFileStatus(string root)
+        {
+            Dictionary<string, char> fileStatusDictionary;
+            if (HG.QueryRootStatus(root, out fileStatusDictionary))
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -231,7 +232,7 @@ namespace HGLib
 
                 if (!_directoryWatcherMap.ContainsDirectory(root))
                 {
-                    _directoryWatcherMap.WatchDirectory(root);
+                    //BS _directoryWatcherMap.WatchDirectory(root);
                 }
 
                 Dictionary<string, char> fileStatusDictionary;
@@ -265,13 +266,15 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public void AddNotIgnoredFiles(string[] fileListRaw)
         {
-          List<string> fileList = new List<string>();
+            // filter already known files from the list
+            List<string> fileList = new List<string>();
             lock (_fileStatusDictionary)
             {
               foreach (string file in fileListRaw)
               {
                 HGFileStatusInfo info;
-                if(!_fileStatusDictionary.TryGetValue(file.ToLower(), out info)||info.state == '?')
+                if(!_fileStatusDictionary.TryGetValue(file.ToLower(), out info) ||
+                        (info.status == HGFileStatus.scsUncontrolled && info.status != HGFileStatus.scsIgnored))
                 {
                   fileList.Add(file);
                 }
@@ -450,7 +453,7 @@ namespace HGLib
             _timerDirectoryStatusChecker = new System.Timers.Timer();
             _timerDirectoryStatusChecker.Elapsed += new ElapsedEventHandler(DirectoryStatusCheckerThread);
             _timerDirectoryStatusChecker.AutoReset = false;
-            _timerDirectoryStatusChecker.Interval = 300;
+            _timerDirectoryStatusChecker.Interval = 100;
             _timerDirectoryStatusChecker.Enabled  = true;
         }
 
@@ -592,7 +595,7 @@ namespace HGLib
                     }
                     else
                     {
-                        if (hgFileStatusInfo.state == 'R' || hgFileStatusInfo.state == '?')
+                        if (hgFileStatusInfo.status == HGFileStatus.scsRemoved || hgFileStatusInfo.status == HGFileStatus.scsUncontrolled)
                         {
                             isDirty = false;
                         }

@@ -212,7 +212,7 @@ namespace VisualHG
 
             // Return the icons and the status. While the status is a combination a flags, we'll return just values 
             // with one bit set, to make life easier for GetSccGlyphsFromStatus
-            HGLib.SourceControlStatus status = _sccStatusTracker.GetFileStatus(rgpszFullPaths[0]);
+            HGLib.HGFileStatus status = _sccStatusTracker.GetFileStatus(rgpszFullPaths[0]);
             if (rgdwSccStatus != null)
                 rgdwSccStatus[0] = 1; //__SccStatus.SCC_STATUS_CONTROLLED; -> SCC_STATUS_CONTROLLED = 1
             switch (status)
@@ -230,35 +230,35 @@ namespace VisualHG
                 // STATEICON_READONLY schloss
 
                 // my states
-                case HGLib.SourceControlStatus.scsClean:
+                case HGLib.HGFileStatus.scsClean:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 0);
                     break;
 
-                case HGLib.SourceControlStatus.scsModified:
+                case HGLib.HGFileStatus.scsModified:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
 
-                case HGLib.SourceControlStatus.scsAdded:
+                case HGLib.HGFileStatus.scsAdded:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 2);
                     break;
 
-                case HGLib.SourceControlStatus.scsRenamed:
+                case HGLib.HGFileStatus.scsRenamed:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
                     break;
 
-                case HGLib.SourceControlStatus.scsCopied:
+                case HGLib.HGFileStatus.scsCopied:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3); // no better icon 
                     break;
 
-                case HGLib.SourceControlStatus.scsRemoved:
+                case HGLib.HGFileStatus.scsRemoved:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
 
-                case HGLib.SourceControlStatus.scsIgnored:
+                case HGLib.HGFileStatus.scsIgnored:
                     rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
                     break;
 
-                case HGLib.SourceControlStatus.scsUncontrolled:
+                case HGLib.HGFileStatus.scsUncontrolled:
                     rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
                     break;
             }
@@ -321,39 +321,39 @@ namespace VisualHG
             }
 
             // Return the glyph text based on the first file of node (the master file)
-            HGLib.SourceControlStatus status = _sccStatusTracker.GetFileStatus(files[0]);
+            HGLib.HGFileStatus status = _sccStatusTracker.GetFileStatus(files[0]);
             switch (status)
             {
               // my states
-              case HGLib.SourceControlStatus.scsClean:
+              case HGLib.HGFileStatus.scsClean:
                 pbstrTooltipText = "Clean";
                 break;
 
-              case HGLib.SourceControlStatus.scsModified:
+              case HGLib.HGFileStatus.scsModified:
                 pbstrTooltipText = "Modified";
                 break;
 
-              case HGLib.SourceControlStatus.scsAdded:
+              case HGLib.HGFileStatus.scsAdded:
                 pbstrTooltipText = "Added";
                 break;
 
-              case HGLib.SourceControlStatus.scsRenamed:
+              case HGLib.HGFileStatus.scsRenamed:
                 pbstrTooltipText = "Renamed";
                 break;
 
-              case HGLib.SourceControlStatus.scsRemoved:
+              case HGLib.HGFileStatus.scsRemoved:
                 pbstrTooltipText = "Removed";
                 break;
 
-              case HGLib.SourceControlStatus.scsCopied:
+              case HGLib.HGFileStatus.scsCopied:
                 pbstrTooltipText = "Copied";
                 break;
 
-              case HGLib.SourceControlStatus.scsIgnored:
+              case HGLib.HGFileStatus.scsIgnored:
                 pbstrTooltipText = "Ignored";
                 break;
 
-              case HGLib.SourceControlStatus.scsUncontrolled:
+              case HGLib.HGFileStatus.scsUncontrolled:
                 pbstrTooltipText = "Uncontrolled";
                 break;
 
@@ -423,7 +423,7 @@ namespace VisualHG
 
             //if (fAdded == 1)
             {
-                IList<string> fileList = SccProvider.GetProjectFiles(pHierarchy as IVsSccProject2);
+              IList<string> fileList = SccProvider.GetProjectFiles(pHierarchy as IVsSccProject2);
                 if (fileList.Count>0)
                 {
                   string[] files = new string[fileList.Count];
@@ -431,6 +431,8 @@ namespace VisualHG
                   // add only files wich are not ignored
                   if(Configuration.Global._autoAddFiles)
                       _sccStatusTracker.AddWorkItem( new HGLib.TrackFilesAddedNotIgnored(files));
+                  else
+                      _sccStatusTracker.AddWorkItem(new HGLib.UpdateFileStatusCommand(files));
                 }
             }
 
@@ -555,7 +557,7 @@ namespace VisualHG
                     File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
 
                   string[] files = new string[] { pszMkDocument};
-                  _sccStatusTracker.AddWorkItem(new HGLib.TriggerQueryFilesStatus(files));
+                  _sccStatusTracker.AddWorkItem(new HGLib.UpdateFileStatusCommand(files));
               }
               catch{}
             }
@@ -575,7 +577,7 @@ namespace VisualHG
                 Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
             }
 
-            _sccStatusTracker.AddWorkItem(new HGLib.TriggerQueryFilesStatus(rgpszMkDocuments));
+            _sccStatusTracker.AddWorkItem(new HGLib.UpdateFileStatusCommand(rgpszMkDocuments));
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
@@ -604,7 +606,7 @@ namespace VisualHG
 
             HGLib.HGFileStatusInfo info;
             _sccStatusTracker.GetFileStatusInfo(rgpszMkDocuments[0], out info);
-            if (info == null || info.state == '?') // do not add files twice
+            if (info == null || info.status == HGLib.HGFileStatus.scsUncontrolled) // do not add files twice
             {
                 // add only files wich are not ignored
                 if (Configuration.Global._autoAddFiles)
@@ -663,13 +665,6 @@ namespace VisualHG
             return VSConstants.S_OK;
         }
 
-        public void StoreSolution()
-        {
-            //TODO store project and solution files to disk
-            //IVsSolution solution = (IVsSolution)_sccProvider.GetService(typeof(IVsSolution)); 
-            //solution.SaveSolutionElement((uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty, null, 0);
-        }
-        
         public int OnAfterRemoveDirectories([InAttribute] int cProjects, [InAttribute] int cDirectories, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgpszMkDocuments, [InAttribute] VSREMOVEDIRECTORYFLAGS[] rgFlags)
         {
             //StoreSolution();
@@ -700,7 +695,6 @@ namespace VisualHG
 
         public int OnAfterRenameDirectories([InAttribute] int cProjects, [InAttribute] int cDirs, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgszMkOldNames, [InAttribute] string[] rgszMkNewNames, [InAttribute] VSRENAMEDIRECTORYFLAGS[] rgFlags)
         {
-            StoreSolution(); 
             return VSConstants.E_NOTIMPL;
         }
 
@@ -736,7 +730,7 @@ namespace VisualHG
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public HGLib.SourceControlStatus GetFileStatus(String filename)
+        public HGLib.HGFileStatus GetFileStatus(String filename)
         {
             return _sccStatusTracker.GetFileStatus(filename);
         }    

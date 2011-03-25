@@ -94,7 +94,7 @@ namespace VisualHG
             return base.GetService(serviceType);
         }
 
-        public static SccProvider ServiceProvider
+        public static SccProvider Provider
         {
           get { return _SccProvider; }
         }

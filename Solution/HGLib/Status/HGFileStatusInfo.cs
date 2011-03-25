@@ -10,21 +10,32 @@ namespace HGLib
     {
         // last write time stamp
         public DateTime timeStamp;
-        // hg state of file
-        public char state;
         // file size
         public long size;
         // case sensitive full path
         public string fullPath;
         // case sensitive file name
         public string fileName;
+        // source control file status
+        public HGFileStatus status;
 
         // init the file props by getting the size and time via FileInfo object
-        public HGFileStatusInfo(char state, string path)
+        public HGFileStatusInfo(char statusByte, string path)
         {
-            this.state = state;
+            switch (statusByte)
+            {
+                case 'C': status = HGFileStatus.scsClean; break;
+                case 'M': status = HGFileStatus.scsModified; break;
+                case 'A': status = HGFileStatus.scsAdded; break;
+                case 'R': status = HGFileStatus.scsRemoved; break;
+                case 'I': status = HGFileStatus.scsIgnored; break;
+                case 'N': status = HGFileStatus.scsRenamed; break;
+                case 'P': status = HGFileStatus.scsCopied; break;
+                case '?': status = HGFileStatus.scsUncontrolled; break;
+                case '!': status = HGFileStatus.scsMissing; break;
+            }
 
-            if (state == 'R')
+            if (HGFileStatus.scsRemoved == status)
             {
               timeStamp = DateTime.Now;
               size = 0;

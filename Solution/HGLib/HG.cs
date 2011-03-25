@@ -173,6 +173,18 @@ namespace HGLib
         #endregion invoke commands
 
         // ------------------------------------------------------------------------
+        // create temporary filename in system temp folder
+        // ------------------------------------------------------------------------
+        static public string TemporaryFile
+        {
+            get
+            {
+                string TemporaryFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                return TemporaryFile;
+            }
+        }
+
+        // ------------------------------------------------------------------------
         /// get (lower case) root dir of the given file name
         // ------------------------------------------------------------------------
         public static string FindRootDirectory(string path)
@@ -322,7 +334,7 @@ namespace HGLib
                         if (commandLine.Length>=(2000))
                         {
                             List<string> resultList;
-                            InvokeCommand(rootDirectory, "status " + commandLine, out resultList);
+                            InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
                             UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
 
                             // reset cmd line and filecounter for the next run
@@ -338,7 +350,7 @@ namespace HGLib
                         string commandLine = directoryCommandLine.Value;
 
                         List<string> resultList;
-                        InvokeCommand(rootDirectory, "status -" + commandLine, out resultList);
+                        InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
                         UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
                     }
                 }
@@ -370,7 +382,7 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // add file to the repositiry if they are not on the ignore list
+        // add files to the repositiry if they are not on the ignore list
         // ------------------------------------------------------------------------
         static public bool AddFilesNotIgnored(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
         {
@@ -380,10 +392,10 @@ namespace HGLib
             QueryFileStatus(fileList, out statusDictionary);
             foreach (var k in statusDictionary)
             {
-                if (k.Value == '?')
-                {
-                    addFilesList.Add(k.Key);
-                }
+              if (k.Value == '?' && k.Value != 'I')
+              {
+                addFilesList.Add(k.Key);
+              }
             }
 
             if (addFilesList.Count>0)

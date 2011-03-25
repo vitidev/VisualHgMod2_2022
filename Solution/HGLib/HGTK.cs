@@ -64,9 +64,9 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // show TortoiseHG commit dialog
+        // show TortoiseHG dialog
         // ------------------------------------------------------------------------
-        static void HGTKDialog(string directory, string dialog)
+        public static Process HGTKDialog(string directory, string dialog)
         {
             try
             {
@@ -74,51 +74,15 @@ namespace HGLib
                 {
                     directory = directory.Substring(0, directory.LastIndexOf('\\'));
                 }
-                InvokeCommand(directory, dialog);
+                return InvokeCommand(directory, dialog);
             }
             catch (Exception ex)
             {
                 // TortoiseHG HGTK commit dialog exception
                 Trace.WriteLine("HGTK " + dialog + " dialog exception " + ex.Message);
             }
-        }
 
-        // ------------------------------------------------------------------------
-        // show TortoiseHG repo browser dialog
-        // ------------------------------------------------------------------------
-        static public void RepoBrowserDialog(string root)
-        {
-            HGTKDialog(root, "log");
-        }
-
-        
-        // ------------------------------------------------------------------------
-        // show TortoiseHG file log dialog
-        // ------------------------------------------------------------------------
-        static public void LogDialog(string file)
-        {
-            String root = HGLib.HG.FindRootDirectory(file);
-            if (root != string.Empty)
-            { 
-                file = file.Substring(root.Length + 1);
-                HGTKDialog(root, "log \"" + file + "\"");
-            }
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHG synchronize dialog
-        // ------------------------------------------------------------------------
-        static public void SyncDialog(string directory)
-        {
-            HGTKDialog(directory, "synch");
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHG status dialog
-        // ------------------------------------------------------------------------
-        static public void StatusDialog(string directory)
-        {
-            HGTKDialog(directory, "status");
+            return null;
         }
 
         /// <summary>
@@ -155,7 +119,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         // show TortoiseHG status dialog
         // ------------------------------------------------------------------------
-        static public void DiffDialog(string sccFile, string file, string commandMask)
+        static public Process DiffDialog(string sccFile, string file, string commandMask)
         {
           String root = HGLib.HG.FindRootDirectory(file); 
           if(root != String.Empty)
@@ -175,15 +139,16 @@ namespace HGLib
             if (commandMask != string.Empty)
             {
                 cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask);
-                InvokeCommand(cmd, "", "");
+                return InvokeCommand(cmd, "", "");
             }
             else
             {
                 commandMask = " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ";
                 cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask); 
-                InvokeCommand(HG.GetTortoiseHGDirectory() + "kdiff3.exe", root, cmd);
+                return InvokeCommand(HG.GetTortoiseHGDirectory() + "kdiff3.exe", root, cmd);
             }
           }
+          return null;
         }
         
         // ------------------------------------------------------------------------
@@ -227,61 +192,46 @@ namespace HGLib
         }
 
         // ------------------------------------------------------------------------
-        // show TortoiseHG commit dialog
-        // ------------------------------------------------------------------------
-        static public void CommitDialog(string directory)
-        {
-            HGTKDialog(directory, "commit");
-        }
-        
-        /// <summary>
-        /// commit dialog with preselected / filtered files
-        /// </summary>
-        /// <param name="files"></param>
-        static public void CommitDialog(string [] files)
-        {
-            StringBuilder stream = new StringBuilder();
-            string currentRoot = string.Empty;
-            for (int n = 0; n < files.Length; ++n)
-            {
-                string root = HGLib.HG.FindRootDirectory(files[n]);
-                if (currentRoot == string.Empty)
-                {
-                    currentRoot = root;
-                }
-                else if (currentRoot != root)
-                {
-                    HGTKDialog(root, "commit " + stream);
-                    stream = new StringBuilder();
-                }
-
-                string file = files[n].Substring(currentRoot.Length + 1);
-                stream.AppendFormat(" \"{0}\"", file);
-            }
-
-            if (stream.Length > 0 )
-                HGTKDialog(currentRoot, "commit " + stream);
-        }
-
-        // ------------------------------------------------------------------------
         // show TortoiseHG datamine dialog
         // ------------------------------------------------------------------------
         static public void DataMineDialog(string directory)
         {
             HGTKDialog(directory, "datamine");
         }
-        
-        // ------------------------------------------------------------------------
-        // show TortoiseHG revert dialog
-        // ------------------------------------------------------------------------
-        static public void RevertDialog(string file)
+
+        // command " --nofork revert "
+        public static void HGTKSelectedFilesDialog(string[] files, string command)
         {
-            String root = HGLib.HG.FindRootDirectory(file);
-            if(root != String.Empty)
+            string tmpFile = HG.TemporaryFile;
+            StreamWriter stream = new StreamWriter(tmpFile);
+
+            string currentRoot = string.Empty;
+            for (int n = 0; n < files.Length; ++n)
             {
-                file = file.Substring(root.Length + 1); 
-                HGTKDialog(root, "revert \"" + file + "\"");
+                string root = HGLib.HG.FindRootDirectory(files[n]);
+                if (root == string.Empty)
+                    continue;
+
+                if (currentRoot == string.Empty)
+                {
+                    currentRoot = root;
+                }
+                else if (string.Compare(currentRoot, root, true) != 0)
+                {
+                    stream.Close();
+                    Process process = HGTKDialog(root, command + " --listfile \"" + tmpFile + "\"");
+                    process.WaitForExit();
+
+                    tmpFile = HG.TemporaryFile;
+                    stream = new StreamWriter(tmpFile);
+                }
+
+                stream.WriteLine(files[n]);
             }
+
+            stream.Close();
+            Process process2 = HGTKDialog(currentRoot, command + " --listfile \"" + tmpFile + "\"");
+            process2.WaitForExit();
         }
 
         // ------------------------------------------------------------------------

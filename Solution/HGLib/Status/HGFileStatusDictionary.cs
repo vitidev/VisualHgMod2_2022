@@ -74,9 +74,9 @@ namespace HGLib
           foreach(HGFileStatusInfo value in _dictionary.Values)
           {
               if (  value.fullPath != null &&
-                    value.state != 'C' &&
-                    value.state != 'I' &&
-                    value.state != '?')
+                    value.status != HGLib.HGFileStatus.scsClean &&
+                    value.status != HGLib.HGFileStatus.scsIgnored  &&
+                    value.status != HGLib.HGFileStatus.scsUncontrolled )
                 list.Add(value);
           } 
         }

@@ -96,11 +96,11 @@ namespace HGLib
     // ------------------------------------------------------------------------
     // triggers an status update for the given file
     // ------------------------------------------------------------------------
-    public class TriggerQueryFilesStatus : IHGWorkItem
+    public class UpdateFileStatusCommand : IHGWorkItem
     {
         string[] file = null;
 
-        public TriggerQueryFilesStatus(string[] file)
+        public UpdateFileStatusCommand(string[] file)
         {
             this.file = file;
         }
@@ -108,6 +108,23 @@ namespace HGLib
         public virtual void Do(HGStatus status, List<string> ditryFilesList)
         {
             status.UpdateFileStatus(file);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // triggers an status update for the given file
+    // ------------------------------------------------------------------------
+    public class UpdateRootStatusCommand : IHGWorkItem
+    {
+        string root;
+        public UpdateRootStatusCommand(string root)
+        {
+            this.root = root;
+        }
+
+        public virtual void Do(HGStatus status, List<string> ditryFilesList)
+        {
+            status.UpdateFileStatus(root);
         }
     }
 

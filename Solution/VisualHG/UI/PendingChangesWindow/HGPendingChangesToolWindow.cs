@@ -37,12 +37,12 @@ namespace VisualHG
 
             control = new HGPendingChangesToolWindowControl();
 
+            // update pending list
             SccProviderService service = (SccProviderService)SccProvider.GetServiceEx(typeof(SccProviderService));
             if(service!=null)
             {
                 UpdatePendingList(service.StatusTracker);
             }
-
         }
 
         // route update pending changes call
@@ -51,7 +51,9 @@ namespace VisualHG
           control.UpdatePendingList(tracker);
         }
 
-
+        // ------------------------------------------------------------------------
+        // returns the window handle
+        // ------------------------------------------------------------------------
         override public IWin32Window Window
         {
             get

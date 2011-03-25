@@ -74,6 +74,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="RegestryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
+    <Compile Include="SccProvider.HGDialogs.cs" />
     <Compile Include="SccProvider.ToolWindow.cs" />
     <Compile Include="SccProvider.Utillities.cs" />
     <Compile Include="Status\HGStatusTracker.cs" />
@@ -91,6 +92,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SccOnIdleEvent.cs" />
+    <Compile Include="UI\ListViewColumnIcons.cs" />
     <Compile Include="UI\OptionsPage\SccProviderOptions.cs">
       <SubType>Component</SubType>
     </Compile>

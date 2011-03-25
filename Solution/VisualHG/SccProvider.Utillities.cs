@@ -257,9 +257,9 @@ namespace VisualHG
         /// <summary>
         /// Returns a list of source controllable files in the selection
         /// </summary>
-        private IList<string> GetSelectedFiles(out IList<VSITEMSELECTION> selectedNodes)
+        private List<string> GetSelectedFiles(out IList<VSITEMSELECTION> selectedNodes)
         {
-            IList<string> sccFiles = new List<string>();
+            List<string> sccFiles = new List<string>();
 
             selectedNodes = GetSelectedNodes();
 
@@ -274,7 +274,7 @@ namespace VisualHG
                 }
                 else
                 {
-                    IList<string> nodefilesrec = GetProjectFiles(pscp2, vsItemSel.itemid);
+                    List<string> nodefilesrec = GetProjectFiles(pscp2, vsItemSel.itemid);
                     foreach (string file in nodefilesrec)
                     {
                         sccFiles.Add(file);
@@ -288,9 +288,9 @@ namespace VisualHG
         /// <summary>
         /// Returns a list of source controllable files in the selection (recursive)
         /// </summary>
-        private IList<string> GetSelectedFilesInControlledProjects(out IList<VSITEMSELECTION> selectedNodes)
+        private List<string> GetSelectedFilesInControlledProjects(out IList<VSITEMSELECTION> selectedNodes)
         {
-            IList<string> sccFiles = new List<string>();
+            List<string> sccFiles = new List<string>();
 
             selectedNodes = GetSelectedNodes();
             bool isSolutionSelected = false;
@@ -722,6 +722,136 @@ namespace VisualHG
             return filename;
         }
 
+        // ------------------------------------------------------------------------
+        // find selected file state mask - for quick menu flags detection
+        // ------------------------------------------------------------------------
+        public bool FindSelectedFirstMask(bool includeChildItems, long stateMask)
+        {
+            var selectedNodes = GetSelectedNodes();
+            foreach (VSITEMSELECTION node in selectedNodes)
+            {
+                IVsProject pscp = node.pHier as IVsProject;
+
+                string filename = string.Empty;
+                if (pscp != null)
+                {
+                    GetItemFileName(pscp, node.itemid, out filename);
+                }
+                else
+                {
+                    filename = GetSolutionFileName();
+                }
+                if (filename != string.Empty)
+                {
+                    HGLib.HGFileStatus status = this.sccService.GetFileStatus(filename);
+                    if ((stateMask & (long)status) != 0)
+                        return true;
+                } 
+            }
+
+            if (includeChildItems)
+            { 
+                foreach (VSITEMSELECTION node in selectedNodes)
+                {
+                    IVsProject pscp = node.pHier as IVsProject; 
+                    
+                    if (pscp != null)
+                    {
+                        if(FindProjectSelectedFileStateMask(node.pHier, node.itemid, stateMask))
+                           return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // ------------------------------------------------------------------------
+        // find selected file state mask 
+        // ------------------------------------------------------------------------
+        private bool FindProjectSelectedFileStateMask(IVsHierarchy pHier, uint startItemid, long stateMask)
+        {
+            if (pHier == null)
+                return false;
+            
+            IVsProject pscp = pHier as IVsProject;
+
+            if (pscp == null)
+                return false;
+
+            // The method does a breadth-first traversal of the project's hierarchy tree
+            Queue<uint> nodesToWalk = new Queue<uint>();
+            nodesToWalk.Enqueue(startItemid);
+
+            while (nodesToWalk.Count > 0)
+            {
+                uint node = nodesToWalk.Dequeue();
+                if (CompareFileStateMask(pscp, node, stateMask))
+                    return true;
+
+                DebugWalkingNode(pHier, node);
+
+                object property = null;
+                if (pHier.GetProperty(node, (int)__VSHPROPID.VSHPROPID_FirstChild, out property) == VSConstants.S_OK)
+                {
+                    uint childnode = (uint)(int)property;
+                    if (childnode == VSConstants.VSITEMID_NIL)
+                    {
+                        continue;
+                    }
+
+                    DebugWalkingNode(pHier, childnode);
+
+                    if ((pHier.GetProperty(childnode, (int)__VSHPROPID.VSHPROPID_Expandable, out property) == VSConstants.S_OK && (int)property != 0) ||
+                        (pHier.GetProperty(childnode, (int)__VSHPROPID2.VSHPROPID_Container, out property) == VSConstants.S_OK && (bool)property))
+                    {
+                        nodesToWalk.Enqueue(childnode);
+                    }
+                    else
+                    {
+                        if (CompareFileStateMask(pscp, childnode, stateMask))
+                            return true;
+                    }
+
+                    while (pHier.GetProperty(childnode, (int)__VSHPROPID.VSHPROPID_NextSibling, out property) == VSConstants.S_OK)
+                    {
+                        childnode = (uint)(int)property;
+                        if (childnode == VSConstants.VSITEMID_NIL)
+                        {
+                            break;
+                        }
+
+                        DebugWalkingNode(pHier, childnode);
+
+                        if ((pHier.GetProperty(childnode, (int)__VSHPROPID.VSHPROPID_Expandable, out property) == VSConstants.S_OK && (int)property != 0) ||
+                            (pHier.GetProperty(childnode, (int)__VSHPROPID2.VSHPROPID_Container, out property) == VSConstants.S_OK && (bool)property))
+                        {
+                            nodesToWalk.Enqueue(childnode);
+                        }
+                        else
+                        {
+                            if (CompareFileStateMask(pscp, childnode, stateMask))
+                                return true;
+                        }
+                    }
+                }
+
+            }
+
+            return false;
+        }
+
+        bool CompareFileStateMask(IVsProject pscp, uint itemid, long stateMask)
+        {
+          string childFilename = string.Empty;
+          if (GetItemFileName(pscp, itemid, out childFilename))
+          {
+            HGLib.HGFileStatus status = this.sccService.GetFileStatus(childFilename);
+            if ((stateMask & (long)status) != 0)
+              return true;
+          }
+          return false;
+        }
+
         /// <summary>
         /// get current selected filenames
         /// </summary>
@@ -792,9 +922,9 @@ namespace VisualHG
         /// <summary>
         /// Gets the list of source controllable files in the specified project
         /// </summary>
-        public static IList<string> GetProjectFiles(IVsSccProject2 pscp2Project, uint startItemId)
+        public static List<string> GetProjectFiles(IVsSccProject2 pscp2Project, uint startItemId)
         {
-            IList<string> projectFiles = new List<string>();
+            List<string> projectFiles = new List<string>();
             IVsHierarchy hierProject = (IVsHierarchy)pscp2Project;
             IList<uint> projectItems = GetProjectItems(hierProject, startItemId);
 
