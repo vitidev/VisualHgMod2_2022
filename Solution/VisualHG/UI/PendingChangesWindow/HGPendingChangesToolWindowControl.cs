@@ -64,105 +64,105 @@ namespace VisualHG
     /// </summary>
     private void InitializeComponent()
     {
-        this.components = new System.ComponentModel.Container();
-        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HGPendingChangesToolWindowControl));
-        this.pendingChangesContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-        this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this.diffToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this.revertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this.historyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this.annotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this.openInEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-        this._pendingItemsListView = new VisualHG.PendingItemsListView();
-        this.columnHeaderStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-        this.columnHeaderFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-        this.pendingChangesContextMenu.SuspendLayout();
-        this.SuspendLayout();
-        // 
-        // pendingChangesContextMenu
-        // 
-        this.pendingChangesContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HGPendingChangesToolWindowControl));
+            this.pendingChangesContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.commitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.diffToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.revertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.historyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.annotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openInEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this._pendingItemsListView = new VisualHG.PendingItemsListView();
+            this.columnHeaderStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeaderFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.pendingChangesContextMenu.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // pendingChangesContextMenu
+            // 
+            this.pendingChangesContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.commitToolStripMenuItem,
             this.diffToolStripMenuItem,
             this.revertToolStripMenuItem,
             this.historyToolStripMenuItem,
             this.annotateFileToolStripMenuItem,
             this.openInEditorToolStripMenuItem});
-        this.pendingChangesContextMenu.Name = "contextMenuStrip1";
-        resources.ApplyResources(this.pendingChangesContextMenu, "pendingChangesContextMenu");
-        // 
-        // commitToolStripMenuItem
-        // 
-        this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
-        resources.ApplyResources(this.commitToolStripMenuItem, "commitToolStripMenuItem");
-        this.commitToolStripMenuItem.Click += new System.EventHandler(this.OnCommitSelectedFiles);
-        // 
-        // diffToolStripMenuItem
-        // 
-        this.diffToolStripMenuItem.Name = "diffToolStripMenuItem";
-        resources.ApplyResources(this.diffToolStripMenuItem, "diffToolStripMenuItem");
-        this.diffToolStripMenuItem.Click += new System.EventHandler(this.OnDiffSelectedFile);
-        // 
-        // revertToolStripMenuItem
-        // 
-        this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
-        resources.ApplyResources(this.revertToolStripMenuItem, "revertToolStripMenuItem");
-        this.revertToolStripMenuItem.Click += new System.EventHandler(this.OnRevertSelectedFile);
-        // 
-        // historyToolStripMenuItem
-        // 
-        this.historyToolStripMenuItem.Name = "historyToolStripMenuItem";
-        resources.ApplyResources(this.historyToolStripMenuItem, "historyToolStripMenuItem");
-        this.historyToolStripMenuItem.Click += new System.EventHandler(this.OnShowSelectedFileHistory);
-        // 
-        // annotateFileToolStripMenuItem
-        // 
-        this.annotateFileToolStripMenuItem.Name = "annotateFileToolStripMenuItem";
-        resources.ApplyResources(this.annotateFileToolStripMenuItem, "annotateFileToolStripMenuItem");
-        this.annotateFileToolStripMenuItem.Click += new System.EventHandler(this.OnAnnotateSelectedFile);
-        // 
-        // openInEditorToolStripMenuItem
-        // 
-        this.openInEditorToolStripMenuItem.Name = "openInEditorToolStripMenuItem";
-        resources.ApplyResources(this.openInEditorToolStripMenuItem, "openInEditorToolStripMenuItem");
-        this.openInEditorToolStripMenuItem.Click += new System.EventHandler(this.OnOpenSelectedFiles);
-        // 
-        // _pendingItemsListView
-        // 
-        this._pendingItemsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.pendingChangesContextMenu.Name = "contextMenuStrip1";
+            resources.ApplyResources(this.pendingChangesContextMenu, "pendingChangesContextMenu");
+            // 
+            // commitToolStripMenuItem
+            // 
+            this.commitToolStripMenuItem.Name = "commitToolStripMenuItem";
+            resources.ApplyResources(this.commitToolStripMenuItem, "commitToolStripMenuItem");
+            this.commitToolStripMenuItem.Click += new System.EventHandler(this.OnCommitSelectedFiles);
+            // 
+            // diffToolStripMenuItem
+            // 
+            this.diffToolStripMenuItem.Name = "diffToolStripMenuItem";
+            resources.ApplyResources(this.diffToolStripMenuItem, "diffToolStripMenuItem");
+            this.diffToolStripMenuItem.Click += new System.EventHandler(this.OnDiffSelectedFile);
+            // 
+            // revertToolStripMenuItem
+            // 
+            this.revertToolStripMenuItem.Name = "revertToolStripMenuItem";
+            resources.ApplyResources(this.revertToolStripMenuItem, "revertToolStripMenuItem");
+            this.revertToolStripMenuItem.Click += new System.EventHandler(this.OnRevertSelectedFile);
+            // 
+            // historyToolStripMenuItem
+            // 
+            this.historyToolStripMenuItem.Name = "historyToolStripMenuItem";
+            resources.ApplyResources(this.historyToolStripMenuItem, "historyToolStripMenuItem");
+            this.historyToolStripMenuItem.Click += new System.EventHandler(this.OnShowSelectedFileHistory);
+            // 
+            // annotateFileToolStripMenuItem
+            // 
+            this.annotateFileToolStripMenuItem.Name = "annotateFileToolStripMenuItem";
+            resources.ApplyResources(this.annotateFileToolStripMenuItem, "annotateFileToolStripMenuItem");
+            this.annotateFileToolStripMenuItem.Click += new System.EventHandler(this.OnAnnotateSelectedFile);
+            // 
+            // openInEditorToolStripMenuItem
+            // 
+            this.openInEditorToolStripMenuItem.Name = "openInEditorToolStripMenuItem";
+            resources.ApplyResources(this.openInEditorToolStripMenuItem, "openInEditorToolStripMenuItem");
+            this.openInEditorToolStripMenuItem.Click += new System.EventHandler(this.OnOpenSelectedFiles);
+            // 
+            // _pendingItemsListView
+            // 
+            this._pendingItemsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderStatus,
             this.columnHeaderFileName});
-        this._pendingItemsListView.ContextMenuStrip = this.pendingChangesContextMenu;
-        resources.ApplyResources(this._pendingItemsListView, "_pendingItemsListView");
-        this._pendingItemsListView.FullRowSelect = true;
-        this._pendingItemsListView.GridLines = true;
-        this._pendingItemsListView.HideSelection = false;
-        this._pendingItemsListView.Name = "_pendingItemsListView";
-        this._pendingItemsListView.ShowGroups = false;
-        this._pendingItemsListView.UseCompatibleStateImageBehavior = false;
-        this._pendingItemsListView.View = System.Windows.Forms.View.Details;
-        this._pendingItemsListView.VirtualMode = true;
-        this._pendingItemsListView.SelectedIndexChanged += new System.EventHandler(this._pendingItemsListView_SelectedIndexChanged);
-        this._pendingItemsListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this._pendingItemsListView_KeyDown);
-        this._pendingItemsListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this._pendingItemsListView_MouseDoubleClick);
-        this._pendingItemsListView.Resize += new System.EventHandler(this._pendingItemsListView_Resize);
-        // 
-        // columnHeaderStatus
-        // 
-        resources.ApplyResources(this.columnHeaderStatus, "columnHeaderStatus");
-        // 
-        // columnHeaderFileName
-        // 
-        resources.ApplyResources(this.columnHeaderFileName, "columnHeaderFileName");
-        // 
-        // HGPendingChangesToolWindowControl
-        // 
-        this.BackColor = System.Drawing.SystemColors.Window;
-        this.Controls.Add(this._pendingItemsListView);
-        this.Name = "HGPendingChangesToolWindowControl";
-        resources.ApplyResources(this, "$this");
-        this.pendingChangesContextMenu.ResumeLayout(false);
-        this.ResumeLayout(false);
+            this._pendingItemsListView.ContextMenuStrip = this.pendingChangesContextMenu;
+            resources.ApplyResources(this._pendingItemsListView, "_pendingItemsListView");
+            this._pendingItemsListView.FullRowSelect = true;
+            this._pendingItemsListView.GridLines = true;
+            this._pendingItemsListView.HideSelection = false;
+            this._pendingItemsListView.Name = "_pendingItemsListView";
+            this._pendingItemsListView.ShowGroups = false;
+            this._pendingItemsListView.UseCompatibleStateImageBehavior = false;
+            this._pendingItemsListView.View = System.Windows.Forms.View.Details;
+            this._pendingItemsListView.VirtualMode = true;
+            this._pendingItemsListView.SelectedIndexChanged += new System.EventHandler(this._pendingItemsListView_SelectedIndexChanged);
+            this._pendingItemsListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this._pendingItemsListView_KeyDown);
+            this._pendingItemsListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this._pendingItemsListView_MouseDoubleClick);
+            this._pendingItemsListView.Resize += new System.EventHandler(this._pendingItemsListView_Resize);
+            // 
+            // columnHeaderStatus
+            // 
+            resources.ApplyResources(this.columnHeaderStatus, "columnHeaderStatus");
+            // 
+            // columnHeaderFileName
+            // 
+            resources.ApplyResources(this.columnHeaderFileName, "columnHeaderFileName");
+            // 
+            // HGPendingChangesToolWindowControl
+            // 
+            this.BackColor = System.Drawing.SystemColors.Window;
+            this.Controls.Add(this._pendingItemsListView);
+            this.Name = "HGPendingChangesToolWindowControl";
+            resources.ApplyResources(this, "$this");
+            this.pendingChangesContextMenu.ResumeLayout(false);
+            this.ResumeLayout(false);
 
     }
     #endregion

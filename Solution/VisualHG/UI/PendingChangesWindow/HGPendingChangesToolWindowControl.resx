@@ -167,17 +167,17 @@
     <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="columnHeaderStatus.Text" xml:space="preserve">
-    <value>File</value>
+    <value>Filename</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="columnHeaderStatus.Width" type="System.Int32, mscorlib">
-    <value>172</value>
+    <value>227</value>
   </data>
   <data name="columnHeaderFileName.Text" xml:space="preserve">
-    <value>Directory</value>
+    <value>Path</value>
   </data>
   <data name="columnHeaderFileName.Width" type="System.Int32, mscorlib">
-    <value>149</value>
+    <value>450</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="_pendingItemsListView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
@@ -187,7 +187,7 @@
     <value>0, 0</value>
   </data>
   <data name="_pendingItemsListView.Size" type="System.Drawing.Size, System.Drawing">
-    <value>283, 145</value>
+    <value>681, 145</value>
   </data>
   <data name="_pendingItemsListView.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -208,7 +208,7 @@
     <value>True</value>
   </metadata>
   <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
-    <value>283, 145</value>
+    <value>681, 145</value>
   </data>
   <data name="&gt;&gt;commitToolStripMenuItem.Name" xml:space="preserve">
     <value>commitToolStripMenuItem</value>

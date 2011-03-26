@@ -174,8 +174,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Add Selected</ButtonText>
-          <MenuText>Add Selected</MenuText>
+          <ButtonText>Add Selected Files</ButtonText>
+          <MenuText>Add Selected Files</MenuText>
           <CommandName>AddSelected</CommandName>
         </Strings>
       </Button>

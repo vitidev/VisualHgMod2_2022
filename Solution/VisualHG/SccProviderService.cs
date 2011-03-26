@@ -404,6 +404,8 @@ namespace VisualHG
 
             _sccStatusTracker.ClearStatusCache();
             _sccProvider._LastSeenProjectDir = string.Empty;
+            // update pending tool window
+            UpdatePendingWindowState();
             
             return VSConstants.S_OK;
         }
@@ -752,6 +754,7 @@ namespace VisualHG
         {
             if (_bNodesGlyphsDirty && (DateTime.Now.Ticks - lastUpdate) > 100)
             {
+                UpdatePendingWindowState(); 
                 RefreshNodesGlyphs();
                 lastUpdate = DateTime.Now.Ticks;
                 _bNodesGlyphsDirty = false;
@@ -760,12 +763,6 @@ namespace VisualHG
 
         public void RefreshNodesGlyphs()
         {
-            object pane = _sccProvider.FindToolWindow(VisualHGToolWindow.PendingChanges);
-            if (pane != null)
-            {
-              ((HGPendingChangesToolWindow)pane).UpdatePendingList(_sccStatusTracker);
-            }
-
             var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
             var projectList = _sccProvider.GetLoadedControllableProjects();
 
@@ -790,6 +787,15 @@ namespace VisualHG
             }
 
             _sccProvider.RefreshNodesGlyphs(nodes);
+        }
+
+        private void UpdatePendingWindowState()
+        {
+            object pane = _sccProvider.FindToolWindow(VisualHGToolWindow.PendingChanges);
+            if (pane != null)
+            {
+                ((HGPendingChangesToolWindow)pane).UpdatePendingList(_sccStatusTracker);
+            }
         }
 
         #endregion
