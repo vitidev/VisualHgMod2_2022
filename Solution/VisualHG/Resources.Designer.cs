@@ -70,7 +70,7 @@ namespace VisualHG {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mercurial based source contol provider..
+        ///   Looks up a localized string similar to Mercurial source contol provider..
         /// </summary>
         internal static string _101 {
             get {
@@ -79,7 +79,7 @@ namespace VisualHG {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to EHDKIZK1PCQCH8R2IMDHAKQQATQ3RZMEC0D1IZJDEJI2IMQCQIDRC1Z3E8CRIJPPKJIDHPMCCJQ9CQE2ADCAJQDPEQJ1D9KHZZCKHZRMPRE9JJJZP2Z1QAETHZI3K2KE.
+        ///   Looks up a localized string similar to ZPHPJZE3Z1PRAIJ8M2MKE3PDEDPQI1DRCQM1I8DJD1E0MKQ0I2MAC8PZKHH9JRMIK9QHC9ZZP8I8RMCEIQC3QPA1P2Z1M0ZHQZI8M2QZRAPZJCPCD0KAJ0IAZIDIH3Q1.
         /// </summary>
         internal static string _104 {
             get {

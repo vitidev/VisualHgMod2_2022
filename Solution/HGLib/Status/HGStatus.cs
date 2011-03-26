@@ -232,7 +232,7 @@ namespace HGLib
 
                 if (!_directoryWatcherMap.ContainsDirectory(root))
                 {
-                    //BS _directoryWatcherMap.WatchDirectory(root);
+                    _directoryWatcherMap.WatchDirectory(root);
                 }
 
                 Dictionary<string, char> fileStatusDictionary;
@@ -528,7 +528,7 @@ namespace HGLib
                 else if (numberOfChangedFiles > 0)
                 {
                     // min elapsed time before do anything
-                    if (elapsedMS > 1000)
+                    if (elapsedMS > 2000)
                     {
                         Trace.WriteLine("UpdateDirtyFilesStatus (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
                         var fileList = PopDirtyWatcherFiles();

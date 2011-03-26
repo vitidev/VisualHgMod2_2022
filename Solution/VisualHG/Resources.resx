@@ -121,7 +121,7 @@
     <value>VisualHG</value>
   </data>
   <data name="101" xml:space="preserve">
-    <value>Mercurial based source contol provider.</value>
+    <value>Mercurial source contol provider.</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -158,6 +158,6 @@
     <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>
   </data>
   <data name="104" xml:space="preserve">
-    <value>EHDKIZK1PCQCH8R2IMDHAKQQATQ3RZMEC0D1IZJDEJI2IMQCQIDRC1Z3E8CRIJPPKJIDHPMCCJQ9CQE2ADCAJQDPEQJ1D9KHZZCKHZRMPRE9JJJZP2Z1QAETHZI3K2KE</value>
+    <value>ZPHPJZE3Z1PRAIJ8M2MKE3PDEDPQI1DRCQM1I8DJD1E0MKQ0I2MAC8PZKHH9JRMIK9QHC9ZZP8I8RMCEIQC3QPA1P2Z1M0ZHQZI8M2QZRAPZJCPCD0KAJ0IAZIDIH3Q1</value>
   </data>
 </root>
