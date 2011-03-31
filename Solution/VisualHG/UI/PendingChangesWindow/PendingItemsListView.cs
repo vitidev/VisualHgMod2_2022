@@ -25,7 +25,7 @@ namespace VisualHG
     // latest sorted column index
     int _previouslySortedColumn = -1;
     // remember selected files to restore selection
-    Dictionary<string, int> _storedSelection = null;
+    SortOrder _SortOrder = SortOrder.Ascending;
 
     // ------------------------------------------------------------------------
     // construction - setup virtual list handler
@@ -39,7 +39,6 @@ namespace VisualHG
       this.CacheVirtualItems += new CacheVirtualItemsEventHandler(this_CacheVirtualItems);
       this.SearchForVirtualItem += new SearchForVirtualItemEventHandler(this_SearchForVirtualItem);
       this.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this_ColumnClick);
-      this.SelectedIndexChanged += new System.EventHandler(this_SelectedIndexChanged);
     }
 
     // ------------------------------------------------------------------------
@@ -47,7 +46,7 @@ namespace VisualHG
     // ------------------------------------------------------------------------
     public int compareInfoItem(HGLib.HGFileStatusInfo a, HGLib.HGFileStatusInfo b)
     {
-      if (Sorting == SortOrder.Ascending)
+      if (_SortOrder == SortOrder.Ascending)
       {
         if (_previouslySortedColumn <= 0)
           return a.fileName.CompareTo(b.fileName);
@@ -70,15 +69,14 @@ namespace VisualHG
     void SortByColumn(int mewColumn)
     {
       // store current selected items
-      int selPosStart;
-
-      StoreSelection(out _storedSelection, out selPosStart);
+      Dictionary<string, int> selection;
+      StoreSelection(out selection);
 
       // toggle sort order and set column icon
       if (_previouslySortedColumn == mewColumn)
-        Sorting = (Sorting == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
+        _SortOrder = (_SortOrder == SortOrder.Ascending) ? SortOrder.Descending : SortOrder.Ascending;
       else
-        Sorting = SortOrder.Ascending;  
+        _SortOrder = SortOrder.Ascending;  
 
       ListViewSort.LVSort.SetSortIcons(this, ref _previouslySortedColumn, mewColumn);
       _previouslySortedColumn = mewColumn;
@@ -86,7 +84,7 @@ namespace VisualHG
       // sort items and clear the cache
       _list.Sort(compareInfoItem);
       _cache = null;
-
+      RestoreSelection(selection);
       this.Invalidate(false);
     }
 
@@ -95,7 +93,10 @@ namespace VisualHG
     // ------------------------------------------------------------------------
     public void UpdatePendingList(HGStatusTracker tracker)
     {
-      if(_previouslySortedColumn==-1)
+      Dictionary<string, int> selection;
+      StoreSelection(out selection);
+        
+      if (_previouslySortedColumn == -1)
         SortByColumn(0);
       
       // create new pending list ..
@@ -119,16 +120,12 @@ namespace VisualHG
       // if we found changes between the lists, we now update the view
       if (somethingChanged)
       {
-        // store current selected items
-        int selPosStart;
-        Dictionary<string, int> selection;
-        StoreSelection(out selection, out selPosStart);
-
         // set new list into listview
         _list = newList;
         _cache = null;
         this.VirtualListSize = _list.Count;
 
+        RestoreSelection(selection);
         this.Invalidate(false);
       }
     }
@@ -136,18 +133,29 @@ namespace VisualHG
     // ------------------------------------------------------------------------
     // store current selected items to a map
     // ------------------------------------------------------------------------
-    void StoreSelection(out Dictionary<string, int> selection, out int selPosStart)
+    void StoreSelection(out Dictionary<string, int> selection)
     {
-      selPosStart = 0;
       selection = new Dictionary<string, int>();
       foreach (int index in SelectedIndices)
       {
-        if (selPosStart == 0)
-          selPosStart = index;
-
         HGLib.HGFileStatusInfo info = _list[index];
         selection.Add(info.fullPath, 0);
       }
+    }
+
+    // ------------------------------------------------------------------------
+    // restore given selection
+    // ------------------------------------------------------------------------
+    private void RestoreSelection(Dictionary<string, int> selection)
+    {
+        SelectedIndices.Clear();
+        for (int pos = 0; pos < _list.Count; ++pos)
+        {
+            if (selection.ContainsKey(_list[pos].fullPath))
+            {
+                SelectedIndices.Add(pos);
+            }
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -187,8 +195,6 @@ namespace VisualHG
           HGLib.HGFileStatusInfo info = _list[e.ItemIndex];
           e.Item = new ListViewItem(info.fileName);
           e.Item.ImageIndex = GetStateIcon(info.status);
-          if (_storedSelection!= null && _storedSelection.ContainsKey(info.fullPath))
-            e.Item.Selected=true;
           e.Item.SubItems.Add(info.fullPath);
         }
       }
@@ -222,8 +228,6 @@ namespace VisualHG
           HGLib.HGFileStatusInfo info = _list[index];
           ListViewItem item = new ListViewItem(info.fileName);
           item.ImageIndex = GetStateIcon(info.status);
-          if (_storedSelection != null && _storedSelection.ContainsKey(info.fullPath))
-              item.Selected = true;
           item.SubItems.Add(info.fullPath);
           _cache[i] = item;
         }
@@ -246,12 +250,7 @@ namespace VisualHG
       }
     }
 
-    private void this_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        _storedSelection = null;
-    }
-    
-        // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // column click handler - sort and upadte items
     // ------------------------------------------------------------------------
     void this_ColumnClick(object sender, ColumnClickEventArgs e)
