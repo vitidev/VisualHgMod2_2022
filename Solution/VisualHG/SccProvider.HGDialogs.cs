@@ -15,9 +15,11 @@ namespace VisualHG
         {
             ThreadPool.QueueUserWorkItem(o =>
             {
+                try {
                 HGLib.HGTK.HGTKSelectedFilesDialog(files, command);
                 sccService.StatusTracker.RebuildStatusCacheRequiredFlag=false;
                 sccService.StatusTracker.AddWorkItem(new HGLib.UpdateFileStatusCommand(files));
+                }catch{}
             });
         }
 
@@ -45,12 +47,14 @@ namespace VisualHG
         {
             ThreadPool.QueueUserWorkItem(o =>
             {
+                try{
                 Process process = HGLib.HGTK.HGTKDialog(root, command);
                 if (process != null)
                     process.WaitForExit();
 
                 sccService.StatusTracker.RebuildStatusCacheRequiredFlag = false;
                 sccService.StatusTracker.AddWorkItem(new HGLib.UpdateRootStatusCommand(root));
+                }catch{}
             });
         }
 
@@ -98,12 +102,14 @@ namespace VisualHG
         {
             ThreadPool.QueueUserWorkItem(o =>
             {
+                try{
                 Process process= HGLib.HGTK.DiffDialog(sccFile, file, commandMask);
                 if (process != null)
                     process.WaitForExit();
 
                 sccService.StatusTracker.RebuildStatusCacheRequiredFlag = false;
                 sccService.StatusTracker.AddWorkItem(new HGLib.UpdateFileStatusCommand(new string[]{file}));
+                }catch{}
             });
         }
 
