@@ -127,13 +127,17 @@ namespace HGLib
             // copy latest file revision from repo temp folder
             string currentFile = file;
             string versionedFile = Path.GetTempPath() + sccFile.Substring(sccFile.LastIndexOf("\\") + 1) + "(base)";
+            
+            // delete file if exists
+            File.Delete(versionedFile);
+
             string cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
             InvokeCommand(HG.GetHGFileName(), root, cmd);
             
             // wait file exists on disk
             int counter = 0;
             while(!File.Exists(versionedFile) && counter < 10)
-            { Thread.Sleep(1); ++counter; }
+            { Thread.Sleep(100); ++counter; }
             
             // run diff tool
             if (commandMask != string.Empty)
@@ -230,8 +234,11 @@ namespace HGLib
             }
 
             stream.Close();
-            Process process2 = HGTKDialog(currentRoot, command + " --listfile \"" + tmpFile + "\"");
-            process2.WaitForExit();
+            if (currentRoot != string.Empty)
+            {
+                Process process2 = HGTKDialog(currentRoot, command + " --listfile \"" + tmpFile + "\"");
+                process2.WaitForExit();
+            }
         }
 
         // ------------------------------------------------------------------------

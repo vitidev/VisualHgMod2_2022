@@ -8,7 +8,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartArguments>/ranu /rootsuffix Exp /noVSIP</StartArguments>
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Program Files\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe</StartProgram>
+    <StartProgram>C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory />

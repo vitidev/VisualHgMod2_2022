@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-
+using EnvDTE;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
@@ -715,7 +715,16 @@ namespace VisualHG
                 }
                 else
                 {
-                    filename = GetSolutionFileName();
+                    _DTE dte = (_DTE)GetService(typeof(SDTE));
+
+                    if (dte != null && dte.ActiveDocument != null)
+                    {
+                        filename = dte.ActiveDocument.FullName;
+                    }   
+                    else
+                    {                    
+                        filename = GetSolutionFileName();
+                    }
                 }
             }
 
