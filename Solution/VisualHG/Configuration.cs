@@ -10,6 +10,9 @@ namespace VisualHG
     {
         public bool   _autoAddFiles = true;
         public bool   _autoActivatePlugin = true;
+        public bool   _enableContextSearch = true;
+        public bool   _observeOutOfStudioFileChanges = true;
+
         public string _externalDiffToolCommandMask = string.Empty; 
 
         public bool AutoActivatePlugin
@@ -29,8 +32,18 @@ namespace VisualHG
             get { return _externalDiffToolCommandMask; }
             set { _externalDiffToolCommandMask = value; }
         }
-        
 
+        public bool EnableContextSearch
+        {
+            get { return _enableContextSearch; }
+            set { _enableContextSearch = value; }
+        }
+
+        public bool ObserveOutOfStudioFileChanges
+        {
+            get { return _observeOutOfStudioFileChanges; }
+            set { _observeOutOfStudioFileChanges = value; }
+        }
         
         /// <summary>
         /// global accessible settings object

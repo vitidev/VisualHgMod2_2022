@@ -26,6 +26,8 @@ namespace VisualHG
         private Button editDiffToolButton;
         private TextBox externalDiffToolCommandEdit;
         private Label label1;
+        private CheckBox observeOutOfStudioFileChanges;
+        private CheckBox enableContextSearch;
         // The parent page, use to persist data
         private SccProviderOptions _customPage;
 
@@ -66,6 +68,8 @@ namespace VisualHG
             this.editDiffToolButton = new System.Windows.Forms.Button();
             this.externalDiffToolCommandEdit = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.observeOutOfStudioFileChanges = new System.Windows.Forms.CheckBox();
+            this.enableContextSearch = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // autoAddFiles
@@ -94,7 +98,7 @@ namespace VisualHG
             // 
             // editDiffToolButton
             // 
-            this.editDiffToolButton.Location = new System.Drawing.Point(369, 73);
+            this.editDiffToolButton.Location = new System.Drawing.Point(369, 116);
             this.editDiffToolButton.Name = "editDiffToolButton";
             this.editDiffToolButton.Size = new System.Drawing.Size(28, 23);
             this.editDiffToolButton.TabIndex = 2;
@@ -104,7 +108,7 @@ namespace VisualHG
             // 
             // externalDiffToolCommandEdit
             // 
-            this.externalDiffToolCommandEdit.Location = new System.Drawing.Point(3, 75);
+            this.externalDiffToolCommandEdit.Location = new System.Drawing.Point(3, 118);
             this.externalDiffToolCommandEdit.Name = "externalDiffToolCommandEdit";
             this.externalDiffToolCommandEdit.Size = new System.Drawing.Size(360, 20);
             this.externalDiffToolCommandEdit.TabIndex = 3;
@@ -112,15 +116,41 @@ namespace VisualHG
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 59);
+            this.label1.Location = new System.Drawing.Point(3, 102);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(138, 13);
             this.label1.TabIndex = 4;
             this.label1.Text = "External Diff Tool Command";
             // 
+            // observeOutOfStudioFileChanges
+            // 
+            this.observeOutOfStudioFileChanges.AutoSize = true;
+            this.observeOutOfStudioFileChanges.Checked = true;
+            this.observeOutOfStudioFileChanges.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.observeOutOfStudioFileChanges.Location = new System.Drawing.Point(3, 49);
+            this.observeOutOfStudioFileChanges.Name = "observeOutOfStudioFileChanges";
+            this.observeOutOfStudioFileChanges.Size = new System.Drawing.Size(189, 17);
+            this.observeOutOfStudioFileChanges.TabIndex = 5;
+            this.observeOutOfStudioFileChanges.Text = "Observe out of Studio file changes";
+            this.observeOutOfStudioFileChanges.UseVisualStyleBackColor = true;
+            // 
+            // enableContextSearch
+            // 
+            this.enableContextSearch.AutoSize = true;
+            this.enableContextSearch.Checked = true;
+            this.enableContextSearch.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.enableContextSearch.Location = new System.Drawing.Point(3, 72);
+            this.enableContextSearch.Name = "enableContextSearch";
+            this.enableContextSearch.Size = new System.Drawing.Size(379, 17);
+            this.enableContextSearch.TabIndex = 6;
+            this.enableContextSearch.Text = "Context sensitive Add and Commit Menu (can become slow on huge repos)";
+            this.enableContextSearch.UseVisualStyleBackColor = true;
+            // 
             // SccProviderOptionsControl
             // 
             this.AllowDrop = true;
+            this.Controls.Add(this.enableContextSearch);
+            this.Controls.Add(this.observeOutOfStudioFileChanges);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.externalDiffToolCommandEdit);
             this.Controls.Add(this.editDiffToolButton);
@@ -144,15 +174,19 @@ namespace VisualHG
 
         public void StoreConfiguration(Configuration config)
         {
-            config.AutoActivatePlugin = autoActivatePlugin.Checked;
-            config.AutoAddFiles       = autoAddFiles.Checked;
-            config.ExternalDiffToolCommandMask = externalDiffToolCommandEdit.Text;
+            config.AutoActivatePlugin               = autoActivatePlugin.Checked;
+            config.AutoAddFiles                     = autoAddFiles.Checked;
+            config.EnableContextSearch              = enableContextSearch.Checked;
+            config.ObserveOutOfStudioFileChanges    = observeOutOfStudioFileChanges.Checked;
+            config.ExternalDiffToolCommandMask      = externalDiffToolCommandEdit.Text;
         }
 
         public void RestoreConfiguration(Configuration config)
         {
             autoActivatePlugin.Checked = config.AutoActivatePlugin;
             autoAddFiles.Checked = config.AutoAddFiles;
+            enableContextSearch.Checked = config.EnableContextSearch;
+            observeOutOfStudioFileChanges.Checked = config.ObserveOutOfStudioFileChanges;
             externalDiffToolCommandEdit.Text = config.ExternalDiffToolCommandMask;
         }
 

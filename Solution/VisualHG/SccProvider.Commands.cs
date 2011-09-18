@@ -195,7 +195,7 @@ namespace VisualHG
             long stateMask  =  (long)HGLib.HGFileStatus.scsUncontrolled |
                                (long)HGLib.HGFileStatus.scsIgnored;
 
-            if (FindSelectedFirstMask(false, stateMask))
+            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
             {
                 cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
@@ -212,7 +212,7 @@ namespace VisualHG
                              (long)HGLib.HGFileStatus.scsRenamed|
                              (long)HGLib.HGFileStatus.scsRemoved;
 
-            if (FindSelectedFirstMask(true, stateMask))
+            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(true, stateMask))
             {
                 cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
@@ -286,7 +286,7 @@ namespace VisualHG
                              (long)HGLib.HGFileStatus.scsRenamed |
                              (long)HGLib.HGFileStatus.scsRemoved;
 
-            if (FindSelectedFirstMask(false, stateMask))
+            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
             {
                 cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
