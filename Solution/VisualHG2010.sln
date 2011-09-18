@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.txt = Readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Tests", "Solution Tests", "{8E65D0E4-41D7-41D4-A255-BA21891E452C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualHG2010", "VisualHG\VisualHG2010.csproj", "{ADECE07A-5D80-4950-9DA5-A681CE2F5106}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HGLib2010", "HGLib\HGLib2010.csproj", "{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HGLib2010", "HGLib.Test\HGLib2010.csproj", "{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106}.Release|x86.ActiveCfg = Release|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ADECE07A-5D80-4950-9DA5-A681CE2F5106} = {F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}
+		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5} = {F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}
+		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF} = {8E65D0E4-41D7-41D4-A255-BA21891E452C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+		DebugSamples90.Connect = 1;Configure Project for VSIP Experimental Environment;ConfigVSIPDebug
+	EndGlobalSection
+EndGlobal
