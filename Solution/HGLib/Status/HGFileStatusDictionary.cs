@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace HGLib
 {
@@ -79,6 +80,32 @@ namespace HGLib
                     value.status != HGLib.HGFileStatus.scsUncontrolled )
                 list.Add(value);
           } 
+        }
+
+        // ------------------------------------------------------------------------
+        // detect moved files
+        // ------------------------------------------------------------------------
+        public bool FileMoved(string fileName, out string newName)
+        {
+            string root = HG.FindRootDirectory(fileName);
+            string name = Path.GetFileName(fileName);
+            foreach (HGFileStatusInfo value in _dictionary.Values)
+            {
+                if (value.status == HGLib.HGFileStatus.scsAdded)
+                {
+                    if (name.Equals(value.fileName, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        string root2 = HG.FindRootDirectory(value.fullPath);
+                        if (root.Equals(root2, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            newName = value.fullPath;
+                            return true;
+                        }
+                    }
+                }
+            } 
+            newName =""; 
+            return false;
         }
     }
 }

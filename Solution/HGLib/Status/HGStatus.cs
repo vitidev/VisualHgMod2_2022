@@ -346,21 +346,40 @@ namespace HGLib
         // ------------------------------------------------------------------------
         public void EnterFilesRemoved(string[] fileList)
         {
+            List<string> removedFileList = new List<string>();
+            List<string> movedFileList   = new List<string>();
+            List<string> newNamesList    = new List<string>();
+            
             lock (_fileStatusDictionary)
             {
                 foreach (var file in fileList)
                 {
                     _fileStatusDictionary.Remove(file);
+                    
+                    string newName;
+                    if (!_fileStatusDictionary.FileMoved(file, out newName))
+                        removedFileList.Add(file);
+                    else
+                    {
+                        movedFileList.Add(file);
+                        newNamesList.Add(newName);
+                    }
                 }
             }
 
-            SkipDirstate(true); // avoid a status requery for the repo after hg.dirstate was changed
-            Dictionary<string, char> fileStatusDictionary;
-            if (HG.EnterFileRemoved(fileList, out fileStatusDictionary))
+            if (movedFileList.Count > 0)
+                EnterFileRenamed(movedFileList.ToArray(), newNamesList.ToArray());
+
+            if (removedFileList.Count > 0)
             {
-                _fileStatusDictionary.Add(fileStatusDictionary);
+                SkipDirstate(true); // avoid a status requery for the repo after hg.dirstate was changed
+                Dictionary<string, char> fileStatusDictionary;
+                if (HG.EnterFileRemoved(removedFileList.ToArray(), out fileStatusDictionary))
+                {
+                    _fileStatusDictionary.Add(fileStatusDictionary);
+                }
+                SkipDirstate(false);
             }
-            SkipDirstate(false);
         }
 
         #endregion dirstatus changes
