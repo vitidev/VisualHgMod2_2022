@@ -165,7 +165,9 @@
   <ItemGroup>
     <Content Include="Resources\Images_24bit.bmp" />
     <EmbeddedResource Include="Resources\Images_32bit.bmp" />
-    <Content Include="Setup\VisualHG.wxs" />
+    <Content Include="Setup\VisualHG.wxs">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="source.extension.vsixmanifest" />
     <EmbeddedResource Include="Resources\StatusGlyphs.bmp" />
     <None Include="Resources\Product.ico" />
@@ -224,9 +226,11 @@
     <Exec Condition="'$(UseVS2005MPF)' == ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\8.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2005.wxi&quot; /codebase &gt; nul:" />
     <Exec Condition="'$(UseVS2005MPF)' == ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\9.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2008.wxi&quot; /codebase &gt; nul:" />
     <Exec Condition="'$(UseVS2005MPF)' == ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\10.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2010.wxi&quot; /codebase &gt; nul:" />
+    <Exec Condition="'$(UseVS2005MPF)' == ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\11.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2011.wxi&quot; /codebase &gt; nul:" />
     <Exec Condition="'$(UseVS2005MPF)' != ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\VS2005\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\8.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2005.wxi&quot; /codebase &gt; nul:" />
     <Exec Condition="'$(UseVS2005MPF)' != ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\VS2005\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\9.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2008.wxi&quot; /codebase &gt; nul:" />
     <Exec Condition="'$(UseVS2005MPF)' != ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\VS2005\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\10.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2010.wxi&quot; /codebase &gt; nul:" />
+    <Exec Condition="'$(UseVS2005MPF)' != ''" Command="&quot;$(VsSDKInstall)VisualStudioIntegration\Tools\Bin\VS2005\RegPkg.exe&quot; /root:Software\Microsoft\VisualStudio\11.0 &quot;$(TargetPath)&quot; &quot;/wixfile:$(TargetDir)$(AssemblyName)-2011.wxi&quot; /codebase &gt; nul:" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>
