@@ -757,6 +757,9 @@ namespace VisualHG
             {
                 UpdatePendingWindowState(); 
                 RefreshNodesGlyphs();
+                // update main caption
+                _sccProvider.UpdateMainWindowTitle(_sccStatusTracker.FormatBranchList());
+                
                 lastUpdate = DateTime.Now.Ticks;
                 _bNodesGlyphsDirty = false;
             }

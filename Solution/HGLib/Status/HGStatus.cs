@@ -259,6 +259,28 @@ namespace HGLib
           
         }
 
+        // ------------------------------------------------------------------------
+        // format current brunch
+        // ------------------------------------------------------------------------
+        public string FormatBranchList()
+        {
+            string branchList = string.Empty;
+            
+            lock (_rootDirMap)
+            {
+                //RootInfo info;
+                foreach (RootInfo info in _rootDirMap.Values)
+                {
+                    if (branchList == string.Empty)
+                        branchList = info._Branch;
+                    else
+                        branchList += ", " + info._Branch;
+                }
+            }
+            
+            return branchList;
+        }
+
         #region dirstatus changes
 
         // ------------------------------------------------------------------------

@@ -966,5 +966,49 @@ namespace VisualHG
         }
 
         #endregion
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowText(IntPtr hWnd, string lpString);
+        
+        /// <summary>
+        /// set current branch in application window title
+        /// </summary>
+        /// <returns></returns>
+        public void UpdateMainWindowTitle(string branch)
+        {
+            _DTE dte = (_DTE)GetService(typeof(SDTE));
+
+            if (dte != null && dte.MainWindow  != null)
+            {
+                string caption = dte.MainWindow.Caption;
+
+                // strip prev branch name
+                string[]  param = caption.Split('-');
+                if (param.Length > 1)
+                {
+                    int index = param[0].IndexOf('(');
+                    if (index > 0)
+                        param[0] = param[0].Substring(0, index);
+
+                    // add new branch name
+                    string newCaption = string.Empty;
+                    
+                    foreach (string s in param)
+                    {
+                        if (newCaption == string.Empty && branch != string.Empty)
+                            newCaption = s + "(" + branch + ") ";
+                        else
+                            newCaption += s;
+
+                    }
+
+                    if (caption != newCaption)
+                    {
+                        IntPtr hWnd = (IntPtr)dte.MainWindow.HWnd;
+                        SetWindowText(hWnd, newCaption);
+                    }
+                }
+            }
+        }
     }
 }
