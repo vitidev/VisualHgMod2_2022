@@ -574,8 +574,23 @@ namespace HGLib
                         var fileList = PopDirtyWatcherFiles();
                         if( UpdateFileStatusDictionary(fileList) )
                         {
-                            // update status icons
-                            FireStatusChanged(_context);
+                            // update status icons - but only if a project file was changed
+                            bool bFireStatusChanged = false;
+                            lock(_FileToProjectCache)
+                            {
+                                foreach (string file in fileList)
+                                {
+                                    object o;
+                                    if (_FileToProjectCache.TryGetValue(file.ToLower(), out o))
+                                    {
+                                        bFireStatusChanged = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if(bFireStatusChanged)
+                                FireStatusChanged(_context);
                         }
                     }
                 }
@@ -705,5 +720,42 @@ namespace HGLib
         }
 
         #endregion directory watcher
+
+
+        // ------------------------------------------------------------------------
+        // files used in any loaded project
+        // ------------------------------------------------------------------------
+        Dictionary<string, object> _FileToProjectCache = new Dictionary<string, object>();
+
+        public void AddFileToProjectCache(IList<string> fileList, object project)
+        {
+            lock (_FileToProjectCache)
+            {
+                foreach (string file in fileList)
+                    _FileToProjectCache[file.ToLower()] = project;
+            }
+        }
+
+        public void RemoveFileFromProjectCache(IList<string> fileList)
+        {
+            lock (_FileToProjectCache)
+            {
+                foreach (string file in fileList)
+                    _FileToProjectCache.Remove(file.ToLower());
+            }
+        }
+
+        public void ClearFileToProjectCache()
+        {
+            lock (_FileToProjectCache)
+            {
+                _FileToProjectCache.Clear();
+            }
+        }
+
+        public int FileProjectMapCacheCount()
+        {
+            return _FileToProjectCache.Count;
+        }
     }
 }
