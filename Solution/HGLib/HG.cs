@@ -348,10 +348,12 @@ namespace HGLib
                     {
                         string rootDirectory = directoryCommandLine.Key;
                         string commandLine = directoryCommandLine.Value;
-
-                        List<string> resultList;
-                        InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
-                        UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
+                        if (commandLine.Length > 0)
+                        { 
+                            List<string> resultList;
+                            InvokeCommand(rootDirectory, "status -A " + commandLine, out resultList);
+                            UpdateStatusDictionary(resultList, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
+                        }
                     }
                 }
             }
