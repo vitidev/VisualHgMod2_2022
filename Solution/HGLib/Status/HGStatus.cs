@@ -268,13 +268,16 @@ namespace HGLib
             
             lock (_rootDirMap)
             {
+                SortedList<string,int> branches = new SortedList<string,int>();
+
                 //RootInfo info;
                 foreach (RootInfo info in _rootDirMap.Values)
                 {
-                    if (branchList == string.Empty)
-                        branchList = info._Branch;
-                    else
-                        branchList += ", " + info._Branch;
+                    if (!branches.ContainsKey(info._Branch))
+                    {
+                        branches.Add(info._Branch, 0);
+                        branchList = branchList + (branches.Count > 1 ? ", " : "") + info._Branch;
+                    }
                 }
             }
             
