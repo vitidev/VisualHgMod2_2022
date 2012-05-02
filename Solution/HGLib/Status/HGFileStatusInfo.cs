@@ -47,14 +47,14 @@ namespace HGLib
             }
             else
             {
-              FileInfo fileInfo = new FileInfo(path);
-              if (fileInfo.Exists)
-              {
+                if (File.Exists(path))
+                {
+                  FileInfo fileInfo = new FileInfo(path);
                   timeStamp = fileInfo.LastWriteTime;
                   size = fileInfo.Length;
                   fullPath = fileInfo.FullName;
                   fileName = fileInfo.Name;
-              }
+                }
            }   
         }
     }

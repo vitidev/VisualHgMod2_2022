@@ -236,6 +236,8 @@ namespace HGLib
                 string str  = lines[pos];
                 char status = str[0];
                 string file = rootDirectory + "\\" + str.Substring(2);
+                                
+                if (!File.Exists(file)) continue;
 
                 if (status == ' ' && prevStatus == 'A')
                 {
