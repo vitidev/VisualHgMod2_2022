@@ -81,6 +81,8 @@
     <Compile Include="SccProvider.HGDialogs.cs" />
     <Compile Include="SccProvider.ToolWindow.cs" />
     <Compile Include="SccProvider.Utillities.cs" />
+    <Compile Include="SccProviderService.NodesGlyphs.cs" />
+    <Compile Include="SccProviderService.SolutionEvents.cs" />
     <Compile Include="Status\HGStatusTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
