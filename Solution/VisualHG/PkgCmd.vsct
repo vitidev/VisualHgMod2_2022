@@ -3,7 +3,7 @@
 
   <Extern href="stdidcmd.h"/>
   <Extern href="vsshlids.h"/>
-  <Extern href="msobtnid.h"/>
+  <!-- <Extern href="msobtnid.h"/> deprecated use imagelibrary-->
 
   <Commands package="HGPackageGuid">
     <Menus>
