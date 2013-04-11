@@ -207,7 +207,7 @@ namespace HGLib
         public static void HGTKSelectedFilesDialog(string[] files, string command)
         {
             string tmpFile = HG.TemporaryFile;
-            StreamWriter stream = new StreamWriter(tmpFile);
+            StreamWriter stream = new StreamWriter(tmpFile, false, Encoding.Default);
 
             string currentRoot = string.Empty;
             for (int n = 0; n < files.Length; ++n)
@@ -227,7 +227,7 @@ namespace HGLib
                     process.WaitForExit();
 
                     tmpFile = HG.TemporaryFile;
-                    stream = new StreamWriter(tmpFile);
+                    stream = new StreamWriter(tmpFile, false, Encoding.Default);
                 }
 
                 stream.WriteLine(files[n]);

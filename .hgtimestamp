@@ -1,5 +1,5 @@
 {
-"Version": "0.2.5",
+"Version": "0.2.6",
 "FileData":{
 ".hgignore": {"timestamp": 1341669397.39},
 "Contrib/SharpZipLib.dll": {"timestamp": 1341331954.26},
@@ -21,7 +21,7 @@
 "Solution/HGLib/HGLib.csproj": {"timestamp": 1341331954.29},
 "Solution/HGLib/HGLib2010.csproj": {"timestamp": 1341331954.29},
 "Solution/HGLib/HGSetup.cs": {"timestamp": 1341331954.29},
-"Solution/HGLib/HGTK.cs": {"timestamp": 1341331954.29},
+"Solution/HGLib/HGTK.cs": {"timestamp": 1365693565.2},
 "Solution/HGLib/Properties/AssemblyInfo.cs": {"timestamp": 1341331954.29},
 "Solution/HGLib/Setup/HGLib.wxs": {"timestamp": 1341331954.31},
 "Solution/HGLib/Status/DirectoryWatcher.cs": {"timestamp": 1341331954.31},
