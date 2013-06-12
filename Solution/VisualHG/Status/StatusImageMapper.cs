@@ -58,13 +58,13 @@ namespace VisualHG
 
         public ImageList CreateStatusImageList()
         {
-            return CreateImageList("StatusGlyphs.bmp", 7);
+            return CreateImageList("StatusIcons.bmp", 7);
          }
 
 
         public ImageList CreateMenuImageList()
         {
-            return CreateImageList("Images_32bit.bmp", 16);
+            return CreateImageList("MenuIcons.bmp", 16);
         }
 
 

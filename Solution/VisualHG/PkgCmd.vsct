@@ -257,7 +257,7 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="VHG_Images" href="Resources\Images_32bit.bmp"
+      <Bitmap guid="VHG_Images" href="Resources\MenuIcons.bmp"
               usedList="iconCommit, iconHistory, iconSync, iconStatus, iconDiff, iconUpdate, iconRepoBrowser, iconRevert, iconAnnotate, iconOpen, iconAdd"/>
     </Bitmaps>
   </Commands>

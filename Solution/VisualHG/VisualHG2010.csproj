@@ -171,13 +171,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Images_24bit.bmp" />
-    <EmbeddedResource Include="Resources\Images_32bit.bmp" />
+    <EmbeddedResource Include="Resources\MenuIcons.bmp" />
+    <EmbeddedResource Include="Resources\StatusIcons.bmp" />
     <Content Include="Setup\VisualHG.wxs">
       <SubType>Designer</SubType>
     </Content>
     <None Include="source.extension.vsixmanifest" />
-    <EmbeddedResource Include="Resources\StatusGlyphs.bmp" />
     <None Include="Resources\Product.ico" />
   </ItemGroup>
   <ItemGroup>
