@@ -30,12 +30,5 @@ namespace VisualHG
         
         // Define the list of icons (use decimal numbers here, to match the resource IDs)
         public const int iiconProductIcon               = 400;
-
-        // Define the list of bitmaps (use decimal numbers here, to match the resource IDs)
-        public const int ibmpToolbarMenusImages         = 500;
-        public const int ibmpToolWindowsImages          = 501;
-
-        // Glyph indexes in the bitmap used for tolwindows (ibmpToolWindowsImages)
-        public const int iconSccProviderToolWindow      = 0;
 	}
 }
