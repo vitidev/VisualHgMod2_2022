@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Collections;
 using System.IO;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace VisualHG
 {
@@ -31,7 +32,7 @@ namespace VisualHG
 
         /// <summary>
         /// File has been added but was never committed before (Last+1 /0xC)
-        /// </summary>        
+        /// </summary>
         Added,
 
         /// <summary>
@@ -57,34 +58,19 @@ namespace VisualHG
 
         public ImageList CreateStatusImageList()
         {
-            using (Stream images = typeof(ImageMapper).Assembly.GetManifestResourceStream(typeof(ImageMapper).Namespace + ".Resources.StatusGlyphs.bmp"))
-            {
-                if (images == null)
-                    return null;
-
-                Bitmap bitmap = (Bitmap)Image.FromStream(images, true);
-                
-                ImageList imageList = new ImageList();
-
-                imageList.ImageSize = new Size(8, bitmap.Height);
-                bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
-
-                try
-                {
-                    imageList.Images.AddStrip(bitmap);
-                }
-                catch(Exception e)
-                {
-                    Trace.WriteLine(e.ToString());
-                }
-
-                return imageList;
-            }
+            return CreateImageList("StatusGlyphs.bmp", 7);
          }
+
 
         public ImageList CreateMenuImageList()
         {
-            using (Stream images = typeof(ImageMapper).Assembly.GetManifestResourceStream(typeof(ImageMapper).Namespace + ".Resources.Images_32bit.bmp"))
+            return CreateImageList("Images_32bit.bmp", 16);
+        }
+
+
+        private static ImageList CreateImageList(string fileName, int imageWidth)
+        {
+            using (Stream images = GetImageStream(fileName))
             {
                 if (images == null)
                     return null;
@@ -94,21 +80,33 @@ namespace VisualHG
 
                 ImageList imageList = new ImageList();
 
-                imageList.ImageSize = new Size(16, bitmap.Height);
+                imageList.ImageSize = new Size(imageWidth, bitmap.Height);
                 bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
-                bitmap.MakeTransparent(Color.Black);
 
                 try
                 {
                     imageList.Images.AddStrip(bitmap);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Trace.WriteLine(e.ToString());
                 }
 
                 return imageList;
             }
+        }
+
+        private static Stream GetImageStream(string fileName)
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string imagePath = Path.Combine(Path.GetDirectoryName(assembly.Location), fileName);
+
+            if (File.Exists(imagePath))
+            {
+                return File.OpenRead(imagePath);
+            }
+
+            return assembly.GetManifestResourceStream(String.Concat(typeof(ImageMapper).Namespace, ".Resources.", fileName));
         }
     }
 }
