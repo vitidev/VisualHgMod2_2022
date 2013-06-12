@@ -37,10 +37,10 @@ namespace VisualHG
       { 
           this.commitToolStripMenuItem.Image = menuImageList.Images[0];
           this.diffToolStripMenuItem.Image = menuImageList.Images[4];
-          this.revertToolStripMenuItem.Image = menuImageList.Images[8];
-          this.historyToolStripMenuItem.Image = menuImageList.Images[9];
-          this.annotateFileToolStripMenuItem.Image = menuImageList.Images[7];
-          this.openInEditorToolStripMenuItem.Image = menuImageList.Images[1];
+          this.revertToolStripMenuItem.Image = menuImageList.Images[7];
+          this.historyToolStripMenuItem.Image = menuImageList.Images[1];
+          this.annotateFileToolStripMenuItem.Image = menuImageList.Images[8];
+          this.openInEditorToolStripMenuItem.Image = menuImageList.Images[9];
       }
     }
 

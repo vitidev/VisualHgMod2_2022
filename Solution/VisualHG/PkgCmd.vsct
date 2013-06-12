@@ -3,7 +3,7 @@
 
   <Extern href="stdidcmd.h"/>
   <Extern href="vsshlids.h"/>
-  <Extern href="msobtnid.h"/>
+  <!-- <Extern href="msobtnid.h"/> deprecated use imagelibrary-->
 
   <Commands package="HGPackageGuid">
     <Menus>
@@ -12,7 +12,6 @@
         <Parent guid="HGCommandSet" id="Group_MainScc"/>
         <Strings>
           <ButtonText>VisualHG</ButtonText>
-          <CommandName>VisualHG</CommandName>
         </Strings>
       </Menu>
 
@@ -21,7 +20,6 @@
         <Parent guid="HGCommandSet" id="Group_SolutionMenu"/>
         <Strings>
           <ButtonText>VisualHG</ButtonText>
-          <CommandName>VisualHG</CommandName>
         </Strings>
       </Menu>
 
@@ -30,7 +28,6 @@
         <Parent guid="HGCommandSet" id="Group_ProjectMenu"/>
         <Strings>
           <ButtonText>VisualHG</ButtonText>
-          <CommandName>VisualHG</CommandName>
         </Strings>
       </Menu>
 
@@ -39,7 +36,6 @@
         <Parent guid="HGCommandSet" id="Group_ItemMenu"/>
         <Strings>
           <ButtonText>VisualHG</ButtonText>
-          <CommandName>VisualHG</CommandName>
         </Strings>
       </Menu>
 
@@ -48,20 +44,11 @@
         <Parent guid="HGCommandSet" id="Group_Nowhere"/>
         <CommandFlag>DefaultDocked</CommandFlag>
         <Strings>
-          <ButtonText>VisualHG Source Control Toolbar</ButtonText>
-          <CommandName>VisualHG Source Control Toolbar</CommandName>
-        </Strings>
-      </Menu>
-
-      <!--  Menu for commands in PendingChangesToolWindow's toolbar -->
-      <Menu guid="HGCommandSet" id="Menu_PendingChangesToolWindow" priority="0x0000" type="ToolWindowToolbar">
-        <Parent guid="HGCommandSet" id="Menu_PendingChangesToolWindow"/>
-        <Strings>
-          <ButtonText>WindowBar</ButtonText>
-          <CommandName>Window Bar</CommandName>
+          <ButtonText>VisualHG</ButtonText>
         </Strings>
       </Menu>
     </Menus>
+
     <Groups>
       <!-- 	Group for commands under View main menu -->
       <Group guid="HGCommandSet" id="igrpViewToolWindowGroup" priority="0x0100">
@@ -72,6 +59,7 @@
       <Group guid="HGCommandSet" id="Group_HGCommands" priority="0x0000">
         <Parent guid="HGCommandSet" id="Group_Nowhere"/>
       </Group>
+      
       <!-- 	HG special commands -->
       <Group guid="HGCommandSet" id="Group_HGXCommands" priority="0x0000">
         <Parent guid="HGCommandSet" id="Group_Nowhere"/>
@@ -86,12 +74,7 @@
       <Group guid="HGCommandSet" id="Group_SolutionMenu" priority="0x0800">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
       </Group>
-      <!-- 	Project menu in solution codewindow -->
-      <!--
-      <Group guid="HGCommandSet" id="Group_ProjectMenu" priority="0x0800">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
-      </Group>
-      -->
+      
       <!-- 	Single item menu in tab of codewindow -->
       <Group guid="HGCommandSet" id="Group_ItemMenu" priority="0x0800">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
@@ -110,17 +93,18 @@
         <Parent guid="HGCommandSet" id="Menu_PendingChangesToolWindow"/>
       </Group>
     </Groups>
+    
     <Buttons>
       <!-- 	Scc commands in context menus for SolutionExplorer -->
-      <Button guid="HGCommandSet" id="Cmd_HgCommitRoot" priority="0x0010" type="Button">
+      <Button guid="HGCommandSet" id="Cmd_HgCommit" priority="0x0010" type="Button">
         <Parent guid="HGCommandSet" id="Group_HGCommands"/>
         <Icon guid="VHG_Images" id="iconCommit"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Commit</ButtonText>
+          <ButtonText>VisualHGCommit</ButtonText>
           <MenuText>Commit</MenuText>
-          <CommandName>CommitRoot</CommandName>
+          <ToolTipText>Commit</ToolTipText>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgStatus" priority="0x0011" type="Button">
@@ -129,31 +113,30 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Status</ButtonText>
+          <ButtonText>VisualHGStatus</ButtonText>
           <MenuText>Status</MenuText>
-          <CommandName>Status</CommandName>
+          <ToolTipText>Status</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="HGCommandSet" id="Cmd_HgHistoryRoot" priority="0x0012" type="Button">
+      <Button guid="HGCommandSet" id="Cmd_HgWorkbench" priority="0x0012" type="Button">
         <Parent guid="HGCommandSet" id="Group_HGCommands"/>
         <Icon guid="VHG_Images" id="iconRepoBrowser"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Repo Browser</ButtonText>
-          <MenuText>Repo Browser</MenuText>
-          <CommandName>HistoryRoot</CommandName>
+          <ButtonText>VisualHGWorkbench</ButtonText>
+          <MenuText>Workbench</MenuText>
+          <ToolTipText>Workbench</ToolTipText>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgSynchronize" priority="0x0013" type="Button">
         <Parent guid="HGCommandSet" id="Group_HGCommands"/>
-        <Icon guid="VHG_Images" id="iconSynch"/>
+        <Icon guid="VHG_Images" id="iconSync"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Synchronize</ButtonText>
+          <ButtonText>VisualHGSynchronize</ButtonText>
           <MenuText>Synchronize</MenuText>
-          <CommandName>Synchronize</CommandName>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgUpdateToRevision" priority="0x0014" type="Button">
@@ -162,9 +145,9 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Update to Revision</ButtonText>
-          <MenuText>Update to Revision</MenuText>
-          <CommandName>Update</CommandName>
+          <ButtonText>VisualHGUpdateToRevision</ButtonText>
+          <MenuText>Update To Revision</MenuText>
+          <MenuText>Update To Revision</MenuText>
         </Strings>
       </Button>
 
@@ -174,9 +157,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Add Selected Files</ButtonText>
-          <MenuText>Add Selected Files</MenuText>
-          <CommandName>AddSelected</CommandName>
+          <ButtonText>VisualHGAddSelected</ButtonText>
+          <MenuText>Add Selected</MenuText>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgCommitSelected" priority="0x0000" type="Button">
@@ -185,9 +167,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Commit</ButtonText>
+          <ButtonText>VisualHGCommitSelected</ButtonText>
           <MenuText>Commit</MenuText>
-          <CommandName>CommitSelected</CommandName>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgDiff" priority="0x0001" type="Button">
@@ -196,9 +177,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Diff</ButtonText>
+          <ButtonText>VisualHGDiff</ButtonText>
           <MenuText>Diff</MenuText>
-          <CommandName>Diff</CommandName>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgRevert" priority="0x0002" type="Button">
@@ -207,9 +187,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Revert Changes</ButtonText>
-          <MenuText>Revert Changes</MenuText>
-          <CommandName>Revert</CommandName>
+          <ButtonText>VisualHGRevert</ButtonText>
+          <MenuText>Revert</MenuText>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgHistorySelected" priority="0x0003" type="Button">
@@ -218,9 +197,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>History</ButtonText>
-          <MenuText>History</MenuText>
-          <CommandName>HistorySelected</CommandName>
+          <ButtonText>VisualHGRevisionHistory</ButtonText>
+          <MenuText>Revision History</MenuText>
         </Strings>
       </Button>
       <Button guid="HGCommandSet" id="Cmd_HgAnnotate" priority="0x0004" type="Button">
@@ -229,9 +207,8 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>Annotate File</ButtonText>
-          <MenuText>Annotate File</MenuText>
-          <CommandName>Annotate</CommandName>
+          <ButtonText>VisualHGAnnotate</ButtonText>
+          <MenuText>Annotate</MenuText>
         </Strings>
       </Button>
 
@@ -241,24 +218,14 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>&amp;VisualHG Pending Changes</ButtonText>
-        </Strings>
-      </Button>
-
-      <!-- 	Buttons in the toolwindow's toolbar -->
-      <Button guid="HGCommandSet" id="Cmd_PendingChangesCommandHistory" priority="0x0100" type="Button">
-        <Parent guid="HGCommandSet" id="Group_PendingChangesToolWindow"/>
-        <Icon guid="VHG_Images" id="iconHistory0"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>ToolButton</ButtonText>
+          <ButtonText>VisualHGPendingChanges</ButtonText>
+          <MenuText>&amp;VisualHG Pending Changes</MenuText>
         </Strings>
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="VHG_Images" href="Resources\Images_32bit.bmp"
-              usedList="iconCommit, iconHistory0, iconSynch, iconStatus, iconDiff, iconCommit2, iconUpdate, iconRepoBrowser, iconRevert, iconAnnotate, iconHistory, iconAdd"/>
+      <Bitmap guid="VHG_Images" href="Resources\MenuIcons.bmp"
+              usedList="iconCommit, iconHistory, iconSync, iconStatus, iconDiff, iconUpdate, iconRepoBrowser, iconRevert, iconAnnotate, iconOpen, iconAdd"/>
     </Bitmaps>
   </Commands>
 
@@ -411,13 +378,22 @@
 
   </CommandPlacements>
 
+  <KeyBindings>
+    <KeyBinding guid="HGCommandSet" id="Cmd_HgCommit" editor="guidVSStd97" key1="I" mod1="Alt Shift"/>
+    <KeyBinding guid="HGCommandSet" id="Cmd_HgStatus" editor="guidVSStd97" key1="S" mod1="Alt Shift"/>
+    <KeyBinding guid="HGCommandSet" id="Cmd_HgWorkbench" editor="guidVSStd97" key1="H" mod1="Alt Shift"/>
+    <KeyBinding guid="HGCommandSet" id="Cmd_HgSynchronize" editor="guidVSStd97" key1="Y" mod1="Alt Shift"/>
+    <KeyBinding guid="HGCommandSet" id="Cmd_HgUpdateToRevision" editor="guidVSStd97" key1="U" mod1="Alt Shift"/>
+    <KeyBinding guid="HGCommandSet" id="icmdViewToolWindow" editor="guidVSStd97" key1="W" mod1="Control" key2="V"/>
+  </KeyBindings>
+
   <Symbols>
     <GuidSymbol name="HGPackageGuid" value="{DADADA00-dfd3-4e42-a61c-499121e136f3}" />
     <GuidSymbol name="HGCommandSet" value="{DADADA00-1fd3-4e26-9c1d-c9cb723cea0e}" >
 
-      <IDSymbol name="Cmd_HgCommitRoot" value="0x100"/>
+      <IDSymbol name="Cmd_HgCommit" value="0x100"/>
       <IDSymbol name="Cmd_HgStatus" value="0x101"/>
-      <IDSymbol name="Cmd_HgHistoryRoot" value="0x102"/>
+      <IDSymbol name="Cmd_HgWorkbench" value="0x102"/>
       <IDSymbol name="icmdViewToolWindow" value="0x103"/>
       
       <IDSymbol name="Cmd_PendingChangesCommandHistory" value="0x104"/>
@@ -454,17 +430,16 @@
 
     <GuidSymbol name="VHG_Images" value="{DADADA00-3cf1-4487-89ea-08fa7772dbe2}" >
       <IDSymbol name="iconCommit" value="1"/>
-      <IDSymbol name="iconHistory0" value="2"/>
-      <IDSymbol name="iconSynch" value="3"/>
+      <IDSymbol name="iconHistory" value="2"/>
+      <IDSymbol name="iconSync" value="3"/>
       <IDSymbol name="iconStatus" value="4"/>
       <IDSymbol name="iconDiff" value="5"/>
-      <IDSymbol name="iconCommit2" value="6"/>
-      <IDSymbol name="iconUpdate" value="7"/>
-      <IDSymbol name="iconRepoBrowser" value="8"/>
-      <IDSymbol name="iconRevert" value="9"/>
-      <IDSymbol name="iconAnnotate" value="10"/>
-      <IDSymbol name="iconHistory" value="11"/>
-      <IDSymbol name="iconAdd" value="12"/>
+      <IDSymbol name="iconUpdate" value="6"/>
+      <IDSymbol name="iconRepoBrowser" value="7"/>
+      <IDSymbol name="iconRevert" value="8"/>
+      <IDSymbol name="iconAnnotate" value="9"/>
+      <IDSymbol name="iconOpen" value="10"/>
+      <IDSymbol name="iconAdd" value="11"/>
      </GuidSymbol>
   </Symbols>
 </CommandTable>

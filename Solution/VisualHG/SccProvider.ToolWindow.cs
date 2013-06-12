@@ -20,7 +20,7 @@ namespace VisualHG
   }
 
   // Register the VisualHG tool window visible only when the provider is active
-  [MsVsShell.ProvideToolWindow(typeof(HGPendingChangesToolWindow))]
+  [MsVsShell.ProvideToolWindow(typeof(HGPendingChangesToolWindow), Style = VsDockStyle.Tabbed, Orientation = ToolWindowOrientation.Bottom, Transient = false, Window = ToolWindowGuids80.Outputwindow)]
   [MsVsShell.ProvideToolWindowVisibility(typeof(HGPendingChangesToolWindow), GuidList.ProviderGuid)]
   public partial class SccProvider 
   {

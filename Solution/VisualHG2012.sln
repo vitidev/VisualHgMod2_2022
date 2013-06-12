@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}"
 	ProjectSection(SolutionItems) = preProject
 		Readme.txt = Readme.txt
@@ -13,6 +13,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HGLib2010", "HGLib\HGLib2010.csproj", "{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HGLib2010", "HGLib.Test\HGLib2010.csproj", "{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}"
+EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "VisualHG.Setup", "VisualHG.Setup\VisualHG.Setup.wixproj", "{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,16 @@ Global
 		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|x86.ActiveCfg = Debug|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Debug|x86.Build.0 = Debug|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Any CPU.ActiveCfg = Release|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|Mixed Platforms.Build.0 = Release|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|x86.ActiveCfg = Release|x86
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,9 +73,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ADECE07A-5D80-4950-9DA5-A681CE2F5106} = {F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}
 		{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5} = {F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}
+		{FF28D70C-7D9E-4BA7-B780-4D7FFDD160AB} = {F1894F5D-DAFA-4323-9F22-C9BF70CDBC94}
 		{E3BCD849-329D-47C9-A20D-F527AFBA4ECF} = {8E65D0E4-41D7-41D4-A255-BA21891E452C}
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
-		DebugSamples90.Connect = 1;Configure Project for VSIP Experimental Environment;ConfigVSIPDebug
 	EndGlobalSection
 EndGlobal

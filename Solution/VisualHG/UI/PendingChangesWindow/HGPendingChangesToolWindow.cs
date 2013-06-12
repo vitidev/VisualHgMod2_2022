@@ -31,10 +31,6 @@ namespace VisualHG
             // set the CommandID for the window ToolBar
             //this.ToolBar = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.imnuToolWindowToolbarMenu);
 
-            // set the icon for the frame
-            this.BitmapResourceID = CommandId.ibmpToolWindowsImages;  // bitmap strip resource ID
-            this.BitmapIndex = CommandId.iconSccProviderToolWindow;   // index in the bitmap strip
-
             control = new HGPendingChangesToolWindowControl();
 
             // update pending list
