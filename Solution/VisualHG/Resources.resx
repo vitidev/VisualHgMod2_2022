@@ -152,7 +152,7 @@
     <value>Pending add</value>
   </data>
   <data name="HGPendingChangesToolWindowCaption" xml:space="preserve">
-    <value>HG pending changes</value>
+    <value>VisualHG</value>
   </data>
   <data name="TPD_DeleteControlledFile" xml:space="preserve">
     <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>

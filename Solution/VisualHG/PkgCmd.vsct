@@ -48,8 +48,8 @@
         <Parent guid="HGCommandSet" id="Group_Nowhere"/>
         <CommandFlag>DefaultDocked</CommandFlag>
         <Strings>
-          <ButtonText>VisualHG Source Control Toolbar</ButtonText>
-          <CommandName>VisualHG Source Control Toolbar</CommandName>
+          <ButtonText>VisualHG</ButtonText>
+          <CommandName>VisualHG</CommandName>
         </Strings>
       </Menu>
 
