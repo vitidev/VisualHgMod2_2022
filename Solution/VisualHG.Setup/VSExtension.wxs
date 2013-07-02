@@ -746,4 +746,61 @@
     </Property>
   </Fragment>
 
+    <!-- Visual Studio 2013 Preview -->
+    <Fragment>
+        <Property Id="VS120DEVENV" Secure="yes">
+            <RegistrySearch Id="VS120DevEnvSearch" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\12.0\Setup\VS" Name="EnvironmentPath" Type="raw" />
+        </Property>
+    </Fragment>
+
+    <Fragment>
+        <Property Id="VS120_ITEMTEMPLATES_DIR" Secure="yes">
+            <RegistrySearch Id="VS120DevEnvForItemTemplatesSearch" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\12.0\Setup\VS" Name="EnvironmentPath" Type="raw">
+                <DirectorySearch Id="VS120ItemTemplatesPathSearch" Path="ItemTemplates" Depth="1" />
+            </RegistrySearch>
+        </Property>
+    </Fragment>
+
+    <Fragment>
+        <Property Id="VS120_PROJECTTEMPLATES_DIR" Secure="yes">
+            <RegistrySearch Id="VS120DevEnvForProjectTemplatesSearch" Root="HKLM" Key="SOFTWARE\Microsoft\VisualStudio\12.0\Setup\VS" Name="EnvironmentPath" Type="raw">
+                <DirectorySearch Id="VS120ProjectTemplatesPathSearch" Path="ProjectTemplates" Depth="1" />
+            </RegistrySearch>
+        </Property>
+    </Fragment>
+
+    <Fragment>
+        <Property Id="VS120_SCHEMAS_DIR" Secure="yes">
+            <RegistrySearch Id="VS120ProductPathSearch" Root="HKLM" Key="Software\Microsoft\VisualStudio\SxS\VS7" Name="12.0" Type="raw">
+                <DirectorySearch Id="VS120XmlPathSearch" Path="Xml" Depth="1">
+                    <DirectorySearch Id="VS120XmlSchemasPathSearch" Path="Schemas" Depth="1" />
+                </DirectorySearch>
+            </RegistrySearch>
+        </Property>
+    </Fragment>
+
+    <Fragment>
+        <CustomAction Id="VS120Setup" Property="VS120DEVENV" ExeCommand="/setup" Execute="deferred" Return="ignore" Impersonate="no" />
+        <PropertyRef Id="VS120DEVENV" />
+
+        <InstallExecuteSequence>
+            <Custom Action="VS120Setup" Before="InstallFinalize" Overridable="yes">VS120DEVENV</Custom>
+        </InstallExecuteSequence>
+    </Fragment>
+
+    <Fragment>
+        <CustomAction Id="VS120InstallVSTemplates" Property="VS120DEVENV" ExeCommand="/InstallVSTemplates" Execute="deferred" Return="ignore" Impersonate="no" />
+        <PropertyRef Id="VS120DEVENV" />
+
+        <InstallExecuteSequence>
+            <Custom Action="VS120InstallVSTemplates" Before="InstallFinalize" Overridable="yes">VS120DEVENV</Custom>
+        </InstallExecuteSequence>
+    </Fragment>
+
+    <Fragment>
+        <Property Id="VS120_ROOT_FOLDER" Secure="yes">
+            <RegistrySearch Id="SearchForVS120RootPath" Root="HKLM" Key="Software\Microsoft\VisualStudio\SxS\VS7" Name="12.0" Type="raw" />
+        </Property>
+    </Fragment>
+
 </Wix>

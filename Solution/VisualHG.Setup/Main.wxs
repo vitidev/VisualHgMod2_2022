@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?ifndef visualhgVersion ?>
-  <?define visualhgVersion=1.1.5 ?>
+  <?define visualhgVersion=1.1.6 ?>
   <?endif ?>
   <Product Id="*" Name="VisualHG $(var.visualhgVersion)" Language="1033" Version="$(var.visualhgVersion)"
            Manufacturer="VisualHG Team" UpgradeCode="DADADA00-15ef-4388-bdc1-2d3cb85f3e8b">
@@ -50,6 +50,7 @@
     <CustomActionRef Id="VS90Setup"/>
     <CustomActionRef Id="VS100Setup"/>
     <CustomActionRef Id="VS110Setup"/>
+    <CustomActionRef Id="VS120Setup"/>
     -->
     <UI>
       <InstallUISequence>
@@ -60,6 +61,7 @@
       <ProgressText Action="VS90Setup" Template="[1]">Updating Visual Studio 2008 registration</ProgressText>
       <ProgressText Action="VS100Setup" Template="[1]">Updating Visual Studio 2010 registration</ProgressText>
       <ProgressText Action="VS110Setup" Template="[1]">Updating Visual Studio 2011 registration</ProgressText>
+      <ProgressText Action="VS120Setup" Template="[1]">Updating Visual Studio 2013 registration</ProgressText>
       -->
     </UI>
 

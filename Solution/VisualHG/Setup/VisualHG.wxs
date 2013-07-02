@@ -21,6 +21,7 @@
         <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2008.wxi ?>
         <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2010.wxi ?>
         <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2011.wxi ?>
+        <?include $(var.VisualHG.TargetDir)$(var.VisualHG.TargetName)-2013.wxi ?>
       </Component>
     </DirectoryRef>
   </Fragment>
