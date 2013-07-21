@@ -173,9 +173,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\MenuIcons.bmp" />
     <EmbeddedResource Include="Resources\StatusIcons.bmp" />
-    <Content Include="Setup\VisualHG.wxs">
-      <SubType>Designer</SubType>
-    </Content>
     <None Include="source.extension.vsixmanifest" />
     <None Include="Resources\Product.ico" />
   </ItemGroup>
