@@ -32,7 +32,7 @@ namespace HGLib.Test
         static void UpdateRepo(string dir, string expected)
         {
             List<string> resultList;
-            HG.InvokeCommand(dir, "update -C", out resultList);
+            Hg.InvokeCommand(dir, "update -C", out resultList);
             Assert.AreEqual(1, resultList.Count);
             Assert.AreEqual(expected, resultList[0]);
         }
@@ -51,7 +51,7 @@ namespace HGLib.Test
             File.Create(nName);
 
             Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HG.AddFiles(new string[]{ nName }, out fileStatusDictionary), "add file");
+            Assert.IsTrue(Hg.AddFiles(new string[]{ nName }, out fileStatusDictionary), "add file");
             char status = fileStatusDictionary[nName];
             Assert.AreEqual(status, 'A');
         }
@@ -77,12 +77,12 @@ namespace HGLib.Test
                 File.Create(file);
 
             Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HGLib.HG.AddFilesNotIgnored(fileList, out fileStatusDictionary));
+            Assert.IsTrue(HGLib.Hg.AddFilesNotIgnored(fileList, out fileStatusDictionary));
 
             Assert.IsFalse(fileStatusDictionary.ContainsKey(fileList[0]));
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
 
-            HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary);
+            HGLib.Hg.QueryFileStatus(fileList, out fileStatusDictionary);
             Assert.AreEqual(fileStatusDictionary[fileList[0]], 'I');
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
         }
@@ -103,7 +103,7 @@ namespace HGLib.Test
                 File.Create(Path.Combine(dir, file));
 
             Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HGLib.HG.QueryFileStatus(fileList, out fileStatusDictionary));
+            Assert.IsTrue(HGLib.Hg.QueryFileStatus(fileList, out fileStatusDictionary));
         }
     }
 }

@@ -228,7 +228,7 @@ namespace VisualHG
 
             if (pbstrTooltipText != string.Empty)
             {
-                string root = HGLib.HG.FindRootDirectory(files[0]);
+                string root = HGLib.Hg.FindRepositoryRoot(files[0]);
                 //string branchName = HGLib.HG.GetCurrentBranchName(root);
                 string branchName = _sccStatusTracker.GetCurrentBranchOf(root);
 

@@ -87,7 +87,7 @@ namespace VisualHG
         // ------------------------------------------------------------------------
         public void LogDialog(string file)
         {
-            String root = HGLib.HG.FindRootDirectory(file);
+            String root = HGLib.Hg.FindRepositoryRoot(file);
             if (root != string.Empty)
             {
                 file = file.Substring(root.Length + 1);

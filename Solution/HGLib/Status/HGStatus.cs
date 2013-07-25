@@ -198,7 +198,7 @@ namespace HGLib
         public void UpdateFileStatus(string[] files)
         {
             Dictionary<string, char> fileStatusDictionary;
-            if (HG.QueryFileStatus(files, out fileStatusDictionary)) 
+            if (Hg.QueryFileStatus(files, out fileStatusDictionary)) 
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -210,7 +210,7 @@ namespace HGLib
         public void UpdateFileStatus(string root)
         {
             Dictionary<string, char> fileStatusDictionary;
-            if (HG.QueryRootStatus(root, out fileStatusDictionary))
+            if (Hg.QueryRootStatus(root, out fileStatusDictionary))
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -225,10 +225,10 @@ namespace HGLib
             if (directory == string.Empty)
                 return false;
 
-            string root = HG.FindRootDirectory(directory);
+            string root = Hg.FindRepositoryRoot(directory);
             if (root != string.Empty && !_rootDirMap.ContainsKey(root))
             {
-                _rootDirMap[root] = new RootInfo() { _Branch = HG.GetCurrentBranchName(root) };
+                _rootDirMap[root] = new RootInfo() { _Branch = Hg.GetCurrentBranchName(root) };
 
                 if (!_directoryWatcherMap.ContainsDirectory(root))
                 {
@@ -236,7 +236,7 @@ namespace HGLib
                 }
 
                 Dictionary<string, char> fileStatusDictionary;
-                if (HG.QueryRootStatus(root, out fileStatusDictionary))
+                if (Hg.QueryRootStatus(root, out fileStatusDictionary))
                 {
                     _fileStatusDictionary.Add(fileStatusDictionary);
                 }
@@ -311,7 +311,7 @@ namespace HGLib
             
             SkipDirstate(true);
             Dictionary<string, char> fileStatusDictionary;
-            if (HG.AddFilesNotIgnored(fileList.ToArray(), out fileStatusDictionary))
+            if (Hg.AddFilesNotIgnored(fileList.ToArray(), out fileStatusDictionary))
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -350,7 +350,7 @@ namespace HGLib
             if (oNameList.Count>0)
             {
                 SkipDirstate(true);
-                HG.EnterFileRenamed(oNameList.ToArray(), nNameList.ToArray());
+                Hg.EnterFileRenamed(oNameList.ToArray(), nNameList.ToArray());
                 SkipDirstate(false);
             }
         }
@@ -399,7 +399,7 @@ namespace HGLib
             {
                 SkipDirstate(true); // avoid a status requery for the repo after hg.dirstate was changed
                 Dictionary<string, char> fileStatusDictionary;
-                if (HG.EnterFileRemoved(removedFileList.ToArray(), out fileStatusDictionary))
+                if (Hg.EnterFileRemoved(removedFileList.ToArray(), out fileStatusDictionary))
                 {
                     _fileStatusDictionary.Add(fileStatusDictionary);
                 }
@@ -464,10 +464,10 @@ namespace HGLib
             {
                 if (rootDirectory != string.Empty)
                 {
-                    _rootDirMap[rootDirectory]._Branch = HG.GetCurrentBranchName(rootDirectory); 
+                    _rootDirMap[rootDirectory]._Branch = Hg.GetCurrentBranchName(rootDirectory); 
                     
                     Dictionary<string, char> fileStatusDictionary;
-                    if (HG.QueryRootStatus(rootDirectory, out fileStatusDictionary))
+                    if (Hg.QueryRootStatus(rootDirectory, out fileStatusDictionary))
                     {
                         Trace.WriteLine("RebuildStatusCache - number of files: " + fileStatusDictionary.Count.ToString());
                         newFileStatusDictionary.Add(fileStatusDictionary);
@@ -528,7 +528,7 @@ namespace HGLib
                 if (ditryFilesList.Count>0)
                 {
                     Dictionary<string, char> fileStatusDictionary;
-                    if (HG.QueryFileStatus(ditryFilesList.ToArray(), out fileStatusDictionary))
+                    if (Hg.QueryFileStatus(ditryFilesList.ToArray(), out fileStatusDictionary))
                     {
                         lock (_fileStatusDictionary)
                         {
@@ -708,7 +708,7 @@ namespace HGLib
             {
                 Dictionary<string, char> fileStatusDictionary;
                 SkipDirstate(true); 
-                if (HG.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
+                if (Hg.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
                 {
                     Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
                     lock (_fileStatusDictionary)

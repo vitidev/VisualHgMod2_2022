@@ -451,7 +451,7 @@ namespace VisualHG
                     if (status == HGLib.HGFileStatus.scsRenamed ||
                         status == HGLib.HGFileStatus.scsCopied)
                     {
-                        versionedFile = HGLib.HG.GetOriginalOfRenamedFile(fileName); 
+                        versionedFile = HGLib.Hg.GetOriginalOfRenamedFile(fileName); 
                     }
 
                     if (versionedFile != null)
@@ -541,7 +541,7 @@ namespace VisualHG
                 if (status == HGLib.HGFileStatus.scsRenamed)
                 {
                     // get original filename
-                    string orgName = HGLib.HG.GetOriginalOfRenamedFile(fileName);
+                    string orgName = HGLib.Hg.GetOriginalOfRenamedFile(fileName);
                     if(orgName != string.Empty)
                         HGLib.HGTK.AnnotateDialog(orgName);
                 }
