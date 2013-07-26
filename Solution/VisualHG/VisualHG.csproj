@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!-- Try to determine Visual Studio SDK version by checking MS Build directories. -->
+  <Choose>
+    <When Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\VSSDK\Microsoft.VsSDK.targets')">
+      <PropertyGroup>
+        <VsSDKVersion>10.0</VsSDKVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v11.0\VSSDK\Microsoft.VsSDK.targets')">
+      <PropertyGroup>
+        <VsSDKVersion>11.0</VsSDKVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v12.0\VSSDK\Microsoft.VsSDK.targets')">
+      <PropertyGroup>
+        <VsSDKVersion>12.0</VsSDKVersion>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <PropertyGroup>
+    <VsSDKTargets>$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VsSDKVersion)\VSSDK\Microsoft.VsSDK.targets</VsSDKTargets>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="!Exists('$(VsSDKTargets)')">
+      <PropertyGroup>
+        <!-- Specify custom values here. -->
+        <VsSDKVersion>10.0</VsSDKVersion>
+        <VsSDKTargets>
+        </VsSDKTargets>
+      </PropertyGroup>
+    </When>
+  </Choose>
+  <!-- Target .NET Framework 4.0 only if Visual Studio 2010 SDK is used. -->
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(VsSDKVersion)' == '10.0'">v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ADECE07A-5D80-4950-9DA5-A681CE2F5106}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VisualHg</RootNamespace>
+    <AssemblyName>VisualHg</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Conditional references. -->
+    <Reference Condition="'$(VsSDKVersion)' == '10.0'" Include="Microsoft.VisualStudio.Shell.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Condition="'$(VsSDKVersion)' == '11.0'" Include="Microsoft.VisualStudio.Shell.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Condition="'$(VsSDKVersion)' == '11.0'" Include="Microsoft.VisualStudio.Shell.Interop.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Condition="'$(VsSDKVersion)' == '12.0'" Include="Microsoft.VisualStudio.Shell.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Condition="'$(VsSDKVersion)' == '12.0'" Include="Microsoft.VisualStudio.Shell.Interop.12.0, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    
+    <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Immutable.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.9.0" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.10.0, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.TextManager.Interop" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="RegestryTool.cs" />
+    <Compile Include="SccProvider.Commands.cs" />
+    <Compile Include="SccProvider.ToolWindow.cs" />
+    <Compile Include="SccProvider.Utillities.cs" />
+    <Compile Include="SccProvider.HgDialogs.cs" />
+    <Compile Include="SccProviderService.NodesGlyphs.cs" />
+    <Compile Include="SccProviderService.SolutionEvents.cs" />
+    <Compile Include="Status\HgStatusTracker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProvideSolutionProps.cs" />
+    <Compile Include="SccProjectData.cs" />
+    <Compile Include="SccProvider.cs" />
+    <Compile Include="CommandId.cs" />
+    <Compile Include="Guids.cs" />
+    <Compile Include="ProvideSourceControlProvider.cs" />
+    <Compile Include="ProvideToolsOptionsPageVisibility.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SccOnIdleEvent.cs" />
+    <Compile Include="UI\ListViewColumnIcons.cs" />
+    <Compile Include="UI\OptionsPage\SccProviderOptions.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\OptionsPage\SccProviderOptionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SccProviderService.cs" />
+    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.Designer.cs">
+      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\PendingChangesWindow\HgPendingChangesToolWindow.cs" />
+    <Compile Include="UI\PendingChangesWindow\HgPendingChangesToolWindowControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Status\StatusImageMapper.cs" />
+    <Compile Include="UI\PendingChangesWindow\PendingItemsListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <MergeWithCTO>true</MergeWithCTO>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\OptionsPage\SccProviderOptionsControl.resx">
+      <DependentUpon>SccProviderOptionsControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\OptionsPage\SelectDiffToolTemplateDialog.resx">
+      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PendingChangesWindow\HgPendingChangesToolWindow.resx">
+      <DependentUpon>HgPendingChangesToolWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\PendingChangesWindow\HgPendingChangesToolWindowControl.resx">
+      <DependentUpon>HgPendingChangesToolWindowControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\MenuIcons.bmp" />
+    <EmbeddedResource Include="Resources\StatusIcons.bmp" />
+    <None Include="source.extension.vsixmanifest" />
+    <None Include="Resources\Product.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <VSCTCompile Include="PkgCmd.vsct">
+      <ResourceName>1000</ResourceName>
+      <SubType>Designer</SubType>
+    </VSCTCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HgLib\HgLib.csproj">
+      <Project>{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}</Project>
+      <Name>HgLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <RegisterOutputPackage>true</RegisterOutputPackage>
+    <RegisterWithCodebase>true</RegisterWithCodebase>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VsSDKTargets)" />
+</Project>
