@@ -22,14 +22,14 @@ namespace HGLib
       {
         if (hgtkexe == null || hgtkexe == string.Empty)
         {
-          hgtkexe = HG.GetTortoiseHGDirectory();
+          hgtkexe = Hg.GetTortoiseHgDirectory();
           if (hgtkexe != null && hgtkexe != string.Empty)
           {
 
-            if (File.Exists(hgtkexe + "HGTK.exe"))
-              hgtkexe += "HGTK.exe";
-            else if (File.Exists(hgtkexe + "THG.exe"))
-              hgtkexe += "THG.exe";
+            if (File.Exists(Path.Combine(hgtkexe, "HGTK.exe")))
+              hgtkexe = Path.Combine(hgtkexe, "HGTK.exe");
+            else if (File.Exists(Path.Combine(hgtkexe, "THG.exe")))
+              hgtkexe += Path.Combine(hgtkexe, "THG.exe");
           }
         }
         return hgtkexe;
@@ -121,7 +121,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         static public Process DiffDialog(string sccFile, string file, string commandMask)
         {
-          String root = HGLib.HG.FindRootDirectory(file); 
+          String root = HGLib.Hg.FindRepositoryRoot(file); 
           if(root != String.Empty)
           {
             // copy latest file revision from repo temp folder
@@ -132,7 +132,7 @@ namespace HGLib
             File.Delete(versionedFile);
 
             string cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
-            InvokeCommand(HG.GetHGFileName(), root, cmd);
+            InvokeCommand(Hg.GetHgExecutablePath(), root, cmd);
             
             // wait file exists on disk
             int counter = 0;
@@ -149,7 +149,7 @@ namespace HGLib
             {
                 commandMask = " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ";
                 cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask); 
-                return InvokeCommand(HG.GetTortoiseHGDirectory() + "kdiff3.exe", root, cmd);
+                return InvokeCommand(Path.Combine(Hg.GetTortoiseHgDirectory(), "kdiff3.exe"), root, cmd);
             }
           }
           return null;
@@ -206,13 +206,13 @@ namespace HGLib
         // command " --nofork revert "
         public static void HGTKSelectedFilesDialog(string[] files, string command)
         {
-            string tmpFile = HG.TemporaryFile;
+            string tmpFile = Hg.TemporaryFile;
             StreamWriter stream = new StreamWriter(tmpFile, false, Encoding.Default);
 
             string currentRoot = string.Empty;
             for (int n = 0; n < files.Length; ++n)
             {
-                string root = HGLib.HG.FindRootDirectory(files[n]);
+                string root = HGLib.Hg.FindRepositoryRoot(files[n]);
                 if (root == string.Empty)
                     continue;
 
@@ -226,7 +226,7 @@ namespace HGLib
                     Process process = HGTKDialog(root, command + " --listfile \"" + tmpFile + "\"");
                     process.WaitForExit();
 
-                    tmpFile = HG.TemporaryFile;
+                    tmpFile = Hg.TemporaryFile;
                     stream = new StreamWriter(tmpFile, false, Encoding.Default);
                 }
 
@@ -246,7 +246,7 @@ namespace HGLib
         // ------------------------------------------------------------------------
         static public void AnnotateDialog(string file)
         {
-            String root = HGLib.HG.FindRootDirectory(file);
+            String root = HGLib.Hg.FindRepositoryRoot(file);
             if(root != String.Empty)
             {
                 file = file.Substring(root.Length + 1);

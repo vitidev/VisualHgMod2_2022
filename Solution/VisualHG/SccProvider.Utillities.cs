@@ -522,19 +522,19 @@ namespace VisualHG
                 {
                     String filename;
                     if (GetItemFileName(pscp, selectedNodes[0].itemid, out filename))
-                        root = HGLib.HG.FindRootDirectory(filename);
+                        root = HGLib.Hg.FindRepositoryRoot(filename);
                 }
             }
 
             if (root == string.Empty)
             {
-                root = HGLib.HG.FindRootDirectory(GetSolutionFileName());
+                root = HGLib.Hg.FindRepositoryRoot(GetSolutionFileName());
                 if (root == String.Empty)
                 {
                     // this is for WebPage projects. the solution file is not included inside the HG root dir.
                     if (_LastSeenProjectDir != null)
                     {
-                        root = HGLib.HG.FindRootDirectory(_LastSeenProjectDir);
+                        root = HGLib.Hg.FindRepositoryRoot(_LastSeenProjectDir);
                     }
                 }
             }

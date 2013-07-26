@@ -57,7 +57,7 @@ namespace HGLib.Test
         static void UpdateRepo(string dir, string expected)
         {
             List<string> resultList;
-            HG.InvokeCommand(dir, "update -C", out resultList);
+            Hg.InvokeCommand(dir, "update -C", out resultList);
             Assert.AreEqual(1, resultList.Count);
             Assert.AreEqual(expected,resultList[0]);
         }
