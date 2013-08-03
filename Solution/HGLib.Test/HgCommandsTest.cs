@@ -31,8 +31,8 @@ namespace HgLib.Test
 
         static void UpdateRepo(string dir, string expected)
         {
-            List<string> resultList;
-            Hg.InvokeCommand(dir, "update -C", out resultList);
+            var resultList = Hg.Update(dir);
+            
             Assert.AreEqual(1, resultList.Count);
             Assert.AreEqual(expected, resultList[0]);
         }
@@ -77,12 +77,12 @@ namespace HgLib.Test
                 File.Create(file);
 
             Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HgLib.Hg.AddFilesNotIgnored(fileList, out fileStatusDictionary));
+            Assert.IsTrue(HgLib.Hg.AddFiles(fileList, out fileStatusDictionary));
 
             Assert.IsFalse(fileStatusDictionary.ContainsKey(fileList[0]));
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
 
-            HgLib.Hg.QueryFileStatus(fileList, out fileStatusDictionary);
+            HgLib.Hg.GetFileStatus(fileList, out fileStatusDictionary);
             Assert.AreEqual(fileStatusDictionary[fileList[0]], 'I');
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
         }
@@ -103,7 +103,7 @@ namespace HgLib.Test
                 File.Create(Path.Combine(dir, file));
 
             Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HgLib.Hg.QueryFileStatus(fileList, out fileStatusDictionary));
+            Assert.IsTrue(HgLib.Hg.GetFileStatus(fileList, out fileStatusDictionary));
         }
     }
 }

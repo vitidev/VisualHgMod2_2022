@@ -198,7 +198,7 @@ namespace HgLib
         public void UpdateFileStatus(string[] files)
         {
             Dictionary<string, char> fileStatusDictionary;
-            if (Hg.QueryFileStatus(files, out fileStatusDictionary)) 
+            if (Hg.GetFileStatus(files, out fileStatusDictionary)) 
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -209,10 +209,11 @@ namespace HgLib
         // ------------------------------------------------------------------------
         public void UpdateFileStatus(string root)
         {
-            Dictionary<string, char> fileStatusDictionary;
-            if (Hg.QueryRootStatus(root, out fileStatusDictionary))
+            var status = Hg.GetRootStatus(root);
+            
+            if (status != null)
             {
-                _fileStatusDictionary.Add(fileStatusDictionary);
+                _fileStatusDictionary.Add(status);
             }
         }
 
@@ -235,10 +236,11 @@ namespace HgLib
                     _directoryWatcherMap.WatchDirectory(root);
                 }
 
-                Dictionary<string, char> fileStatusDictionary;
-                if (Hg.QueryRootStatus(root, out fileStatusDictionary))
+                var status = Hg.GetRootStatus(root);
+                
+                if (status != null)
                 {
-                    _fileStatusDictionary.Add(fileStatusDictionary);
+                    _fileStatusDictionary.Add(status);
                 }
             }
 
@@ -311,7 +313,7 @@ namespace HgLib
             
             SkipDirstate(true);
             Dictionary<string, char> fileStatusDictionary;
-            if (Hg.AddFilesNotIgnored(fileList.ToArray(), out fileStatusDictionary))
+            if (Hg.AddFiles(fileList.ToArray(), out fileStatusDictionary))
             {
                 _fileStatusDictionary.Add(fileStatusDictionary);
             }
@@ -466,11 +468,12 @@ namespace HgLib
                 {
                     _rootDirMap[rootDirectory]._Branch = Hg.GetCurrentBranchName(rootDirectory); 
                     
-                    Dictionary<string, char> fileStatusDictionary;
-                    if (Hg.QueryRootStatus(rootDirectory, out fileStatusDictionary))
+                    var status = Hg.GetRootStatus(rootDirectory);
+                    
+                    if (status != null)
                     {
-                        Trace.WriteLine("RebuildStatusCache - number of files: " + fileStatusDictionary.Count.ToString());
-                        newFileStatusDictionary.Add(fileStatusDictionary);
+                        Trace.WriteLine("RebuildStatusCache - number of files: " + status.Count.ToString());
+                        newFileStatusDictionary.Add(status);
                     }
                 }
             }
@@ -528,7 +531,7 @@ namespace HgLib
                 if (ditryFilesList.Count>0)
                 {
                     Dictionary<string, char> fileStatusDictionary;
-                    if (Hg.QueryFileStatus(ditryFilesList.ToArray(), out fileStatusDictionary))
+                    if (Hg.GetFileStatus(ditryFilesList.ToArray(), out fileStatusDictionary))
                     {
                         lock (_fileStatusDictionary)
                         {
@@ -708,7 +711,7 @@ namespace HgLib
             {
                 Dictionary<string, char> fileStatusDictionary;
                 SkipDirstate(true); 
-                if (Hg.QueryFileStatus(fileList.ToArray(), out fileStatusDictionary))
+                if (Hg.GetFileStatus(fileList.ToArray(), out fileStatusDictionary))
                 {
                     Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
                     lock (_fileStatusDictionary)

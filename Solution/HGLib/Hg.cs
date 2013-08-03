@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Microsoft.Win32;
 
@@ -9,21 +10,13 @@ namespace HgLib
 {
     public static class Hg
     {
-        private static string hgDir = null;
-        private static string hgexe = null;
-
-        public static string TemporaryFile
-        {
-            get
-            {
-                return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            }
-        }
+        private static string tortoiseHgDirectory;
+        private static string hgExecutablePath;
 
 
         public static string GetTortoiseHgDirectory()
         {
-            if (String.IsNullOrEmpty(hgDir))
+            if (String.IsNullOrEmpty(tortoiseHgDirectory))
             {
                 var key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\TortoiseHg");
 
@@ -34,113 +27,31 @@ namespace HgLib
 
                 if (key != null)
                 {
-                    hgDir = (string)key.GetValue(null);
+                    tortoiseHgDirectory = (string)key.GetValue(null);
                 }
             }
 
-            return hgDir;
+            return tortoiseHgDirectory;
         }
 
         public static string GetHgExecutablePath()
         {
-            if (String.IsNullOrEmpty(hgexe))
+            if (String.IsNullOrEmpty(hgExecutablePath))
             {
-                var dir = GetTortoiseHgDirectory();
+                hgExecutablePath = "hg.exe";
 
-                hgexe = "Hg.exe";
-
-                if (!String.IsNullOrEmpty(dir))
+                if (!String.IsNullOrEmpty(GetTortoiseHgDirectory()))
                 {
-                    hgexe = Path.Combine(dir, hgexe);
+                    hgExecutablePath = Path.Combine(GetTortoiseHgDirectory(), hgExecutablePath);
                 }
             }
 
-            return hgexe;
-        }
-
-        private static Process InvokeCommand(string workingDirectory, string arguments)
-        {
-            Trace.WriteLine("InvokeCommand : " + arguments);
-
-            var process = new Process();
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = GetHgExecutablePath();
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.WorkingDirectory = workingDirectory;
-            process.Start();
-
-            return process;
-        }
-
-        public static bool InvokeCommand(string workingDirectory, string arguments, out List<string> output)
-        {
-            var process = InvokeCommand(workingDirectory, arguments);
-
-            output = ReadStandardOutputFrom(process);
-
-            return output.Count > 0;
-        }
-
-        private static void InvokeCommand(string command, string[] paths, bool directoriesAllowed)
-        {
-            List<string> list;
-
-            var workingDirectory = Path.GetDirectoryName(paths[0]);
-            var rootDirectory = FindRepositoryRoot(workingDirectory);
-            var commandString = command;
-
-            var counter = 0;
-
-            foreach (var path in paths)
-            {
-                counter++;
-
-                if (!directoriesAllowed && IsDirectory(path))
-                {
-                    continue;
-                }
-
-                commandString += " \"" + path.Substring(rootDirectory.Length + 1) + "\" ";
-
-                if (counter > 20 || commandString.Length > 1024)
-                {
-                    InvokeCommand(rootDirectory, commandString, out list);
-                    commandString = command;
-                }
-            }
-
-            InvokeCommand(rootDirectory, commandString, out list);
-        }
-
-
-        private static bool InvokeCommandGetStatus(string cmd, string[] fileList, out Dictionary<string, char> fileStatusDictionary)
-        {
-            fileStatusDictionary = null;
-
-            try
-            {
-                InvokeCommand(cmd, fileList, false);
-
-                if (!QueryFileStatus(fileList, out fileStatusDictionary))
-                {
-                    fileStatusDictionary = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("cmd- " + ex.Message);
-                fileStatusDictionary = null;
-            }
-
-            return fileStatusDictionary != null;
+            return hgExecutablePath;
         }
 
         public static string FindRepositoryRoot(string path)
         {
-            while (path.Length > 0)
+            while (!String.IsNullOrEmpty(path))
             {
                 if (Directory.Exists(Path.Combine(path, ".hg")))
                 {
@@ -153,152 +64,245 @@ namespace HgLib
             return path;
         }
 
-        public static string GetCurrentBranchName(string rootDirectory)
+        private static string GetParentDirectory(string path)
         {
-            var branchName = "";
+            DirectoryInfo parent;
 
-            List<string> output;
-
-            InvokeCommand(rootDirectory, "branch", out output);
-
-            if (output.Count > 0)
+            try
             {
-                branchName = output[0];
+                parent = Directory.GetParent(path);
+            }
+            catch
+            {
+                parent = null;
             }
 
-            return branchName;
+            return parent != null ? parent.ToString() : "";
         }
 
 
-        public static bool QueryRootStatus(string rootDirectory, out Dictionary<string, char> fileStatusDictionary)
+        public static string GetCurrentBranchName(string root)
         {
-            Trace.WriteLine("Start QueryRootStatus");
+            return RunHg(root, "branch").FirstOrDefault() ?? "";
+        }
 
-            fileStatusDictionary = null;
 
-            if (!String.IsNullOrEmpty(rootDirectory))
+        public static Dictionary<string, char> GetRootStatus(string root)
+        {
+            var status = new Dictionary<string, char>();
+
+            if (!String.IsNullOrEmpty(root))
             {
-                var renamedToOrgFileDictionary = new Dictionary<string, string>();
+                var nameHistory = new Dictionary<string, string>();
 
-                List<string> output;
-                InvokeCommand(rootDirectory, "status -m -a -r -d -c -C ", out output);
+                var output = RunHg(root, "status -m -a -r -d -c -C ");
 
-                fileStatusDictionary = new Dictionary<string, char>();
-                UpdateStatusDictionary(output, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
+                UpdateStatus(root, output, status, nameHistory);
             }
 
-            return fileStatusDictionary != null;
+            return status;
         }
 
-        public static bool QueryFileStatus(string fileName, out Dictionary<string, char> fileStatusDictionary, out Dictionary<string, string> renamedToOrgFileDictionary)
+        public static bool GetFileStatus(string[] fileNames, out Dictionary<string, char> status)
         {
-            return QueryFileStatus(new string[] { fileName }, out fileStatusDictionary, out renamedToOrgFileDictionary);
+            Dictionary<string, string> nameHistory;
+            return GetFileStatus(fileNames, out status, out nameHistory);
         }
 
-        public static bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        private static bool GetFileStatus(string[] fileNames, out Dictionary<string, char> status, out Dictionary<string, string> nameHistory)
         {
-            Dictionary<string, string> renamedToOrgFileDictionary;
-            return QueryFileStatus(fileList, out fileStatusDictionary, out renamedToOrgFileDictionary);
-        }
-
-        public static bool QueryFileStatus(string fileName, out Dictionary<string, char> fileStatusDictionary)
-        {
-            Dictionary<string, string> renamedToOrgFileDictionary;
-            return QueryFileStatus(fileName, out fileStatusDictionary, out renamedToOrgFileDictionary);
-        }
-
-        public static bool QueryFileStatus(string[] fileList, out Dictionary<string, char> fileStatusDictionary, out Dictionary<string, string> renamedToOrgFileDictionary)
-        {
-            fileStatusDictionary = new Dictionary<string, char>();
-            renamedToOrgFileDictionary = new Dictionary<string, string>();
+            status = new Dictionary<string, char>();
+            nameHistory = new Dictionary<string, string>();
             var commandLines = new Dictionary<string, string>();
 
             try
             {
-                if (fileList.Length > 0)
+                if (fileNames.Length > 0)
                 {
-                    foreach (var fileName in fileList)
+                    foreach (var fileName in fileNames)
                     {
-                        var rootDirectory = FindRepositoryRoot(fileName);
+                        var root = FindRepositoryRoot(fileName);
 
                         var commandLine = "";
-                        commandLines.TryGetValue(rootDirectory, out commandLine);
-                        commandLine += " \"" + fileName.Substring(rootDirectory.Length + 1) + "\" ";
+                        commandLines.TryGetValue(root, out commandLine);
+                        commandLine += " \"" + fileName.Substring(root.Length + 1) + "\" ";
 
                         if (commandLine.Length >= 2000)
                         {
-                            List<string> output;
-                            InvokeCommand(rootDirectory, "status -A " + commandLine, out output);
-                            UpdateStatusDictionary(output, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
+                            var output = RunHg(root, "status -A " + commandLine);
+                            UpdateStatus(root, output, status, nameHistory);
 
                             commandLine = "";
                         }
 
-                        commandLines[rootDirectory] = commandLine;
+                        commandLines[root] = commandLine;
                     }
 
                     foreach (var directoryCommandLine in commandLines)
                     {
-                        var rootDirectory = directoryCommandLine.Key;
+                        var root = directoryCommandLine.Key;
                         var commandLine = directoryCommandLine.Value;
-                        
+
                         if (commandLine.Length > 0)
                         {
-                            List<string> output;
-                            InvokeCommand(rootDirectory, "status -A " + commandLine, out output);
-                            UpdateStatusDictionary(output, rootDirectory, fileStatusDictionary, renamedToOrgFileDictionary);
+                            var output = RunHg(root, "status -A " + commandLine);
+                            UpdateStatus(root, output, status, nameHistory);
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Trace.WriteLine("HgProcess.QueryFileStatus: " + ex.Message);
                 return false;
             }
 
-            return (fileStatusDictionary != null);
+            return true;
         }
 
-        private static bool UpdateStatusDictionary(List<string> lines, string rootDirectory, Dictionary<string, char> fileStatusDictionary, Dictionary<string, string> renamedToOrgFileDictionary)
+
+        public static bool AddFiles(string[] fileNames, out Dictionary<string, char> status)
+        {
+            status = null;
+            
+            var filesToAdd = GetFilesToAdd(fileNames);
+
+            if (filesToAdd.Length == 0)
+            {
+                return false;
+            }
+
+            return GetStatus("add", filesToAdd, out status);
+        }
+
+        private static string[] GetFilesToAdd(string[] fileNames)
+        {
+            var filesToAdd = new List<string>();
+
+            Dictionary<string, char> status;
+            GetFileStatus(fileNames, out status);
+
+            foreach (var fileStatus in status)
+            {
+                if (fileStatus.Value == '?' || fileStatus.Value == 'R')
+                {
+                    filesToAdd.Add(fileStatus.Key);
+                }
+            }
+            
+            return filesToAdd.ToArray();
+        }
+
+        public static List<string> Update(string root)
+        {
+            return RunHg(root, "update -C");
+        }
+
+
+        public static bool EnterFileRenamed(string[] originalFileNames, string[] newFileNames)
+        {
+            try
+            {
+                for (int i = 0; i < originalFileNames.Length; ++i)
+                {
+                    var workingDirectory = originalFileNames[i].Substring(0, originalFileNames[i].LastIndexOf('\\'));
+                    var rootDirectory = FindRepositoryRoot(workingDirectory);
+
+                    var originalName = originalFileNames[i].Substring(rootDirectory.Length + 1);
+                    var newName = newFileNames[i].Substring(rootDirectory.Length + 1);
+                    
+                    RunHg(rootDirectory, "rename  -A \"" + originalName + "\" \"" + newName + "\"");
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool EnterFileRemoved(string[] fileNames, out Dictionary<string, char> status)
+        {
+            return GetStatus("remove", fileNames, out status);
+        }
+
+
+        public static string GetRenamedFileOriginalName(string newFileName)
+        {
+            var originalFileName = "";
+            
+            Dictionary<string, char> status;
+            Dictionary<string, string> nameHistory;
+            
+            if (GetFileStatus(new[] { newFileName }, out status, out nameHistory))
+            {
+                nameHistory.TryGetValue(newFileName.ToLower(), out originalFileName);
+            }
+
+            return originalFileName;
+        }
+
+
+        private static bool GetStatus(string command, string[] fileNames, out Dictionary<string, char> status)
+        {
+            status = null;
+
+            try
+            {
+                RunHg(command, fileNames, false);
+
+                if (!GetFileStatus(fileNames, out status))
+                {
+                    status = null;
+                }
+            }
+            catch
+            {
+                status = null;
+            }
+
+            return status != null;
+        }
+
+        private static bool UpdateStatus(string root, List<string> output, Dictionary<string, char> status, Dictionary<string, string> nameHistory)
         {
             var copyRenamedFiles = new Dictionary<string, string>();
 
             var prevStatus = ' ';
             var prevFile = "";
 
-            foreach (var str in lines)
+            foreach (var line in output)
             {
-                var file = Path.Combine(rootDirectory, str.Substring(2));
-                var status = str[0];
+                var file = Path.Combine(root, line.Substring(2));
+                var currentStatus = line[0];
 
                 if (!File.Exists(file))
                 {
                     continue;
                 }
 
-                if (status == ' ' && prevStatus == 'A')
+                if (currentStatus == ' ' && prevStatus == 'A')
                 {
                     copyRenamedFiles[file] = prevFile;
-                    renamedToOrgFileDictionary[prevFile.ToLower()] = file;
+                    nameHistory[prevFile.ToLower()] = file;
                     file = prevFile;
                 }
 
-                fileStatusDictionary[file] = status;
+                status[file] = currentStatus;
 
                 prevFile = file;
-                prevStatus = status;
+                prevStatus = currentStatus;
             }
 
             foreach (var entry in copyRenamedFiles)
             {
                 char orgFileStatus;
 
-                if (!fileStatusDictionary.TryGetValue(entry.Key, out orgFileStatus))
+                if (!status.TryGetValue(entry.Key, out orgFileStatus))
                 {
                     Dictionary<string, char> fileStatusOriginalFile;
 
-                    if (QueryFileStatus(entry.Key, out fileStatusOriginalFile))
+                    if (GetFileStatus(new[] { entry.Key }, out fileStatusOriginalFile))
                     {
                         fileStatusOriginalFile.TryGetValue(entry.Key, out orgFileStatus);
                     }
@@ -306,11 +310,11 @@ namespace HgLib
 
                 if (orgFileStatus == 'R')
                 {
-                    fileStatusDictionary[entry.Value] = 'N';
+                    status[entry.Value] = 'N';
                 }
                 else
                 {
-                    fileStatusDictionary[entry.Value] = 'P';
+                    status[entry.Value] = 'P';
                 }
             }
 
@@ -318,84 +322,70 @@ namespace HgLib
         }
 
 
-        public static bool AddFiles(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        private static List<string> RunHg(string workingDirectory, string arguments)
         {
-            return InvokeCommandGetStatus("add", fileList, out fileStatusDictionary);
+            var process = StartHgProcess(arguments, workingDirectory);
+
+            return ReadStandardOutputFrom(process);
         }
 
-        public static bool AddFilesNotIgnored(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
+        private static void RunHg(string command, string[] paths, bool includeDirectories)
         {
-            var addFilesList = new List<string>();
+            var workingDirectory = Path.GetDirectoryName(paths[0]);
+            var rootDirectory = FindRepositoryRoot(workingDirectory);
+            var args = command;
 
-            Dictionary<string, char> statusDictionary;
-            QueryFileStatus(fileList, out statusDictionary);
-            
-            foreach (var item in statusDictionary)
+            var counter = 0;
+
+            foreach (var path in paths)
             {
-                if (item.Value == '?' || item.Value == 'R')
+                counter++;
+
+                if (!includeDirectories && IsDirectory(path))
                 {
-                    addFilesList.Add(item.Key);
+                    continue;
+                }
+
+                args += " \"" + path.Substring(rootDirectory.Length + 1) + "\" ";
+
+                if (counter > 20 || args.Length > 1024)
+                {
+                    RunHg(rootDirectory, args);
+                    args = command;
                 }
             }
 
-            if (addFilesList.Count > 0)
+            RunHg(rootDirectory, args);
+        }
+
+        private static bool IsDirectory(string path)
+        {
+            if (File.Exists(path) || Directory.Exists(path))
             {
-                return InvokeCommandGetStatus("add", addFilesList.ToArray(), out fileStatusDictionary);
+                return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
             }
 
-            fileStatusDictionary = null;
             return false;
         }
 
 
-        public static bool EnterFileRenamed(string[] orgFileName, string[] newFileName)
+        private static Process StartHgProcess(string args, string workingDirectory)
         {
-            try
-            {
-                for (int i = 0; i < orgFileName.Length; ++i)
-                {
-                    var workingDirectory = orgFileName[i].Substring(0, orgFileName[i].LastIndexOf('\\'));
-                    var rootDirectory = FindRepositoryRoot(workingDirectory);
+            var process = new Process();
 
-                    var ofile = orgFileName[i].Substring(rootDirectory.Length + 1);
-                    var nfile = newFileName[i].Substring(rootDirectory.Length + 1);
-                    List<string> output;
-                    InvokeCommand(rootDirectory, "rename  -A \"" + ofile + "\" \"" + nfile + "\"", out output);
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("Hg.EnterFileRenamed exception- " + ex.Message);
-                return false;
-            }
+            process.StartInfo.Arguments = args;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.FileName = GetHgExecutablePath();
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.WorkingDirectory = workingDirectory;
 
-            return true;
+            process.Start();
+
+            return process;
         }
-
-        public static bool EnterFileRemoved(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
-        {
-            return InvokeCommandGetStatus("remove", fileList, out fileStatusDictionary);
-        }
-
-
-        public static bool Revert(string[] fileList, out Dictionary<string, char> fileStatusDictionary)
-        {
-            return InvokeCommandGetStatus("revert", fileList, out fileStatusDictionary);
-        }
-
-        public static string GetOriginalOfRenamedFile(string newFileName)
-        {
-            var originalFileName = "";
-            Dictionary<string, char> fileStatusDictionary;
-            Dictionary<string, string> renamedToOrgFileDictionary;
-            if (QueryFileStatus(newFileName, out fileStatusDictionary, out renamedToOrgFileDictionary))
-            {
-                renamedToOrgFileDictionary.TryGetValue(newFileName.ToLower(), out originalFileName);
-            }
-            return originalFileName;
-        }
-
-
+        
         private static List<string> ReadStandardOutputFrom(Process process)
         {
             var str = "";
@@ -417,32 +407,6 @@ namespace HgLib
             }
 
             return outputLines;
-        }
-
-        private static bool IsDirectory(string file)
-        {
-            if (File.Exists(file) || Directory.Exists(file))
-            {
-                return File.GetAttributes(file).HasFlag(FileAttributes.Directory);
-            }
-
-            return false;
-        }
-
-        private static string GetParentDirectory(string path)
-        {
-            DirectoryInfo parent;
-
-            try
-            {
-                parent = Directory.GetParent(path);
-            }
-            catch
-            {
-                parent = null;
-            }
-
-            return parent != null ? parent.ToString() : "";
         }
     }
 }

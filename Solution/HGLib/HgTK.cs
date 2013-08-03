@@ -206,7 +206,7 @@ namespace HgLib
         // command " --nofork revert "
         public static void HgTKSelectedFilesDialog(string[] files, string command)
         {
-            string tmpFile = Hg.TemporaryFile;
+            string tmpFile = GetRandomTemporaryFileName();
             StreamWriter stream = new StreamWriter(tmpFile, false, Encoding.Default);
 
             string currentRoot = string.Empty;
@@ -226,7 +226,7 @@ namespace HgLib
                     Process process = HgTKDialog(root, command + " --listfile \"" + tmpFile + "\"");
                     process.WaitForExit();
 
-                    tmpFile = Hg.TemporaryFile;
+                    tmpFile = GetRandomTemporaryFileName();
                     stream = new StreamWriter(tmpFile, false, Encoding.Default);
                 }
 
@@ -252,6 +252,11 @@ namespace HgLib
                 file = file.Substring(root.Length + 1);
                 HgTKDialog(root, "annotate \"" + file + "\"");
             }
+        }
+
+        private static string GetRandomTemporaryFileName()
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         }
     }
 }
