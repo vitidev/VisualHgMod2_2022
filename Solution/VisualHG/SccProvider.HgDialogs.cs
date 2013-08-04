@@ -16,7 +16,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try {
-                HgLib.HgTK.HgTKSelectedFilesDialog(files, command);
+                HgLib.Hgtk.HgTKSelectedFilesDialog(files, command);
                 sccService.StatusTracker.RebuildStatusCacheRequiredFlag=false;
                 sccService.StatusTracker.AddWorkItem(new HgLib.UpdateFileStatusCommand(files));
                 }catch{}
@@ -48,7 +48,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try{
-                Process process = HgLib.HgTK.HgTKDialog(root, command);
+                Process process = HgLib.Hgtk.HgTKDialog(root, command);
                 if (process != null)
                     process.WaitForExit();
 
@@ -103,7 +103,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try{
-                Process process= HgLib.HgTK.DiffDialog(sccFile, file, commandMask);
+                Process process= HgLib.Hgtk.DiffDialog(sccFile, file, commandMask);
                 if (process != null)
                     process.WaitForExit();
 

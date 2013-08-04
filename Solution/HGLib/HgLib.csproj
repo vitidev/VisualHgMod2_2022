@@ -66,9 +66,9 @@
     <Compile Include="Status\HgFileStatusDictionary.cs" />
     <Compile Include="Status\HgFileStatusInfo.cs" />
     <Compile Include="Status\HgStatus.cs" />
-    <Compile Include="HgTK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Status\WorkItems.cs" />
+    <Compile Include="TortoiseHg.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

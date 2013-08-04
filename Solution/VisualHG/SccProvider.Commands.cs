@@ -489,7 +489,7 @@ namespace VisualHg
 
             string root = GetRootDirectory();
             if (root != string.Empty)
-                HgLib.HgTK.UpdateDialog(root);
+                HgLib.TortoiseHg.UpdateDialog(root);
             else
                 PromptSolutionNotControlled();
         }
@@ -543,13 +543,13 @@ namespace VisualHg
                     // get original filename
                     string orgName = HgLib.Hg.GetRenamedFileOriginalName(fileName);
                     if(orgName != string.Empty)
-                        HgLib.HgTK.AnnotateDialog(orgName);
+                        HgLib.TortoiseHg.AnnotateDialog(orgName);
                 }
                 
                 if (status != HgLib.HgFileStatus.scsUncontrolled &&
                     status != HgLib.HgFileStatus.scsIgnored)
                 {
-                    HgLib.HgTK.AnnotateDialog(fileName);
+                    HgLib.TortoiseHg.AnnotateDialog(fileName);
                 }
             }
         }

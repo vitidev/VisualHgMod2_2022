@@ -31,19 +31,14 @@ namespace HgLib
                 }
             }
 
-            return tortoiseHgDirectory;
+            return tortoiseHgDirectory ?? "";
         }
 
         public static string GetHgExecutablePath()
         {
             if (String.IsNullOrEmpty(hgExecutablePath))
             {
-                hgExecutablePath = "hg.exe";
-
-                if (!String.IsNullOrEmpty(GetTortoiseHgDirectory()))
-                {
-                    hgExecutablePath = Path.Combine(GetTortoiseHgDirectory(), hgExecutablePath);
-                }
+                hgExecutablePath = Path.Combine(GetTortoiseHgDirectory(), "hg.exe");
             }
 
             return hgExecutablePath;
@@ -360,11 +355,16 @@ namespace HgLib
 
         private static Process StartHgProcess(string args, string workingDirectory)
         {
+            return StartProcess(GetHgExecutablePath(), args, workingDirectory);
+        }
+
+        private static Process StartProcess(string executable, string args, string workingDirectory)
+        {
             var process = new Process();
 
             process.StartInfo.Arguments = args;
             process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = GetHgExecutablePath();
+            process.StartInfo.FileName = executable;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;
