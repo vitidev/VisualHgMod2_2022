@@ -103,15 +103,15 @@ namespace HgLib
             return status;
         }
 
-        public static bool GetFileStatus(string[] fileNames, out Dictionary<string, char> status)
+        public static Dictionary<string, char> GetFileStatus(string[] fileNames)
         {
             Dictionary<string, string> nameHistory;
-            return GetFileStatus(fileNames, out status, out nameHistory);
+            return GetFileStatus(fileNames, out nameHistory);
         }
 
-        private static bool GetFileStatus(string[] fileNames, out Dictionary<string, char> status, out Dictionary<string, string> nameHistory)
+        private static Dictionary<string, char> GetFileStatus(string[] fileNames, out Dictionary<string, string> nameHistory)
         {
-            status = new Dictionary<string, char>();
+            var status = new Dictionary<string, char>();
             nameHistory = new Dictionary<string, string>();
             var commandLines = new Dictionary<string, string>();
 
@@ -153,33 +153,30 @@ namespace HgLib
             }
             catch
             {
-                return false;
+                return null;
             }
 
-            return true;
+            return status;
         }
 
 
-        public static bool AddFiles(string[] fileNames, out Dictionary<string, char> status)
+        public static Dictionary<string, char> AddFiles(string[] fileNames)
         {
-            status = null;
-            
             var filesToAdd = GetFilesToAdd(fileNames);
 
             if (filesToAdd.Length == 0)
             {
-                return false;
+                return null;
             }
 
-            return GetStatus("add", filesToAdd, out status);
+            return GetStatus("add", filesToAdd);
         }
 
         private static string[] GetFilesToAdd(string[] fileNames)
         {
             var filesToAdd = new List<string>();
 
-            Dictionary<string, char> status;
-            GetFileStatus(fileNames, out status);
+            var status = GetFileStatus(fileNames);
 
             foreach (var fileStatus in status)
             {
@@ -221,9 +218,9 @@ namespace HgLib
             return true;
         }
 
-        public static bool EnterFileRemoved(string[] fileNames, out Dictionary<string, char> status)
+        public static Dictionary<string, char> EnterFileRemoved(string[] fileNames)
         {
-            return GetStatus("remove", fileNames, out status);
+            return GetStatus("remove", fileNames);
         }
 
 
@@ -231,10 +228,10 @@ namespace HgLib
         {
             var originalFileName = "";
             
-            Dictionary<string, char> status;
             Dictionary<string, string> nameHistory;
+            var status = GetFileStatus(new[] { newFileName }, out nameHistory);
             
-            if (GetFileStatus(new[] { newFileName }, out status, out nameHistory))
+            if (status != null)
             {
                 nameHistory.TryGetValue(newFileName.ToLower(), out originalFileName);
             }
@@ -243,25 +240,17 @@ namespace HgLib
         }
 
 
-        private static bool GetStatus(string command, string[] fileNames, out Dictionary<string, char> status)
+        private static Dictionary<string, char> GetStatus(string command, string[] fileNames)
         {
-            status = null;
-
             try
             {
                 RunHg(command, fileNames, false);
-
-                if (!GetFileStatus(fileNames, out status))
-                {
-                    status = null;
-                }
+                return GetFileStatus(fileNames);
             }
             catch
             {
-                status = null;
+                return null;
             }
-
-            return status != null;
         }
 
         private static bool UpdateStatus(string root, List<string> output, Dictionary<string, char> status, Dictionary<string, string> nameHistory)
@@ -300,9 +289,9 @@ namespace HgLib
 
                 if (!status.TryGetValue(entry.Key, out orgFileStatus))
                 {
-                    Dictionary<string, char> fileStatusOriginalFile;
+                    var fileStatusOriginalFile = GetFileStatus(new[] { entry.Key });
 
-                    if (GetFileStatus(new[] { entry.Key }, out fileStatusOriginalFile))
+                    if (fileStatusOriginalFile != null)
                     {
                         fileStatusOriginalFile.TryGetValue(entry.Key, out orgFileStatus);
                     }

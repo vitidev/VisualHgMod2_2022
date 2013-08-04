@@ -50,8 +50,8 @@ namespace HgLib.Test
             string nName = TestContext.TestDir + "\\HgCommandsTest\\TheApp\\NewFile.txt";
             File.Create(nName);
 
-            Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(Hg.AddFiles(new string[]{ nName }, out fileStatusDictionary), "add file");
+            var fileStatusDictionary = Hg.AddFiles(new string[] { nName });
+            Assert.IsNotNull(fileStatusDictionary, "add file");
             char status = fileStatusDictionary[nName];
             Assert.AreEqual(status, 'A');
         }
@@ -76,13 +76,13 @@ namespace HgLib.Test
             foreach (var file in fileList)
                 File.Create(file);
 
-            Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HgLib.Hg.AddFiles(fileList, out fileStatusDictionary));
+            var fileStatusDictionary = HgLib.Hg.AddFiles(fileList);
+            Assert.IsNotNull(fileStatusDictionary);
 
             Assert.IsFalse(fileStatusDictionary.ContainsKey(fileList[0]));
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
 
-            HgLib.Hg.GetFileStatus(fileList, out fileStatusDictionary);
+            fileStatusDictionary = HgLib.Hg.GetFileStatus(fileList);
             Assert.AreEqual(fileStatusDictionary[fileList[0]], 'I');
             Assert.AreEqual(fileStatusDictionary[fileList[1]], 'A');
         }
@@ -102,8 +102,8 @@ namespace HgLib.Test
             foreach (var file in fileList)
                 File.Create(Path.Combine(dir, file));
 
-            Dictionary<string, char> fileStatusDictionary;
-            Assert.IsTrue(HgLib.Hg.GetFileStatus(fileList, out fileStatusDictionary));
+            Dictionary<string, char> fileStatusDictionary = HgLib.Hg.GetFileStatus(fileList);
+            Assert.IsNotNull(fileStatusDictionary);
         }
     }
 }
