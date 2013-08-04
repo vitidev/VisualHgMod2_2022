@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="DirectoryWatcherTest.cs" />
     <Compile Include="HgCommandsTest.cs" />
+    <Compile Include="HgDirstate.cs" />
     <Compile Include="HgStatusTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />

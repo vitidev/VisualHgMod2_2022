@@ -60,7 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HgDirstate.cs" />
     <Compile Include="HgSetup.cs" />
     <Compile Include="Status\DirectoryWatcherMap.cs" />
     <Compile Include="Hg.cs" />
