@@ -4,78 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Win32;
 
 namespace HgLib
 {
     public static class Hg
     {
-        private static string tortoiseHgDirectory;
-        private static string hgExecutablePath;
-
-
-        public static string GetTortoiseHgDirectory()
-        {
-            if (String.IsNullOrEmpty(tortoiseHgDirectory))
-            {
-                var key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\TortoiseHg");
-
-                if (key == null)
-                {
-                    key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\TortoiseHg");
-                }
-
-                if (key != null)
-                {
-                    tortoiseHgDirectory = (string)key.GetValue(null);
-                }
-            }
-
-            return tortoiseHgDirectory ?? "";
-        }
-
-        public static string GetHgExecutablePath()
-        {
-            if (String.IsNullOrEmpty(hgExecutablePath))
-            {
-                hgExecutablePath = Path.Combine(GetTortoiseHgDirectory(), "hg.exe");
-            }
-
-            return hgExecutablePath;
-        }
-
-        public static string FindRepositoryRoot(string path)
-        {
-            while (!String.IsNullOrEmpty(path))
-            {
-                if (Directory.Exists(Path.Combine(path, ".hg")))
-                {
-                    break;
-                }
-
-                path = GetParentDirectory(path);
-            }
-
-            return path;
-        }
-
-        private static string GetParentDirectory(string path)
-        {
-            DirectoryInfo parent;
-
-            try
-            {
-                parent = Directory.GetParent(path);
-            }
-            catch
-            {
-                parent = null;
-            }
-
-            return parent != null ? parent.ToString() : "";
-        }
-
-
         public static string GetCurrentBranchName(string root)
         {
             return RunHg(root, "branch").FirstOrDefault() ?? "";
@@ -116,7 +49,7 @@ namespace HgLib
                 {
                     foreach (var fileName in fileNames)
                     {
-                        var root = FindRepositoryRoot(fileName);
+                        var root = HgProvider.FindRepositoryRoot(fileName);
 
                         var commandLine = "";
                         commandLines.TryGetValue(root, out commandLine);
@@ -197,7 +130,7 @@ namespace HgLib
                 for (int i = 0; i < originalFileNames.Length; ++i)
                 {
                     var workingDirectory = originalFileNames[i].Substring(0, originalFileNames[i].LastIndexOf('\\'));
-                    var rootDirectory = FindRepositoryRoot(workingDirectory);
+                    var rootDirectory = HgProvider.FindRepositoryRoot(workingDirectory);
 
                     var originalName = originalFileNames[i].Substring(rootDirectory.Length + 1);
                     var newName = newFileNames[i].Substring(rootDirectory.Length + 1);
@@ -308,7 +241,7 @@ namespace HgLib
 
         private static List<string> RunHg(string workingDirectory, string arguments)
         {
-            var process = StartHgProcess(arguments, workingDirectory);
+            var process = HgProvider.StartHg(arguments, workingDirectory);
 
             return ReadStandardOutputFrom(process);
         }
@@ -316,7 +249,7 @@ namespace HgLib
         private static void RunHg(string command, string[] paths, bool includeDirectories)
         {
             var workingDirectory = Path.GetDirectoryName(paths[0]);
-            var rootDirectory = FindRepositoryRoot(workingDirectory);
+            var rootDirectory = HgProvider.FindRepositoryRoot(workingDirectory);
             var args = command;
 
             var counter = 0;
@@ -352,28 +285,6 @@ namespace HgLib
             return false;
         }
 
-
-        private static Process StartHgProcess(string args, string workingDirectory)
-        {
-            return StartProcess(GetHgExecutablePath(), args, workingDirectory);
-        }
-
-        private static Process StartProcess(string executable, string args, string workingDirectory)
-        {
-            var process = new Process();
-
-            process.StartInfo.Arguments = args;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = executable;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.WorkingDirectory = workingDirectory;
-
-            process.Start();
-
-            return process;
-        }
         
         private static List<string> ReadStandardOutputFrom(Process process)
         {

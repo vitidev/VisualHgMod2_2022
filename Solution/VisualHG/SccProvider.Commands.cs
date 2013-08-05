@@ -489,7 +489,7 @@ namespace VisualHg
 
             string root = GetRootDirectory();
             if (root != string.Empty)
-                HgLib.TortoiseHg.UpdateDialog(root);
+                HgLib.TortoiseHg.ShowUpdateWindow(root);
             else
                 PromptSolutionNotControlled();
         }

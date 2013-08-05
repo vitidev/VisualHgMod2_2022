@@ -226,7 +226,7 @@ namespace HgLib
             if (directory == string.Empty)
                 return false;
 
-            string root = Hg.FindRepositoryRoot(directory);
+            string root = HgProvider.FindRepositoryRoot(directory);
             if (root != string.Empty && !_rootDirMap.ContainsKey(root))
             {
                 _rootDirMap[root] = new RootInfo() { _Branch = Hg.GetCurrentBranchName(root) };

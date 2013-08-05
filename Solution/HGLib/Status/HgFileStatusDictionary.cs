@@ -87,7 +87,7 @@ namespace HgLib
         // ------------------------------------------------------------------------
         public bool FileMoved(string fileName, out string newName)
         {
-            string root = Hg.FindRepositoryRoot(fileName);
+            string root = HgProvider.FindRepositoryRoot(fileName);
             string name = Path.GetFileName(fileName);
             foreach (HgFileStatusInfo value in _dictionary.Values)
             {
@@ -95,7 +95,7 @@ namespace HgLib
                 {
                     if (name.Equals(value.fileName, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        string root2 = Hg.FindRepositoryRoot(value.fullPath);
+                        string root2 = HgProvider.FindRepositoryRoot(value.fullPath);
                         if (root.Equals(root2, StringComparison.CurrentCultureIgnoreCase))
                         {
                             newName = value.fullPath;

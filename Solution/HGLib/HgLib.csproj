@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HgProvider.cs" />
     <Compile Include="Status\DirectoryWatcherMap.cs" />
     <Compile Include="Hg.cs" />
     <Compile Include="Status\DirectoryWatcher.cs" />

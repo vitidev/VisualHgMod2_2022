@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using HgLib;
 
 namespace VisualHg
 {
@@ -16,7 +17,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try {
-                HgLib.Hgtk.HgTKSelectedFilesDialog(files, command);
+                HgLib.TortoiseHg.ShowSelectedFilesWindow(files, command);
                 sccService.StatusTracker.RebuildStatusCacheRequiredFlag=false;
                 sccService.StatusTracker.AddWorkItem(new HgLib.UpdateFileStatusCommand(files));
                 }catch{}
@@ -48,7 +49,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try{
-                Process process = HgLib.Hgtk.HgTKDialog(root, command);
+                    Process process = HgLib.TortoiseHg.Start(command, root);
                 if (process != null)
                     process.WaitForExit();
 
@@ -87,7 +88,7 @@ namespace VisualHg
         // ------------------------------------------------------------------------
         public void LogDialog(string file)
         {
-            String root = HgLib.Hg.FindRepositoryRoot(file);
+            String root = HgProvider.FindRepositoryRoot(file);
             if (root != string.Empty)
             {
                 file = file.Substring(root.Length + 1);
@@ -103,7 +104,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o =>
             {
                 try{
-                Process process= HgLib.Hgtk.DiffDialog(sccFile, file, commandMask);
+                Process process= HgLib.TortoiseHg.DiffDialog(sccFile, file, commandMask);
                 if (process != null)
                     process.WaitForExit();
 

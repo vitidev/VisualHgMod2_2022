@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using System.Windows.Forms;
+using HgLib;
 
 namespace VisualHg
 {
@@ -228,8 +229,7 @@ namespace VisualHg
 
             if (pbstrTooltipText != string.Empty)
             {
-                string root = HgLib.Hg.FindRepositoryRoot(files[0]);
-                //string branchName = HgLib.Hg.GetCurrentBranchName(root);
+                string root = HgProvider.FindRepositoryRoot(files[0]);
                 string branchName = _sccStatusTracker.GetCurrentBranchOf(root);
 
                 pbstrTooltipText += " [" + branchName + "]";

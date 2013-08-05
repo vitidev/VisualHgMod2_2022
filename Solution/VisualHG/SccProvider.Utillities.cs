@@ -8,6 +8,7 @@ using EnvDTE;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio;
+using HgLib;
 
 namespace VisualHg
 {
@@ -522,19 +523,19 @@ namespace VisualHg
                 {
                     String filename;
                     if (GetItemFileName(pscp, selectedNodes[0].itemid, out filename))
-                        root = HgLib.Hg.FindRepositoryRoot(filename);
+                        root = HgProvider.FindRepositoryRoot(filename);
                 }
             }
 
             if (root == string.Empty)
             {
-                root = HgLib.Hg.FindRepositoryRoot(GetSolutionFileName());
+                root = HgProvider.FindRepositoryRoot(GetSolutionFileName());
                 if (root == String.Empty)
                 {
                     // this is for WebPage projects. the solution file is not included inside the Hg root dir.
                     if (_LastSeenProjectDir != null)
                     {
-                        root = HgLib.Hg.FindRepositoryRoot(_LastSeenProjectDir);
+                        root = HgProvider.FindRepositoryRoot(_LastSeenProjectDir);
                     }
                 }
             }
