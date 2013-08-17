@@ -1,158 +1,136 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 
 namespace HgLib
 {
-    // ------------------------------------------------------------------------
-    // system directory watcher
-    // ------------------------------------------------------------------------
-    public class DirectoryWatcher
+    public class DirectoryWatcher : IDisposable
     {
-        // file watcher object
-        FileSystemWatcher _watcher = new FileSystemWatcher();
+        FileSystemWatcher _watcher;
+        List<string> _dirtyFiles;
+        DateTime _lastChange = DateTime.Today;
+        object _syncRoot;
 
-        // dirty files map - the bool value is unused
-        Dictionary<string, bool> _dirtyFilesMap = new Dictionary<string, bool>();
-        // the wached directory
-        public string _directory;
-        // last seen file change event in nano sec elapsed since 12:00:00 midnight, January 1, 0001
-        DateTime _lastChangeEvent = DateTime.Today;
-        
-        public DateTime LastChangeEvent
+        public string Directory { get; private set; }
+
+        public DateTime LastChange
         {
-            get{ return _lastChangeEvent; }
-            set{ _lastChangeEvent = value; }
+            get { return _lastChange; }
+            set { _lastChange = value; }
         }
 
-        // ------------------------------------------------------------------------
-        // connect watcher event handler and fill file filter lists
-        // ------------------------------------------------------------------------
+        public int DirtyFilesCount
+        {
+            get
+            {
+                lock (_syncRoot)
+                {
+                    return _dirtyFiles.Count;
+                }
+            }
+        }
+
+
         public DirectoryWatcher(string directory)
         {
-            _directory = directory;
+            Directory = directory;
 
-            _watcher.Path = directory;
-            _watcher.IncludeSubdirectories = true;
-            _watcher.NotifyFilter =
-                            NotifyFilters.FileName
-                            | NotifyFilters.Attributes
-                //| NotifyFilters.LastAccess 
-                            | NotifyFilters.LastWrite
-                //| NotifyFilters.Security 
-                            | NotifyFilters.Size
-                            | NotifyFilters.CreationTime
-                            | NotifyFilters.DirectoryName;
+            _dirtyFiles = new List<string>();
+            _syncRoot = new object();
 
+            _watcher = new FileSystemWatcher {
+                Path = directory,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.FileName |
+                    NotifyFilters.Attributes |
+                    NotifyFilters.LastWrite |
+                    NotifyFilters.Size |
+                    NotifyFilters.CreationTime |
+                    NotifyFilters.DirectoryName,
+            };
 
-            // Add file changed event handler
-            _watcher.Changed += new FileSystemEventHandler(OnChanged);
-            _watcher.Created += new FileSystemEventHandler(OnChanged);
-            _watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            _watcher.Renamed += new RenamedEventHandler(OnRenamedEvent);
+            _watcher.Changed += OnChanged;
+            _watcher.Created += OnChanged;
+            _watcher.Deleted += OnChanged;
+            _watcher.Renamed += OnRenamed;
 
-            // Begin watching
             _watcher.EnableRaisingEvents = true;
         }
 
-        // ------------------------------------------------------------------------
-        // enable / disable raising event
-        // ------------------------------------------------------------------------
+        public void Dispose()
+        {
+            _watcher.Dispose();
+        }
+
         public void EnableDirectoryWatching(bool enable)
         {
-            lock (_watcher)
+            lock (_syncRoot)
             {
                 _watcher.EnableRaisingEvents = enable;
             }
         }
 
-        // get the number of dirty files
-        public int DirtyFilesCount
-        {
-            get { lock (_dirtyFilesMap)
-                { return _dirtyFilesMap.Count; }}
-        }
-
-        // replaces the current dirty files map with a new one.
-        // and then returns the 'old' map.
-        public Dictionary<string, bool> PopDirtyFilesMap()
-        {
-            Dictionary<string, bool> retval = null; 
-            lock (_dirtyFilesMap)
-            {
-                retval = _dirtyFilesMap;
-                _dirtyFilesMap = new Dictionary<string, bool>();
-            }
-            return retval;
-        }
-
-        // ------------------------------------------------------------------------
-        // unhook watcher events and disable raising event 
-        // ------------------------------------------------------------------------
         public void UnsubscribeEvents()
         {
-            lock (_watcher)
+            lock (_syncRoot)
             {
                 _watcher.EnableRaisingEvents = false;
-                _watcher.Changed -= new FileSystemEventHandler(OnChanged);
-                _watcher.Created -= new FileSystemEventHandler(OnChanged);
-                _watcher.Deleted -= new FileSystemEventHandler(OnChanged);
-                _watcher.Renamed -= new RenamedEventHandler(OnRenamedEvent);
+                _watcher.Changed -= OnChanged;
+                _watcher.Created -= OnChanged;
+                _watcher.Deleted -= OnChanged;
+                _watcher.Renamed -= OnRenamed;
             }
         }
 
-        // ------------------------------------------------------------------------
-        // file changed event received from directory watcher object
-        // ------------------------------------------------------------------------
-        void OnChanged(object source, FileSystemEventArgs fsea)
+        public string[] DumpDirtyFiles()
         {
-            // skip MSVC temp files - because these files may lock Hg.exe when
-            // a status is queried for one of these and MSCV removes it at the
-            // same moment
-            if( fsea.FullPath.EndsWith(".TMP") || fsea.FullPath.EndsWith(".tmp") )
+            lock (_syncRoot)
             {
-                if(fsea.FullPath.IndexOf("~RF")>=0 ||  fsea.FullPath.IndexOf("\\ve-")>=0)
+                var dump = _dirtyFiles.ToArray();
+                
+                _dirtyFiles.Clear();
+
+                return dump;
+            }
+        }
+
+        
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            if (IsVisualStudioTempFile(e.FullPath))
+            {
+                return;
+            }
+
+            AddDirtyFile(e.FullPath);
+        }
+
+        private static bool IsVisualStudioTempFile(string path)
+        {
+            return path.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase) && 
+                (path.IndexOf("~RF") > -1 || path.IndexOf("\\ve-") > -1);
+        }
+
+        private void OnRenamed(object sender, RenamedEventArgs e)
+        {
+            lock (_syncRoot)
+            {
+                AddDirtyFile(e.OldFullPath);
+                AddDirtyFile(e.FullPath);
+            }
+        }
+
+        private void AddDirtyFile(string path)
+        {
+            lock (_syncRoot)
+            {
+                if (!_dirtyFiles.Contains(path))
                 {
-                    return;
+                    _dirtyFiles.Add(path);
                 }
-            }
-            
-            lock (_dirtyFilesMap)
-            {
-                _dirtyFilesMap[fsea.FullPath] = true;
-            }
-            
-            LastChangeEvent = DateTime.Now;
-        }
 
-        // ------------------------------------------------------------------------
-        // file renamed event received from directory watcher object
-        // ------------------------------------------------------------------------
-        void OnRenamedEvent(Object source, RenamedEventArgs rea)
-        {
-            lock (_dirtyFilesMap)
-            {
-                _dirtyFilesMap[rea.OldFullPath] = true;
-                _dirtyFilesMap[rea.FullPath] = true;
+                LastChange = DateTime.Now;
             }
-            LastChangeEvent = DateTime.Now;
-        }
-
-        public static bool DirectoryExists(string dir)
-        {
-            bool retval = false;
-            try
-            {
-                DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                if (dirInfo.Exists)
-                {
-                    // exclude all directories
-                    retval = true;
-                }
-            }
-            catch { }
-            return retval;
         }
     }
 }

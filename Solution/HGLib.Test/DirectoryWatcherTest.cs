@@ -1,8 +1,8 @@
 ﻿using System;
-using HgLib;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HgLib.Test
 {
@@ -82,8 +82,8 @@ namespace HgLib.Test
             var watcher = new DirectoryWatcher(TestContext.TestDir);
             watcher.UnsubscribeEvents();
 
-            Assert.AreEqual(watcher._directory, TestContext.TestDir);
-            Assert.AreEqual(watcher.LastChangeEvent, DateTime.Today);
+            Assert.AreEqual(watcher.Directory, TestContext.TestDir);
+            Assert.AreEqual(watcher.LastChange, DateTime.Today);
         }
 
         /// <summary>
@@ -100,41 +100,41 @@ namespace HgLib.Test
             watchFileList.ForEach(x => File.WriteAllBytes(x, new byte[] { 0, 1, 2 } ));
             System.Threading.Thread.Sleep(150);
 
-            var dirtyFilesMap = watcher.PopDirtyFilesMap();
-            Assert.AreEqual(4, dirtyFilesMap.Count);
-            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFilesMap.ContainsKey(x)));
-            Assert.IsTrue( new TimeSpan(DateTime.Now.Ticks-watcher.LastChangeEvent.Ticks).TotalMilliseconds < 250);
+            var dirtyFiles = watcher.DumpDirtyFiles();
+            Assert.AreEqual(4, dirtyFiles.Length);
+            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFiles.Contains(x)));
+            Assert.IsTrue( new TimeSpan(DateTime.Now.Ticks-watcher.LastChange.Ticks).TotalMilliseconds < 250);
 
             // now overwrite the existing files
             TestContext.WriteLine("now overwrite the existing files"); 
             watchFileList.ForEach(x => File.WriteAllBytes(x, new byte[] { 0, 1, 2 }));
             System.Threading.Thread.Sleep(150);
             
-            dirtyFilesMap = watcher.PopDirtyFilesMap();
-            Assert.AreEqual(4, dirtyFilesMap.Count); 
-            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFilesMap.ContainsKey(x)));
-            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChangeEvent.Ticks).TotalMilliseconds < 250);
+            dirtyFiles = watcher.DumpDirtyFiles();
+            Assert.AreEqual(4, dirtyFiles.Length); 
+            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFiles.Contains(x)));
+            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChange.Ticks).TotalMilliseconds < 250);
 
             // rename files
             TestContext.WriteLine("and at rename files");
             watchFileList.ForEach(x => File.Move(x, x + "r"));
             System.Threading.Thread.Sleep(150);
 
-            dirtyFilesMap = watcher.PopDirtyFilesMap();
-            Assert.AreEqual(8, dirtyFilesMap.Count); 
-            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFilesMap.ContainsKey(x)));
-            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFilesMap.ContainsKey(x + "r")));
-            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChangeEvent.Ticks).TotalMilliseconds < 250);
+            dirtyFiles = watcher.DumpDirtyFiles();
+            Assert.AreEqual(8, dirtyFiles.Length); 
+            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFiles.Contains(x)));
+            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFiles.Contains(x + "r")));
+            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChange.Ticks).TotalMilliseconds < 250);
 
             // and at least remove files
             TestContext.WriteLine("and at least remove files"); 
             watchFileList.ForEach(x => File.Delete(x + "r"));
             System.Threading.Thread.Sleep(150);
 
-            dirtyFilesMap = watcher.PopDirtyFilesMap();
-            Assert.AreEqual(4, dirtyFilesMap.Count); 
-            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFilesMap.ContainsKey(x + "r")));
-            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChangeEvent.Ticks).TotalMilliseconds < 250);
+            dirtyFiles = watcher.DumpDirtyFiles();
+            Assert.AreEqual(4, dirtyFiles.Length); 
+            watchFileList.ForEach(x => Assert.AreEqual(true, dirtyFiles.Contains(x + "r")));
+            Assert.IsTrue(new TimeSpan(DateTime.Now.Ticks - watcher.LastChange.Ticks).TotalMilliseconds < 250);
 
             TestContext.WriteLine("OK"); 
             watcher.UnsubscribeEvents();
@@ -154,7 +154,7 @@ namespace HgLib.Test
             System.Threading.Thread.Sleep(100);
             
             Assert.AreEqual(0, watcher.DirtyFilesCount);
-            Assert.AreEqual(DateTime.Today, watcher.LastChangeEvent);
+            Assert.AreEqual(DateTime.Today, watcher.LastChange);
         }
 
         /// <summary>
@@ -165,11 +165,11 @@ namespace HgLib.Test
         {
             var watcher = new DirectoryWatcher_Accessor(TestContext.TestDir);
             watcher.UnsubscribeEvents();
-            watcher._dirtyFilesMap["\\file.h"] = true;
+            watcher._dirtyFiles.Add("\\file.h");
             Assert.AreEqual(1, watcher.DirtyFilesCount);
-            var dirtyFilesMap = watcher.PopDirtyFilesMap();
+            var dirtyFiles = watcher.DumpDirtyFiles();
             Assert.AreEqual(0, watcher.DirtyFilesCount);
-            Assert.IsTrue(dirtyFilesMap.ContainsKey("\\file.h"));
+            Assert.IsTrue(dirtyFiles.Contains("\\file.h"));
         }
     }
 }

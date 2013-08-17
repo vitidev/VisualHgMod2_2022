@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Windows.Forms;
+using System.IO;
 using System.Threading;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace HgLib
 {
@@ -448,10 +447,10 @@ namespace HgLib
             SkipDirstate(true);
             
             HgFileStatusInfoDictionary newFileStatusDictionary = new HgFileStatusInfoDictionary();
-            foreach (var directoryWatcher in _directoryWatcherMap.WatcherList)
+            foreach (var directoryWatcher in _directoryWatcherMap.Watchers)
             {
                 // reset the watcher map
-                directoryWatcher.Value.PopDirtyFilesMap();
+                directoryWatcher.DumpDirtyFiles();
             }
 
             List<string> rootDirList = null; 
@@ -614,7 +613,7 @@ namespace HgLib
         {
             bool isDirty = true;
 
-            if (DirectoryWatcher.DirectoryExists(fileName))
+            if (Directory.Exists(fileName))
             {
                 // directories are not controlled
                 isDirty = false;
@@ -674,17 +673,17 @@ namespace HgLib
         private List<string> PopDirtyWatcherFiles()
         {
             var fileList = new List<string>(); 
-            foreach (var directoryWatcher in _directoryWatcherMap.WatcherList)
+            foreach (var directoryWatcher in _directoryWatcherMap.Watchers)
             {
-                var dirtyFilesMap = directoryWatcher.Value.PopDirtyFilesMap();
-                if (dirtyFilesMap.Count > 0)
+                var dirtyFiles = directoryWatcher.DumpDirtyFiles();
+                if (dirtyFiles.Length > 0)
                 {
                     // first collect dirty files list
-                    foreach (var dirtyFile in dirtyFilesMap)
+                    foreach (var dirtyFile in dirtyFiles)
                     {
-                        if (PrepareWatchedFile(dirtyFile.Key) && !_bRebuildStatusCacheRequired)
+                        if (PrepareWatchedFile(dirtyFile) && !_bRebuildStatusCacheRequired)
                         {
-                            fileList.Add(dirtyFile.Key);
+                            fileList.Add(dirtyFile);
                         }
 
                         // could be set by PrepareWatchedFile

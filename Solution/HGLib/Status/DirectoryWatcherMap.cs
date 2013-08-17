@@ -1,163 +1,159 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
+using System.Linq;
 
 namespace HgLib
 {
-    // ------------------------------------------------------------------------
-    // archive directories watcher map - threadsafe implementation 
-    // ------------------------------------------------------------------------
     public class DirectoryWatcherMap
     {
-        // this map contains the directory watcher objects
-        // one for each hg root directory
-        Dictionary<string, DirectoryWatcher> dict = new Dictionary<string, DirectoryWatcher>();
+        List<DirectoryWatcher> _watchers;
+        object _syncRoot;
 
-        // ------------------------------------------------------------------------
-        // get number of watcher
-        // ------------------------------------------------------------------------
+
         public int Count
-        {
-            get { lock (dict) { return dict.Count; } }
-        }
-
-        // ------------------------------------------------------------------------
-        // clear watcher
-        // ------------------------------------------------------------------------
-        public void Clear()
-        {
-            lock (dict) { dict.Clear(); }
-        }
-
-        // ------------------------------------------------------------------------
-        // threadsafe access to the watcher map
-        // ------------------------------------------------------------------------
-        public Dictionary<string, DirectoryWatcher> WatcherList
         {
             get
             {
-                lock (dict)
+                lock (_syncRoot)
                 {
-                    return new Dictionary<string, DirectoryWatcher>(dict);
+                    return _watchers.Count;
                 }
             }
         }
 
-        // ------------------------------------------------------------------------
-        // toggle directory watching on / off
-        // ------------------------------------------------------------------------
+        public void Clear()
+        {
+            lock (_syncRoot)
+            {
+                _watchers.Clear();
+            }
+        }
+
+        public DirectoryWatcher[] Watchers
+        {
+            get
+            {
+                lock (_syncRoot)
+                {
+                    return _watchers.ToArray();
+                }
+            }
+        }
+
+
+        public DirectoryWatcherMap()
+        {
+            _watchers = new List<DirectoryWatcher>();
+        }
+
+
         public void EnableDirectoryWatching(bool enable)
         {
-            lock (dict)
+            lock (_syncRoot)
             {
-                foreach (var kvp in dict)
+                foreach (var watcher in _watchers)
                 {
-                    kvp.Value.EnableDirectoryWatching(enable);
+                    watcher.EnableDirectoryWatching(enable);
                 }
             }
         }
 
-        // ------------------------------------------------------------------------
-        // check existance of an directory
-        // ------------------------------------------------------------------------
         public bool ContainsDirectory(string directory)
         {
-            lock (dict)
+            lock (_syncRoot)
             {
-                bool dirExists = false;
-                DirectoryWatcher value;
-                dirExists = dict.TryGetValue(directory.ToLower(), out value);
-                return dirExists;
+                return _watchers.Any(x => x.Directory.Equals(directory, StringComparison.InvariantCultureIgnoreCase));
             }
         }
 
-        // ------------------------------------------------------------------------
-        /// update watcher objects for the given directory 
-        // ------------------------------------------------------------------------
-        public bool WatchDirectory(string directory)
+        public void WatchDirectory(string directory)
         {
-            bool retval = DirectoryWatcher.DirectoryExists(directory);
-            if (retval)
+            if (!Directory.Exists(directory))
             {
-                lock (dict)
+                return;
+            }
+
+            lock (_syncRoot)
+            {
+                if (ContainsDirectory(directory))
                 {
-                    string key = directory.ToLower();
-                    DirectoryWatcher value;
-                    if (!dict.TryGetValue(key, out value))
+                    return;
+                }
+
+                var addNewWatcher = true;
+                var removeWatcher = new List<DirectoryWatcher>();
+                var directorySlash = directory + "\\";
+
+                foreach (var watcher in _watchers)
+                {
+                    var watcherDirectorySlash = watcher.Directory + "\\";
+
+                    if (watcherDirectorySlash.IndexOf(directorySlash) == 0)
                     {
-                        bool addNewWatcher = true;
-                        List<DirectoryWatcher> removeWatcher = new List<DirectoryWatcher>();
-                        string directorySlash = directory + "\\";
-                        foreach (DirectoryWatcher watcher in dict.Values)
-                        {
-                            string watcherDirectorySlash = watcher._directory + "\\";
-                            if (watcherDirectorySlash.IndexOf(directorySlash) == 0)
-                                removeWatcher.Add(watcher); // sub-directory of new watcher
-                            else if (directorySlash.IndexOf(watcherDirectorySlash) == 0)
-                                addNewWatcher = false; // directory already watched
-                        }
-
-                        if (addNewWatcher)
-                        {
-                            // remove no longer used watcher objects
-                            for (int pos = 0; pos < removeWatcher.Count; ++pos)
-                            {
-                                DirectoryWatcher watcher = removeWatcher[pos];
-                                dict.Remove(watcher._directory);
-                                watcher.EnableDirectoryWatching(false);
-                                watcher = null;
-                            }
-
-                            dict[directory] = new DirectoryWatcher(directory);
-                        }
+                        removeWatcher.Add(watcher); // sub-directory of new watcher
+                    }
+                    else if (directorySlash.IndexOf(watcherDirectorySlash) == 0)
+                    { 
+                        addNewWatcher = false; // directory already watched
                     }
                 }
+
+                if (addNewWatcher)
+                {
+                    for (int pos = 0; pos < removeWatcher.Count; ++pos)
+                    {
+                        var watcher = removeWatcher[pos];
+                        _watchers.Remove(watcher);
+                        watcher.EnableDirectoryWatching(false);
+                    }
+
+                    _watchers.Add(new DirectoryWatcher(directory));
+                }
             }
-            return retval;
         }
 
-        // ------------------------------------------------------------------------
-        // get the time stamp in ms of the latest change event
-        // ------------------------------------------------------------------------
+
         public DateTime GetLatestChange()
         {
-            lock (dict)
+            lock (_syncRoot)
             {
-                DateTime latestTime = dict.Count > 0 ? DateTime.Today : DateTime.Now;
-                foreach (var kvp in dict)
+                var latestChange = _watchers.Count > 0 ? DateTime.Today : DateTime.Now;
+                
+                foreach (var watcher in _watchers)
                 {
-                    DateTime stamp = kvp.Value.LastChangeEvent;
-                    if (stamp > latestTime)
-                        latestTime = stamp;
+                    if (watcher.LastChange > latestChange)
+                    {
+                        latestChange = watcher.LastChange;
+                    }
                 }
-                return latestTime;
+
+                return latestChange;
             }
         }
 
-        // ------------------------------------------------------------------------
-        // get the total count of changed files
-        // ------------------------------------------------------------------------
         public long GetNumberOfChangedFiles()
         {
-            lock (dict)
+            lock (_syncRoot)
             {
-                long retval = 0;
-                foreach (var kvp in dict)
+                long count = 0;
+
+                foreach (var watcher in _watchers)
                 {
-                    retval += kvp.Value.DirtyFilesCount;
+                    count += watcher.DirtyFilesCount;
                 }
-                return retval;
+
+                return count;
             }
         }
 
         public void UnsubscribeEvents()
         {
-            lock (dict)
+            lock (_syncRoot)
             {
-                foreach (var kvp in dict)
+                foreach (var watcher in _watchers)
                 {
-                    kvp.Value.UnsubscribeEvents();
+                    watcher.UnsubscribeEvents();
                 }
             }
         }
