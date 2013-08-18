@@ -63,7 +63,7 @@ namespace VisualHg
             Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
 
             // Subscribe to status events
-            _sccStatusTracker.HgStatusChanged += new HgLib.HgStatusChangedEvent(SetNodesGlyphsDirty);
+            _sccStatusTracker.HgStatusChanged += SetNodesGlyphsDirty;
 
             IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManagerService.AdviseUpdateSolutionEvents(this, out _dwBuildManagerCooky);
@@ -88,7 +88,7 @@ namespace VisualHg
             }
 
             // Unregister from storrage events
-            _sccStatusTracker.HgStatusChanged -= new HgLib.HgStatusChangedEvent(SetNodesGlyphsDirty);
+            _sccStatusTracker.HgStatusChanged -= SetNodesGlyphsDirty;
 
             IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManagerService.UnadviseUpdateSolutionEvents(_dwBuildManagerCooky);
@@ -289,7 +289,7 @@ namespace VisualHg
         /// <summary>
         /// set the node glyphs dirty flag to true
         /// </summary>
-        public void SetNodesGlyphsDirty()
+        public void SetNodesGlyphsDirty(object sender, EventArgs e)
         {
             _bNodesGlyphsDirty = true;
         }

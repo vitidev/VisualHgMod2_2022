@@ -95,35 +95,35 @@ namespace VisualHg
                 // STATEICON_READONLY schloss
 
                 // my states
-                case HgLib.HgFileStatus.scsClean:
+                case HgLib.HgFileStatus.Clean:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 0);
                     break;
 
-                case HgLib.HgFileStatus.scsModified:
+                case HgLib.HgFileStatus.Modified:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
 
-                case HgLib.HgFileStatus.scsAdded:
+                case HgLib.HgFileStatus.Added:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 2);
                     break;
 
-                case HgLib.HgFileStatus.scsRenamed:
+                case HgLib.HgFileStatus.Renamed:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
                     break;
 
-                case HgLib.HgFileStatus.scsCopied:
+                case HgLib.HgFileStatus.Copied:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3); // no better icon 
                     break;
 
-                case HgLib.HgFileStatus.scsRemoved:
+                case HgLib.HgFileStatus.Removed:
                     rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
                     break;
 
-                case HgLib.HgFileStatus.scsIgnored:
+                case HgLib.HgFileStatus.Ignored:
                     rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
                     break;
 
-                case HgLib.HgFileStatus.scsUncontrolled:
+                case HgLib.HgFileStatus.Uncontrolled:
                     rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
                     break;
             }
@@ -190,35 +190,35 @@ namespace VisualHg
             switch (status)
             {
                 // my states
-                case HgLib.HgFileStatus.scsClean:
+                case HgLib.HgFileStatus.Clean:
                     pbstrTooltipText = "Clean";
                     break;
 
-                case HgLib.HgFileStatus.scsModified:
+                case HgLib.HgFileStatus.Modified:
                     pbstrTooltipText = "Modified";
                     break;
 
-                case HgLib.HgFileStatus.scsAdded:
+                case HgLib.HgFileStatus.Added:
                     pbstrTooltipText = "Added";
                     break;
 
-                case HgLib.HgFileStatus.scsRenamed:
+                case HgLib.HgFileStatus.Renamed:
                     pbstrTooltipText = "Renamed";
                     break;
 
-                case HgLib.HgFileStatus.scsRemoved:
+                case HgLib.HgFileStatus.Removed:
                     pbstrTooltipText = "Removed";
                     break;
 
-                case HgLib.HgFileStatus.scsCopied:
+                case HgLib.HgFileStatus.Copied:
                     pbstrTooltipText = "Copied";
                     break;
 
-                case HgLib.HgFileStatus.scsIgnored:
+                case HgLib.HgFileStatus.Ignored:
                     pbstrTooltipText = "Ignored";
                     break;
 
-                case HgLib.HgFileStatus.scsUncontrolled:
+                case HgLib.HgFileStatus.Uncontrolled:
                     pbstrTooltipText = "Uncontrolled";
                     break;
 

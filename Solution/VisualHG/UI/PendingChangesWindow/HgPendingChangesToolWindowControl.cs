@@ -182,10 +182,10 @@ namespace VisualHg
     {
       foreach (int index in _pendingItemsListView.SelectedIndices)
       {
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
         try
         {
-          VsShellUtilities.OpenDocument(SccProvider.Provider, info.fullPath);
+          VsShellUtilities.OpenDocument(SccProvider.Provider, info.FullName);
         }
         catch (Exception e)
         {
@@ -238,8 +238,8 @@ namespace VisualHg
       List<string> array = new List<string>();
       foreach (int index in _pendingItemsListView.SelectedIndices)
       {
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-        array.Add(info.fullPath);
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        array.Add(info.FullName);
       }
 
       SccProvider.Provider.CommitDialog(array);
@@ -253,8 +253,8 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.ShowHgDiffDlg(info.fullPath);
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        SccProvider.Provider.ShowHgDiffDlg(info.FullName);
       }
     }
 
@@ -266,8 +266,8 @@ namespace VisualHg
         List<string> array = new List<string>();
         foreach (int index in _pendingItemsListView.SelectedIndices)
         {
-            HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-            array.Add(info.fullPath);
+            HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+            array.Add(info.FullName);
         }
 
         SccProvider.Provider.HgRevertFileDlg(array.ToArray());
@@ -281,8 +281,8 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.ShowHgHistoryDlg(info.fullPath);
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        SccProvider.Provider.ShowHgHistoryDlg(info.FullName);
       }
     }
 
@@ -294,8 +294,8 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.HgAnnotateDlg(info.fullPath);
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        SccProvider.Provider.HgAnnotateDlg(info.FullName);
       }
     }
 
@@ -313,23 +313,23 @@ namespace VisualHg
     {
       // enable menu commands
       bool singleSel = false;
-      HgLib.HgFileStatus status = HgLib.HgFileStatus.scsUncontrolled;
+      HgLib.HgFileStatus status = HgLib.HgFileStatus.Uncontrolled;
       if (_pendingItemsListView.SelectedIndices.Count > 0)
       {
         singleSel = (_pendingItemsListView.SelectedIndices.Count == 1) ? true : false;
         int index  = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileStatusInfo info = _pendingItemsListView._list[index];
-        status = info.status;
+        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        status = info.Status;
       }  
         
-      annotateFileToolStripMenuItem.Visible = singleSel &&  status != HgLib.HgFileStatus.scsAdded &&
-                                                            status != HgLib.HgFileStatus.scsRemoved &&
-                                                            status != HgLib.HgFileStatus.scsRenamed;
-      diffToolStripMenuItem.Visible = singleSel &&          status != HgLib.HgFileStatus.scsRemoved &&
-                                                            status != HgLib.HgFileStatus.scsAdded;
-      historyToolStripMenuItem.Visible = singleSel &&       status != HgLib.HgFileStatus.scsAdded &&
-                                                            status != HgLib.HgFileStatus.scsRenamed;
-      openInEditorToolStripMenuItem.Visible =               status != HgLib.HgFileStatus.scsRemoved;
+      annotateFileToolStripMenuItem.Visible = singleSel &&  status != HgLib.HgFileStatus.Added &&
+                                                            status != HgLib.HgFileStatus.Removed &&
+                                                            status != HgLib.HgFileStatus.Renamed;
+      diffToolStripMenuItem.Visible = singleSel &&          status != HgLib.HgFileStatus.Removed &&
+                                                            status != HgLib.HgFileStatus.Added;
+      historyToolStripMenuItem.Visible = singleSel &&       status != HgLib.HgFileStatus.Added &&
+                                                            status != HgLib.HgFileStatus.Renamed;
+      openInEditorToolStripMenuItem.Visible =               status != HgLib.HgFileStatus.Removed;
     }
   }
 }

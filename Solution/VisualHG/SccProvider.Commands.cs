@@ -192,8 +192,8 @@ namespace VisualHg
         {
             OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
 
-            long stateMask  =  (long)HgLib.HgFileStatus.scsUncontrolled |
-                               (long)HgLib.HgFileStatus.scsIgnored;
+            long stateMask  =  (long)HgLib.HgFileStatus.Uncontrolled |
+                               (long)HgLib.HgFileStatus.Ignored;
 
             if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
             {
@@ -206,11 +206,11 @@ namespace VisualHg
         {
             OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
 
-            long stateMask = (long)HgLib.HgFileStatus.scsModified |
-                             (long)HgLib.HgFileStatus.scsAdded|
-                             (long)HgLib.HgFileStatus.scsCopied|
-                             (long)HgLib.HgFileStatus.scsRenamed|
-                             (long)HgLib.HgFileStatus.scsRemoved;
+            long stateMask = (long)HgLib.HgFileStatus.Modified |
+                             (long)HgLib.HgFileStatus.Added|
+                             (long)HgLib.HgFileStatus.Copied|
+                             (long)HgLib.HgFileStatus.Renamed|
+                             (long)HgLib.HgFileStatus.Removed;
 
             if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(true, stateMask))
             {
@@ -232,11 +232,11 @@ namespace VisualHg
             if (filename != string.Empty)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsIgnored &&
-                    status != HgLib.HgFileStatus.scsAdded &&
-                    status != HgLib.HgFileStatus.scsRenamed &&
-                    status != HgLib.HgFileStatus.scsCopied)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Ignored &&
+                    status != HgLib.HgFileStatus.Added &&
+                    status != HgLib.HgFileStatus.Renamed &&
+                    status != HgLib.HgFileStatus.Copied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
             }
 
@@ -265,10 +265,10 @@ namespace VisualHg
             if (filename != String.Empty)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsAdded &&
-                    status != HgLib.HgFileStatus.scsIgnored &&
-                    status != HgLib.HgFileStatus.scsClean)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Added &&
+                    status != HgLib.HgFileStatus.Ignored &&
+                    status != HgLib.HgFileStatus.Clean)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
             }
@@ -280,11 +280,11 @@ namespace VisualHg
         {
             OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
 
-            long stateMask = (long)HgLib.HgFileStatus.scsAdded |
-                             (long)HgLib.HgFileStatus.scsCopied |
-                             (long)HgLib.HgFileStatus.scsModified|
-                             (long)HgLib.HgFileStatus.scsRenamed |
-                             (long)HgLib.HgFileStatus.scsRemoved;
+            long stateMask = (long)HgLib.HgFileStatus.Added |
+                             (long)HgLib.HgFileStatus.Copied |
+                             (long)HgLib.HgFileStatus.Modified|
+                             (long)HgLib.HgFileStatus.Renamed |
+                             (long)HgLib.HgFileStatus.Removed;
 
             if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
             {
@@ -300,11 +300,11 @@ namespace VisualHg
             if (filename != String.Empty)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsIgnored &&
-                    status != HgLib.HgFileStatus.scsAdded &&
-                    status != HgLib.HgFileStatus.scsRenamed &&
-                    status != HgLib.HgFileStatus.scsCopied)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Ignored &&
+                    status != HgLib.HgFileStatus.Added &&
+                    status != HgLib.HgFileStatus.Renamed &&
+                    status != HgLib.HgFileStatus.Copied)
                     return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
 
             }
@@ -342,9 +342,9 @@ namespace VisualHg
             foreach (string name in array)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsClean &&
-                    status != HgLib.HgFileStatus.scsIgnored)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Clean &&
+                    status != HgLib.HgFileStatus.Ignored)
                 {
                     commitList.Add(name);
                 }
@@ -370,8 +370,8 @@ namespace VisualHg
             foreach (string name in array)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status == HgLib.HgFileStatus.scsUncontrolled ||
-                    status == HgLib.HgFileStatus.scsIgnored)
+                if (status == HgLib.HgFileStatus.Uncontrolled ||
+                    status == HgLib.HgFileStatus.Ignored)
                 {
                     addList.Add(name);
                 }
@@ -408,9 +408,9 @@ namespace VisualHg
             if (fileName != string.Empty)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsAdded &&
-                    status != HgLib.HgFileStatus.scsIgnored)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Added &&
+                    status != HgLib.HgFileStatus.Ignored)
                 {
                     LogDialog(fileName); 
                 }
@@ -444,12 +444,12 @@ namespace VisualHg
                 string versionedFile = fileName;
 
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsAdded &&
-                    status != HgLib.HgFileStatus.scsIgnored)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Added &&
+                    status != HgLib.HgFileStatus.Ignored)
                 {
-                    if (status == HgLib.HgFileStatus.scsRenamed ||
-                        status == HgLib.HgFileStatus.scsCopied)
+                    if (status == HgLib.HgFileStatus.Renamed ||
+                        status == HgLib.HgFileStatus.Copied)
                     {
                         versionedFile = HgLib.Hg.GetRenamedFileOriginalName(fileName); 
                     }
@@ -508,11 +508,11 @@ namespace VisualHg
             foreach (string name in array)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status == HgLib.HgFileStatus.scsModified ||
-                    status == HgLib.HgFileStatus.scsAdded ||
-                    status == HgLib.HgFileStatus.scsCopied ||
-                    status == HgLib.HgFileStatus.scsRemoved ||
-                    status == HgLib.HgFileStatus.scsRenamed)
+                if (status == HgLib.HgFileStatus.Modified ||
+                    status == HgLib.HgFileStatus.Added ||
+                    status == HgLib.HgFileStatus.Copied ||
+                    status == HgLib.HgFileStatus.Removed ||
+                    status == HgLib.HgFileStatus.Renamed)
                 {
                     addList.Add(name);
                 }
@@ -538,7 +538,7 @@ namespace VisualHg
             if (fileName != String.Empty)
             {
                 HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status == HgLib.HgFileStatus.scsRenamed)
+                if (status == HgLib.HgFileStatus.Renamed)
                 {
                     // get original filename
                     string orgName = HgLib.Hg.GetRenamedFileOriginalName(fileName);
@@ -546,8 +546,8 @@ namespace VisualHg
                         HgLib.TortoiseHg.AnnotateDialog(orgName);
                 }
                 
-                if (status != HgLib.HgFileStatus.scsUncontrolled &&
-                    status != HgLib.HgFileStatus.scsIgnored)
+                if (status != HgLib.HgFileStatus.Uncontrolled &&
+                    status != HgLib.HgFileStatus.Ignored)
                 {
                     HgLib.TortoiseHg.AnnotateDialog(fileName);
                 }

@@ -61,11 +61,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HgProvider.cs" />
+    <Compile Include="Status\HgFileInfoDictionary.cs" />
+    <Compile Include="Status\HgFileStatus.cs" />
     <Compile Include="Status\DirectoryWatcherMap.cs" />
     <Compile Include="Hg.cs" />
     <Compile Include="Status\DirectoryWatcher.cs" />
-    <Compile Include="Status\HgFileStatusDictionary.cs" />
-    <Compile Include="Status\HgFileStatusInfo.cs" />
+    <Compile Include="Status\HgFileInfo.cs" />
     <Compile Include="Status\HgStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Status\WorkItems.cs" />

@@ -19,7 +19,7 @@ namespace VisualHg
     //stores the index of the first item in the cache
     private int _firstItem;
     // pending files list
-    public List<HgLib.HgFileStatusInfo> _list = new List<HgLib.HgFileStatusInfo>();
+    public List<HgLib.HgFileInfo> _list = new List<HgLib.HgFileInfo>();
     // status images
     public ImageMapper _ImageMapper = new ImageMapper();
     // latest sorted column index
@@ -44,21 +44,21 @@ namespace VisualHg
     // ------------------------------------------------------------------------
     // status item sorter callback routine
     // ------------------------------------------------------------------------
-    public int compareInfoItem(HgLib.HgFileStatusInfo a, HgLib.HgFileStatusInfo b)
+    public int compareInfoItem(HgLib.HgFileInfo a, HgLib.HgFileInfo b)
     {
       if (_SortOrder == SortOrder.Ascending)
       {
         if (_previouslySortedColumn <= 0)
-          return a.fileName.CompareTo(b.fileName);
+          return a.Name.CompareTo(b.Name);
         else if (_previouslySortedColumn == 1)
-          return a.fullPath.CompareTo(b.fullPath);
+          return a.FullName.CompareTo(b.FullName);
       }
       else
       {
         if (_previouslySortedColumn <= 0)
-          return b.fileName.CompareTo(b.fileName);
+          return b.Name.CompareTo(b.Name);
         else if (_previouslySortedColumn == 1)
-          return b.fullPath.CompareTo(b.fullPath);
+          return b.FullName.CompareTo(b.FullName);
       }
       return 0;
     }
@@ -100,8 +100,7 @@ namespace VisualHg
         SortByColumn(0);
       
       // create new pending list ..
-      List<HgLib.HgFileStatusInfo> newList;
-      tracker.CreatePendingFilesList(out newList);
+      List<HgLib.HgFileInfo> newList = tracker.GetPendingFiles();
       newList.Sort(compareInfoItem);
       
       // .. and compare it to the current one
@@ -111,9 +110,9 @@ namespace VisualHg
 
       for (int pos = 0; !somethingChanged && pos < _list.Count; ++pos)
       {
-        if (_list[pos].status != newList[pos].status)
+        if (_list[pos].Status != newList[pos].Status)
           somethingChanged = true;
-        if (_list[pos].fullPath.CompareTo(newList[pos].fullPath) != 0)
+        if (_list[pos].FullName.CompareTo(newList[pos].FullName) != 0)
           somethingChanged = true;
       }
 
@@ -138,8 +137,8 @@ namespace VisualHg
       selection = new Dictionary<string, int>();
       foreach (int index in SelectedIndices)
       {
-        HgLib.HgFileStatusInfo info = _list[index];
-        selection.Add(info.fullPath, 0);
+        HgLib.HgFileInfo info = _list[index];
+        selection.Add(info.FullName, 0);
       }
     }
 
@@ -151,7 +150,7 @@ namespace VisualHg
         SelectedIndices.Clear();
         for (int pos = 0; pos < _list.Count; ++pos)
         {
-            if (selection.ContainsKey(_list[pos].fullPath))
+            if (selection.ContainsKey(_list[pos].FullName))
             {
                 SelectedIndices.Add(pos);
             }
@@ -165,13 +164,13 @@ namespace VisualHg
     {
       switch (status)
       {
-        case HgLib.HgFileStatus.scsMissing: return 5; // missing
-        case HgLib.HgFileStatus.scsModified: return 1; // modified
-        case HgLib.HgFileStatus.scsAdded: return 2; // added
-        case HgLib.HgFileStatus.scsRemoved: return 4; // removed
-        case HgLib.HgFileStatus.scsRenamed: return 3; // renamed
-        case HgLib.HgFileStatus.scsCopied: return 6; // copied
-        case HgLib.HgFileStatus.scsUncontrolled: return 5; // unknown
+        case HgLib.HgFileStatus.Missing: return 5; // missing
+        case HgLib.HgFileStatus.Modified: return 1; // modified
+        case HgLib.HgFileStatus.Added: return 2; // added
+        case HgLib.HgFileStatus.Removed: return 4; // removed
+        case HgLib.HgFileStatus.Renamed: return 3; // renamed
+        case HgLib.HgFileStatus.Copied: return 6; // copied
+        case HgLib.HgFileStatus.Uncontrolled: return 5; // unknown
       }
       return 0;
     }
@@ -192,10 +191,10 @@ namespace VisualHg
         //A cache miss, so create a new ListViewItem and pass it back.
         if (e.ItemIndex < _list.Count)
         {
-          HgLib.HgFileStatusInfo info = _list[e.ItemIndex];
-          e.Item = new ListViewItem(info.fileName);
-          e.Item.ImageIndex = GetStateIcon(info.status);
-          e.Item.SubItems.Add(info.fullPath);
+          HgLib.HgFileInfo info = _list[e.ItemIndex];
+          e.Item = new ListViewItem(info.Name);
+          e.Item.ImageIndex = GetStateIcon(info.Status);
+          e.Item.SubItems.Add(info.FullName);
         }
       }
     }
@@ -225,10 +224,10 @@ namespace VisualHg
         int index = (i + _firstItem);
         if (index < _list.Count)
         {
-          HgLib.HgFileStatusInfo info = _list[index];
-          ListViewItem item = new ListViewItem(info.fileName);
-          item.ImageIndex = GetStateIcon(info.status);
-          item.SubItems.Add(info.fullPath);
+          HgLib.HgFileInfo info = _list[index];
+          ListViewItem item = new ListViewItem(info.Name);
+          item.ImageIndex = GetStateIcon(info.Status);
+          item.SubItems.Add(info.FullName);
           _cache[i] = item;
         }
       }
@@ -242,7 +241,7 @@ namespace VisualHg
     {
       for (int pos = 0; pos < _list.Count; ++pos)
       {
-        if (_list[pos].fileName.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
+        if (_list[pos].Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase))
         {
           e.Index = pos;
           break;

@@ -157,10 +157,10 @@ namespace VisualHg
         {
             _sccStatusTracker.EnableDirectoryWatching(true);
 
-            HgLib.HgFileStatusInfo info;
-            _sccStatusTracker.GetFileStatusInfo(rgpszMkDocuments[0], out info);
-            if (info == null || info.status == HgLib.HgFileStatus.scsRemoved ||    // undelete file
-                                info.status == HgLib.HgFileStatus.scsUncontrolled) // do not add files twice
+            HgLib.HgFileInfo info;
+            _sccStatusTracker.GetFileInfo(rgpszMkDocuments[0], out info);
+            if (info == null || info.Status == HgLib.HgFileStatus.Removed ||    // undelete file
+                                info.Status == HgLib.HgFileStatus.Uncontrolled) // do not add files twice
             {
                 // add only files wich are not ignored
                 if (Configuration.Global._autoAddFiles)
