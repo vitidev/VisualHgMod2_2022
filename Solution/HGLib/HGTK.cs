@@ -29,7 +29,7 @@ namespace HGLib
             if (File.Exists(Path.Combine(hgtkexe, "HGTK.exe")))
               hgtkexe = Path.Combine(hgtkexe, "HGTK.exe");
             else if (File.Exists(Path.Combine(hgtkexe, "THG.exe")))
-              hgtkexe += Path.Combine(hgtkexe, "THG.exe");
+              hgtkexe = Path.Combine(hgtkexe, "THG.exe");
           }
         }
         return hgtkexe;
