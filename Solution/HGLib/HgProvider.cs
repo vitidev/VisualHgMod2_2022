@@ -71,8 +71,8 @@ namespace HgLib
             {
                 var hgDir = HgProvider.GetTortoiseHgDirectory();
 
-                var thg = Path.Combine(tortoiseHgExecutablePath, "thg.exe");
-                var hgtk = Path.Combine(tortoiseHgExecutablePath, "hgtk.exe");
+                var thg = Path.Combine(hgDir, "thg.exe");
+                var hgtk = Path.Combine(hgDir, "hgtk.exe");
 
                 tortoiseHgExecutablePath = File.Exists(thg) ? thg : File.Exists(hgtk) ? hgtk : null;
             }
@@ -103,7 +103,7 @@ namespace HgLib
 
         internal static Process StartTortoiseHg(string args, string workingDirectory)
         {
-            return Start(GetTortoiseHgExecutablePath(), workingDirectory, args);
+            return Start(GetTortoiseHgExecutablePath(), args, workingDirectory);
         }
 
         internal static Process StartHg(string args, string workingDirectory)
