@@ -27,46 +27,60 @@ namespace HgLib
             return null;
         }
 
-        public static Process DiffDialog(string sccFile, string currentFile, string commandMask)
-        {
-            var root = HgProvider.FindRepositoryRoot(currentFile);
 
-            if (String.IsNullOrEmpty(root))
+        public static Process DiffDialog(string parent, string current, string customDiffTool)
+        {
+            var workingDirectory = HgProvider.FindRepositoryRoot(current);
+
+            if (String.IsNullOrEmpty(workingDirectory))
             {
                 return null;
             }
 
-            // copy latest file revision from repo temp folder
-            var versionedFile = Path.GetTempPath() + sccFile.Substring(sccFile.LastIndexOf("\\") + 1) + "(base)";
+            var temp = CreateParentRevisionTempFile(parent, workingDirectory);
 
-            // delete file if exists
-            File.Delete(versionedFile);
-
-            var cmd = "cat \"" + sccFile.Substring(root.Length + 1) + "\"  -o \"" + versionedFile + "\"";
-            HgProvider.StartHg(root, cmd);
-
-            // wait file exists on disk
-            int counter = 0;
-            while (!File.Exists(versionedFile) && counter < 10)
+            if (!String.IsNullOrEmpty(customDiffTool))
             {
-                Thread.Sleep(100);
-                ++counter;
+                return StartCustomDiffTool(current, customDiffTool, temp);
             }
 
-            // run diff tool
-            if (!String.IsNullOrEmpty(commandMask))
-            {
-                cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask);
-                return HgProvider.Start(cmd, "", "");
-            }
-            
-            commandMask = " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ";
-            cmd = PrepareDiffCommand(versionedFile, currentFile, commandMask);
-         
-            return HgProvider.StartKDiff(root, cmd);
+            return StartKDiff(current, workingDirectory, temp);
         }
 
-        private static string PrepareDiffCommand(string versionedFile, string currentFile, string commandMask)
+        private static string CreateParentRevisionTempFile(string fileName, string root)
+        {
+            var tempFileName = GetTempFileName(fileName);
+
+            File.Delete(tempFileName);
+
+            var cmd = String.Format("cat \"{0}\"  -o \"{1}\"", fileName.Replace(root + "\\", ""), tempFileName);
+            HgProvider.StartHg(cmd, root).WaitForExit();
+
+            Debug.Assert(File.Exists(tempFileName));
+
+            return tempFileName;
+        }
+
+        private static string GetTempFileName(string fileName)
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName) + " (base)");
+        }
+
+        private static Process StartKDiff(string current, string root, string temp)
+        {
+            var cmd = PrepareDiffCommand(temp, current, " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ");
+
+            return HgProvider.StartKDiff(cmd, root);
+        }
+
+        private static Process StartCustomDiffTool(string current, string customDiffTool, string temp)
+        {
+            var cmd = PrepareDiffCommand(temp, current, customDiffTool);
+            
+            return HgProvider.Start(cmd, "", "");
+        }
+
+        private static string PrepareDiffCommand(string parent, string current, string commandMask)
         {
             var programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
             var programFiles    = programFilesX86;
@@ -81,13 +95,14 @@ namespace HgLib
             
             command = command.Replace("$(ProgramFiles (x86))", programFilesX86);
             command = command.Replace("$(ProgramFiles)", programFiles);
-            command = command.Replace("$(Base)", versionedFile);
-            command = command.Replace("$(Mine)", currentFile);
-            command = command.Replace("$(BaseName)", Path.GetFileName(versionedFile));
-            command = command.Replace("$(MineName)", Path.GetFileName(currentFile));
+            command = command.Replace("$(Base)", parent);
+            command = command.Replace("$(Mine)", current);
+            command = command.Replace("$(BaseName)", Path.GetFileName(parent));
+            command = command.Replace("$(MineName)", Path.GetFileName(current));
             
             return command;
         }
+
 
         public static void ShowUpdateWindow(string directory)
         {
