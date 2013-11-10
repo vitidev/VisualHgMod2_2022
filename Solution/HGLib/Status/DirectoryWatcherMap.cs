@@ -45,6 +45,7 @@ namespace HgLib
         public DirectoryWatcherMap()
         {
             _watchers = new List<DirectoryWatcher>();
+            _syncRoot = new object();
         }
 
 
