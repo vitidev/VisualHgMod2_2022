@@ -69,7 +69,14 @@
     <Compile Include="Status\HgFileInfo.cs" />
     <Compile Include="Status\HgStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Status\WorkItems.cs" />
+    <Compile Include="Commands\HgCommandQueue.cs" />
+    <Compile Include="Commands\UpdateRootStatusHgCommand.cs" />
+    <Compile Include="Commands\UpdateFileStatusHgCommand.cs" />
+    <Compile Include="Commands\AddRootDirectoryHgCommand.cs" />
+    <Compile Include="Commands\AddFilesHgCommand.cs" />
+    <Compile Include="Commands\RemoveFilesHgCommand.cs" />
+    <Compile Include="Commands\RenameFilesHgCommand.cs" />
+    <Compile Include="Commands\HgCommand.cs" />
     <Compile Include="TortoiseHg.cs" />
   </ItemGroup>
   <ItemGroup>

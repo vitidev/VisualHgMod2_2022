@@ -22,7 +22,7 @@ namespace HgLib
         DirectoryWatcherMap _directoryWatcherMap = new DirectoryWatcherMap();
 
         // queued user commands or events from the IDE
-        WorkItemQueue _workItemQueue = new WorkItemQueue();
+        HgCommandQueue _workItemQueue = new HgCommandQueue();
 
         class RootInfo
         {
@@ -84,7 +84,7 @@ namespace HgLib
         // ------------------------------------------------------------------------
         // add one work item to work queue
         // ------------------------------------------------------------------------
-        public void AddWorkItem(IHgWorkItem workItem)
+        public void AddWorkItem(HgCommand workItem)
         {
             lock (_workItemQueue)
             {
@@ -490,13 +490,13 @@ namespace HgLib
         void DirectoryStatusCheckerThread(object source, ElapsedEventArgs e)
         {
             // handle user and IDE commands first
-            Queue<IHgWorkItem> workItemQueue = _workItemQueue.PopWorkItems();
+            Queue<HgCommand> workItemQueue = _workItemQueue.DumpCommands();
             if (workItemQueue.Count > 0)
             {
                 List<string> ditryFilesList = new List<string>();
-                foreach (IHgWorkItem item in workItemQueue)
+                foreach (HgCommand item in workItemQueue)
                 {
-                    item.Do(this, ditryFilesList);
+                    item.Run(this, ditryFilesList);
                 }
 
                 if (ditryFilesList.Count > 0)

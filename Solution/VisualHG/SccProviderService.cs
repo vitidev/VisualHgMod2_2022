@@ -229,7 +229,7 @@ namespace VisualHg
                     File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
 
                   string[] files = new string[] { pszMkDocument};
-                  _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusCommand(files));
+                  _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(files));
               }
               catch{}
             }
@@ -249,7 +249,7 @@ namespace VisualHg
                 Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
             }
 
-            _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusCommand(rgpszMkDocuments));
+            _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(rgpszMkDocuments));
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;

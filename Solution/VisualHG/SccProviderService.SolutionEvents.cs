@@ -74,9 +74,9 @@ namespace VisualHg
                     fileList.CopyTo(files, 0);
                     // add only files wich are not ignored
                     if (Configuration.Global._autoAddFiles)
-                        _sccStatusTracker.AddWorkItem(new HgLib.TrackFilesAddedNotIgnored(files));
+                        _sccStatusTracker.AddWorkItem(new HgLib.AddFilesHgCommand(files));
                     else
-                        _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusCommand(files));
+                        _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(files));
                 }
             }
 
@@ -164,7 +164,7 @@ namespace VisualHg
             {
                 // add only files wich are not ignored
                 if (Configuration.Global._autoAddFiles)
-                    _sccStatusTracker.AddWorkItem(new HgLib.TrackFilesAddedNotIgnored(rgpszMkDocuments));
+                    _sccStatusTracker.AddWorkItem(new HgLib.AddFilesHgCommand(rgpszMkDocuments));
             }
             return VSConstants.S_OK;
         }
@@ -209,7 +209,7 @@ namespace VisualHg
                 return VSConstants.E_POINTER;
 
             if (!File.Exists(rgpszMkDocuments[0])) // EnterFileRemoved only if the file was actually removed
-                _sccStatusTracker.AddWorkItem(new HgLib.TrackFileRemoved(rgpszMkDocuments));
+                _sccStatusTracker.AddWorkItem(new HgLib.RemoveFilesHgCommand(rgpszMkDocuments));
 
             return VSConstants.S_OK;
         }
@@ -238,7 +238,7 @@ namespace VisualHg
         public int OnAfterRenameFiles([InAttribute] int cProjects, [InAttribute] int cFiles, [InAttribute] IVsProject[] rgpProjects, [InAttribute] int[] rgFirstIndices, [InAttribute] string[] rgszMkOldNames, [InAttribute] string[] rgszMkNewNames, [InAttribute] VSRENAMEFILEFLAGS[] rgFlags)
         {
             _sccStatusTracker.EnableDirectoryWatching(true);
-            _sccStatusTracker.AddWorkItem(new HgLib.TrackFilesRenamed(rgszMkOldNames, rgszMkNewNames));
+            _sccStatusTracker.AddWorkItem(new HgLib.RenameFilesHgCommand(rgszMkOldNames, rgszMkNewNames));
             return VSConstants.S_OK;
         }
 
