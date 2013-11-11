@@ -8,14 +8,14 @@ namespace HgLib
     public class DirectoryWatcherMap
     {
         List<DirectoryWatcher> _watchers;
-        object _syncRoot;
-
+        
+        public object SyncRoot { get; private set; }
 
         public int Count
         {
             get
             {
-                lock (_syncRoot)
+                lock (SyncRoot)
                 {
                     return _watchers.Count;
                 }
@@ -24,7 +24,7 @@ namespace HgLib
 
         public void Clear()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 _watchers.Clear();
             }
@@ -34,9 +34,23 @@ namespace HgLib
         {
             get
             {
-                lock (_syncRoot)
+                lock (SyncRoot)
                 {
                     return _watchers.ToArray();
+                }
+            }
+        }
+
+        public bool FileSystemWatch
+        {
+            set
+            {
+                lock (SyncRoot)
+                {
+                    foreach (var watcher in _watchers)
+                    {
+                        watcher.FileSystemWatch = value;
+                    }
                 }
             }
         }
@@ -45,24 +59,13 @@ namespace HgLib
         public DirectoryWatcherMap()
         {
             _watchers = new List<DirectoryWatcher>();
-            _syncRoot = new object();
+            SyncRoot = new object();
         }
 
-
-        public void EnableDirectoryWatching(bool enable)
-        {
-            lock (_syncRoot)
-            {
-                foreach (var watcher in _watchers)
-                {
-                    watcher.EnableDirectoryWatching(enable);
-                }
-            }
-        }
 
         public bool ContainsDirectory(string directory)
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 return _watchers.Any(x => x.Directory.Equals(directory, StringComparison.InvariantCultureIgnoreCase));
             }
@@ -75,7 +78,7 @@ namespace HgLib
                 return;
             }
 
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 if (ContainsDirectory(directory))
                 {
@@ -106,7 +109,7 @@ namespace HgLib
                     {
                         var watcher = removeWatcher[pos];
                         _watchers.Remove(watcher);
-                        watcher.EnableDirectoryWatching(false);
+                        watcher.FileSystemWatch = false;
                     }
 
                     _watchers.Add(new DirectoryWatcher(directory));
@@ -117,7 +120,7 @@ namespace HgLib
 
         public DateTime GetLatestChange()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 var latestChange = _watchers.Count > 0 ? DateTime.Today : DateTime.Now;
                 
@@ -135,7 +138,7 @@ namespace HgLib
 
         public long GetNumberOfChangedFiles()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 long count = 0;
 
@@ -148,9 +151,14 @@ namespace HgLib
             }
         }
 
+        public string[] DumpDirtyFiles()
+        {
+            return _watchers.SelectMany(x => x.DumpDirtyFiles()).ToArray(); // NOTE: DumpDirtyFiles has side effects
+        }
+
         public void UnsubscribeEvents()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 foreach (var watcher in _watchers)
                 {

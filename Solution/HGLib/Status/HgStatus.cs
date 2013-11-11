@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,731 +9,594 @@ using System.Windows.Forms;
 
 namespace HgLib
 {
-    // ---------------------------------------------------------------------------
-    // Hg file status cache. The states of the included files are stored in a
-    // file status dictionary. Change events are availabe by HgStatusChanged delegate.
-    // ---------------------------------------------------------------------------
-    public class HgStatus
+    public class HgRepository
     {
-        public event EventHandler HgStatusChanged;
+        public event EventHandler StatusChanged = (s, e) => { };
+        
+        private bool _updating;
+        private HgCommandQueue _commands;
+        private DirectoryWatcherMap _directoryWatchers;
+        private HgFileInfoDictionary _cache;
+        private List<string> _projectCache;
+        private Dictionary<string, string> _roots;
 
-        HgFileInfoDictionary _fileInfoCache = new HgFileInfoDictionary();
+        private System.Timers.Timer _directoryUpdateTimer;
 
-        // directory watcher map - one for each main directory
-        DirectoryWatcherMap _directoryWatcherMap = new DirectoryWatcherMap();
+        private SynchronizationContext _context;
+        
+        private volatile int UpdateInterval = 2000;
+        private volatile bool _cacheUpdateRequired;
+        private volatile bool _solutionBuilding;
 
-        // queued user commands or events from the IDE
-        HgCommandQueue _workItemQueue = new HgCommandQueue();
 
-        class RootInfo
+        public bool IsEmpty
         {
-            public string Branch;
-        };
-
-        // Hg repo root directories - also SubRepo dirs
-        Dictionary<string, RootInfo> _rootDirMap = new Dictionary<string, RootInfo>();
-
-        // trigger thread to observe and assimilate the directory watcher changed file dictionaries
-        System.Timers.Timer _timerDirectoryStatusChecker;
-
-        // build process is active
-        volatile bool _IsSolutionBuilding = false;
-
-        // synchronize to WindowsForms context
-        SynchronizationContext _context;
-
-        // Flag to avoid to much rebuild action when .Hg\dirstate was changed.
-        // Extenal changes of the dirstate file results definitely in cache rebuild.
-        // Changes caused by ourself should not.
-        bool _SkipDirstate = false;
-
-        // min elapsed time before cache rebild trigger.
-        volatile int _MinElapsedTimeForStatusCacheRebuildMS = 2000;
-
-        // complete cache rebuild is required
-        volatile bool _bRebuildStatusCacheRequired = false;
-
-        // ------------------------------------------------------------------------
-        // init objects and starts the directory watcher
-        // ------------------------------------------------------------------------
-        public HgStatus()
-        {
-            StartDirectoryStatusChecker();
+            get { return _directoryWatchers.Count == 0; }
         }
 
-        // ------------------------------------------------------------------------
-        // skip / enable dirstate file changes
-        // ------------------------------------------------------------------------
-        public void SkipDirstate(bool skip)
+        public int FileProjectMapCacheCount
         {
-            _SkipDirstate = skip;
+            get { return _projectCache.Count; }
+        }
+        
+        public bool CacheUpdateRequired
+        {
+            set { _cacheUpdateRequired = value; }
         }
 
-        // ------------------------------------------------------------------------
-        // set reset rebuild status flag
-        // ------------------------------------------------------------------------
-        public bool RebuildStatusCacheRequiredFlag { set { _bRebuildStatusCacheRequired = value; } }
-
-        // ------------------------------------------------------------------------
-        // toggle directory watching on / off
-        // ------------------------------------------------------------------------
-        public void EnableDirectoryWatching(bool enable)
+        public bool FileSystemWatch
         {
-            _directoryWatcherMap.EnableDirectoryWatching(enable);
+            set { _directoryWatchers.FileSystemWatch = value; }
         }
 
-        // ------------------------------------------------------------------------
-        // add one work item to work queue
-        // ------------------------------------------------------------------------
-        public void AddWorkItem(HgCommand workItem)
+
+        public HgRepository()
         {
-            lock (_workItemQueue)
+            Initialize();
+
+            _directoryUpdateTimer.Start();
+        }
+
+        private void Initialize()
+        {
+            _cache = new HgFileInfoDictionary();
+            _directoryWatchers = new DirectoryWatcherMap();
+            _commands = new HgCommandQueue();
+            _roots = new Dictionary<string, string>();
+            _projectCache = new List<string>();
+            
+            _directoryUpdateTimer = new System.Timers.Timer
+            { 
+                AutoReset = false,
+                Interval = 100,
+            };
+
+            _directoryUpdateTimer.Elapsed += UpdateDirectory;
+        }
+
+
+        public void Enqueue(HgCommand command)
+        {
+            lock (_commands)
             {
-                _workItemQueue.Enqueue(workItem);
+                _commands.Enqueue(command);
             }
         }
 
-        // ------------------------------------------------------------------------
-        // GetFileStatus info for the given filename
-        // ------------------------------------------------------------------------
+
+        public void AddFiles(string[] fileNames)
+        {
+            fileNames = FilterIgnored(fileNames);
+
+            if (fileNames.Length == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                BeginUpdate();
+                Cache(Hg.AddFiles(fileNames));
+            }
+            finally
+            {
+                EndUpdate();
+            }
+        }
+        
+        public void AddRootDirectory(string directory)
+        {
+            if (String.IsNullOrEmpty(directory))
+            {
+                return;
+            }
+
+            var root = HgProvider.FindRepositoryRoot(directory);
+
+            if (String.IsNullOrEmpty(root) || _roots.ContainsKey(root))
+            {
+                return;
+            }
+
+            _roots[root] = Hg.GetCurrentBranchName(root);
+
+            if (!_directoryWatchers.ContainsDirectory(root))
+            {
+                _directoryWatchers.WatchDirectory(root);
+            }
+
+            Cache(Hg.GetRootStatus(root));
+        }
+
+        public void RemoveFiles(string[] fileNames)
+        {
+            var moved = new List<string>();
+            var removed = new List<string>();
+            var renamed = new List<string>();
+
+            lock (_cache)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    _cache.Remove(fileName);
+
+                    string newName;
+
+                    if (_cache.FileMoved(fileName, out newName))
+                    {
+                        moved.Add(fileName);
+                        renamed.Add(newName);
+                    }
+                    else
+                    {
+                        removed.Add(fileName);
+                    }
+                }
+            }
+
+            if (moved.Count > 0)
+            {
+                RenameFiles(moved.ToArray(), renamed.ToArray());
+            }
+
+            if (removed.Count > 0)
+            {
+                try
+                {
+                    BeginUpdate();
+                    Cache(Hg.RemoveFiles(removed.ToArray()));
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+            }
+        }
+
+        public void RenameFiles(string[] oldFileNames, string[] newFileNames)
+        {
+            var oldNames = new List<string>();
+            var newNames = new List<string>();
+
+            lock (_cache)
+            {
+                for (int i = 0; i < oldFileNames.Length; i++)
+                {
+                    var oldName = oldFileNames[i];
+                    var newName = newFileNames[i];
+
+                    if (newName.EndsWith("\\") || oldName.ToLower() == newName.ToLower())
+                    {
+                        continue;
+                    }
+                 
+                    oldNames.Add(oldName);
+                    newNames.Add(newName);
+                    _cache.Remove(oldName);
+                    _cache.Remove(newName);
+                }
+            }
+
+            if (oldNames.Count > 0)
+            {
+                BeginUpdate();
+                Hg.RenameFiles(oldNames.ToArray(), newNames.ToArray());
+                EndUpdate();
+            }
+        }
+
+        public void UpdateFileStatus(string[] fileNames)
+        {
+            Cache(Hg.GetFileStatus(fileNames));
+        }
+
+        public void UpdateRootStatus(string path)
+        {
+            Cache(Hg.GetRootStatus(path));
+        }
+
+
+        private string[] FilterIgnored(string[] fileNames)
+        {
+            var filtered = new List<string>();
+
+            lock (_cache)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    HgFileInfo fileInfo = null;
+                    
+                    _cache.TryGetValue(fileName.ToLower(), out fileInfo);
+
+                    if (fileInfo != null && fileInfo.Status != HgFileStatus.Ignored)
+                    {
+                        filtered.Add(fileName);
+                    }
+                }
+            }
+
+            return filtered.ToArray();
+        }
+
+
+        public string GetBranchNames()
+        {
+            lock (_roots)
+            {
+                return _roots.Count > 0 ? _roots.Values.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
+            }
+        }
+
+        public string GetDirectoryBranch(string directory)
+        {
+            var branch = "";
+
+            _roots.TryGetValue(directory, out branch);
+            
+            return branch;
+        }
+
         public bool GetFileInfo(string fileName, out HgFileInfo info)
         {
-            return _fileInfoCache.TryGetValue(fileName, out info);
+            return _cache.TryGetValue(fileName, out info);
         }
 
-        // ------------------------------------------------------------------------
-        // Create pending files list
-        // ------------------------------------------------------------------------
-        public List<HgFileInfo> GetPendingFiles()
-        {
-            lock (_fileInfoCache)
-            {
-                return _fileInfoCache.GetPendingFiles();
-            }
-        }
-
-        // ------------------------------------------------------------------------
-        // GetFileStatus for the given filename
-        // ------------------------------------------------------------------------
         public HgFileStatus GetFileStatus(string fileName)
         {
             if (_context == null)
+            {
                 _context = WindowsFormsSynchronizationContext.Current;
+            }
 
             bool found = false;
             HgFileInfo value;
 
-            lock (_fileInfoCache)
+            lock (_cache)
             {
-                found = _fileInfoCache.TryGetValue(fileName, out value);
+                found = _cache.TryGetValue(fileName, out value);
             }
 
             return (found ? value.Status : HgFileStatus.Uncontrolled);
         }
 
-        // ------------------------------------------------------------------------
-        // fire status changed event
-        // ------------------------------------------------------------------------
-        void FireStatusChanged(SynchronizationContext context)
+        public List<HgFileInfo> GetPendingFiles()
         {
-            if (HgStatusChanged != null)
+            lock (_cache)
             {
-                if (context != null)
-                {
-                    context.Post(new SendOrPostCallback(x => {
-                        HgStatusChanged(this, EventArgs.Empty);
-                    }), null);
-                }
-                else
-                {
-                    HgStatusChanged(this, EventArgs.Empty);
-                }
+                return _cache.GetPendingFiles();
             }
         }
 
-        public bool AnyItemsUnderSourceControl()
-        {
-            return (_directoryWatcherMap.Count > 0);
-        }
 
-        // ------------------------------------------------------------------------
-        // SetCacheDirty triggers a RebuildStatusCache event
-        // ------------------------------------------------------------------------
-        public void SetCacheDirty()
+        public void ClearCache()
         {
-            _bRebuildStatusCacheRequired = true;
-        }
-
-        // ------------------------------------------------------------------------
-        /// update given file status.
-        // ------------------------------------------------------------------------
-        public void UpdateFileStatus(string[] files)
-        {
-            var fileStatusDictionary = Hg.GetFileStatus(files);
-            if (fileStatusDictionary != null)
+            lock (_directoryWatchers.SyncRoot)
             {
-                _fileInfoCache.Add(fileStatusDictionary);
+                _directoryWatchers.UnsubscribeEvents();
+                _directoryWatchers.Clear();
+            }
+
+            lock (_roots)
+            {
+                _roots.Clear();
+            }
+
+            lock (_cache)
+            {
+                _cache.Clear();
             }
         }
 
-        // ------------------------------------------------------------------------
-        // update given root files status.
-        // ------------------------------------------------------------------------
-        public void UpdateFileStatus(string root)
+        
+        private void BeginUpdate()
         {
-            var status = Hg.GetRootStatus(root);
+            _updating = true;
+        }
 
+        private void EndUpdate()
+        {
+            _updating = false;
+        }
+
+
+        private void Cache(Dictionary<string, char> status)
+        {
             if (status != null)
             {
-                _fileInfoCache.Add(status);
+                _cache.Add(status);
             }
         }
 
-        // ------------------------------------------------------------------------
-        /// Add a root directory and query the status of the contining files 
-        /// by a QueryRootStatus call.
-        // ------------------------------------------------------------------------
-        public bool AddRootDirectory(string directory)
+        private void UpdateCache()
         {
-            if (directory == string.Empty)
-                return false;
-
-            string root = HgProvider.FindRepositoryRoot(directory);
-            if (root != string.Empty && !_rootDirMap.ContainsKey(root))
+            try
             {
-                _rootDirMap[root] = new RootInfo() { Branch = Hg.GetCurrentBranchName(root) };
+                BeginUpdate();
 
-                if (!_directoryWatcherMap.ContainsDirectory(root))
+                _cacheUpdateRequired = false;
+                
+                _cache.Clear();
+                _directoryWatchers.DumpDirtyFiles();
+
+                foreach (var root in GetRoots().Where(x => !String.IsNullOrEmpty(x)))
                 {
-                    _directoryWatcherMap.WatchDirectory(root);
-                }
-
-                var status = Hg.GetRootStatus(root);
-
-                if (status != null)
-                {
-                    _fileInfoCache.Add(status);
+                    Cache(Hg.GetRootStatus(root));
+                    _roots[root] = Hg.GetCurrentBranchName(root);
                 }
             }
-
-            return true;
-        }
-
-        // ------------------------------------------------------------------------
-        // get current used brunch of the given roor directory
-        // ------------------------------------------------------------------------
-        public string GetCurrentBranchOf(string root)
-        {
-            RootInfo info;
-
-            if (_rootDirMap.TryGetValue(root, out info))
-                return info.Branch;
-
-            return string.Empty;
-
-        }
-
-        // ------------------------------------------------------------------------
-        // format current brunch
-        // ------------------------------------------------------------------------
-        public string FormatBranchList()
-        {
-            string branchList = string.Empty;
-
-            lock (_rootDirMap)
+            finally
             {
-                SortedList<string,int> branches = new SortedList<string, int>();
-
-                //RootInfo info;
-                foreach (RootInfo info in _rootDirMap.Values)
-                {
-                    if (!branches.ContainsKey(info.Branch))
-                    {
-                        branches.Add(info.Branch, 0);
-                        branchList = branchList + (branches.Count > 1 ? ", " : "") + info.Branch;
-                    }
-                }
+                EndUpdate();
             }
-
-            return branchList;
         }
 
-        #region dirstatus changes
-
-        // ------------------------------------------------------------------------
-        /// add file to the repositiry if they are not on the ignore list
-        // ------------------------------------------------------------------------
-        public void AddNotIgnoredFiles(string[] fileListRaw)
+        private List<string> GetRoots()
         {
-            // filter already known files from the list
-            List<string> fileList = new List<string>();
-            lock (_fileInfoCache)
+            List<string> roots = null;
+            
+            lock (_roots)
             {
-                foreach (string file in fileListRaw)
+                roots = new List<string>(_roots.Keys);
+            }
+
+            return roots;
+        }
+
+        
+        public void AddFilesToProjectCache(IList<string> fileNames)
+        {
+            lock (_projectCache)
+            {
+                foreach (var fileName in fileNames)
                 {
-                    HgFileInfo info;
-                    if (!_fileInfoCache.TryGetValue(file.ToLower(), out info) || info.Status != HgFileStatus.Ignored)
-                    {
-                        fileList.Add(file);
-                    }
+                    _projectCache.Add(fileName.ToLower());
+                }
+            }
+        }
+
+        public void RemoveFilesFromProjectCache(IList<string> fileNames)
+        {
+            lock (_projectCache)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    _projectCache.Remove(fileName.ToLower());
+                }
+            }
+        }
+
+        public void ClearProjectCache()
+        {
+            lock (_projectCache)
+            {
+                _projectCache.Clear();
+            }
+        }
+        
+        
+        public void SolutionBuildStarted()
+        {
+            _solutionBuilding = true;
+        }
+
+        public void SolutionBuildEnded()
+        {
+            _solutionBuilding = false;
+        }
+        
+        private void UpdateDirectory(object source, ElapsedEventArgs e)
+        {
+            var commands = _commands.DumpCommands();
+            
+            if (commands.Count > 0)
+            {
+                RunCommands(commands);
+            }
+            else if (!_solutionBuilding)
+            {
+                UpdateIfNeeded();
+            }
+        }
+
+        private void RunCommands(HgCommandQueue commands)
+        {
+            var dirtyFilesList = new List<string>();
+
+            foreach (var command in commands)
+            {
+                command.Run(this, dirtyFilesList);
+            }
+
+            if (dirtyFilesList.Count > 0)
+            {
+                lock (_cache)
+                {
+                    Cache(Hg.GetFileStatus(dirtyFilesList.ToArray()));
                 }
             }
 
-            if (fileList.Count == 0)
+            OnStatusChanged(_context);
+        }
+
+        private void UpdateIfNeeded()
+        {
+            long numberOfChangedFiles = 0;
+            double elapsed = 0;
+
+            lock (_directoryWatchers.SyncRoot)
+            {
+                numberOfChangedFiles = _directoryWatchers.GetNumberOfChangedFiles();
+                elapsed = (DateTime.Now - _directoryWatchers.GetLatestChange()).TotalMilliseconds;
+            }
+
+            if (elapsed < UpdateInterval)
+            {
                 return;
-
-
-            SkipDirstate(true);
-            var fileStatusDictionary = Hg.AddFiles(fileList.ToArray());
-            if (fileStatusDictionary != null)
-            {
-                _fileInfoCache.Add(fileStatusDictionary);
             }
-            SkipDirstate(false);
-        }
 
-        // ------------------------------------------------------------------------
-        /// enter file renamed to hg repository
-        // ------------------------------------------------------------------------
-        public void EnterFileRenamed(string[] oldFileNames, string[] newFileNames)
-        {
-            var oNameList = new List<string>();
-            var nNameList = new List<string>();
-
-            lock (_fileInfoCache)
+            if (_cacheUpdateRequired || numberOfChangedFiles > 200)
             {
-                for (int pos = 0; pos < oldFileNames.Length; ++pos)
+                UpdateCache();
+                OnStatusChanged(_context);
+            }
+            else if (numberOfChangedFiles > 0)
+            {
+                var dirtyFiles = PrepareDirtyFiles();
+
+                if (_cacheUpdateRequired || dirtyFiles.Length == 0)
                 {
-                    string oFileName = oldFileNames[pos];
-                    string nFileName = newFileNames[pos];
-
-                    if (nFileName.EndsWith("\\"))
-                    {
-                        // this is an dictionary - skip it
-                    }
-                    else if (oFileName.ToLower() != nFileName.ToLower())
-                    {
-                        oNameList.Add(oFileName);
-                        nNameList.Add(nFileName);
-                        _fileInfoCache.Remove(oFileName);
-                        _fileInfoCache.Remove(nFileName);
-                    }
+                    return;
                 }
-            }
 
-            if (oNameList.Count > 0)
-            {
-                SkipDirstate(true);
-                Hg.EnterFileRenamed(oNameList.ToArray(), nNameList.ToArray());
-                SkipDirstate(false);
+                try
+                {
+                    BeginUpdate();
+                    Cache(Hg.GetFileStatus(dirtyFiles));
+                }
+                finally
+                {
+                    EndUpdate();
+                }
+
+                bool statusChanged = false;
+
+                lock (_projectCache)
+                {
+                    statusChanged = dirtyFiles.Any(x => _projectCache.Contains(x.ToLower()));
+                }
+
+                if (statusChanged)
+                {
+                    OnStatusChanged(_context);
+                }
             }
         }
 
-        // ------------------------------------------------------------------------
-        // remove given file from cache
-        // ------------------------------------------------------------------------
-        public void RemoveFileFromCache(string file)
+        private string[] PrepareDirtyFiles()
         {
-            lock (_fileInfoCache)
+            var dirtyFiles = new List<string>();
+
+            foreach (var dirtyFile in _directoryWatchers.DumpDirtyFiles())
             {
-                _fileInfoCache.Remove(file);
+                if (!PrepareDirtyFile(dirtyFile))
+                {
+                    continue;
+                }
+   
+                if (_cacheUpdateRequired) // Can be set by PrepareWatchedFile
+                {
+                    break;
+                }
+
+                dirtyFiles.Add(dirtyFile);
             }
+
+            return dirtyFiles.ToArray();
         }
 
-        // ------------------------------------------------------------------------
-        // file was removed - now update the hg repository
-        // ------------------------------------------------------------------------
-        public void EnterFilesRemoved(string[] fileList)
+        private bool PrepareDirtyFile(string fileName)
         {
-            List<string> removedFileList = new List<string>();
-            List<string> movedFileList = new List<string>();
-            List<string> newNamesList = new List<string>();
-
-            lock (_fileInfoCache)
-            {
-                foreach (var file in fileList)
-                {
-                    _fileInfoCache.Remove(file);
-
-                    string newName;
-                    if (!_fileInfoCache.FileMoved(file, out newName))
-                        removedFileList.Add(file);
-                    else
-                    {
-                        movedFileList.Add(file);
-                        newNamesList.Add(newName);
-                    }
-                }
-            }
-
-            if (movedFileList.Count > 0)
-                EnterFileRenamed(movedFileList.ToArray(), newNamesList.ToArray());
-
-            if (removedFileList.Count > 0)
-            {
-                SkipDirstate(true); // avoid a status requery for the repo after hg.dirstate was changed
-                var fileStatusDictionary = Hg.EnterFileRemoved(removedFileList.ToArray());
-                if (fileStatusDictionary != null)
-                {
-                    _fileInfoCache.Add(fileStatusDictionary);
-                }
-                SkipDirstate(false);
-            }
-        }
-
-        #endregion dirstatus changes
-
-        // ------------------------------------------------------------------------
-        // clear the complete cache data
-        // ------------------------------------------------------------------------
-        public void ClearStatusCache()
-        {
-            lock (_directoryWatcherMap)
-            {
-                _directoryWatcherMap.UnsubscribeEvents();
-                _directoryWatcherMap.Clear();
-
-            }
-
-            lock (_rootDirMap)
-            {
-                _rootDirMap.Clear();
-            }
-
-            lock (_fileInfoCache)
-            {
-                _fileInfoCache.Clear();
-            }
-        }
-
-        // ------------------------------------------------------------------------
-        // rebuild the entire _fileStatusDictionary map
-        // this includes all files in all watched directories
-        // ------------------------------------------------------------------------
-        void RebuildStatusCache()
-        {
-            // remove all status entries
-            _fileInfoCache.Clear();
-
-            _bRebuildStatusCacheRequired = false;
-
-            SkipDirstate(true);
-
-            HgFileInfoDictionary newFileStatusDictionary = new HgFileInfoDictionary();
-            foreach (var directoryWatcher in _directoryWatcherMap.Watchers)
-            {
-                // reset the watcher map
-                directoryWatcher.DumpDirtyFiles();
-            }
-
-            List<string> rootDirList = null;
-            lock (_rootDirMap)
-            {
-                rootDirList = new List<string>(_rootDirMap.Keys);
-            }
-
-            // sort dirs by lenght to query from root top to down root
-            rootDirList.Sort((a, b) => ((a.Length == b.Length) ? 0 : ((a.Length > b.Length) ? 1 : -1)));
-            foreach (string rootDirectory in rootDirList)
-            {
-                if (rootDirectory != string.Empty)
-                {
-                    _rootDirMap[rootDirectory].Branch = Hg.GetCurrentBranchName(rootDirectory);
-
-                    var status = Hg.GetRootStatus(rootDirectory);
-
-                    if (status != null)
-                    {
-                        Trace.WriteLine("RebuildStatusCache - number of files: " + status.Count.ToString());
-                        newFileStatusDictionary.Add(status);
-                    }
-                }
-            }
-
-            lock (_fileInfoCache)
-            {
-                _fileInfoCache = newFileStatusDictionary;
-            }
-
-            SkipDirstate(false);
-        }
-
-        // ------------------------------------------------------------------------
-        // directory watching
-        // ------------------------------------------------------------------------
-        #region directory watcher
-
-        // ------------------------------------------------------------------------
-        // start the trigger thread
-        // ------------------------------------------------------------------------
-        void StartDirectoryStatusChecker()
-        {
-            _timerDirectoryStatusChecker = new System.Timers.Timer();
-            _timerDirectoryStatusChecker.Elapsed += new ElapsedEventHandler(DirectoryStatusCheckerThread);
-            _timerDirectoryStatusChecker.AutoReset = false;
-            _timerDirectoryStatusChecker.Interval = 100;
-            _timerDirectoryStatusChecker.Enabled = true;
-        }
-
-        public void UpdateSolution_StartUpdate()
-        {
-            _IsSolutionBuilding = true;
-        }
-
-        public void UpdateSolution_Done()
-        {
-            _IsSolutionBuilding = false;
-        }
-
-        // ------------------------------------------------------------------------
-        // async proc to assimilate the directory watcher state dictionaries
-        // ------------------------------------------------------------------------
-        void DirectoryStatusCheckerThread(object source, ElapsedEventArgs e)
-        {
-            // handle user and IDE commands first
-            Queue<HgCommand> workItemQueue = _workItemQueue.DumpCommands();
-            if (workItemQueue.Count > 0)
-            {
-                List<string> ditryFilesList = new List<string>();
-                foreach (HgCommand item in workItemQueue)
-                {
-                    item.Run(this, ditryFilesList);
-                }
-
-                if (ditryFilesList.Count > 0)
-                {
-                    var fileStatusDictionary = Hg.GetFileStatus(ditryFilesList.ToArray());
-                    if (fileStatusDictionary != null)
-                    {
-                        lock (_fileInfoCache)
-                        {
-                            _fileInfoCache.Add(fileStatusDictionary);
-                        }
-                    }
-                }
-
-                // update status icons
-                FireStatusChanged(_context);
-            }
-            else if (!_IsSolutionBuilding)
-            {
-                // handle modified files list
-                long numberOfControlledFiles = 0;
-                lock (_fileInfoCache)
-                {
-                    numberOfControlledFiles = System.Math.Max(1, _fileInfoCache.Count);
-                }
-
-                long numberOfChangedFiles = 0;
-                double elapsedMS = 0;
-                lock (_directoryWatcherMap)
-                {
-                    numberOfChangedFiles = _directoryWatcherMap.GetNumberOfChangedFiles();
-                    TimeSpan timeSpan = new TimeSpan(DateTime.Now.Ticks - _directoryWatcherMap.GetLatestChange().Ticks);
-                    elapsedMS = timeSpan.TotalMilliseconds;
-                }
-
-                if (_bRebuildStatusCacheRequired || numberOfChangedFiles > 200)
-                {
-                    if (elapsedMS > _MinElapsedTimeForStatusCacheRebuildMS)
-                    {
-                        Trace.WriteLine("DoFullStatusUpdate (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
-                        RebuildStatusCache();
-                        // update status icons
-                        FireStatusChanged(_context);
-                    }
-                }
-                else if (numberOfChangedFiles > 0)
-                {
-                    // min elapsed time before do anything
-                    if (elapsedMS > 2000)
-                    {
-                        Trace.WriteLine("UpdateDirtyFilesStatus (NumberOfChangedFiles: " + numberOfChangedFiles.ToString() + " )");
-                        var fileList = PopDirtyWatcherFiles();
-                        if (UpdateFileStatusDictionary(fileList))
-                        {
-                            // update status icons - but only if a project file was changed
-                            bool bFireStatusChanged = false;
-                            lock (_FileToProjectCache)
-                            {
-                                foreach (string file in fileList)
-                                {
-                                    object o;
-                                    if (_FileToProjectCache.TryGetValue(file.ToLower(), out o))
-                                    {
-                                        bFireStatusChanged = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (bFireStatusChanged)
-                                FireStatusChanged(_context);
-                        }
-                    }
-                }
-            }
-
-            _timerDirectoryStatusChecker.Enabled = true;
-        }
-
-        // ------------------------------------------------------------------------
-        // Check if the watched file is the hg/dirstate and set _bRebuildStatusCacheRequred to true if required
-        // Check if the file state must be refreshed
-        // Return: true if the file is dirty, false if not
-        // ------------------------------------------------------------------------
-        bool PrepareWatchedFile(string fileName)
-        {
-            bool isDirty = true;
+            bool dirty = true;
 
             if (Directory.Exists(fileName))
             {
-                // directories are not controlled
-                isDirty = false;
-            }
-            else if (fileName.IndexOf(".hg\\dirstate") > -1)
-            {
-                if (!_SkipDirstate)
-                {
-                    _bRebuildStatusCacheRequired = true;
-                    Trace.WriteLine(" ... rebuild of status cache required");
-                }
-                isDirty = false;
+                dirty = false;
             }
             else if (fileName.IndexOf("\\.hg") != -1)
             {
-                // all other .hg files are ignored
-                isDirty = false;
+                dirty = false;
+            }
+            else if (fileName.IndexOf(".hg\\dirstate") > -1)
+            {
+                if (!_updating)
+                {
+                    _cacheUpdateRequired = true;
+                }
+
+                dirty = false;
             }
             else
             {
-                HgFileInfo hgFileStatusInfo;
-
-                lock (_fileInfoCache)
-                {
-                    _fileInfoCache.TryGetValue(fileName, out hgFileStatusInfo);
-                }
-
-                if (hgFileStatusInfo != null)
-                {
-                    FileInfo fileInfo = new FileInfo(fileName);
-                    if (fileInfo.Exists)
-                    {
-                        // see if the file states are equal
-                        if ((hgFileStatusInfo.LastWriteTime == fileInfo.LastWriteTime &&
-                        hgFileStatusInfo.Length == fileInfo.Length))
-                        {
-                            isDirty = false;
-                        }
-                    }
-                    else
-                    {
-                        if (hgFileStatusInfo.Status == HgFileStatus.Removed || hgFileStatusInfo.Status == HgFileStatus.Uncontrolled)
-                        {
-                            isDirty = false;
-                        }
-                    }
-                }
+                dirty = IsDirty(fileName);
             }
-            return isDirty;
+
+            return dirty;
         }
 
-        /// <summary>
-        /// list all modified files of all watchers into the return list and reset 
-        /// watcher files maps
-        /// </summary>
-        /// <returns></returns>
-        private List<string> PopDirtyWatcherFiles()
+        private bool IsDirty(string fileName)
         {
-            var fileList = new List<string>();
-            foreach (var directoryWatcher in _directoryWatcherMap.Watchers)
+            var fileInfo = GetFileInfo(fileName);
+
+            if (fileInfo == null)
             {
-                var dirtyFiles = directoryWatcher.DumpDirtyFiles();
-                if (dirtyFiles.Length > 0)
-                {
-                    // first collect dirty files list
-                    foreach (var dirtyFile in dirtyFiles)
-                    {
-                        if (PrepareWatchedFile(dirtyFile) && !_bRebuildStatusCacheRequired)
-                        {
-                            fileList.Add(dirtyFile);
-                        }
-
-                        // could be set by PrepareWatchedFile
-                        if (_bRebuildStatusCacheRequired)
-                            break;
-                    }
-                }
+                return true;
             }
-            return fileList;
-        }
-
-        // ------------------------------------------------------------------------
-        // update file status of the watched dirty files
-        // ------------------------------------------------------------------------
-        bool UpdateFileStatusDictionary(List<string> fileList)
-        {
-            bool updateUI = false;
-
-            if (_bRebuildStatusCacheRequired)
-                return false;
-
-            // now we will get Hg status information for the remaining files
-            if (!_bRebuildStatusCacheRequired && fileList.Count > 0)
+            
+            if (IsControlled(fileInfo) && FileInfoChanged(fileName, fileInfo))
             {
-                SkipDirstate(true);
-                var fileStatusDictionary = Hg.GetFileStatus(fileList.ToArray());
-                if (fileStatusDictionary != null)
-                {
-                    Trace.WriteLine("got status for watched files - count: " + fileStatusDictionary.Count.ToString());
-                    lock (_fileInfoCache)
-                    {
-                        _fileInfoCache.Add(fileStatusDictionary);
-                    }
-                }
-                SkipDirstate(false);
-                updateUI = true;
+                return true;
             }
-            return updateUI;
+
+            return false;
         }
 
-        #endregion directory watcher
-
-
-        // ------------------------------------------------------------------------
-        // files used in any loaded project
-        // ------------------------------------------------------------------------
-        Dictionary<string, object> _FileToProjectCache = new Dictionary<string, object>();
-
-        public void AddFileToProjectCache(IList<string> fileList, object project)
+        private HgFileInfo GetFileInfo(string fileName)
         {
-            lock (_FileToProjectCache)
+            HgFileInfo fileInfo = null;
+
+            lock (_cache)
             {
-                foreach (string file in fileList)
-                    _FileToProjectCache[file.ToLower()] = project;
+                _cache.TryGetValue(fileName, out fileInfo);
             }
+
+            return fileInfo;
         }
 
-        public void RemoveFileFromProjectCache(IList<string> fileList)
+        private static bool IsControlled(HgFileInfo fileInfo)
         {
-            lock (_FileToProjectCache)
+            return fileInfo.Status != HgFileStatus.Removed && fileInfo.Status != HgFileStatus.Uncontrolled;
+        }
+
+        private static bool FileInfoChanged(string fileName, HgFileInfo fileInfo)
+        {
+            var fi = new FileInfo(fileName);
+
+            return !fi.Exists ||
+                fi.Length != fileInfo.Length ||
+                fi.LastWriteTime != fileInfo.LastWriteTime;
+        }
+
+
+        private void OnStatusChanged(SynchronizationContext context)
+        {
+            if (context == null)
             {
-                foreach (string file in fileList)
-                    _FileToProjectCache.Remove(file.ToLower());
+                StatusChanged(this, EventArgs.Empty);
             }
-        }
-
-        public void ClearFileToProjectCache()
-        {
-            lock (_FileToProjectCache)
+            else
             {
-                _FileToProjectCache.Clear();
+                context.Post((SendOrPostCallback)(x => StatusChanged(this, EventArgs.Empty)), null);
             }
-        }
-
-        public int FileProjectMapCacheCount()
-        {
-            return _FileToProjectCache.Count;
         }
     }
 }

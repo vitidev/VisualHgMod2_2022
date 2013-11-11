@@ -11,9 +11,9 @@ namespace HgLib
             _directory = directory;
         }
 
-        public void Run(HgStatus status, List<string> dirtyFilesList)
+        public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            status.AddRootDirectory(_directory);
+            repo.AddRootDirectory(_directory);
         }
     }
 }

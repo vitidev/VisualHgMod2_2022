@@ -11,9 +11,9 @@ namespace HgLib
             _fileNames = fileNames;
         }
 
-        public void Run(HgStatus status, List<string> dirtyFilesList)
+        public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            status.EnterFilesRemoved(_fileNames);
+            repo.RemoveFiles(_fileNames);
             dirtyFilesList.AddRange(_fileNames);
         }
     }

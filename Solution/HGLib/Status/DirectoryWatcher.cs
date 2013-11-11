@@ -30,6 +30,17 @@ namespace HgLib
             }
         }
 
+        public bool FileSystemWatch
+        {
+            set
+            {
+                lock (_syncRoot)
+                {
+                    _watcher.EnableRaisingEvents = value;
+                }
+            }
+        }
+
 
         public DirectoryWatcher(string directory)
         {
@@ -38,7 +49,8 @@ namespace HgLib
             _dirtyFiles = new List<string>();
             _syncRoot = new object();
 
-            _watcher = new FileSystemWatcher {
+            _watcher = new FileSystemWatcher
+            {
                 Path = directory,
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.FileName |
@@ -57,17 +69,10 @@ namespace HgLib
             _watcher.EnableRaisingEvents = true;
         }
 
+
         public void Dispose()
         {
             _watcher.Dispose();
-        }
-
-        public void EnableDirectoryWatching(bool enable)
-        {
-            lock (_syncRoot)
-            {
-                _watcher.EnableRaisingEvents = enable;
-            }
         }
 
         public void UnsubscribeEvents()

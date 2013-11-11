@@ -15,17 +15,17 @@ namespace HgLib
         }
 
 
-        public static Dictionary<string, char> GetRootStatus(string root)
+        public static Dictionary<string, char> GetRootStatus(string directory)
         {
             var status = new Dictionary<string, char>();
 
-            if (!String.IsNullOrEmpty(root))
+            if (!String.IsNullOrEmpty(directory))
             {
                 var nameHistory = new Dictionary<string, string>();
 
-                var output = RunHg(root, "status -m -a -r -d -c -C ");
+                var output = RunHg(directory, "status -m -a -r -d -c -C ");
 
-                UpdateStatus(root, output, status, nameHistory);
+                UpdateStatus(directory, output, status, nameHistory);
             }
 
             return status;
@@ -123,19 +123,19 @@ namespace HgLib
         }
 
 
-        public static bool EnterFileRenamed(string[] originalFileNames, string[] newFileNames)
+        public static bool RenameFiles(string[] oldFileNames, string[] newFileNames)
         {
             try
             {
-                for (int i = 0; i < originalFileNames.Length; ++i)
+                for (int i = 0; i < oldFileNames.Length; ++i)
                 {
-                    var workingDirectory = originalFileNames[i].Substring(0, originalFileNames[i].LastIndexOf('\\'));
+                    var workingDirectory = Path.GetDirectoryName(oldFileNames[i]);
                     var rootDirectory = HgProvider.FindRepositoryRoot(workingDirectory);
 
-                    var originalName = originalFileNames[i].Substring(rootDirectory.Length + 1);
+                    var oldName = oldFileNames[i].Substring(rootDirectory.Length + 1);
                     var newName = newFileNames[i].Substring(rootDirectory.Length + 1);
                     
-                    RunHg(rootDirectory, "rename  -A \"" + originalName + "\" \"" + newName + "\"");
+                    RunHg(rootDirectory, String.Format("rename -A \"{0}}\" \"{1}\"", oldName, newName));
                 }
             }
             catch
@@ -146,7 +146,7 @@ namespace HgLib
             return true;
         }
 
-        public static Dictionary<string, char> EnterFileRemoved(string[] fileNames)
+        public static Dictionary<string, char> RemoveFiles(string[] fileNames)
         {
             return GetStatus("remove", fileNames);
         }

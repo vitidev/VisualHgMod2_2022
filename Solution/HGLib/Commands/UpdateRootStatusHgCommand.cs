@@ -11,9 +11,9 @@ namespace HgLib
             _root = root;
         }
 
-        public void Run(HgStatus status, List<string> dirtyFilesList)
+        public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            status.UpdateFileStatus(_root);
+            repo.UpdateRootStatus(_root);
         }
     }
 }

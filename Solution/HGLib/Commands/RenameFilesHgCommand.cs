@@ -13,9 +13,9 @@ namespace HgLib
             _newFileNames = newFileNames;
         }
 
-        public void Run(HgStatus status, List<string> dirtyFilesList)
+        public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            status.EnterFileRenamed(_oldFileNames, _newFileNames);
+            repo.RenameFiles(_oldFileNames, _newFileNames);
             dirtyFilesList.AddRange(_newFileNames);
         }
     }

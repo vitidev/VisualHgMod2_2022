@@ -20,7 +20,7 @@ namespace VisualHg
     // handles directory watcher events.
     //
     // ---------------------------------------------------------------------------
-    public class HgStatusTracker : HgLib.HgStatus
+    public class HgStatusTracker : HgLib.HgRepository
     {
         /// <summary>
         /// Called by SccProviderSrvice when a scc-capable project is opened
@@ -34,7 +34,7 @@ namespace VisualHg
                 string projectDirectory = SccProjectData.ProjectDirectory((IVsHierarchy)project);
                 string projectName = SccProjectData.ProjectName((IVsHierarchy)project);
 
-                AddWorkItem(new HgLib.UpdateRootDirectoryAdded(projectDirectory));
+                Enqueue(new HgLib.UpdateRootDirectoryAdded(projectDirectory));
             }
         }
         
@@ -50,7 +50,7 @@ namespace VisualHg
                 if (!String.IsNullOrEmpty(projectFile))
                 {
                     string projectDirectory = projectFile.Substring(0, projectFile.LastIndexOf("\\") + 1);
-                    AddWorkItem(new HgLib.UpdateRootDirectoryAdded(projectDirectory));
+                    Enqueue(new HgLib.UpdateRootDirectoryAdded(projectDirectory));
                 }
             }
         }

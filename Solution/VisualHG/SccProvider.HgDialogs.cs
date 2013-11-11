@@ -18,8 +18,8 @@ namespace VisualHg
             {
                 try {
                 HgLib.TortoiseHg.ShowSelectedFilesWindow(files, command);
-                sccService.StatusTracker.RebuildStatusCacheRequiredFlag=false;
-                sccService.StatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(files));
+                sccService.StatusTracker.CacheUpdateRequired=false;
+                sccService.StatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(files));
                 }catch{}
             });
         }
@@ -53,8 +53,8 @@ namespace VisualHg
                 if (process != null)
                     process.WaitForExit();
 
-                sccService.StatusTracker.RebuildStatusCacheRequiredFlag = false;
-                sccService.StatusTracker.AddWorkItem(new HgLib.UpdateRootStatusHgCommand(root));
+                sccService.StatusTracker.CacheUpdateRequired = false;
+                sccService.StatusTracker.Enqueue(new HgLib.UpdateRootStatusHgCommand(root));
                 }catch{}
             });
         }
@@ -108,8 +108,8 @@ namespace VisualHg
                 if (process != null)
                     process.WaitForExit();
 
-                sccService.StatusTracker.RebuildStatusCacheRequiredFlag = false;
-                sccService.StatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(new string[]{file}));
+                sccService.StatusTracker.CacheUpdateRequired = false;
+                sccService.StatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(new string[]{file}));
                 }catch{}
             });
         }

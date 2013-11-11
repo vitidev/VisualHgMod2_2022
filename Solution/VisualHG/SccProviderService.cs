@@ -63,7 +63,7 @@ namespace VisualHg
             Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
 
             // Subscribe to status events
-            _sccStatusTracker.HgStatusChanged += SetNodesGlyphsDirty;
+            _sccStatusTracker.StatusChanged += SetNodesGlyphsDirty;
 
             IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManagerService.AdviseUpdateSolutionEvents(this, out _dwBuildManagerCooky);
@@ -88,7 +88,7 @@ namespace VisualHg
             }
 
             // Unregister from storrage events
-            _sccStatusTracker.HgStatusChanged -= SetNodesGlyphsDirty;
+            _sccStatusTracker.StatusChanged -= SetNodesGlyphsDirty;
 
             IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManagerService.UnadviseUpdateSolutionEvents(_dwBuildManagerCooky);
@@ -118,7 +118,7 @@ namespace VisualHg
             // add all projects of this solution to the status file cache
             IVsSolution solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
             this._sccStatusTracker.UpdateProjects(solution);
-            this._sccStatusTracker.SetCacheDirty();
+            this._sccStatusTracker.CacheUpdateRequired = true;
 
             return VSConstants.S_OK;
         }
@@ -142,7 +142,7 @@ namespace VisualHg
             else
             {
                 // Although the parameter is an int, it's in reality a BOOL value, so let's return 0/1 values
-                pfResult = _sccStatusTracker.AnyItemsUnderSourceControl() ? 1 : 0;
+                pfResult = _sccStatusTracker.IsEmpty ? 0 : 1;
             }
 
             return VSConstants.S_OK;
@@ -229,7 +229,7 @@ namespace VisualHg
                     File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
 
                   string[] files = new string[] { pszMkDocument};
-                  _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(files));
+                  _sccStatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(files));
               }
               catch{}
             }
@@ -249,7 +249,7 @@ namespace VisualHg
                 Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
             }
 
-            _sccStatusTracker.AddWorkItem(new HgLib.UpdateFileStatusHgCommand(rgpszMkDocuments));
+            _sccStatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(rgpszMkDocuments));
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
@@ -273,7 +273,7 @@ namespace VisualHg
         /// <returns>True if project is controlled.</returns>
         public bool IsProjectControlled(IVsHierarchy pHier)
         {
-            return _sccStatusTracker.AnyItemsUnderSourceControl();
+            return !_sccStatusTracker.IsEmpty;
         }
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace VisualHg
                 UpdatePendingWindowState(); 
                 RefreshNodesGlyphs();
                 // update main caption
-                _sccProvider.UpdateMainWindowTitle(_sccStatusTracker.FormatBranchList());
+                _sccProvider.UpdateMainWindowTitle(_sccStatusTracker.GetBranchNames());
                 
                 lastUpdate = DateTime.Now.Ticks;
                 _bNodesGlyphsDirty = false;
@@ -373,7 +373,7 @@ namespace VisualHg
         {
             Trace.WriteLine("UpdateSolution_Done"); 
             
-            _sccStatusTracker.UpdateSolution_Done();
+            _sccStatusTracker.SolutionBuildEnded();
             return VSConstants.E_NOTIMPL;
 
         }
@@ -382,7 +382,7 @@ namespace VisualHg
         {
             Trace.WriteLine("UpdateSolution_StartUpdate"); 
 
-            _sccStatusTracker.UpdateSolution_StartUpdate();
+            _sccStatusTracker.SolutionBuildStarted();
             return VSConstants.E_NOTIMPL;
         }
 

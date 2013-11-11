@@ -11,14 +11,14 @@ namespace HgLib
             _fileNames = fileNames;
         }
 
-        public void Run(HgStatus status, List<string> dirtyFilesList)
+        public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
             foreach (var fileName in _fileNames)
             {
-                status.AddRootDirectory(fileName);
+                repo.AddRootDirectory(fileName);
             }
             
-            status.AddNotIgnoredFiles(_fileNames);
+            repo.AddFiles(_fileNames);
         }
     }
 }
