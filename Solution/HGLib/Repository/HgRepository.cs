@@ -20,7 +20,7 @@ namespace HgLib
         private List<string> _projectCache;
         private Dictionary<string, string> _roots;
 
-        private System.Timers.Timer _directoryUpdateTimer;
+        private System.Timers.Timer _timer;
 
         private SynchronizationContext _context;
         
@@ -54,7 +54,7 @@ namespace HgLib
         {
             Initialize();
 
-            _directoryUpdateTimer.Start();
+            _timer.Start();
         }
 
         private void Initialize()
@@ -65,13 +65,13 @@ namespace HgLib
             _roots = new Dictionary<string, string>();
             _projectCache = new List<string>();
             
-            _directoryUpdateTimer = new System.Timers.Timer
+            _timer = new System.Timers.Timer
             { 
                 AutoReset = false,
                 Interval = 100,
             };
 
-            _directoryUpdateTimer.Elapsed += UpdateDirectory;
+            _timer.Elapsed += OnTimerElapsed;
         }
 
 
@@ -404,7 +404,8 @@ namespace HgLib
             _solutionBuilding = false;
         }
         
-        private void UpdateDirectory(object source, ElapsedEventArgs e)
+
+        private void OnTimerElapsed(object source, ElapsedEventArgs e)
         {
             var commands = _commands.DumpCommands();
             
@@ -416,6 +417,8 @@ namespace HgLib
             {
                 UpdateIfNeeded();
             }
+
+            _timer.Start();
         }
 
         private void RunCommands(HgCommandQueue commands)
