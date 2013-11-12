@@ -75,7 +75,6 @@
     <Reference Condition="'$(VsSDKVersion)' == '11.0' OR '$(VsSDKVersion)' == '12.0'" Include="Microsoft.VisualStudio.Shell.Interop.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-
     <Reference Include="envdte, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -104,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="HgRepositoryTracker.cs" />
     <Compile Include="RegestryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
     <Compile Include="SccProvider.ToolWindow.cs" />
@@ -111,7 +111,6 @@
     <Compile Include="SccProvider.HgDialogs.cs" />
     <Compile Include="SccProviderService.NodesGlyphs.cs" />
     <Compile Include="SccProviderService.SolutionEvents.cs" />
-    <Compile Include="Status\HgStatusTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProvideSolutionProps.cs" />
     <Compile Include="SccProjectData.cs" />
@@ -126,6 +125,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SccOnIdleEvent.cs" />
+    <Compile Include="StatusImageMapper.cs" />
     <Compile Include="UI\ListViewColumnIcons.cs" />
     <Compile Include="UI\OptionsPage\SccProviderOptions.cs">
       <SubType>Component</SubType>
@@ -144,7 +144,6 @@
     <Compile Include="UI\PendingChangesWindow\HgPendingChangesToolWindowControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Status\StatusImageMapper.cs" />
     <Compile Include="UI\PendingChangesWindow\PendingItemsListView.cs">
       <SubType>Component</SubType>
     </Compile>
