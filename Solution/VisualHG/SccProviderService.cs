@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace VisualHg
 {
-    [Guid(GuidList.ProviderServiceGuid)]
+    [Guid(Guids.ProviderServiceGuid)]
     public partial class SccProviderService :
         IVsSccProvider,             // Required for provider registration with source control manager
         IVsSccManager2,             // Base source control functionality interface
@@ -299,7 +299,7 @@ namespace VisualHg
         /// if the _bNodesGlyphsDirty is true
         /// </summary>
         long lastUpdate = 0;
-        public void UpdateDirtyNodesGlyphs()
+        public void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
         {
             if (_bNodesGlyphsDirty && (DateTime.Now.Ticks - lastUpdate) > 100)
             {

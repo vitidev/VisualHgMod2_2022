@@ -33,17 +33,17 @@ namespace VisualHg
     
     // Register the VisualHg options page visible as Tools/Options/SourceControl/VisualHg when the provider is active
     [MsVsShell.ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHg", 106, 107, false)]
-    [ProvideToolsOptionsPageVisibility("Source Control", "VisualHg", GuidList.ProviderGuid)]
+    [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.ProviderGuid)]
 
     // Register the source control provider's service (implementing IVsScciProvider interface)
     [MsVsShell.ProvideService(typeof(SccProviderService), ServiceName = "VisualHg")]
     // Register the source control provider to be visible in Tools/Options/SourceControl/Plugin dropdown selector
     [ProvideSourceControlProvider("VisualHg", "#100")]
     // Pre-load the package when the command UI context is asserted (the provider will be automatically loaded after restarting the shell if it was active last time the shell was shutdown)
-    [MsVsShell.ProvideAutoLoad(GuidList.ProviderGuid)]
+    [MsVsShell.ProvideAutoLoad(Guids.ProviderGuid)]
     // Register the key used for persisting solution properties, so the IDE will know to load the source control package when opening a controlled solution containing properties written by this package
-    [ProvideSolutionProps(_strSolutionPersistanceKey)]
-    [MsVsShell.ProvideLoadKey(PLK.MinEdition, PLK.PackageVersion, PLK.PakageName, PLK.CompanyName, 104)]
+    [ProvideSolutionPersistence(_strSolutionPersistanceKey)]
+    [MsVsShell.ProvideLoadKey(PLK.MinEdition, PLK.PackageVersion, PLK.PackageName, PLK.CompanyName, 104)]
     // Declare the package guid
     [Guid(PLK.PackageGuid)]
     public sealed partial class SccProvider : MsVsShell.Package, IOleCommandTarget
@@ -62,7 +62,7 @@ namespace VisualHg
         private const string _strSolutionControlledProperty = "SolutionIsControlled";
         private const string _strSolutionBindingsProperty = "SolutionBindings";
 
-        private SccOnIdleEvent _OnIdleEvent = new SccOnIdleEvent();
+        private IdleNotifier _OnIdleEvent = new IdleNotifier();
 
         public string _LastSeenProjectDir = string.Empty;
 
@@ -115,10 +115,10 @@ namespace VisualHg
             // Register the provider with the source control manager
             // If the package is to become active, this will also callback on OnActiveStateChange and the menu commands will be enabled
             IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)GetService(typeof(IVsRegisterScciProvider));
-            rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
+            rscp.RegisterSourceControlProvider(Guids.guidSccProvider);
 
             _OnIdleEvent.RegisterForIdleTimeCallbacks(GetGlobalService(typeof(SOleComponentManager)) as IOleComponentManager);
-            _OnIdleEvent.OnIdleEvent += new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs);
+            _OnIdleEvent.Idle += sccService.UpdateDirtyNodesGlyphs;
             
             //ShowToolWindow(VisualHgToolWindow.PendingChanges);
         }
@@ -127,7 +127,7 @@ namespace VisualHg
         {
             Trace.WriteLine(String.Format(CultureInfo.CurrentUICulture, "Entering Dispose() of: {0}", this.ToString()));
 
-            _OnIdleEvent.OnIdleEvent -= new OnIdleEvent(sccService.UpdateDirtyNodesGlyphs); 
+            _OnIdleEvent.Idle -= sccService.UpdateDirtyNodesGlyphs; 
             _OnIdleEvent.UnRegisterForIdleTimeCallbacks();
 
             _SccProvider = null; 

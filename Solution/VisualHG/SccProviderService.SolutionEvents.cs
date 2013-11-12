@@ -24,13 +24,13 @@ namespace VisualHg
             Trace.WriteLine("OnAfterOpenSolution");
 
             // Make VisualHg the active SCC controler on Mercurial solution types
-            if (!Active && Configuration.Global._autoActivatePlugin)
+            if (!Active && Configuration.Global.AutoActivatePlugin)
             {
                 string root = this._sccProvider.GetRootDirectory();
                 if (root.Length > 0)
                 {
                     IVsRegisterScciProvider rscp = (IVsRegisterScciProvider)this._sccProvider.GetService(typeof(IVsRegisterScciProvider));
-                    rscp.RegisterSourceControlProvider(GuidList.guidSccProvider);
+                    rscp.RegisterSourceControlProvider(Guids.guidSccProvider);
                 }
             }
             return VSConstants.S_OK;
@@ -52,7 +52,7 @@ namespace VisualHg
         {
             Trace.WriteLine("OnAfterLoadProject");
 
-            _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pRealHierarchy);
+            _sccProvider._LastSeenProjectDir = ProjectHelper.GetDirectoryName(pRealHierarchy);
 
             var project = pRealHierarchy as IVsSccProject2;
 
@@ -68,10 +68,10 @@ namespace VisualHg
         {
             Trace.WriteLine("OnAfterOpenProject");
 
+            var project = pHierarchy as IVsSccProject2;
+            
             //if (fAdded == 1)
             {
-                IVsSccProject2 project = pHierarchy as IVsSccProject2;
-                
                 IList<string> fileList = SccProvider.GetProjectFiles(project);
                 _sccStatusTracker.AddFilesToProjectCache(fileList);
 
@@ -80,16 +80,15 @@ namespace VisualHg
                     string[] files = new string[fileList.Count];
                     fileList.CopyTo(files, 0);
                     // add only files wich are not ignored
-                    if (Configuration.Global._autoAddFiles)
+                    if (Configuration.Global.AutoAddFiles)
                         _sccStatusTracker.Enqueue(new HgLib.AddFilesHgCommand(files));
                     else
                         _sccStatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(files));
                 }
             }
 
-            _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
+            _sccProvider._LastSeenProjectDir = ProjectHelper.GetDirectoryName(pHierarchy);
 
-            var project = pHierarchy as IVsSccProject2;
 
             if (project != null)
             {
@@ -177,7 +176,7 @@ namespace VisualHg
                                 info.Status == HgLib.HgFileStatus.Uncontrolled) // do not add files twice
             {
                 // add only files wich are not ignored
-                if (Configuration.Global._autoAddFiles)
+                if (Configuration.Global.AutoAddFiles)
                     _sccStatusTracker.Enqueue(new HgLib.AddFilesHgCommand(rgpszMkDocuments));
             }
             return VSConstants.S_OK;

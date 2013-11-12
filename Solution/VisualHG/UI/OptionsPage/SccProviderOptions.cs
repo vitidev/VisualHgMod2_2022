@@ -16,7 +16,7 @@ namespace VisualHg
     /// Summary description for SccProviderOptions.
     /// </summary>
     /// 
-    [Guid(GuidList.ProviderOptionsPageGuid)]
+    [Guid(Guids.ProviderOptionsPageGuid)]
     public class SccProviderOptions : MsVsShell.DialogPage
     {
         private SccProviderOptionsControl page = null;

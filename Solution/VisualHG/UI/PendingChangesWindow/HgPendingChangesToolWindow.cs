@@ -18,7 +18,7 @@ namespace VisualHg
     /// <summary>
     /// Summary description for SccProviderToolWindow.
     /// </summary>
-    [Guid(GuidList.HgPendingChangesToolWindowGuid)]
+    [Guid(Guids.HgPendingChangesToolWindowGuid)]
     public class HgPendingChangesToolWindow : ToolWindowPane
     {
         private HgPendingChangesToolWindowControl control;

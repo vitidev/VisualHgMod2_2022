@@ -1,44 +1,41 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
 using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    internal sealed class ProvideSolutionProps : RegistrationAttribute
+    public sealed class ProvideSolutionPersistenceAttribute : RegistrationAttribute
     {
-        private string _propName;
-
-        public ProvideSolutionProps(string propName)
+        private Guid PackageGuid
         {
-            _propName = propName;
+            get { return Guids.guidSccProviderPkg; }
+        }
+
+        public string PackageName { get; private set; }
+
+
+        public ProvideSolutionPersistenceAttribute(string packageName)
+        {
+            PackageName = packageName;
         }
 
         public override void Register(RegistrationContext context)
         {
-            context.Log.WriteLine(string.Format(CultureInfo.InvariantCulture, "ProvideSolutionProps: ({0} = {1})", context.ComponentType.GUID.ToString("B"), PropName));
-
-            Key childKey = null;
-
-            try
+            using (var key = context.CreateKey(GetKeyName()))
             {
-                childKey = context.CreateKey(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", "SolutionPersistence", PropName));
-
-                childKey.SetValue(string.Empty, context.ComponentType.GUID.ToString("B"));
-            }
-            finally
-            {
-                if (childKey != null) childKey.Close();
+                key.SetValue("", PackageGuid.ToString("B"));
+                key.Close();
             }
         }
 
         public override void Unregister(RegistrationContext context)
         {
-            context.RemoveKey(string.Format(CultureInfo.InvariantCulture, "{0}\\{1}", "SolutionPersistence", PropName));
+            context.RemoveKey(GetKeyName());
         }
 
-        public string PropName { get { return _propName; } }
+        private string GetKeyName()
+        {
+            return String.Format(@"{0}\{1}", "SolutionPersistence", PackageName);
+        }
     }
 }

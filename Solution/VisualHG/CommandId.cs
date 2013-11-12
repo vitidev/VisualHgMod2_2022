@@ -1,17 +1,7 @@
-using System;
-
 namespace VisualHg
 {
-	/// <summary>
-	/// This class is used to expose the list of the IDs of the commands implemented
-	/// by the client package. This list of IDs must match the set of IDs defined inside the
-	/// VSCT file.
-	/// </summary>
 	public static class CommandId
 	{
-		// Define the list a set of public static members.
-
-		// Define the list of menus (these include toolbars)
         public const int imnuToolWindowToolbarMenu      = 0x204;
 
         public const int icmdHgCommitRoot               = 0x100;
@@ -28,7 +18,6 @@ namespace VisualHg
         public const int icmdHgHistorySelected          = 0x111;
         public const int icmdHgAddSelected              = 0x112;
         
-        // Define the list of icons (use decimal numbers here, to match the resource IDs)
         public const int iiconProductIcon               = 400;
 	}
 }

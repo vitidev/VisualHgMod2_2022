@@ -25,58 +25,58 @@ namespace VisualHg
             if (mcs != null)
             {
                 // ToolWindow Command
-                CommandID cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdViewToolWindow);
+                CommandID cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdViewToolWindow);
                 MenuCommand menuCmd = new MenuCommand(new EventHandler(Exec_icmdViewToolWindow), cmd);
                 mcs.AddCommand(menuCmd);
 
                 // ToolWindow's ToolBar Command
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdToolWindowToolbarCommand);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdToolWindowToolbarCommand);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdToolWindowToolbarCommand), cmd);
                 mcs.AddCommand(menuCmd);
 
                 // Source control menu commmads
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgStatus);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgStatus);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgStatus), cmd);
                 mcs.AddCommand(menuCmd);
                 
                 // Source control menu commmads
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgDiff);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgDiff);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgDiff), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommitRoot);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitRoot);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitRoot), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitSelected), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgHistoryRoot);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistoryRoot);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistoryRoot), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgHistorySelected);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistorySelected);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistorySelected), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgSynchronize), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgUpdateToRevision);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgUpdateToRevision);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgUpdateToRevision), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgRevert);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgRevert);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgRevert), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAnnotate), cmd);
                 mcs.AddCommand(menuCmd);
 
-                cmd = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
+                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
                 menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAddSelected), cmd);
                 mcs.AddCommand(menuCmd);
 
@@ -105,7 +105,7 @@ namespace VisualHg
                 return VSConstants.E_INVALIDARG;
 
             // Filter out commands that are not defined by this package
-            if (guidCmdGroup != GuidList.guidSccProviderCmdSet)
+            if (guidCmdGroup != Guids.guidSccProviderCmdSet)
             {
                 return (int)(Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED); ;
             }

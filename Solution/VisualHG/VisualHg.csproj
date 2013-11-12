@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="PLK.cs" />
     <Compile Include="HgRepositoryTracker.cs" />
     <Compile Include="RegestryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />

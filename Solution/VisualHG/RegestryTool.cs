@@ -1,85 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
+using System.Linq;
 using Microsoft.Win32;
 
 namespace VisualHg
 {
-    /// <summary>
-    /// registry read/write helper tool
-    /// </summary>
-    public class RegestryTool
+    public static class RegistryTool
     {
-        /// <summary>
-        // Opens the requested key or returns null
-        /// </summary>
-        /// <param name="subKey"></param>
-        /// <returns></returns>
-        static RegistryKey OpenRegKey(string subKey)
+        private static readonly string Prefix = "SOFTWARE\\VisualHg\\";
+        
+
+        public static void LoadProperties(string keyName, object obj)
         {
-            if (string.IsNullOrEmpty(subKey))
-                throw new ArgumentNullException("subKey");
-
-            return Registry.CurrentUser.OpenSubKey("SOFTWARE\\VisualHg\\" + subKey, RegistryKeyPermissionCheck.ReadSubTree);
-        }
-
-        /// <summary>
-        /// Opens or creates the requested key
-        /// </summary>
-        static RegistryKey OpenCreateKey(string subKey)
-        {
-            if (string.IsNullOrEmpty(subKey))
-                throw new ArgumentNullException("subKey");
-
-            return Registry.CurrentUser.CreateSubKey("SOFTWARE\\VisualHg\\" + subKey);
-        }
-
-        /// <summary>
-        /// load object properties from registry
-        /// </summary>
-        /// <param name="keyName"></param>
-        /// <param name="o"></param>
-        static public void LoadProperties(string keyName, Object o)
-        {
-            using (RegistryKey reg = OpenRegKey(keyName))
+            using (var key = OpenKey(keyName))
             {
-                if (reg != null)
+                if (key == null)
                 {
-                    PropertyDescriptorCollection pdc = TypeDescriptor.GetProperties(o);
-                    foreach (PropertyDescriptor pd in pdc)
-                    {
-                        string value = reg.GetValue(pd.Name, null) as string;
-
-                        if (value != null)
-                        {
-                            try
-                            {
-                                pd.SetValue(o, pd.Converter.ConvertFromInvariantString(value));
-                            }
-                            catch { }
-                        }
-                    }
+                    return;
                 }
+
+                LoadProperties(key, obj);
             }
         }
 
-        /// <summary>
-        /// store object properties to registry
-        /// </summary>
-        /// <param name="keyName"></param>
-        /// <param name="o"></param>
-        static public void StoreProperties(string keyName, Object o)
+        public static void StoreProperties(string keyName, object obj)
         {
-            using (RegistryKey reg = OpenCreateKey(keyName))
+            using (var key = CreateKey(keyName))
             {
-                PropertyDescriptorCollection pdc = TypeDescriptor.GetProperties(o);
-                foreach (PropertyDescriptor pd in pdc)
-                {
-                    object value = pd.GetValue(o);
-                    reg.SetValue(pd.Name, pd.Converter.ConvertToInvariantString(value));
-                }
+                StoreProperties(key, obj);
             }
+        }
+
+        
+        private static void LoadProperties(RegistryKey key, object obj)
+        {
+            foreach (var property in GetProperties(obj))
+            {
+                SetPropertyValue(key, obj, property);
+            }
+        }
+
+        private static void StoreProperties(RegistryKey key, object obj)
+        {
+            foreach (var property in GetProperties(obj))
+            {
+                var value = property.GetValue(obj);
+                key.SetValue(property.Name, property.Converter.ConvertToInvariantString(value));
+            }
+        }
+
+        private static void SetPropertyValue(RegistryKey key, object obj, PropertyDescriptor property)
+        {
+            var value = key.GetValue(property.Name, null) as string;
+
+            if (value != null)
+            {
+                try
+                {
+                    property.SetValue(obj, property.Converter.ConvertFromInvariantString(value));
+                }
+                catch { }
+            }
+        }
+
+        
+        private static RegistryKey OpenKey(string subKey)
+        {
+            if (String.IsNullOrEmpty(subKey))
+            {
+                throw new ArgumentNullException("subKey");
+            }
+
+            return Registry.CurrentUser.OpenSubKey(Prefix + subKey, RegistryKeyPermissionCheck.ReadSubTree);
+        }
+
+        private static RegistryKey CreateKey(string subKey)
+        {
+            if (String.IsNullOrEmpty(subKey))
+            {
+                throw new ArgumentNullException("subKey");
+            }
+
+            return Registry.CurrentUser.CreateSubKey(Prefix + subKey);
+        }
+
+        private static IEnumerable<PropertyDescriptor> GetProperties(object obj)
+        {
+            return TypeDescriptor.GetProperties(obj).Cast<PropertyDescriptor>();
         }
     };
 }

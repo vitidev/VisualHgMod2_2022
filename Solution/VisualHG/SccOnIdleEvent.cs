@@ -1,20 +1,16 @@
 ﻿using System;
-using Microsoft.VisualStudio.OLE.Interop;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.OLE.Interop;
 
 namespace VisualHg
 {
-    // ------------------------------------------------------------------------
-    // IOleComponent OnIdle trigger
-    // ------------------------------------------------------------------------
-    public delegate void OnIdleEvent();
-
-    class SccOnIdleEvent : IOleComponent
+    public class IdleNotifier : IOleComponent
     {
-        uint _wComponentID = 0;
-        IOleComponentManager _cmService = null;
+        private uint _wComponentID;
+        private IOleComponentManager _cmService;
 
-        public event OnIdleEvent OnIdleEvent;
+        public event EventHandler Idle = (s, e) => { };
+
 
         public void RegisterForIdleTimeCallbacks(IOleComponentManager cmService)
         {
@@ -22,56 +18,78 @@ namespace VisualHg
 
             if (_cmService != null)
             {
-                OLECRINFO[] pcrinfo = new OLECRINFO[1];
-                pcrinfo[0].cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO));
-                pcrinfo[0].grfcrf = (uint)_OLECRF.olecrfNeedIdleTime |
-                                              (uint)_OLECRF.olecrfNeedPeriodicIdleTime;
-                pcrinfo[0].grfcadvf = (uint)_OLECADVF.olecadvfModal |
-                                              (uint)_OLECADVF.olecadvfRedrawOff |
-                                              (uint)_OLECADVF.olecadvfWarningsOff;
-                pcrinfo[0].uIdleTimeInterval = 100;
-
-                _cmService.FRegisterComponent(this, pcrinfo, out _wComponentID);
+                RegisterComponent();
             }
+        }
+
+        private void RegisterComponent()
+        {
+            var pcrinfo = new OLECRINFO
+            {
+                cbSize   = (uint)Marshal.SizeOf(typeof(OLECRINFO)),
+
+                grfcrf   = (uint)(_OLECRF.olecrfNeedIdleTime |
+                                  _OLECRF.olecrfNeedPeriodicIdleTime),
+
+                grfcadvf = (uint)(_OLECADVF.olecadvfModal |
+                                  _OLECADVF.olecadvfRedrawOff |
+                                  _OLECADVF.olecadvfWarningsOff),
+
+                uIdleTimeInterval = 100,
+            };
+
+            _cmService.FRegisterComponent(this, new[] { pcrinfo }, out _wComponentID);
         }
 
         public void UnRegisterForIdleTimeCallbacks()
         {
             if (_cmService != null)
+            {
                 _cmService.FRevokeComponent(_wComponentID);
+            }
         }
-        
-        public virtual int FContinueMessageLoop(uint uReason, IntPtr pvLoopData, MSG[] pMsgPeeked)
-        { return 1;  }
 
-        /// <summary>
-        /// Idle processing trigger method
-        /// </summary>
-        public virtual int FDoIdle(uint grfidlef)
+
+        public int FContinueMessageLoop(uint uReason, IntPtr pvLoopData, MSG[] pMsgPeeked)
         {
-            if (OnIdleEvent != null)
-                OnIdleEvent();
+            return 1;
+        }
+
+        public int FDoIdle(uint grfidlef)
+        {
+            Idle(this, EventArgs.Empty);
 
             return 0;
         }
 
-        public virtual int FPreTranslateMessage(MSG[] pMsg)
-        { return 0; }
-        public virtual int FQueryTerminate(int fPromptUser)
-        { return 1; }
-        public virtual int FReserved1(uint dwReserved, uint message, IntPtr wParam, IntPtr lParam)
-        { return 0; }
-        public virtual IntPtr HwndGetWindow(uint dwWhich, uint dwReserved)
-        { return IntPtr.Zero; }
-        public virtual void OnActivationChange(IOleComponent pic, int fSameComponent, OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo, uint dwReserved)
-        { ; }
-        public virtual void OnAppActivate(int fActive, uint dwOtherThreadID)
-        { ; }
-        public virtual void OnEnterState(uint uStateID, int fEnter)
-        { ; }
-        public virtual void OnLoseActivation()
-        { ; }
-        public virtual void Terminate()
-        { ; }
+        public int FPreTranslateMessage(MSG[] pMsg)
+        {
+            return 0; 
+        }
+
+        public int FQueryTerminate(int fPromptUser)
+        { 
+            return 1;
+        }
+        
+        public int FReserved1(uint dwReserved, uint message, IntPtr wParam, IntPtr lParam)
+        { 
+            return 0;
+        }
+        
+        public IntPtr HwndGetWindow(uint dwWhich, uint dwReserved)
+        { 
+            return IntPtr.Zero;
+        }
+
+        public void OnActivationChange(IOleComponent pic, int fSameComponent, OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo, uint dwReserved) { }
+        
+        public void OnAppActivate(int fActive, uint dwOtherThreadID) { }
+        
+        public void OnEnterState(uint uStateID, int fEnter) { }
+        
+        public void OnLoseActivation() { }
+        
+        public void Terminate() { }
     }
 }
