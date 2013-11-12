@@ -2,11 +2,11 @@
 
 namespace HgLib
 {
-    public class UpdateRootDirectoryAdded : HgCommand
+    public class AddRootDirectoryHgCommand : HgCommand
     {
         private string _directory;
         
-        public UpdateRootDirectoryAdded(string directory)
+        public AddRootDirectoryHgCommand(string directory)
         {
             _directory = directory;
         }

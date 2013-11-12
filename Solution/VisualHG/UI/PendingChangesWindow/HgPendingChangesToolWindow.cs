@@ -42,7 +42,7 @@ namespace VisualHg
         }
 
         // route update pending changes call
-        public void UpdatePendingList(HgStatusTracker tracker)
+        public void UpdatePendingList(HgRepositoryTracker tracker)
         {
           control.UpdatePendingList(tracker);
         }

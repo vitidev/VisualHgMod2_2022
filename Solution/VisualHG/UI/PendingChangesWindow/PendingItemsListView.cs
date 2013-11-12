@@ -91,7 +91,7 @@ namespace VisualHg
     // ------------------------------------------------------------------------
     // update pending items list by status tracker object
     // ------------------------------------------------------------------------
-    public void UpdatePendingList(HgStatusTracker tracker)
+    public void UpdatePendingList(HgRepositoryTracker tracker)
     {
       Dictionary<string, int> selection;
       StoreSelection(out selection);

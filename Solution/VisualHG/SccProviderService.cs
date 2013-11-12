@@ -35,7 +35,7 @@ namespace VisualHg
         // The cookie for project document events
         private uint _tpdTrackProjectDocumentsCookie;
         // solution file status cache
-        HgStatusTracker _sccStatusTracker = new HgStatusTracker();
+        HgRepositoryTracker _sccStatusTracker = new HgRepositoryTracker();
         // service.advise IVsUpdateSolutionEvents cooky
         uint _dwBuildManagerCooky = 0;
 
@@ -97,7 +97,7 @@ namespace VisualHg
         #endregion
 
         // access to the tracker object
-        public HgStatusTracker StatusTracker
+        public HgRepositoryTracker StatusTracker
         {
             get { return _sccStatusTracker; }
         }

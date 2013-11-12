@@ -170,7 +170,7 @@ namespace VisualHg
     // ------------------------------------------------------------------------
     // update pending list with status tracker
     // ------------------------------------------------------------------------
-    public void UpdatePendingList(HgStatusTracker tracker)
+    public void UpdatePendingList(HgRepositoryTracker tracker)
     {
       _pendingItemsListView.UpdatePendingList(tracker);
     }

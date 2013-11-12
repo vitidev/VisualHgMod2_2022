@@ -53,7 +53,14 @@ namespace VisualHg
             Trace.WriteLine("OnAfterLoadProject");
 
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pRealHierarchy);
-            _sccStatusTracker.UpdateProject(pRealHierarchy as IVsSccProject2);
+
+            var project = pRealHierarchy as IVsSccProject2;
+
+            if (project != null)
+            {
+                _sccStatusTracker.UpdateProject(project);
+            }
+
             return VSConstants.S_OK;
         }
 
@@ -81,7 +88,14 @@ namespace VisualHg
             }
 
             _sccProvider._LastSeenProjectDir = SccProjectData.ProjectDirectory(pHierarchy);
-            _sccStatusTracker.UpdateProject(pHierarchy as IVsSccProject2);
+
+            var project = pHierarchy as IVsSccProject2;
+
+            if (project != null)
+            {
+                _sccStatusTracker.UpdateProject(project);
+            }
+
             return VSConstants.S_OK;
         }
 
