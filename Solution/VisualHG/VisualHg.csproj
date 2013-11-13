@@ -112,7 +112,6 @@
     <Compile Include="ProjectHelper.cs" />
     <Compile Include="RegistryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
-    <Compile Include="SccProvider.ToolWindow.cs" />
     <Compile Include="SccProvider.Utillities.cs" />
     <Compile Include="SccProvider.HgDialogs.cs" />
     <Compile Include="SccProviderService.NodesGlyphs.cs" />

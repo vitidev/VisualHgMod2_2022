@@ -343,7 +343,8 @@ namespace VisualHg
 
         private void UpdatePendingWindowState()
         {
-            object pane = _sccProvider.FindToolWindow(VisualHgToolWindow.PendingChanges);
+            object pane = _sccProvider.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, false);
+            
             if (pane != null)
             {
                 ((HgPendingChangesToolWindow)pane).UpdatePendingList(_sccStatusTracker);
