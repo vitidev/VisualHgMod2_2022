@@ -12,7 +12,7 @@ namespace VisualHg
         public event EventHandler Idle = (s, e) => { };
 
 
-        public void RegisterForIdleTimeCallbacks(IOleComponentManager cmService)
+        public void Register(IOleComponentManager cmService)
         {
             _cmService = cmService;
 
@@ -41,7 +41,7 @@ namespace VisualHg
             _cmService.FRegisterComponent(this, new[] { pcrinfo }, out _wComponentID);
         }
 
-        public void UnRegisterForIdleTimeCallbacks()
+        public void Revoke()
         {
             if (_cmService != null)
             {

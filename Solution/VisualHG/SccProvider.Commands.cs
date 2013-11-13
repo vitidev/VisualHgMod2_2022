@@ -246,7 +246,7 @@ namespace VisualHg
             }
             else
             {
-                PromptSolutionNotControlled();
+                NotifySolutionIsNotUnderVersionControl();
             }
         }
 

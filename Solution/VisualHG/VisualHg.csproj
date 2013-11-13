@@ -107,7 +107,6 @@
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="IdleNotifier.cs" />
-    <Compile Include="PLK.cs" />
     <Compile Include="HgRepositoryTracker.cs" />
     <Compile Include="ProjectHelper.cs" />
     <Compile Include="RegistryTool.cs" />

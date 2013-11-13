@@ -30,7 +30,7 @@ namespace VisualHg
         public int OnAfterCloseSolution(object pUnkReserved)
         {
             _sccStatusTracker.ClearCache();
-            _sccProvider._LastSeenProjectDir = "";
+            _sccProvider.LastSeenProjectDirectory = "";
             
             UpdatePendingWindowState();
 
@@ -39,7 +39,7 @@ namespace VisualHg
 
         public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
         {
-            _sccProvider._LastSeenProjectDir = ProjectHelper.GetDirectoryName(pRealHierarchy);
+            _sccProvider.LastSeenProjectDirectory = ProjectHelper.GetDirectoryName(pRealHierarchy);
 
             var project = pRealHierarchy as IVsSccProject2;
 
@@ -76,7 +76,7 @@ namespace VisualHg
                 _sccStatusTracker.UpdateProject(project);
             }
 
-            _sccProvider._LastSeenProjectDir = ProjectHelper.GetDirectoryName(pHierarchy);
+            _sccProvider.LastSeenProjectDirectory = ProjectHelper.GetDirectoryName(pHierarchy);
 
 
             return VSConstants.S_OK;

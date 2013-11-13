@@ -8,7 +8,7 @@ namespace VisualHg
 {
     public static class RegistryTool
     {
-        private static readonly string Prefix = "SOFTWARE\\VisualHg\\";
+        private static readonly string Prefix = @"SOFTWARE\VisualHg\";
         
 
         public static void LoadProperties(string keyName, object obj)
@@ -65,24 +65,24 @@ namespace VisualHg
         }
 
         
-        private static RegistryKey OpenKey(string subKey)
+        private static RegistryKey OpenKey(string keyName)
         {
-            if (String.IsNullOrEmpty(subKey))
+            if (String.IsNullOrEmpty(keyName))
             {
                 throw new ArgumentNullException("subKey");
             }
 
-            return Registry.CurrentUser.OpenSubKey(Prefix + subKey, RegistryKeyPermissionCheck.ReadSubTree);
+            return Registry.CurrentUser.OpenSubKey(Prefix + keyName, RegistryKeyPermissionCheck.ReadSubTree);
         }
 
-        private static RegistryKey CreateKey(string subKey)
+        private static RegistryKey CreateKey(string keyName)
         {
-            if (String.IsNullOrEmpty(subKey))
+            if (String.IsNullOrEmpty(keyName))
             {
                 throw new ArgumentNullException("subKey");
             }
 
-            return Registry.CurrentUser.CreateSubKey(Prefix + subKey);
+            return Registry.CurrentUser.CreateSubKey(Prefix + keyName);
         }
 
         private static IEnumerable<PropertyDescriptor> GetProperties(object obj)

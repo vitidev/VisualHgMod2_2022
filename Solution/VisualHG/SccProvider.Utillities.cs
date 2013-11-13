@@ -533,9 +533,9 @@ namespace VisualHg
                 if (root == String.Empty)
                 {
                     // this is for WebPage projects. the solution file is not included inside the Hg root dir.
-                    if (_LastSeenProjectDir != null)
+                    if (LastSeenProjectDirectory != null)
                     {
-                        root = HgProvider.FindRepositoryRoot(_LastSeenProjectDir);
+                        root = HgProvider.FindRepositoryRoot(LastSeenProjectDirectory);
                     }
                 }
             }
