@@ -110,7 +110,7 @@ namespace VisualHg
             ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
             
             // Add our command handlers for menu (commands must exist in the .vsct file)
-            InitVSCTMenuCommandHandler();
+            InitializeMenuCommands();
             
             // Register the provider with the source control manager
             // If the package is to become active, this will also callback on OnActiveStateChange and the menu commands will be enabled

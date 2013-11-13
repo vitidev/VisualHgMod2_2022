@@ -703,7 +703,7 @@ namespace VisualHg
         /// get current single selected filename
         /// </summary>
         /// <returns></returns>
-        public string GetSingleSelectedFileName()
+        public string GetSelectedFile()
         {
             string filename = string.Empty;
             var selectedNodes = GetSelectedNodes();
@@ -732,12 +732,11 @@ namespace VisualHg
             return filename;
         }
 
-        // ------------------------------------------------------------------------
-        // find selected file state mask - for quick menu flags detection
-        // ------------------------------------------------------------------------
-        public bool FindSelectedFirstMask(bool includeChildItems, long stateMask)
+        public bool FindSelectedFirstMask(HgFileStatus statusMask, bool includeChildItems)
         {
+            var stateMask = (long)statusMask;
             var selectedNodes = GetSelectedNodes();
+
             foreach (VSITEMSELECTION node in selectedNodes)
             {
                 IVsProject pscp = node.pHier as IVsProject;
@@ -866,7 +865,7 @@ namespace VisualHg
         /// get current selected filenames
         /// </summary>
         /// <returns></returns>
-        public List<string> GetSelectedFileNameArray(bool includeChildItems)
+        public List<string> GetSelectedFiles(bool includeChildItems)
         {
             List<string> array = new List<string>();
 

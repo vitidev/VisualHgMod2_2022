@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using HgLib;
 
@@ -8,127 +6,125 @@ namespace VisualHg
 {
     partial class SccProvider
     {
-        // ------------------------------------------------------------------------
-        // show an wait for exit of required dialog
-        // update state for given files
-        // ------------------------------------------------------------------------
-        void QueueDialog(string[] files, string command)
+        public void ShowCommitWindow(string directory)
         {
-            ThreadPool.QueueUserWorkItem(o =>
+            QueueTortoiseHgStart("commit", directory);
+        }
+
+        public void ShowWorkbenchWindow(string directory)
+        {
+            QueueTortoiseHgStart("log", directory);
+        }
+
+        public void ShowStatusWindow(string directory)
+        {
+            QueueTortoiseHgStart("status", directory);
+        }
+
+        public void ShowSynchronizeWindow(string directory)
+        {
+            QueueTortoiseHgStart("synch", directory);
+        }
+
+        public void ShowUpdateWindow(string directory)
+        {
+            QueueTortoiseHgStart("update", directory);
+        }
+
+
+        public void ShowAddSelectedWindow(string[] files)
+        {
+            QueueTortoiseHgStart(" --nofork add ", files);
+        }
+
+        public void ShowCommitWindowPrivate(string[] files)
+        {
+            QueueTortoiseHgStart(" --nofork commit ", files);
+        }
+
+        public void ShowDiffWindow(string parent, string current, string customDiffTool)
+        {
+            QueueDiffToolStart(parent, current, customDiffTool);
+        }
+
+        public void ShowRevertWindowPrivate(string[] files)
+        {
+            QueueTortoiseHgStart(" --nofork revert ", files);
+        }
+
+        public void ShowHistoryWindowPrivate(string fileName)
+        {
+            ShowFileWindow(fileName, "log");
+        }
+
+        public void ShowAnnotateWindowPrivate(string fileName)
+        {
+            ShowFileWindow(fileName, "annotate");
+        }
+
+        private void ShowFileWindow(string fileName, string command)
+        {
+            var root = HgProvider.FindRepositoryRoot(fileName);
+
+            if (!String.IsNullOrEmpty(root))
             {
-                try {
-                HgLib.TortoiseHg.ShowSelectedFilesWindow(files, command);
-                sccService.StatusTracker.CacheUpdateRequired=false;
-                sccService.StatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(files));
-                }catch{}
-            });
-        }
+                fileName = fileName.Substring(root.Length + 1);
 
-        // ------------------------------------------------------------------------
-        // commit selected files dialog
-        // ------------------------------------------------------------------------
-        public void CommitDialog(string[] files)
-        {
-            QueueDialog(files, " --nofork commit ");
-        }
-
-        // ------------------------------------------------------------------------
-        // add files to repo dialog
-        // ------------------------------------------------------------------------
-        void AddFilesDialog(string[] files)
-        {
-            QueueDialog(files, " --nofork add ");
-        }
-
-        // ------------------------------------------------------------------------
-        // show an wait for exit of required dialog
-        // update state for given files
-        // ------------------------------------------------------------------------
-        void QueueDialog(string root, string command)
-        {
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                try{
-                    Process process = HgLib.TortoiseHg.Start(command, root);
-                if (process != null)
-                    process.WaitForExit();
-
-                sccService.StatusTracker.CacheUpdateRequired = false;
-                sccService.StatusTracker.Enqueue(new HgLib.UpdateRootStatusHgCommand(root));
-                }catch{}
-            });
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHg commit dialog
-        // ------------------------------------------------------------------------
-        void CommitDialog(string directory)
-        {
-            QueueDialog(directory, "commit");
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHg revert dialog
-        // ------------------------------------------------------------------------
-        void RevertDialog(string[] files)
-        {
-            QueueDialog(files, " --nofork revert ");
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHg repo browser dialog
-        // ------------------------------------------------------------------------
-        public void RepoBrowserDialog(string root)
-        {
-            QueueDialog(root, "log");
-        }
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHg file log dialog
-        // ------------------------------------------------------------------------
-        public void LogDialog(string file)
-        {
-            String root = HgProvider.FindRepositoryRoot(file);
-            if (root != string.Empty)
-            {
-                file = file.Substring(root.Length + 1);
-                QueueDialog(root, "log \"" + file + "\"");
+                QueueTortoiseHgStart(String.Format("{0} \"{1}\"", command, fileName), root);
             }
         }
 
-        // ------------------------------------------------------------------------
-        // show file diff window
-        // ------------------------------------------------------------------------
-        void DiffDialog(string sccFile, string file, string commandMask)
-        {
-            ThreadPool.QueueUserWorkItem(o =>
-            {
-                try{
-                Process process= HgLib.TortoiseHg.DiffDialog(sccFile, file, commandMask);
-                if (process != null)
-                    process.WaitForExit();
 
-                sccService.StatusTracker.CacheUpdateRequired = false;
-                sccService.StatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(new string[]{file}));
-                }catch{}
+        private void QueueTortoiseHgStart(string command, string directory)
+        {
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    var process = TortoiseHg.Start(command, directory);
+
+                    if (process != null)
+                    {
+                        process.WaitForExit();
+                    }
+
+                    sccService.StatusTracker.CacheUpdateRequired = false;
+                    sccService.StatusTracker.Enqueue(new UpdateRootStatusHgCommand(directory));
+                }
+                catch { }
             });
         }
 
-
-        // ------------------------------------------------------------------------
-        // show TortoiseHg synchronize dialog
-        // ------------------------------------------------------------------------
-        public void SyncDialog(string directory)
+        private void QueueTortoiseHgStart(string command, string[] files)
         {
-            QueueDialog(directory, "synch");
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    TortoiseHg.ShowSelectedFilesWindow(files, command);
+
+                    sccService.StatusTracker.CacheUpdateRequired = false;
+                    sccService.StatusTracker.Enqueue(new UpdateFileStatusHgCommand(files));
+                }
+                catch { }
+            });
         }
 
-        // ------------------------------------------------------------------------
-        // show TortoiseHg status dialog
-        // ------------------------------------------------------------------------
-        public void StatusDialog(string directory)
+        private void QueueDiffToolStart(string parent, string current, string customDiffTool)
         {
-            QueueDialog(directory, "status");
+            ThreadPool.QueueUserWorkItem(o => {
+                try
+                {
+                    var process = TortoiseHg.DiffDialog(parent, current, customDiffTool);
+
+                    if (process != null)
+                    {
+                        process.WaitForExit();
+                    }
+
+                    sccService.StatusTracker.CacheUpdateRequired = false;
+                    sccService.StatusTracker.Enqueue(new UpdateFileStatusHgCommand(new[] { current }));
+                }
+                catch { }
+            });
         }
     }
 }

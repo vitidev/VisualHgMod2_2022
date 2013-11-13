@@ -104,11 +104,6 @@ namespace HgLib
         }
 
 
-        public static void ShowUpdateWindow(string directory)
-        {
-            Start("update", directory);
-        }
-
         public static void ShowSelectedFilesWindow(string[] files, string command)
         {
             var tmpFile = GetRandomTemporaryFileName();
@@ -153,17 +148,6 @@ namespace HgLib
         private static string GetRandomTemporaryFileName()
         {
             return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        }
-
-        public static void AnnotateDialog(string file)
-        {
-            var root = HgProvider.FindRepositoryRoot(file);
-            
-            if (!String.IsNullOrEmpty(root))
-            {
-                file = file.Substring(root.Length + 1);
-                Start("annotate \"" + file + "\"", root);
-            }
         }
     }
 }

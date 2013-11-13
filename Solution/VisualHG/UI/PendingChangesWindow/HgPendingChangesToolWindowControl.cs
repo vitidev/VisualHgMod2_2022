@@ -242,7 +242,7 @@ namespace VisualHg
         array.Add(info.FullName);
       }
 
-      SccProvider.Provider.CommitDialog(array);
+      SccProvider.Provider.ShowCommitWindow(array);
     }
 
     // ------------------------------------------------------------------------
@@ -254,7 +254,7 @@ namespace VisualHg
       {
         int index = _pendingItemsListView.SelectedIndices[0];
         HgLib.HgFileInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.ShowHgDiffDlg(info.FullName);
+        SccProvider.Provider.ShowDiffWindow(info.FullName);
       }
     }
 
@@ -270,7 +270,7 @@ namespace VisualHg
             array.Add(info.FullName);
         }
 
-        SccProvider.Provider.HgRevertFileDlg(array.ToArray());
+        SccProvider.Provider.ShowRevertWindow(array.ToArray());
     }
 
     // ------------------------------------------------------------------------
@@ -282,7 +282,7 @@ namespace VisualHg
       {
         int index = _pendingItemsListView.SelectedIndices[0];
         HgLib.HgFileInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.ShowHgHistoryDlg(info.FullName);
+        SccProvider.Provider.ShowHistoryWindow(info.FullName);
       }
     }
 
@@ -295,7 +295,7 @@ namespace VisualHg
       {
         int index = _pendingItemsListView.SelectedIndices[0];
         HgLib.HgFileInfo info = _pendingItemsListView._list[index];
-        SccProvider.Provider.HgAnnotateDlg(info.FullName);
+        SccProvider.Provider.ShowAnnotateWindow(info.FullName);
       }
     }
 

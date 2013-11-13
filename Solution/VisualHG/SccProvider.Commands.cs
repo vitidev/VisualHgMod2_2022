@@ -1,181 +1,139 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
-
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio;
-using MsVsShell = Microsoft.VisualStudio.Shell;
+using System.Linq;
 using System.Windows.Forms;
+using HgLib;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using OleInterop = Microsoft.VisualStudio.OLE.Interop;
 
 namespace VisualHg
 {
-    /// <summary>
-    /// SccProvider VSCT defined menu command handler
-    /// </summary>
     partial class SccProvider
     {
-        /// <summary>
-        /// Add our command handlers for menu (commands must exist in the .vsct file)
-        /// </summary>
-        void InitVSCTMenuCommandHandler()
+        private void InitializeMenuCommands()
         {
-            MsVsShell.OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as MsVsShell.OleMenuCommandService;
-            if (mcs != null)
+            var menuCommandService = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+
+            if (menuCommandService != null)
             {
-                // ToolWindow Command
-                CommandID cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdViewToolWindow);
-                MenuCommand menuCmd = new MenuCommand(new EventHandler(Exec_icmdViewToolWindow), cmd);
-                mcs.AddCommand(menuCmd);
-
-                // ToolWindow's ToolBar Command
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdToolWindowToolbarCommand);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdToolWindowToolbarCommand), cmd);
-                mcs.AddCommand(menuCmd);
-
-                // Source control menu commmads
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgStatus);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgStatus), cmd);
-                mcs.AddCommand(menuCmd);
-                
-                // Source control menu commmads
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgDiff);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgDiff), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitRoot);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitRoot), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgCommitSelected), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistoryRoot);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistoryRoot), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistorySelected);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgHistorySelected), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgSynchronize), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgUpdateToRevision);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgUpdateToRevision), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgRevert);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgRevert), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAnnotate), cmd);
-                mcs.AddCommand(menuCmd);
-
-                cmd = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
-                menuCmd = new MenuCommand(new EventHandler(Exec_icmdHgAddSelected), cmd);
-                mcs.AddCommand(menuCmd);
-
+                AddMenuCommands(menuCommandService);
             }
         }
 
-        #region Source Control Command Enabling IOleCommandTarget.QueryStatus
-
-        /// <summary>
-        /// The shell call this function to know if a menu item should be visible and
-        /// if it should be enabled/disabled.
-        /// Note that this function will only be called when an instance of this editor
-        /// is open.
-        /// </summary>
-        /// <param name="guidCmdGroup">Guid describing which set of command the current command(s) belong to</param>
-        /// <param name="cCmds">Number of command which status are being asked for</param>
-        /// <param name="prgCmds">Information for each command</param>
-        /// <param name="pCmdText">Used to dynamically change the command text</param>
-        /// <returns>HRESULT</returns>
-        public int QueryStatus(ref Guid guidCmdGroup, uint cCmds, OLECMD[] prgCmds, System.IntPtr pCmdText)
+        private void AddMenuCommands(OleMenuCommandService menuCommandService)
         {
-            Debug.Assert(cCmds == 1, "Multiple commands");
-            Debug.Assert(prgCmds != null, "NULL argument");
+            var commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdViewToolWindow);
+            var command = new MenuCommand(ShowPendingChangesToolWindow, commandId);
+            menuCommandService.AddCommand(command);
 
-            if ((prgCmds == null))
-                return VSConstants.E_INVALIDARG;
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommit);
+            command = new MenuCommand(ShowCommitWindow, commandId);
+            menuCommandService.AddCommand(command);
 
-            // Filter out commands that are not defined by this package
-            if (guidCmdGroup != Guids.guidSccProviderCmdSet)
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgWorkbench);
+            command = new MenuCommand(ShowWorkbenchWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgStatus);
+            command = new MenuCommand(ShowStatusWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
+            command = new MenuCommand(ShowSynchronizeWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgUpdate);
+            command = new MenuCommand(ShowUpdateWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
+            command = new MenuCommand(ShowAddSelectedWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
+            command = new MenuCommand(ShowCommitSelectedWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgDiff);
+            command = new MenuCommand(ShowDiffWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgRevert);
+            command = new MenuCommand(ShowRevertWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistory);
+            command = new MenuCommand(ShowHistoryWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
+            command = new MenuCommand(ShowAnnotateWindow, commandId);
+            menuCommandService.AddCommand(command);
+        }
+
+
+        public int QueryStatus(ref Guid guidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
+        {
+            OLECMDF cmdf;
+
+            if (prgCmds == null)
             {
-                return (int)(Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED); ;
+                return VSConstants.E_INVALIDARG;
             }
 
-            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED;
+            if (guidCmdGroup != Guids.guidSccProviderCmdSet)
+            {
+                return (int)OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED;
+            }
 
-            // All source control commands needs to be hidden and disabled when the provider is not active
             if (!sccService.Active)
             {
-                cmdf = OLECMDF.OLECMDF_INVISIBLE;
+                prgCmds[0].cmdf = (uint)VisibleToOleCmdf(false);
 
-                prgCmds[0].cmdf = (uint)cmdf;
                 return VSConstants.S_OK;
             }
 
-            // Process our Commands
             switch (prgCmds[0].cmdID)
             {
+                case CommandId.icmdViewToolWindow:
+                case CommandId.icmdHgCommit:
+                case CommandId.icmdHgWorkbench:
                 case CommandId.icmdHgStatus:
-                    cmdf = QueryStatus_icmdHgStatus();
-                    break;
-
-                case CommandId.icmdHgCommitRoot:
-                    cmdf = QueryStatus_icmdHgCommitRoot();
-                    break;
-
-                case CommandId.icmdHgCommitSelected:
-                    cmdf = QueryStatus_icmdHgCommitSelected();
-                    break;
-
-                case CommandId.icmdHgHistoryRoot:
-                    cmdf = QueryStatus_icmdHgHistoryRoot();
-                    break;
-
-                case CommandId.icmdHgHistorySelected:
-                    cmdf = QueryStatus_icmdHgHistorySelected();
-                    break;
-
                 case CommandId.icmdHgSynchronize:
-                    cmdf = QueryStatus_icmdHgSynchronize();
-                    break;
-
-                case CommandId.icmdHgUpdateToRevision:
-                    cmdf = QueryStatus_icmdHgUpdateToRevision();
-                    break;
-
-                case CommandId.icmdHgDiff:
-                    cmdf = QueryStatus_icmdHgDiff();
-                    break;
-
-                case CommandId.icmdHgRevert:
-                    cmdf = QueryStatus_icmdHgRevert();
-                    break;
-
-                case CommandId.icmdHgAnnotate:
-                    cmdf = QueryStatus_icmdHgAnnotate();
+                case CommandId.icmdHgUpdate:
+                    cmdf = VisibleToOleCmdf(true);
                     break;
 
                 case CommandId.icmdHgAddSelected:
-                    cmdf = QueryStatus_icmdHgAddSelected();
+                    cmdf = VisibleToOleCmdf(IsHgAddSelectedMenuItemVisible());
                     break;
 
-                case CommandId.icmdViewToolWindow:
-                case CommandId.icmdToolWindowToolbarCommand:
-                    // These commmands are always enabled when the provider is active
-                    cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;;
+                case CommandId.icmdHgCommitSelected:
+                    cmdf = VisibleToOleCmdf(IsHgCommitSelectedMenuItemVisible());
+                    break;
+
+                case CommandId.icmdHgDiff:
+                    cmdf = VisibleToOleCmdf(IsHgDiffMenuItemVisible());
+                    break;
+
+                case CommandId.icmdHgRevert:
+                    cmdf = VisibleToOleCmdf(IsHgRevertMenuItemVisible());
+                    break;
+
+                case CommandId.icmdHgHistory:
+                    cmdf = VisibleToOleCmdf(IsHgHistoryMenuItemVisible());
+                    break;
+
+                case CommandId.icmdHgAnnotate:
+                    cmdf = VisibleToOleCmdf(IsHgAnnotateMenuItemVisible());
                     break;
 
                 default:
-                    return (int)(Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED);
+                    return (int)(OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED);
             }
 
             prgCmds[0].cmdf = (uint)cmdf;
@@ -183,402 +141,303 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        OLECMDF QueryStatus_icmdHgCommitRoot()
+        private OLECMDF VisibleToOleCmdf(bool visible)
         {
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            return OLECMDF.OLECMDF_SUPPORTED | (visible ? OLECMDF.OLECMDF_ENABLED : OLECMDF.OLECMDF_INVISIBLE);
         }
 
-        OLECMDF QueryStatus_icmdHgAddSelected()
+        private bool IsHgAddSelectedMenuItemVisible()
         {
-            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
-
-            long stateMask  =  (long)HgLib.HgFileStatus.Uncontrolled |
-                               (long)HgLib.HgFileStatus.Ignored;
-
-            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
-            {
-                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-            }
-
-            return cmdf;
-        }
-        OLECMDF QueryStatus_icmdHgCommitSelected()
-        {
-            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
-
-            long stateMask = (long)HgLib.HgFileStatus.Modified |
-                             (long)HgLib.HgFileStatus.Added|
-                             (long)HgLib.HgFileStatus.Copied|
-                             (long)HgLib.HgFileStatus.Renamed|
-                             (long)HgLib.HgFileStatus.Removed;
-
-            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(true, stateMask))
-            {
-                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-            }
-
-            return cmdf;
+            return SelectedFileContextStatusMatches(HgFileStatus.Uncontrolled | HgFileStatus.Ignored);
         }
 
-
-        OLECMDF QueryStatus_icmdHgHistoryRoot()
+        private bool IsHgCommitSelectedMenuItemVisible()
         {
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            return SelectedFileContextStatusMatches
+               (HgFileStatus.Modified |
+                HgFileStatus.Added |
+                HgFileStatus.Copied |
+                HgFileStatus.Renamed |
+                HgFileStatus.Removed,
+                true);
         }
 
-        OLECMDF QueryStatus_icmdHgHistorySelected()
+        private bool IsHgDiffMenuItemVisible()
         {
-            string filename = GetSingleSelectedFileName();
-            if (filename != string.Empty)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Ignored &&
-                    status != HgLib.HgFileStatus.Added &&
-                    status != HgLib.HgFileStatus.Renamed &&
-                    status != HgLib.HgFileStatus.Copied)
-                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-            }
-
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+            return SelectedFileStatusMatches
+               (HgFileStatus.Modified |
+                HgFileStatus.Removed |
+                HgFileStatus.Renamed |
+                HgFileStatus.Copied |
+                HgFileStatus.Missing);
         }
 
-        OLECMDF QueryStatus_icmdHgStatus()
+        private bool IsHgRevertMenuItemVisible()
         {
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            return SelectedFileContextStatusMatches
+               (HgFileStatus.Added |
+                HgFileStatus.Copied |
+                HgFileStatus.Modified |
+                HgFileStatus.Renamed |
+                HgFileStatus.Removed);
         }
 
-        OLECMDF QueryStatus_icmdHgSynchronize()
+        private bool IsHgHistoryMenuItemVisible()
         {
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
+            return SelectedFileStatusMatches
+                (HgFileStatus.Clean |
+                 HgFileStatus.Modified |
+                 HgFileStatus.Removed |
+                 HgFileStatus.Missing);
         }
 
-        OLECMDF QueryStatus_icmdHgUpdateToRevision()
+        private bool IsHgAnnotateMenuItemVisible()
         {
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-        }
-
-        OLECMDF QueryStatus_icmdHgDiff()
-        {
-            string filename = GetSingleSelectedFileName();
-
-            if (filename != String.Empty)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Added &&
-                    status != HgLib.HgFileStatus.Ignored &&
-                    status != HgLib.HgFileStatus.Clean)
-                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-
-            }
-
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
-        }
-
-        OLECMDF QueryStatus_icmdHgRevert()
-        {
-            OLECMDF cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
-
-            long stateMask = (long)HgLib.HgFileStatus.Added |
-                             (long)HgLib.HgFileStatus.Copied |
-                             (long)HgLib.HgFileStatus.Modified|
-                             (long)HgLib.HgFileStatus.Renamed |
-                             (long)HgLib.HgFileStatus.Removed;
-
-            if (!Configuration.Global.EnableContextSearch || FindSelectedFirstMask(false, stateMask))
-            {
-                cmdf = OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-            }
-
-            return cmdf;
-        }
-
-        OLECMDF QueryStatus_icmdHgAnnotate()
-        {
-            string filename = GetSingleSelectedFileName();
-            if (filename != String.Empty)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(filename);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Ignored &&
-                    status != HgLib.HgFileStatus.Added &&
-                    status != HgLib.HgFileStatus.Renamed &&
-                    status != HgLib.HgFileStatus.Copied)
-                    return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_ENABLED;
-
-            }
-
-            return OLECMDF.OLECMDF_SUPPORTED | OLECMDF.OLECMDF_INVISIBLE;
+            return IsHgHistoryMenuItemVisible();
         }
 
 
-        #endregion
-
-        #region Source Control Commands Execution
-
-        private void Exec_icmdHgCommitRoot(object sender, EventArgs e)
+        private void ShowPendingChangesToolWindow(object sender, EventArgs e)
         {
-            StoreSolution();
+            var window = FindToolWindow(typeof(HgPendingChangesToolWindow), 0, true);
+            var windowFrame = window != null ? window.Frame as IVsWindowFrame : null;
 
-            string root = GetRootDirectory();
-            if (root != string.Empty)
-              CommitDialog(root);
-            else
-              PromptSolutionNotControlled();
-        }
-
-        private void Exec_icmdHgCommitSelected(object sender, EventArgs e)
-        {
-          List<string> array = GetSelectedFileNameArray(true);
-          CommitDialog(array);
-        }
-
-        public void CommitDialog(List<string> array)
-        {
-            StoreSolution();
-
-            List<string> commitList = new List<string>();
-            foreach (string name in array)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Clean &&
-                    status != HgLib.HgFileStatus.Ignored)
-                {
-                    commitList.Add(name);
-                }
-            }
-
-            if (commitList.Count > 0)
-            {
-                CommitDialog(commitList.ToArray());
-            }
-        }
-
-        private void Exec_icmdHgAddSelected(object sender, EventArgs e)
-        {
-            List<string> array = GetSelectedFileNameArray(false);
-            HgAddSelected(array);
-        }
-
-        public void HgAddSelected(List<string> array)
-        {
-            StoreSolution();
-
-            List<string> addList = new List<string>();
-            foreach (string name in array)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status == HgLib.HgFileStatus.Uncontrolled ||
-                    status == HgLib.HgFileStatus.Ignored)
-                {
-                    addList.Add(name);
-                }
-            }
-
-            if (addList.Count > 0)
-            {
-                AddFilesDialog(addList.ToArray());
-            }
-        }
-
-        private void Exec_icmdHgHistoryRoot(object sender, EventArgs e)
-        {
-            StoreSolution();
-
-            string root = GetRootDirectory();
-
-            if (root != null && root != String.Empty)
-                RepoBrowserDialog(root);
-            else
-                PromptSolutionNotControlled();
-        }
-
-        private void Exec_icmdHgHistorySelected(object sender, EventArgs e)
-        {
-          string fileName = GetSingleSelectedFileName();
-          ShowHgHistoryDlg(fileName);
-        }
-
-        public void ShowHgHistoryDlg(string fileName)
-        {
-            StoreSolution();
-            
-            if (fileName != string.Empty)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Added &&
-                    status != HgLib.HgFileStatus.Ignored)
-                {
-                    LogDialog(fileName); 
-                }
-            }
-        }
-
-        private void Exec_icmdHgStatus(object sender, EventArgs e)
-        {
-            StoreSolution();
-
-            string root = GetRootDirectory();
-            if (root != string.Empty)
-                StatusDialog(root);
-            else
-                PromptSolutionNotControlled();
-
-        }
-
-        private void Exec_icmdHgDiff(object sender, EventArgs e)
-        {
-          string fileName = GetSingleSelectedFileName();
-          ShowHgDiffDlg(fileName);
-        }
-
-        public void ShowHgDiffDlg(string fileName)
-        {
-            StoreSolution();
-
-            if (fileName != String.Empty)
-            {
-                string versionedFile = fileName;
-
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Added &&
-                    status != HgLib.HgFileStatus.Ignored)
-                {
-                    if (status == HgLib.HgFileStatus.Renamed ||
-                        status == HgLib.HgFileStatus.Copied)
-                    {
-                        versionedFile = HgLib.Hg.GetRenamedFileOriginalName(fileName); 
-                    }
-
-                    if (versionedFile != null)
-                    { 
-                        try
-                        { 
-                            DiffDialog(versionedFile, fileName, Configuration.Global.ExternalDiffToolCommandMask);
-                        }
-                        catch
-                        {
-                            if (Configuration.Global.ExternalDiffToolCommandMask != string.Empty)
-                                MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask,
-                                                "VisualHg",
-                                                MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        }                        
-                    }
-                }
-            }
-        }
-
-        private void Exec_icmdHgSynchronize(object sender, EventArgs e)
-        {
-            StoreSolution();
-
-            string root = GetRootDirectory();
-            if (root != string.Empty)
-                SyncDialog(root);
-            else
-                PromptSolutionNotControlled();
-        }
-
-        private void Exec_icmdHgUpdateToRevision(object sender, EventArgs e)
-        {
-            StoreSolution();
-
-            string root = GetRootDirectory();
-            if (root != string.Empty)
-                HgLib.TortoiseHg.ShowUpdateWindow(root);
-            else
-                PromptSolutionNotControlled();
-        }
-
-        private void Exec_icmdHgRevert(object sender, EventArgs e)
-        {
-            List<string> array = GetSelectedFileNameArray(false);
-            HgRevertFileDlg(array.ToArray());
-        }
-
-        public void HgRevertFileDlg(string[] array)
-        {
-            StoreSolution();
-
-            List<string> addList = new List<string>();
-            foreach (string name in array)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(name);
-                if (status == HgLib.HgFileStatus.Modified ||
-                    status == HgLib.HgFileStatus.Added ||
-                    status == HgLib.HgFileStatus.Copied ||
-                    status == HgLib.HgFileStatus.Removed ||
-                    status == HgLib.HgFileStatus.Renamed)
-                {
-                    addList.Add(name);
-                }
-            }
-
-            if (addList.Count > 0)
-            {
-                RevertDialog(addList.ToArray());
-            }
-        }
-
-        private void Exec_icmdHgAnnotate(object sender, EventArgs e)
-        {
-          string fileName = GetSingleSelectedFileName();
-          HgAnnotateDlg(fileName);
-        }
-        
-        public void HgAnnotateDlg(string fileName)
-        {
-
-            StoreSolution();
-
-            if (fileName != String.Empty)
-            {
-                HgLib.HgFileStatus status = this.sccService.GetFileStatus(fileName);
-                if (status == HgLib.HgFileStatus.Renamed)
-                {
-                    // get original filename
-                    string orgName = HgLib.Hg.GetRenamedFileOriginalName(fileName);
-                    if(orgName != string.Empty)
-                        HgLib.TortoiseHg.AnnotateDialog(orgName);
-                }
-                
-                if (status != HgLib.HgFileStatus.Uncontrolled &&
-                    status != HgLib.HgFileStatus.Ignored)
-                {
-                    HgLib.TortoiseHg.AnnotateDialog(fileName);
-                }
-            }
-        }
-
-        // The function can be used to bring back the provider's toolwindow if it was previously closed
-        private void Exec_icmdViewToolWindow(object sender, EventArgs e)
-        {
-            MsVsShell.ToolWindowPane window = this.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, true);
-            IVsWindowFrame windowFrame = null;
-            if (window != null && window.Frame != null)
-            {
-                windowFrame = (IVsWindowFrame)window.Frame;
-            }
             if (windowFrame != null)
             {
                 ErrorHandler.ThrowOnFailure(windowFrame.Show());
             }
         }
 
-        private void Exec_icmdToolWindowToolbarCommand(object sender, EventArgs e)
-        {
-            HgPendingChangesToolWindow window = (HgPendingChangesToolWindow)this.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, true);
 
-            if (window != null)
+        private void ShowCommitWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(ShowCommitWindow);
+        }
+
+        private void ShowWorkbenchWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(ShowWorkbenchWindow);
+        }
+
+        private void ShowStatusWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(ShowStatusWindow);
+        }
+
+        private void ShowSynchronizeWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(ShowSynchronizeWindow);
+        }
+
+        private void ShowUpdateWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(ShowUpdateWindow);
+        }
+
+        private void GetRootAnd(Action<string> showWindow)
+        {
+            StoreSolution();
+
+            var root = GetRootDirectory();
+
+            if (!String.IsNullOrEmpty(root))
             {
-                window.ToolWindowToolbarCommand();
+                showWindow(root);
+            }
+            else
+            {
+                PromptSolutionNotControlled();
             }
         }
 
-        #endregion
+
+        private void ShowAddSelectedWindow(object sender, EventArgs e)
+        {
+            StoreSolution();
+
+            var filesToAdd = GetSelectedFiles(false).Where(FileIsNotAdded).ToArray();
+
+            if (filesToAdd.Length > 0)
+            {
+                ShowAddSelectedWindow(filesToAdd);
+            }
+        }
+
+        private void ShowCommitSelectedWindow(object sender, EventArgs e)
+        {
+            ShowCommitWindow(GetSelectedFiles(true));
+        }
+
+        private void ShowDiffWindow(object sender, EventArgs e)
+        {
+            ShowDiffWindow(GetSelectedFile());
+        }
+
+        private void ShowRevertWindow(object sender, EventArgs e)
+        {
+            ShowRevertWindow(GetSelectedFiles(false));
+        }
+
+        private void ShowHistoryWindow(object sender, EventArgs e)
+        {
+            ShowHistoryWindow(GetSelectedFile());
+        }
+
+        private void ShowAnnotateWindow(object sender, EventArgs e)
+        {
+            ShowAnnotateWindow(GetSelectedFile());
+        }
+
+
+        public void ShowCommitWindow(IEnumerable<string> files)
+        {
+            StoreSolution();
+
+            var filesToCommit = files.Where(FileIsDirty).ToArray();
+
+            if (filesToCommit.Length > 0)
+            {
+                ShowCommitWindowPrivate(filesToCommit);
+            }
+        }
+
+        public void ShowDiffWindow(string fileName)
+        {
+            StoreSolution();
+
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            var status = sccService.GetFileStatus(fileName);
+
+            if (status == HgFileStatus.Uncontrolled &&
+                status == HgFileStatus.Added &&
+                status == HgFileStatus.Ignored)
+            {
+                return;
+            }
+         
+            var parent = fileName;
+
+            if (status == HgFileStatus.Renamed || status == HgFileStatus.Copied)
+            {
+                parent = Hg.GetRenamedFileOriginalName(fileName);
+            }
+
+            if (!String.IsNullOrEmpty(parent))
+            {
+                try
+                {
+                    ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
+                }
+                catch
+                {
+                    if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
+                    {
+                        MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
+                }
+            }
+        }
+
+        public void ShowRevertWindow(IEnumerable<string> files)
+        {
+            StoreSolution();
+
+            var filesToRevert = files.Where(FileIsDirty).ToArray();
+
+            if (filesToRevert.Length > 0)
+            {
+                ShowRevertWindowPrivate(filesToRevert.ToArray());
+            }
+        }
+
+        public void ShowHistoryWindow(string fileName)
+        {
+            StoreSolution();
+
+            if (FileStatusMatches(fileName,
+                HgFileStatus.Clean |
+                HgFileStatus.Modified |
+                HgFileStatus.Removed |
+                HgFileStatus.Renamed |
+                HgFileStatus.Copied |
+                HgFileStatus.Missing))
+            {
+                ShowHistoryWindowPrivate(fileName);
+            }
+        }
+
+        public void ShowAnnotateWindow(string fileName)
+        {
+            StoreSolution();
+
+            var status = HgFileStatus.Ignored;
+
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                status = sccService.GetFileStatus(fileName);
+            }
+
+            if (status == HgFileStatus.Renamed)
+            {
+                fileName = Hg.GetRenamedFileOriginalName(fileName);
+            }
+
+            if (!String.IsNullOrEmpty(fileName) &&
+                status != HgFileStatus.Uncontrolled &&
+                status != HgFileStatus.Ignored)
+            {
+                ShowAnnotateWindowPrivate(fileName);
+            }
+        }
+        
+
+        private bool SelectedFileContextStatusMatches(HgFileStatus status, bool includeChildren = false)
+        {
+            if (Configuration.Global.EnableContextSearch)
+            {
+                return FindSelectedFirstMask(status, includeChildren);
+            }
+
+            return true;
+        }
+
+        private bool SelectedFileStatusMatches(HgFileStatus status)
+        {
+            return FileStatusMatches(GetSelectedFile(), status);
+        }
+
+
+        private bool FileIsNotAdded(string fileName)
+        {
+            return FileStatusMatches(fileName, HgFileStatus.Uncontrolled | HgFileStatus.Ignored);
+        }
+
+        private bool FileIsDirty(string fileName)
+        {
+            return FileStatusMatches(fileName,
+                HgFileStatus.Modified |
+                HgFileStatus.Added |
+                HgFileStatus.Removed |
+                HgFileStatus.Renamed |
+                HgFileStatus.Copied |
+                HgFileStatus.Missing);
+        }
+        
+
+        private bool FileStatusMatches(string fileName, HgFileStatus status)
+        {
+            if (String.IsNullOrEmpty(fileName))
+            {
+                return false;
+            }
+
+            var fileStatus = sccService.GetFileStatus(fileName);
+
+            return (int)(status & fileStatus) > 0;
+        }
     }
 }

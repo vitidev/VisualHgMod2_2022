@@ -89,20 +89,5 @@ namespace VisualHg
             }
             base.Dispose(disposing);
         }
-
-        /// <summary>
-        /// This function is only used to "do something noticeable" when the toolbar button is clicked.
-        /// It is called from the package.
-        /// A typical tool window may not need this function.
-        /// 
-        /// The current behavior change the background color of the control
-        /// </summary>
-        public void ToolWindowToolbarCommand()
-        {
-            if (this.control.BackColor == Color.Coral)
-                this.control.BackColor = Color.White;
-            else
-                this.control.BackColor = Color.Coral;
-        }
     }
 }

@@ -88,10 +88,6 @@
       <Group guid="HgCommandSet" id="Group_CodeWin" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
       </Group>
-      <!-- 	Group for buttons in PendingChangesToolWindow's toolbar -->
-      <Group guid="HgCommandSet" id="Group_PendingChangesToolWindow" priority="0x0100">
-        <Parent guid="HgCommandSet" id="Menu_PendingChangesToolWindow"/>
-      </Group>
     </Groups>
     
     <Buttons>
@@ -411,12 +407,10 @@
       <IDSymbol name="Menu_SolutionMenu" value="0x201"/>
       <IDSymbol name="Menu_ProjectMenu" value="0x202"/>
       <IDSymbol name="Menu_ItemMenu" value="0x203"/>
-      <IDSymbol name="Menu_PendingChangesToolWindow" value="0x204"/>
 
       <IDSymbol name="Group_MainScc" value="0x300"/>
       <IDSymbol name="Group_HgCommands" value="0x301"/>
       <IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>
-      <IDSymbol name="Group_PendingChangesToolWindow" value="0x303"/>
       <IDSymbol name="Group_Nowhere" value="0x304"/>
       <IDSymbol name="Group_DocTabWnd" value="0x305"/>
       <IDSymbol name="Group_CodeWin" value="0x306"/>
