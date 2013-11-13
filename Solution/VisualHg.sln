@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgLib", "HgLib\HgLib.csproj", "{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgLib", "HGLib\HgLib.csproj", "{FECA7F06-4575-4DE6-8FA7-49E78BCCA7E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgLib.Test", "HgLib.Test\HgLib.Test.csproj", "{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HgLib.Test", "HGLib.Test\HgLib.Test.csproj", "{E3BCD849-329D-47C9-A20D-F527AFBA4ECF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualHg", "VisualHg\VisualHg.csproj", "{ADECE07A-5D80-4950-9DA5-A681CE2F5106}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualHg", "VisualHG\VisualHg.csproj", "{ADECE07A-5D80-4950-9DA5-A681CE2F5106}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
