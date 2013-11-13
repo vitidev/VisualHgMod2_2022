@@ -60,7 +60,7 @@ namespace VisualHg
 
         private string GetKeyName()
         {
-            return String.Format(@"SourceControlProviders\{0:B}", PackageGuid);
+            return String.Format(@"SourceControlProviders\{0:B}", ProviderGuid);
         }
 	}
 }
