@@ -205,13 +205,11 @@ namespace VisualHg
 
         private void RefreshNodesGlyphs()
         {
-            var projects = _sccProvider.GetLoadedControllableProjects();
-            
             var nodes = new [] { GetSolutionVsItemSelection() }
-                .Concat(projects.Select(GetVsItemSelection))
+                .Concat(_sccProvider.LoadedProjects.Select(GetVsItemSelection))
                 .ToArray();
 
-            _sccProvider.RefreshNodesGlyphs(nodes);
+            _sccProvider.UpdateGlyphs(nodes);
 
             _lastUpdate = DateTime.Now;
             _nodesGlyphsDirty = false;
@@ -222,11 +220,6 @@ namespace VisualHg
             var hierarchy = _sccProvider.GetService(typeof(SVsSolution)) as IVsHierarchy;
 
             return GetVsItemSelection(hierarchy);
-        }
-
-        private VSITEMSELECTION GetVsItemSelection(IVsSccProject2 project)
-        {
-            return GetVsItemSelection(project as IVsHierarchy);
         }
 
         private VSITEMSELECTION GetVsItemSelection(IVsHierarchy hierarchy)
@@ -249,7 +242,7 @@ namespace VisualHg
 
         private void UpdateMainWindowTitle()
         {
-            _sccProvider.UpdateMainWindowTitle(Repository.GetBranchNames());
+            _sccProvider.UpdateMainWindowCaption(Repository.GetBranchNames());
         }
 
 

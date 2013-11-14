@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Windows.Forms;
@@ -236,9 +235,9 @@ namespace VisualHg
 
         private void GetRootAnd(Action<string> showWindow)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
-            var root = GetRootDirectory();
+            var root = CurrentRootDirectory;
 
             if (!String.IsNullOrEmpty(root))
             {
@@ -253,7 +252,7 @@ namespace VisualHg
 
         private void ShowAddSelectedWindow(object sender, EventArgs e)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
             var filesToAdd = GetSelectedFiles(false).Where(FileIsNotAdded).ToArray();
 
@@ -270,7 +269,7 @@ namespace VisualHg
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
-            ShowDiffWindow(GetSelectedFile());
+            ShowDiffWindow(SelectedFile);
         }
 
         private void ShowRevertWindow(object sender, EventArgs e)
@@ -280,18 +279,18 @@ namespace VisualHg
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
-            ShowHistoryWindow(GetSelectedFile());
+            ShowHistoryWindow(SelectedFile);
         }
 
         private void ShowAnnotateWindow(object sender, EventArgs e)
         {
-            ShowAnnotateWindow(GetSelectedFile());
+            ShowAnnotateWindow(SelectedFile);
         }
 
 
-        public void ShowCommitWindow(IEnumerable<string> files)
+        public void ShowCommitWindow(string[] files)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
             var filesToCommit = files.Where(FileIsDirty).ToArray();
 
@@ -303,48 +302,46 @@ namespace VisualHg
 
         public void ShowDiffWindow(string fileName)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
-            if (!String.IsNullOrEmpty(fileName))
+            if (String.IsNullOrEmpty(fileName))
             {
                 return;
             }
 
-            var status = sccService.GetFileStatus(fileName);
-
-            if (status == HgFileStatus.Uncontrolled &&
-                status == HgFileStatus.Added &&
-                status == HgFileStatus.Ignored)
+            if (FileStatusMatches(fileName, HgFileStatus.Uncontrolled | HgFileStatus.Added | HgFileStatus.Ignored))
             {
                 return;
             }
-         
+
             var parent = fileName;
 
-            if (status == HgFileStatus.Renamed || status == HgFileStatus.Copied)
+            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
             {
                 parent = Hg.GetRenamedFileOriginalName(fileName);
             }
 
-            if (!String.IsNullOrEmpty(parent))
+            if (String.IsNullOrEmpty(parent))
             {
-                try
+                return;
+            }
+
+            try
+            {
+                ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
+            }
+            catch
+            {
+                if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
                 {
-                    ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
-                }
-                catch
-                {
-                    if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
-                    {
-                        MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                    }
+                    MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
             }
         }
 
-        public void ShowRevertWindow(IEnumerable<string> files)
+        public void ShowRevertWindow(string[] files)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
             var filesToRevert = files.Where(FileIsDirty).ToArray();
 
@@ -356,7 +353,7 @@ namespace VisualHg
 
         public void ShowHistoryWindow(string fileName)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
             if (FileStatusMatches(fileName,
                 HgFileStatus.Clean |
@@ -372,7 +369,7 @@ namespace VisualHg
 
         public void ShowAnnotateWindow(string fileName)
         {
-            StoreSolution();
+            SaveSolutionIfDirty();
 
             var status = HgFileStatus.Ignored;
 
@@ -392,52 +389,6 @@ namespace VisualHg
             {
                 ShowAnnotateWindowPrivate(fileName);
             }
-        }
-        
-
-        private bool SelectedFileContextStatusMatches(HgFileStatus status, bool includeChildren = false)
-        {
-            if (Configuration.Global.EnableContextSearch)
-            {
-                return FindSelectedFirstMask(status, includeChildren);
-            }
-
-            return true;
-        }
-
-        private bool SelectedFileStatusMatches(HgFileStatus status)
-        {
-            return FileStatusMatches(GetSelectedFile(), status);
-        }
-
-
-        private bool FileIsNotAdded(string fileName)
-        {
-            return FileStatusMatches(fileName, HgFileStatus.Uncontrolled | HgFileStatus.Ignored);
-        }
-
-        private bool FileIsDirty(string fileName)
-        {
-            return FileStatusMatches(fileName,
-                HgFileStatus.Modified |
-                HgFileStatus.Added |
-                HgFileStatus.Removed |
-                HgFileStatus.Renamed |
-                HgFileStatus.Copied |
-                HgFileStatus.Missing);
-        }
-        
-
-        private bool FileStatusMatches(string fileName, HgFileStatus status)
-        {
-            if (String.IsNullOrEmpty(fileName))
-            {
-                return false;
-            }
-
-            var fileStatus = sccService.GetFileStatus(fileName);
-
-            return (int)(status & fileStatus) > 0;
         }
     }
 }

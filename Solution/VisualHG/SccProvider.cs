@@ -36,9 +36,7 @@ namespace VisualHg
 
         private void NotifySolutionIsNotUnderVersionControl()
         {
-            var solutionName = GetSolutionFileName();
-            
-            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + solutionName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         new public object GetService(Type serviceType)

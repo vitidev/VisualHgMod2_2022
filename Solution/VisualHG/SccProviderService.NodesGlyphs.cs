@@ -113,19 +113,18 @@ namespace VisualHg
         {
             pbstrTooltipText = "";
 
-            var files = SccProvider.GetNodeFiles(phierHierarchy, itemidNode);
+            var files = SccProvider.GetItemFiles(phierHierarchy, itemidNode);
             
-            if (files.Count == 0)
+            if (files.Length == 0)
             {
                 return VSConstants.S_OK;
             }
 
             var status = Repository.GetFileStatus(files[0]);
+            var statusName = Enum.IsDefined(typeof(HgFileStatus), status) ? status.ToString() : "";
+
             var root = HgProvider.FindRepositoryRoot(files[0]);
             var branch = Repository.GetDirectoryBranch(root);
-
-
-            var statusName = Enum.IsDefined(typeof(HgFileStatus), status) ? status.ToString() : "";
 
             if (!String.IsNullOrEmpty(statusName) && !String.IsNullOrEmpty(branch))
             {

@@ -10,7 +10,7 @@ namespace VisualHg
     {
         public void UpdateProject(IVsSccProject2 project)
         {
-            UpdateRootDirectory(ProjectHelper.GetDirectoryName((IVsHierarchy)project));
+            UpdateRootDirectory(SccProvider.GetDirectoryName((IVsHierarchy)project));
         }
         
         public void UpdateProjects(IVsSolution solution)

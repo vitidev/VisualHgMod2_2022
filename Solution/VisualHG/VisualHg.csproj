@@ -108,7 +108,6 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="IdleNotifier.cs" />
     <Compile Include="HgRepositoryTracker.cs" />
-    <Compile Include="ProjectHelper.cs" />
     <Compile Include="RegistryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
     <Compile Include="SccProvider.Utillities.cs" />

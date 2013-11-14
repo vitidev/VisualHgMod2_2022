@@ -14,7 +14,7 @@ namespace VisualHg
         {
             if (!Active && Configuration.Global.AutoActivatePlugin)
             {
-                var root = _sccProvider.GetRootDirectory();
+                var root = _sccProvider.SolutionRootDirectory;
                 
                 if (!String.IsNullOrEmpty(root))
                 {
@@ -39,7 +39,7 @@ namespace VisualHg
 
         public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
         {
-            _sccProvider.LastSeenProjectDirectory = ProjectHelper.GetDirectoryName(pRealHierarchy);
+            _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(pRealHierarchy);
 
             var project = pRealHierarchy as IVsSccProject2;
 
@@ -55,7 +55,7 @@ namespace VisualHg
         {
             var project = pHierarchy as IVsSccProject2;
 
-            var files = SccProvider.GetProjectFiles(project).ToArray();
+            var files = SccProvider.GetProjectFiles(project);
 
             if (files.Length > 0)
             {
@@ -76,7 +76,7 @@ namespace VisualHg
                 Repository.UpdateProject(project);
             }
 
-            _sccProvider.LastSeenProjectDirectory = ProjectHelper.GetDirectoryName(pHierarchy);
+            _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(pHierarchy);
 
 
             return VSConstants.S_OK;

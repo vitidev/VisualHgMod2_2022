@@ -242,7 +242,7 @@ namespace VisualHg
         array.Add(info.FullName);
       }
 
-      SccProvider.Provider.ShowCommitWindow(array);
+      SccProvider.Provider.ShowCommitWindow(array.ToArray());
     }
 
     // ------------------------------------------------------------------------
