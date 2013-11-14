@@ -26,7 +26,7 @@ namespace VisualHg
         public HgPendingChangesToolWindow() :base(null)
         {
             // set the window title
-            this.Caption = Resources.ResourceManager.GetString("HgPendingChangesToolWindowCaption");
+            this.Caption = Resources.ResourceManager.GetString("100");
 
             // set the CommandID for the window ToolBar
             //this.ToolBar = new CommandID(GuidList.guidSccProviderCmdSet, CommandId.imnuToolWindowToolbarMenu);

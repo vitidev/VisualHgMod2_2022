@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="100" xml:space="preserve">
     <value>VisualHg</value>
@@ -123,38 +123,11 @@
   <data name="101" xml:space="preserve">
     <value>Mercurial source contol provider.</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\Product.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="500" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\MenuIcons.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ApplyProviderOptions" xml:space="preserve">
-    <value>Press Cancel to cancel this OnApply.  OK to continue</value>
-  </data>
-  <data name="ProviderName" xml:space="preserve">
-    <value>VisualHg</value>
-  </data>
-  <data name="QEQS_EditUncontrolledReadOnly" xml:space="preserve">
-    <value>The file {0} you are trying to edit is read only on disk. Do you want do make the file writable so you can continue editing it?</value>
-  </data>
-  <data name="Status_CheckedIn" xml:space="preserve">
-    <value>Checked in</value>
-  </data>
-  <data name="Status_CheckedOut" xml:space="preserve">
-    <value>Checked out by you</value>
-  </data>
-  <data name="Status_PendingAdd" xml:space="preserve">
-    <value>Pending add</value>
-  </data>
-  <data name="HgPendingChangesToolWindowCaption" xml:space="preserve">
-    <value>VisualHg</value>
-  </data>
-  <data name="TPD_DeleteControlledFile" xml:space="preserve">
-    <value>The file {0} you are going to delete is a source controlled file. Are you sure you want to continue and delete this file?</value>
-  </data>
-  <data name="104" xml:space="preserve">
-    <value>ZPHPJZE3Z1PRAIJ8M2MKE3PDEDPQI1DRCQM1I8DJD1E0MKQ0I2MAC8PZKHH9JRMIK9QHC9ZZP8I8RMCEIQC3QPA1P2Z1M0ZHQZI8M2QZRAPZJCPCD0KAJ0IAZIDIH3Q1</value>
   </data>
 </root>
