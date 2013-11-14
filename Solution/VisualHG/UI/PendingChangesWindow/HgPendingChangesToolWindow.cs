@@ -37,7 +37,7 @@ namespace VisualHg
             SccProviderService service = (SccProviderService)SccProvider.GetServiceEx(typeof(SccProviderService));
             if(service!=null)
             {
-                UpdatePendingList(service.StatusTracker);
+                UpdatePendingList(service.Repository);
             }
         }
 

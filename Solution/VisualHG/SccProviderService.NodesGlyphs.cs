@@ -57,7 +57,7 @@ namespace VisualHg
                 rgdwSccStatus[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
             }
             
-            var status = _sccStatusTracker.GetFileStatus(rgpszFullPaths[0]);
+            var status = Repository.GetFileStatus(rgpszFullPaths[0]);
 
             switch (status)
             {
@@ -97,7 +97,7 @@ namespace VisualHg
         {
             if (pscp2Project != null)
             {
-                _sccStatusTracker.UpdateProject(pscp2Project);
+                Repository.UpdateProject(pscp2Project);
             }
 
             return VSConstants.S_OK;
@@ -120,9 +120,9 @@ namespace VisualHg
                 return VSConstants.S_OK;
             }
 
-            var status = _sccStatusTracker.GetFileStatus(files[0]);
+            var status = Repository.GetFileStatus(files[0]);
             var root = HgProvider.FindRepositoryRoot(files[0]);
-            var branch = _sccStatusTracker.GetDirectoryBranch(root);
+            var branch = Repository.GetDirectoryBranch(root);
 
 
             var statusName = Enum.IsDefined(typeof(HgFileStatus), status) ? status.ToString() : "";

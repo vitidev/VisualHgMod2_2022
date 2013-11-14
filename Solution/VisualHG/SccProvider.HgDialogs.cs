@@ -87,8 +87,8 @@ namespace VisualHg
                         process.WaitForExit();
                     }
 
-                    sccService.StatusTracker.CacheUpdateRequired = false;
-                    sccService.StatusTracker.Enqueue(new UpdateRootStatusHgCommand(directory));
+                    sccService.Repository.CacheUpdateRequired = false;
+                    sccService.Repository.Enqueue(new UpdateRootStatusHgCommand(directory));
                 }
                 catch { }
             });
@@ -101,8 +101,8 @@ namespace VisualHg
                 {
                     TortoiseHg.ShowSelectedFilesWindow(files, command);
 
-                    sccService.StatusTracker.CacheUpdateRequired = false;
-                    sccService.StatusTracker.Enqueue(new UpdateFileStatusHgCommand(files));
+                    sccService.Repository.CacheUpdateRequired = false;
+                    sccService.Repository.Enqueue(new UpdateFileStatusHgCommand(files));
                 }
                 catch { }
             });
@@ -120,8 +120,8 @@ namespace VisualHg
                         process.WaitForExit();
                     }
 
-                    sccService.StatusTracker.CacheUpdateRequired = false;
-                    sccService.StatusTracker.Enqueue(new UpdateFileStatusHgCommand(new[] { current }));
+                    sccService.Repository.CacheUpdateRequired = false;
+                    sccService.Repository.Enqueue(new UpdateFileStatusHgCommand(new[] { current }));
                 }
                 catch { }
             });

@@ -301,9 +301,9 @@ namespace VisualHg
                 // Replace the selection with the root items of all controlled projects
                 selectedNodes.Clear();
                 Hashtable hashControllable = GetLoadedControllableProjectsEnum();
-                foreach (IVsHierarchy pHier in hashControllable.Keys)
+                if (!sccService.Repository.IsEmpty)
                 {
-                    if (sccService.IsProjectControlled(pHier))
+                    foreach (IVsHierarchy pHier in hashControllable.Keys)
                     {
                         VSITEMSELECTION vsItemSelection;
                         vsItemSelection.pHier = pHier;
@@ -313,7 +313,7 @@ namespace VisualHg
                 }
 
                 // Add the solution file to the list
-                if (sccService.IsProjectControlled(null))
+                if (!sccService.Repository.IsEmpty)
                 {
                     IVsHierarchy solHier = (IVsHierarchy)GetService(typeof(SVsSolution));
                     VSITEMSELECTION vsItemSelection;

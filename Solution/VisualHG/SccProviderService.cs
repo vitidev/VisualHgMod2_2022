@@ -1,159 +1,115 @@
 using System;
-using System.IO;
 using System.Diagnostics;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell.Interop;
+using HgLib;
 using Microsoft.VisualStudio;
-using System.Windows.Forms;
-
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
     [Guid(Guids.ProviderServiceGuid)]
     public partial class SccProviderService :
-        IVsSccProvider,             // Required for provider registration with source control manager
-        IVsSccManager2,             // Base source control functionality interface
-        IVsSccManagerTooltip,       // Provide tooltips for source control items
-        IVsSolutionEvents,          // We'll register for solution events, these are usefull for source control
-        IVsSolutionEvents2,
-        IVsQueryEditQuerySave2,     // Required to allow editing of controlled files 
-        IVsTrackProjectDocumentsEvents2,  // Usefull to track project changes (add, renames, deletes, etc)
+        IVsSccProvider,
         IVsSccGlyphs,
+        IVsSccManager2,
+        IVsSccManagerTooltip,
+        IVsSolutionEvents,
+        IVsSolutionEvents2,
         IVsUpdateSolutionEvents,
+        IVsTrackProjectDocumentsEvents2,
+        IVsQueryEditQuerySave2,
         IDisposable
     {
-        // Whether the provider is active or not
-        private bool _active = false;
-        // The service and source control provider
-        private SccProvider _sccProvider = null;
-        // The cookie for solution events 
-        private uint _vsSolutionEventsCookie;
-        // The cookie for project document events
-        private uint _tpdTrackProjectDocumentsCookie;
-        // solution file status cache
-        HgRepositoryTracker _sccStatusTracker = new HgRepositoryTracker();
-        // service.advise IVsUpdateSolutionEvents cooky
-        uint _dwBuildManagerCooky = 0;
+        private bool _nodesGlyphsDirty = true;
+        
+        private uint _vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
+        private uint _trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
+        private uint _buildManagerCookie = VSConstants.VSCOOKIE_NIL;
+        
+        private DateTime _lastUpdate;
 
-        // DirtyNodesGlyphs update flag
-        bool _bNodesGlyphsDirty = true;
+        private SccProvider _sccProvider;
 
-        // remember the latest OnQueryRemoveDirectories remove list
-        //string[] _RemoveDirectoriesQueue = null;
 
-        #region SccProvider Service initialization/unitialization
+        public bool Active { get; private set; }
+
+        public HgRepositoryTracker Repository { get; private set; }
+
 
         public SccProviderService(SccProvider sccProvider)
         {
-            Debug.Assert(null != sccProvider);
+            Debug.Assert(sccProvider != null);
+
             _sccProvider = sccProvider;
 
-            // Subscribe to solution events
-            IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-            sol.AdviseSolutionEvents(this, out _vsSolutionEventsCookie);
-            Debug.Assert(VSConstants.VSCOOKIE_NIL != _vsSolutionEventsCookie);
+            Repository = new HgRepositoryTracker();
+            Repository.StatusChanged += SetNodesGlyphsDirty;
 
-            // Subscribe to project documents
-            IVsTrackProjectDocuments2 tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
-            tpdService.AdviseTrackProjectDocumentsEvents(this, out _tpdTrackProjectDocumentsCookie);
-            Debug.Assert(VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie);
+            var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            solution.AdviseSolutionEvents(this, out _vsSolutionEventsCookie);
+            Debug.Assert(_vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL);
+            
+            var trackProjectDocuments = _sccProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+            trackProjectDocuments.AdviseTrackProjectDocumentsEvents(this, out _trackProjectDocumentsEventsCookie);
+            Debug.Assert(_trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL);
 
-            // Subscribe to status events
-            _sccStatusTracker.StatusChanged += SetNodesGlyphsDirty;
-
-            IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
-            buildManagerService.AdviseUpdateSolutionEvents(this, out _dwBuildManagerCooky);
+            var buildManager = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+            buildManager.AdviseUpdateSolutionEvents(this, out _buildManagerCookie);
+            Debug.Assert(_buildManagerCookie != VSConstants.VSCOOKIE_NIL);
         }
+
 
         public void Dispose()
         {
-            // Unregister from receiving solution events
-            if (VSConstants.VSCOOKIE_NIL != _vsSolutionEventsCookie)
+            Repository.StatusChanged -= SetNodesGlyphsDirty;
+            
+            if (_vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                IVsSolution sol = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-                sol.UnadviseSolutionEvents(_vsSolutionEventsCookie);
+                var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+                solution.UnadviseSolutionEvents(_vsSolutionEventsCookie);
                 _vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
-            // Unregister from receiving project documents
-            if (VSConstants.VSCOOKIE_NIL != _tpdTrackProjectDocumentsCookie)
+            if (_trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                IVsTrackProjectDocuments2 tpdService = (IVsTrackProjectDocuments2)_sccProvider.GetService(typeof(SVsTrackProjectDocuments));
-                tpdService.UnadviseTrackProjectDocumentsEvents(_tpdTrackProjectDocumentsCookie);
-                _tpdTrackProjectDocumentsCookie = VSConstants.VSCOOKIE_NIL;
+                var trackProjectDocuments = _sccProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+                trackProjectDocuments.UnadviseTrackProjectDocumentsEvents(_trackProjectDocumentsEventsCookie);
+                _trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
-            // Unregister from storrage events
-            _sccStatusTracker.StatusChanged -= SetNodesGlyphsDirty;
-
-            IVsSolutionBuildManager buildManagerService = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
-            buildManagerService.UnadviseUpdateSolutionEvents(_dwBuildManagerCooky);
+            if (_buildManagerCookie != VSConstants.VSCOOKIE_NIL)
+            {
+                var buildManager = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+                buildManager.UnadviseUpdateSolutionEvents(_buildManagerCookie);
+            }
         }
 
-        #endregion
 
-        // access to the tracker object
-        public HgRepositoryTracker StatusTracker
-        {
-            get { return _sccStatusTracker; }
-        }
-
-        //--------------------------------------------------------------------------------
-        // IVsSccProvider specific functions
-        //--------------------------------------------------------------------------------
-        #region IVsSccProvider interface functions
-
-        // Called by the scc manager when the provider is activated. 
-        // Make visible and enable if necessary scc related menu commands
         public int SetActive()
         {
-            Trace.WriteLine("SetActive");
-            
-            _active = true;
+            Active = true;
 
-            // add all projects of this solution to the status file cache
-            IVsSolution solution = (IVsSolution)_sccProvider.GetService(typeof(SVsSolution));
-            this._sccStatusTracker.UpdateProjects(solution);
-            this._sccStatusTracker.CacheUpdateRequired = true;
+            var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            Repository.UpdateProjects(solution);
+            Repository.CacheUpdateRequired = true;
 
             return VSConstants.S_OK;
         }
 
-        // Called by the scc manager when the provider is deactivated. 
-        // Hides and disable scc related menu commands
         public int SetInactive()
         {
-            Trace.WriteLine("SetInactive"); 
-            
-            _active = false;
+            Active = false;
             return VSConstants.S_OK;
         }
 
         public int AnyItemsUnderSourceControl(out int pfResult)
         {
-            if (!_active)
-            {
-                pfResult = 0;
-            }
-            else
-            {
-                // Although the parameter is an int, it's in reality a BOOL value, so let's return 0/1 values
-                pfResult = _sccStatusTracker.IsEmpty ? 0 : 1;
-            }
+            pfResult = Active && !Repository.IsEmpty ? 1 : 0;
 
             return VSConstants.S_OK;
         }
-
-        #endregion
-
-        //--------------------------------------------------------------------------------
-        // IVsQueryEditQuerySave2 specific functions
-        //--------------------------------------------------------------------------------
-        #region IVsQueryEditQuerySave2 interface functions
 
         public int BeginQuerySaveBatch()
         {
@@ -165,195 +121,137 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        /// <summary>
-        /// States that a file will be reloaded if it changes on disk.
-        /// </summary>
-        /// <param name="pszMkDocument">The PSZ mk document.</param>
-        /// <param name="rgf">The RGF.</param>
-        /// <param name="pFileInfo">The p file info.</param>
-        /// <returns></returns>
-        public int DeclareReloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        public int DeclareReloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
 
-        /// <summary>
-        /// States that a file will not be reloaded if it changes on disk
-        /// </summary>
-        /// <param name="pszMkDocument">The PSZ mk document.</param>
-        /// <param name="rgf">The RGF.</param>
-        /// <param name="pFileInfo">The p file info.</param>
-        /// <returns></returns>
-        public int DeclareUnreloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        public int DeclareUnreloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
 
-        public int IsReloadable([InAttribute] string pszMkDocument, out int pbResult)
+        public int IsReloadable(string pszMkDocument, out int pbResult)
         {
             // Since we're not tracking which files are reloadable and which not, consider everything reloadable
             pbResult = 1;
             return VSConstants.S_OK;
         }
 
-        public int OnAfterSaveUnreloadableFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        public int OnAfterSaveUnreloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
 
-        /// <summary>
-        /// Called by projects and editors before modifying a file
-        /// </summary>
-        public int QueryEditFiles([InAttribute] uint rgfQueryEdit, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] uint[] rgrgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pfEditVerdict, out uint prgfMoreInfo)
+        public int QueryEditFiles(uint rgfQueryEdit, int cFiles, string[] rgpszMkDocuments, uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pfEditVerdict, out uint prgfMoreInfo)
         {
-            // Initialize output variables
             pfEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
             prgfMoreInfo = 0;
             return VSConstants.S_OK;
         }
-        /// <summary>
-        /// Called by editors and projects before saving the files
-        /// </summary>
-        public int QuerySaveFile([InAttribute] string pszMkDocument, [InAttribute] uint rgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo, out uint pdwQSResult)
+
+        public int QuerySaveFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo, out uint pdwQSResult)
         {
-            Trace.WriteLine("QuerySaveFile");
-            Trace.WriteLine("    dir: " + pszMkDocument);
             if (Active && File.Exists(pszMkDocument))
-			{
-              try
-              {
-                  FileAttributes attribures = File.GetAttributes(pszMkDocument);
-
-                  // Make the file writable and allow the save
-                  if ((attribures & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-                    File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
-
-                  string[] files = new string[] { pszMkDocument};
-                  _sccStatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(files));
-              }
-              catch{}
-            }
-
-            pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
-            return VSConstants.S_OK;
-        }
-
-        /// <summary>
-        /// Called by editors and projects before saving the files
-        /// </summary>
-        public int QuerySaveFiles([InAttribute] uint rgfQuerySave, [InAttribute] int cFiles, [InAttribute] string[] rgpszMkDocuments, [InAttribute] uint[] rgrgf, [InAttribute] VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
-        {
-            Trace.WriteLine("QuerySaveFiles");
-            for (int iFile = 0; iFile < cFiles; ++iFile)
             {
-                Trace.WriteLine("    dir: " + rgpszMkDocuments[iFile] );
+                try
+                {
+                    var attribures = File.GetAttributes(pszMkDocument);
+
+                    if ((attribures & FileAttributes.ReadOnly) > 0)
+                    {
+                        File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
+                    }
+
+                    Repository.Enqueue(new UpdateFileStatusHgCommand(new [] { pszMkDocument }));
+                }
+                catch { }
             }
 
-            _sccStatusTracker.Enqueue(new HgLib.UpdateFileStatusHgCommand(rgpszMkDocuments));
-
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
+
             return VSConstants.S_OK;
         }
 
-        #endregion
-
-        #region Files and Project Management Functions
-
-        /// <summary>
-        /// Returns whether this source control provider is the active scc provider.
-        /// </summary>
-        public bool Active
+        public int QuerySaveFiles(uint rgfQuerySave, int cFiles, string[] rgpszMkDocuments, uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
         {
-            get { return _active; }
+            Repository.Enqueue(new UpdateFileStatusHgCommand(rgpszMkDocuments));
+
+            pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
+
+            return VSConstants.S_OK;
         }
 
-        /// <summary>
-        /// Checks whether the specified project or solution (pHier==null) is under source control
-        /// </summary>
-        /// <returns>True if project is controlled.</returns>
-        public bool IsProjectControlled(IVsHierarchy pHier)
+
+        public HgFileStatus GetFileStatus(string filename)
         {
-            return !_sccStatusTracker.IsEmpty;
+            return Repository.GetFileStatus(filename);
         }
 
-        /// <summary>
-        /// query for scc file status
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns></returns>
-        public HgLib.HgFileStatus GetFileStatus(String filename)
-        {
-            return _sccStatusTracker.GetFileStatus(filename);
-        }    
-
-        /// <summary>
-        /// set the node glyphs dirty flag to true
-        /// </summary>
-        public void SetNodesGlyphsDirty(object sender, EventArgs e)
-        {
-            _bNodesGlyphsDirty = true;
-        }
-
-        /// <summary>
-        /// call RefreshNodesGlyphs to update all Glyphs 
-        /// if the _bNodesGlyphsDirty is true
-        /// </summary>
-        long lastUpdate = 0;
         public void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
         {
-            if (_bNodesGlyphsDirty && (DateTime.Now.Ticks - lastUpdate) > 100)
+            if (_nodesGlyphsDirty && (DateTime.Now - _lastUpdate).Milliseconds > 100)
             {
-                UpdatePendingWindowState(); 
                 RefreshNodesGlyphs();
-                // update main caption
-                _sccProvider.UpdateMainWindowTitle(_sccStatusTracker.GetBranchNames());
-                
-                lastUpdate = DateTime.Now.Ticks;
-                _bNodesGlyphsDirty = false;
+                UpdateMainWindowTitle();
+                UpdatePendingWindowState();
             }
         }
 
-        public void RefreshNodesGlyphs()
+        private void SetNodesGlyphsDirty(object sender, EventArgs e)
         {
-            var solHier = (IVsHierarchy)_sccProvider.GetService(typeof(SVsSolution));
-            var projectList = _sccProvider.GetLoadedControllableProjects();
+            _nodesGlyphsDirty = true;
+        }
 
-            // We'll also need to refresh the solution folders glyphs
-            // to reflect the controlled state
-            IList<VSITEMSELECTION> nodes = new List<VSITEMSELECTION>();
-
-            { // add solution root item
-                VSITEMSELECTION vsItem;
-                vsItem.itemid = VSConstants.VSITEMID_ROOT;
-                vsItem.pHier = solHier;// pHierarchy;
-                nodes.Add(vsItem);
-            }
-
-            // add project node items
-            foreach (IVsHierarchy hr in projectList)
-            {
-                VSITEMSELECTION vsItem;
-                vsItem.itemid = VSConstants.VSITEMID_ROOT;
-                vsItem.pHier = hr;
-                nodes.Add(vsItem);
-            }
+        private void RefreshNodesGlyphs()
+        {
+            var projects = _sccProvider.GetLoadedControllableProjects();
+            
+            var nodes = new [] { GetSolutionVsItemSelection() }
+                .Concat(projects.Select(GetVsItemSelection))
+                .ToArray();
 
             _sccProvider.RefreshNodesGlyphs(nodes);
+
+            _lastUpdate = DateTime.Now;
+            _nodesGlyphsDirty = false;
+        }
+        
+        private VSITEMSELECTION GetSolutionVsItemSelection()
+        {
+            var hierarchy = _sccProvider.GetService(typeof(SVsSolution)) as IVsHierarchy;
+
+            return GetVsItemSelection(hierarchy);
+        }
+
+        private VSITEMSELECTION GetVsItemSelection(IVsSccProject2 project)
+        {
+            return GetVsItemSelection(project as IVsHierarchy);
+        }
+
+        private VSITEMSELECTION GetVsItemSelection(IVsHierarchy hierarchy)
+        {
+            return new VSITEMSELECTION {
+                itemid = VSConstants.VSITEMID_ROOT,
+                pHier = hierarchy,
+            };
         }
 
         private void UpdatePendingWindowState()
         {
-            object pane = _sccProvider.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, false);
-            
-            if (pane != null)
+            var pendingChangesToolWindow = _sccProvider.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, false) as HgPendingChangesToolWindow;
+
+            if (pendingChangesToolWindow != null)
             {
-                ((HgPendingChangesToolWindow)pane).UpdatePendingList(_sccStatusTracker);
+                pendingChangesToolWindow.UpdatePendingList(Repository);
             }
         }
 
-        #endregion
+        private void UpdateMainWindowTitle()
+        {
+            _sccProvider.UpdateMainWindowTitle(Repository.GetBranchNames());
+        }
 
-        #region IVsUpdateSolutionEvents Members
 
         public int OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
         {
@@ -372,21 +270,14 @@ namespace VisualHg
 
         public int UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
         {
-            Trace.WriteLine("UpdateSolution_Done"); 
-            
-            _sccStatusTracker.SolutionBuildEnded();
+            Repository.SolutionBuildEnded();
             return VSConstants.E_NOTIMPL;
-
         }
 
         public int UpdateSolution_StartUpdate(ref int pfCancelUpdate)
         {
-            Trace.WriteLine("UpdateSolution_StartUpdate"); 
-
-            _sccStatusTracker.SolutionBuildStarted();
+            Repository.SolutionBuildStarted();
             return VSConstants.E_NOTIMPL;
         }
-
-        #endregion
     }
 }

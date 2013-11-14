@@ -190,12 +190,6 @@ namespace VisualHg
             externalDiffToolCommandEdit.Text = config.ExternalDiffToolCommandMask;
         }
 
-        private void UpdateGlyphs_Click(object sender, EventArgs e)
-        {
-            SccProviderService sccProviderService = (SccProviderService)GetService(typeof(SccProviderService));
-            sccProviderService.RefreshNodesGlyphs();
-        }
-
         private void OnEditDiffToolButton(object sender, EventArgs e)
         {
             SelectDiffToolTemplateDialog selectDiffToolTemplateDialog = new SelectDiffToolTemplateDialog();

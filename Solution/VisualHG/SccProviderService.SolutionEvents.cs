@@ -29,7 +29,7 @@ namespace VisualHg
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
-            _sccStatusTracker.ClearCache();
+            Repository.ClearCache();
             _sccProvider.LastSeenProjectDirectory = "";
             
             UpdatePendingWindowState();
@@ -45,7 +45,7 @@ namespace VisualHg
 
             if (project != null)
             {
-                _sccStatusTracker.UpdateProject(project);
+                Repository.UpdateProject(project);
             }
 
             return VSConstants.S_OK;
@@ -59,21 +59,21 @@ namespace VisualHg
 
             if (files.Length > 0)
             {
-                _sccStatusTracker.AddFilesToProjectCache(files);
+                Repository.AddFilesToProjectCache(files);
 
                 if (Configuration.Global.AutoAddFiles)
                 {
-                    _sccStatusTracker.Enqueue(new AddFilesHgCommand(files));
+                    Repository.Enqueue(new AddFilesHgCommand(files));
                 }
                 else
                 {
-                    _sccStatusTracker.Enqueue(new UpdateFileStatusHgCommand(files));
+                    Repository.Enqueue(new UpdateFileStatusHgCommand(files));
                 }
             }
             
             if (project != null)
             {
-                _sccStatusTracker.UpdateProject(project);
+                Repository.UpdateProject(project);
             }
 
             _sccProvider.LastSeenProjectDirectory = ProjectHelper.GetDirectoryName(pHierarchy);
@@ -84,12 +84,12 @@ namespace VisualHg
 
         public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
         {
-            if (_sccStatusTracker.FileProjectMapCacheCount > 0)
+            if (Repository.FileProjectMapCacheCount > 0)
             { 
                 var project = pHierarchy as IVsSccProject2;
                 var files = SccProvider.GetProjectFiles(project);
                 
-                _sccStatusTracker.RemoveFilesFromProjectCache(files);
+                Repository.RemoveFilesFromProjectCache(files);
             }
                         
             return VSConstants.S_OK;
@@ -97,19 +97,19 @@ namespace VisualHg
 
         public int OnBeforeCloseSolution(object pUnkReserved)
         {
-            _sccStatusTracker.ClearProjectCache();
+            Repository.ClearProjectCache();
 
             return VSConstants.S_OK;
         }
 
         public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
         {
-            if (_sccStatusTracker.FileProjectMapCacheCount > 0)
+            if (Repository.FileProjectMapCacheCount > 0)
             {
                 var project = pRealHierarchy as IVsSccProject2;
                 var files = SccProvider.GetProjectFiles(project);
                 
-                _sccStatusTracker.RemoveFilesFromProjectCache(files);
+                Repository.RemoveFilesFromProjectCache(files);
             }
 
             return VSConstants.S_OK;
@@ -138,23 +138,23 @@ namespace VisualHg
 
         public int OnQueryAddFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, [Out] VSQUERYADDFILERESULTS[] pSummaryResult, [Out] VSQUERYADDFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.FileSystemWatch = false;
+            Repository.FileSystemWatch = false;
             
             return VSConstants.S_OK;
         }
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
-            _sccStatusTracker.FileSystemWatch = true;
+            Repository.FileSystemWatch = true;
 
             if (Configuration.Global.AutoAddFiles)
             {
                 HgFileInfo info;
-                _sccStatusTracker.GetFileInfo(rgpszMkDocuments[0], out info);
+                Repository.GetFileInfo(rgpszMkDocuments[0], out info);
 
                 if (info == null || info.Status == HgFileStatus.Removed || info.Status == HgFileStatus.Uncontrolled)
                 {
-                    _sccStatusTracker.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
+                    Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
                 }
             }
 
@@ -173,13 +173,13 @@ namespace VisualHg
 
         public int OnQueryRemoveFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, [Out] VSQUERYREMOVEFILERESULTS[] pSummaryResult, [Out] VSQUERYREMOVEFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.FileSystemWatch = false;
+            Repository.FileSystemWatch = false;
             return VSConstants.S_OK;
         }
 
         public int OnAfterRemoveFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEFILEFLAGS[] rgFlags)
         {
-            _sccStatusTracker.FileSystemWatch = true;
+            Repository.FileSystemWatch = true;
 
             if (rgpProjects == null || rgpszMkDocuments == null)
             {
@@ -188,7 +188,7 @@ namespace VisualHg
 
             if (!File.Exists(rgpszMkDocuments[0]))
             {
-                _sccStatusTracker.Enqueue(new RemoveFilesHgCommand(rgpszMkDocuments));
+                Repository.Enqueue(new RemoveFilesHgCommand(rgpszMkDocuments));
             }
 
             return VSConstants.S_OK;
@@ -206,15 +206,15 @@ namespace VisualHg
 
         public int OnQueryRenameFiles(IVsProject pProject, int cFiles, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] rgFlags, [Out] VSQUERYRENAMEFILERESULTS[] pSummaryResult, [Out] VSQUERYRENAMEFILERESULTS[] rgResults)
         {
-            _sccStatusTracker.FileSystemWatch = false;
+            Repository.FileSystemWatch = false;
             
             return VSConstants.S_OK;
         }
 
         public int OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)
         {
-            _sccStatusTracker.FileSystemWatch = true;
-            _sccStatusTracker.Enqueue(new RenameFilesHgCommand(rgszMkOldNames, rgszMkNewNames));
+            Repository.FileSystemWatch = true;
+            Repository.Enqueue(new RenameFilesHgCommand(rgszMkOldNames, rgszMkNewNames));
             
             return VSConstants.S_OK;
         }
