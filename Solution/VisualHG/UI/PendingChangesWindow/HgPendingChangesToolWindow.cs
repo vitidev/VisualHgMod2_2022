@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using HgLib;
 
 //using IServiceProvider = System.IServiceProvider;
 //using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
@@ -37,14 +38,14 @@ namespace VisualHg
             SccProviderService service = (SccProviderService)SccProvider.GetServiceEx(typeof(SccProviderService));
             if(service!=null)
             {
-                UpdatePendingList(service.Repository);
+                UpdatePendingFiles(service.Repository.GetPendingFiles());
             }
         }
 
         // route update pending changes call
-        public void UpdatePendingList(HgRepositoryTracker tracker)
+        public void UpdatePendingFiles(HgFileInfo[] files)
         {
-          control.UpdatePendingList(tracker);
+          control.UpdatePendingFiles(files);
         }
 
         // ------------------------------------------------------------------------

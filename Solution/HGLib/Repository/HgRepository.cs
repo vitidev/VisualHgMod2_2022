@@ -279,7 +279,7 @@ namespace HgLib
             return (found ? value.Status : HgFileStatus.Uncontrolled);
         }
 
-        public List<HgFileInfo> GetPendingFiles()
+        public HgFileInfo[] GetPendingFiles()
         {
             lock (_cache)
             {

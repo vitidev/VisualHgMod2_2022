@@ -196,7 +196,7 @@
     <value>_pendingItemsListView</value>
   </data>
   <data name="&gt;&gt;_pendingItemsListView.Type" xml:space="preserve">
-    <value>VisualHg.PendingItemsListView, VisualHg, Version=1.1.4.0, Culture=neutral, PublicKeyToken=null</value>
+    <value>VisualHg.PendingItemsListView, VisualHg, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;_pendingItemsListView.Parent" xml:space="preserve">
     <value>$this</value>

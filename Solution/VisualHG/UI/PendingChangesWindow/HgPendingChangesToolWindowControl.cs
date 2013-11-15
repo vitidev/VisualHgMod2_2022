@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using Microsoft.VisualStudio.Shell;
+using HgLib;
 
 namespace VisualHg
 {
@@ -25,14 +26,14 @@ namespace VisualHg
     private ToolStripMenuItem openInEditorToolStripMenuItem;
     private ToolStripMenuItem diffToolStripMenuItem;
     private ToolStripMenuItem historyToolStripMenuItem;
-    private PendingItemsListView _pendingItemsListView;
+    private HgFileInfoListView _pendingItemsListView;
 
     public HgPendingChangesToolWindowControl()
     {
       // This call is required by the Windows.Forms Form Designer.
       InitializeComponent();
 
-      ImageList menuImageList = _pendingItemsListView._ImageMapper.MenuImageList;
+      ImageList menuImageList = new ImageMapper().MenuImageList;
       if (menuImageList != null)
       { 
           this.commitToolStripMenuItem.Image = menuImageList.Images[0];
@@ -73,7 +74,7 @@ namespace VisualHg
             this.historyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.annotateFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openInEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._pendingItemsListView = new VisualHg.PendingItemsListView();
+            this._pendingItemsListView = new VisualHg.HgFileInfoListView();
             this.columnHeaderStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeaderFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pendingChangesContextMenu.SuspendLayout();
@@ -129,6 +130,7 @@ namespace VisualHg
             // 
             // _pendingItemsListView
             // 
+            this._pendingItemsListView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this._pendingItemsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeaderStatus,
             this.columnHeaderFileName});
@@ -170,9 +172,9 @@ namespace VisualHg
     // ------------------------------------------------------------------------
     // update pending list with status tracker
     // ------------------------------------------------------------------------
-    public void UpdatePendingList(HgRepositoryTracker tracker)
+    public void UpdatePendingFiles(HgFileInfo[] files)
     {
-      _pendingItemsListView.UpdatePendingList(tracker);
+      _pendingItemsListView.Files = files;
     }
 
     // ------------------------------------------------------------------------
@@ -182,7 +184,7 @@ namespace VisualHg
     {
       foreach (int index in _pendingItemsListView.SelectedIndices)
       {
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         try
         {
           VsShellUtilities.OpenDocument(SccProvider.Provider, info.FullName);
@@ -238,7 +240,7 @@ namespace VisualHg
       List<string> array = new List<string>();
       foreach (int index in _pendingItemsListView.SelectedIndices)
       {
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         array.Add(info.FullName);
       }
 
@@ -253,7 +255,7 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         SccProvider.Provider.ShowDiffWindow(info.FullName);
       }
     }
@@ -266,7 +268,7 @@ namespace VisualHg
         List<string> array = new List<string>();
         foreach (int index in _pendingItemsListView.SelectedIndices)
         {
-            HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+            HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
             array.Add(info.FullName);
         }
 
@@ -281,7 +283,7 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         SccProvider.Provider.ShowHistoryWindow(info.FullName);
       }
     }
@@ -294,7 +296,7 @@ namespace VisualHg
       if (_pendingItemsListView.SelectedIndices.Count == 1)
       {
         int index = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         SccProvider.Provider.ShowAnnotateWindow(info.FullName);
       }
     }
@@ -318,7 +320,7 @@ namespace VisualHg
       {
         singleSel = (_pendingItemsListView.SelectedIndices.Count == 1) ? true : false;
         int index  = _pendingItemsListView.SelectedIndices[0];
-        HgLib.HgFileInfo info = _pendingItemsListView._list[index];
+        HgLib.HgFileInfo info = _pendingItemsListView.Files[index];
         status = info.Status;
       }  
         

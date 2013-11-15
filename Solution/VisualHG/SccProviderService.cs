@@ -236,7 +236,7 @@ namespace VisualHg
 
             if (pendingChangesToolWindow != null)
             {
-                pendingChangesToolWindow.UpdatePendingList(Repository);
+                pendingChangesToolWindow.UpdatePendingFiles(Repository.GetPendingFiles());
             }
         }
 

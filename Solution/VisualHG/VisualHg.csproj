@@ -138,6 +138,8 @@
     <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.Designer.cs">
       <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\PendingChangesWindow\HgFileInfoComparer.cs" />
+    <Compile Include="UI\PendingChangesWindow\ListViewItemCache.cs" />
     <Compile Include="UI\PendingChangesWindow\HgPendingChangesToolWindow.cs" />
     <Compile Include="UI\PendingChangesWindow\HgPendingChangesToolWindowControl.cs">
       <SubType>UserControl</SubType>

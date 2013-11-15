@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 
@@ -6,17 +7,23 @@ namespace HgLib
 {
     public class HgFileInfoDictionary
     {
-        Dictionary<string, HgFileInfo> _fileInfo = new Dictionary<string, HgFileInfo>();
+        private Dictionary<string, HgFileInfo> _files = new Dictionary<string, HgFileInfo>();
 
         public int Count
         {
-            get { return _fileInfo.Count; }
+            get { return _files.Count; }
         }
 
         public void Clear()
         {
-            _fileInfo.Clear();
+            _files.Clear();
         }
+
+        public HgFileInfoDictionary()
+	    {
+            _files = new Dictionary<string, HgFileInfo>();
+	    }
+
 
         public void Add(Dictionary<string, char> newFiles)
         {
@@ -44,59 +51,50 @@ namespace HgLib
 
         public void Remove(string file)
         {
-            _fileInfo.Remove(file.ToLower());
+            _files.Remove(file.ToLower());
         }
 
         void SetAt(string file, HgFileInfo info)
         {
-            _fileInfo[file.ToLower()] = info;
+            _files[file.ToLower()] = info;
         }
 
-        public bool TryGetValue(string file, out HgFileInfo info)
+        public bool TryGetValue(string fileName, out HgFileInfo info)
         {
-            if (file == null)
+            if (String.IsNullOrEmpty(fileName))
             {
                 info = null;
                 return false;
             }
 
-            return _fileInfo.TryGetValue(file.ToLower(), out info);
+            return _files.TryGetValue(fileName.ToLower(), out info);
         }
 
-        public List<HgFileInfo> GetPendingFiles()
+        public HgFileInfo[] GetPendingFiles()
         {
-            var pending = new List<HgFileInfo>();
-            
-            foreach (var fileInfo in _fileInfo.Values)
-            {
-                if (fileInfo.FullName != null &&
-                      fileInfo.Status != HgFileStatus.Clean &&
-                      fileInfo.Status != HgFileStatus.Ignored &&
-                      fileInfo.Status != HgFileStatus.Uncontrolled)
-                    pending.Add(fileInfo);
-            }
-
-            return pending;
+            return _files.Values
+                .Where(x => x.FullName != null &&
+                    x.Status != HgFileStatus.Clean &&
+                    x.Status != HgFileStatus.Ignored &&
+                    x.Status != HgFileStatus.Uncontrolled)
+                .ToArray();
         }
 
         public bool FileMoved(string fileName, out string newName)
         {
             var root = HgProvider.FindRepositoryRoot(fileName);
             var name = Path.GetFileName(fileName);
-            
-            foreach (var fileInfo in _fileInfo.Values)
+
+            foreach (var fileInfo in _files.Values.Where(x => x.Status == HgFileStatus.Added))
             {
-                if (fileInfo.Status == HgLib.HgFileStatus.Added)
+                if (name.Equals(fileInfo.Name, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (name.Equals(fileInfo.Name, StringComparison.CurrentCultureIgnoreCase))
+                    var root2 = HgProvider.FindRepositoryRoot(fileInfo.FullName);
+
+                    if (root.Equals(root2, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        var root2 = HgProvider.FindRepositoryRoot(fileInfo.FullName);
-                        
-                        if (root.Equals(root2, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            newName = fileInfo.FullName;
-                            return true;
-                        }
+                        newName = fileInfo.FullName;
+                        return true;
                     }
                 }
             }
