@@ -54,23 +54,13 @@ namespace VisualHg
 
         public void ShowHistoryWindowPrivate(string fileName)
         {
-            ShowFileWindow(fileName, "log");
-        }
-
-        public void ShowAnnotateWindowPrivate(string fileName)
-        {
-            ShowFileWindow(fileName, "annotate");
-        }
-
-        private void ShowFileWindow(string fileName, string command)
-        {
             var root = HgProvider.FindRepositoryRoot(fileName);
 
             if (!String.IsNullOrEmpty(root))
             {
                 fileName = fileName.Substring(root.Length + 1);
 
-                QueueTortoiseHgStart(String.Format("{0} \"{1}\"", command, fileName), root);
+                QueueTortoiseHgStart(String.Format("log \"{0}\"", fileName), root);
             }
         }
 

@@ -164,12 +164,6 @@
   <data name="historyMenuItem.Text" xml:space="preserve">
     <value>Revision History</value>
   </data>
-  <data name="annotateMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>159, 22</value>
-  </data>
-  <data name="annotateMenuItem.Text" xml:space="preserve">
-    <value>Annotate</value>
-  </data>
   <data name="openMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>159, 22</value>
   </data>
@@ -177,7 +171,7 @@
     <value>Open</value>
   </data>
   <data name="contextMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>160, 158</value>
+    <value>160, 136</value>
   </data>
   <data name="&gt;&gt;contextMenu.Name" xml:space="preserve">
     <value>contextMenu</value>
@@ -252,12 +246,6 @@
   <data name="&gt;&gt;historyMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;annotateMenuItem.Name" xml:space="preserve">
-    <value>annotateMenuItem</value>
-  </data>
-  <data name="&gt;&gt;annotateMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;openMenuItem.Name" xml:space="preserve">
     <value>openMenuItem</value>
   </data>
@@ -265,7 +253,7 @@
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>HgPendingChangesToolWindowControl</value>
+    <value>PendingChangesControl</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.UserControl, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

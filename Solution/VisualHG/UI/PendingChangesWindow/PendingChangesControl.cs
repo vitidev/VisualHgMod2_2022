@@ -16,7 +16,6 @@ namespace VisualHg
         private ToolStripMenuItem diffMenuItem;
         private ToolStripMenuItem revertMenuItem;
         private ToolStripMenuItem historyMenuItem;
-        private ToolStripMenuItem annotateMenuItem;
         private ToolStripMenuItem openMenuItem;
 
         public PendingChangesControl()
@@ -28,7 +27,6 @@ namespace VisualHg
             diffMenuItem.Click += ShowDiffWindow;
             revertMenuItem.Click += ShowRevertWindow;
             historyMenuItem.Click += ShowHistoryWindow;
-            annotateMenuItem.Click += ShowAnnotateWindow;
             openMenuItem.Click += OpenSelectedFiles;
 
             fileListView.DoubleClick += OpenSelectedFiles;
@@ -46,8 +44,7 @@ namespace VisualHg
                 historyMenuItem.Image = menuImageList.Images[1];
                 diffMenuItem.Image = menuImageList.Images[4];
                 revertMenuItem.Image = menuImageList.Images[7];
-                annotateMenuItem.Image = menuImageList.Images[8];
-                openMenuItem.Image = menuImageList.Images[9];
+                openMenuItem.Image = menuImageList.Images[8];
             }
         }
 
@@ -104,14 +101,6 @@ namespace VisualHg
             }
         }
 
-        private void ShowAnnotateWindow(object sender, EventArgs e)
-        {
-            if (fileListView.SelectedIndices.Count == 1)
-            {
-                SccProvider.Provider.ShowAnnotateWindow(fileListView.SelectedFiles[0]);
-            }
-        }
-
 
         private void OnFilesListViewKeyDown(object sender, KeyEventArgs e)
         {
@@ -138,7 +127,6 @@ namespace VisualHg
             diffMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Comparable);
             revertMenuItem.Visible = commitMenuItem.Visible;
             historyMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Controlled);
-            annotateMenuItem.Visible = historyMenuItem.Visible;
             openMenuItem.Visible = status != HgFileStatus.Removed;
         }
 
@@ -159,7 +147,6 @@ namespace VisualHg
             this.diffMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.revertMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.historyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.annotateMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileListView = new VisualHg.HgFileInfoListView();
             columnHeaderFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -182,7 +169,6 @@ namespace VisualHg
             this.diffMenuItem,
             this.revertMenuItem,
             this.historyMenuItem,
-            this.annotateMenuItem,
             this.openMenuItem});
             this.contextMenu.Name = "contextMenuStrip1";
             resources.ApplyResources(this.contextMenu, "contextMenu");
@@ -207,11 +193,6 @@ namespace VisualHg
             this.historyMenuItem.Name = "historyMenuItem";
             resources.ApplyResources(this.historyMenuItem, "historyMenuItem");
             // 
-            // annotateMenuItem
-            // 
-            this.annotateMenuItem.Name = "annotateMenuItem";
-            resources.ApplyResources(this.annotateMenuItem, "annotateMenuItem");
-            // 
             // openMenuItem
             // 
             this.openMenuItem.Name = "openMenuItem";
@@ -233,11 +214,11 @@ namespace VisualHg
             this.fileListView.View = System.Windows.Forms.View.Details;
             this.fileListView.VirtualMode = true;
             // 
-            // HgPendingChangesToolWindowControl
+            // PendingChangesControl
             // 
             this.BackColor = System.Drawing.SystemColors.Window;
             this.Controls.Add(this.fileListView);
-            this.Name = "HgPendingChangesToolWindowControl";
+            this.Name = "PendingChangesControl";
             resources.ApplyResources(this, "$this");
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);

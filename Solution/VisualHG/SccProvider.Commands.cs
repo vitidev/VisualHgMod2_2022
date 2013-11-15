@@ -68,10 +68,6 @@ namespace VisualHg
             commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistory);
             command = new MenuCommand(ShowHistoryWindow, commandId);
             menuCommandService.AddCommand(command);
-
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAnnotate);
-            command = new MenuCommand(ShowAnnotateWindow, commandId);
-            menuCommandService.AddCommand(command);
         }
 
 
@@ -127,10 +123,6 @@ namespace VisualHg
                     cmdf = VisibleToOleCmdf(IsHgHistoryMenuItemVisible());
                     break;
 
-                case CommandId.icmdHgAnnotate:
-                    cmdf = VisibleToOleCmdf(IsHgAnnotateMenuItemVisible());
-                    break;
-
                 default:
                     return (int)(OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED);
             }
@@ -168,11 +160,6 @@ namespace VisualHg
         private bool IsHgHistoryMenuItemVisible()
         {
             return SelectedFileStatusMatches(HgFileStatus.Controlled);
-        }
-
-        private bool IsHgAnnotateMenuItemVisible()
-        {
-            return IsHgHistoryMenuItemVisible();
         }
 
 
@@ -261,11 +248,6 @@ namespace VisualHg
             ShowHistoryWindow(SelectedFile);
         }
 
-        private void ShowAnnotateWindow(object sender, EventArgs e)
-        {
-            ShowAnnotateWindow(SelectedFile);
-        }
-
 
         public void ShowCommitWindow(string[] files)
         {
@@ -334,16 +316,6 @@ namespace VisualHg
         {
             SaveSolutionIfDirty();
 
-            if (FileStatusMatches(fileName, HgFileStatus.Controlled))
-            {
-                ShowHistoryWindowPrivate(fileName);
-            }
-        }
-
-        public void ShowAnnotateWindow(string fileName)
-        {
-            SaveSolutionIfDirty();
-
             var status = HgFileStatus.Ignored;
 
             if (!String.IsNullOrEmpty(fileName))
@@ -360,7 +332,7 @@ namespace VisualHg
                 status != HgFileStatus.Uncontrolled &&
                 status != HgFileStatus.Ignored)
             {
-                ShowAnnotateWindowPrivate(fileName);
+                ShowHistoryWindowPrivate(fileName);
             }
         }
     }
