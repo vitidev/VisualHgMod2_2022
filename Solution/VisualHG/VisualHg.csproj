@@ -108,6 +108,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="IdleNotifier.cs" />
     <Compile Include="HgRepositoryTracker.cs" />
+    <Compile Include="ImageMapper.cs" />
     <Compile Include="RegistryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
     <Compile Include="SccProvider.Utillities.cs" />
@@ -123,7 +124,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="StatusImageMapper.cs" />
     <Compile Include="UI\ListViewColumnIcons.cs" />
     <Compile Include="UI\OptionsPage\SccProviderOptions.cs">
       <SubType>Component</SubType>
