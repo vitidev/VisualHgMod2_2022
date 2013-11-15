@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace VisualHg
 {
-    /// <summary>
-    /// Command templates for external diff tools
-    /// </summary>
     public partial class SelectDiffToolTemplateDialog : Form
     {
         public SelectDiffToolTemplateDialog()
@@ -19,7 +10,7 @@ namespace VisualHg
             InitializeComponent();
         }
 
-        public string selectedTemplate
+        public string SelectedTemplate
         {
             get{ return diffToolTemplateListCtrl.Text; }
         }

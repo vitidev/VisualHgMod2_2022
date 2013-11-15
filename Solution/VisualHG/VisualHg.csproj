@@ -143,7 +143,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\PendingChangesWindow\ListViewItemCache.cs" />
-    <Compile Include="UI\PendingChangesWindow\PendingChangesControl.cs" />
+    <Compile Include="UI\PendingChangesWindow\PendingChangesControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UI\PendingChangesWindow\PendingChangesToolWindow.cs" />
   </ItemGroup>
   <ItemGroup>

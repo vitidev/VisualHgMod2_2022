@@ -7,7 +7,11 @@
         public static Configuration Global
         {
             get { return _global ?? (_global = LoadConfiguration()); }
-            set { _global = value; }
+            set
+            {
+                _global = value;
+                StoreConfiguration(_global);
+            }
         }
 
 
@@ -17,8 +21,6 @@
 
         public bool EnableContextSearch { get; set; }
 
-        public bool ObserveOutOfStudioFileChanges { get; set; }
-
         public string ExternalDiffToolCommandMask { get; set; }
 
 
@@ -27,23 +29,22 @@
             AutoActivatePlugin = true;
             AutoAddFiles = true;
             EnableContextSearch = true;
-            ObserveOutOfStudioFileChanges = true;
             ExternalDiffToolCommandMask = "";
         }
 
-        
-        public void StoreConfiguration()
-        {
-            RegistryTool.StoreProperties("Configuration", this);
-        }
-        
-        public static Configuration LoadConfiguration()
+
+        private static Configuration LoadConfiguration()
         {
             var configuration = new Configuration();
             
             RegistryTool.LoadProperties("Configuration", configuration);
             
             return configuration;
+        }
+
+        private static void StoreConfiguration(Configuration configuration)
+        {
+            RegistryTool.StoreProperties("Configuration", configuration);
         }
     }
 }
