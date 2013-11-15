@@ -32,7 +32,7 @@ namespace VisualHg
             Repository.ClearCache();
             _sccProvider.LastSeenProjectDirectory = "";
             
-            UpdatePendingWindowState();
+            UpdatePendingChangesToolWindow();
 
             return VSConstants.S_OK;
         }

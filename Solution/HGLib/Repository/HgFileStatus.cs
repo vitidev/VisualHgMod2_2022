@@ -2,14 +2,18 @@
 {
     public enum HgFileStatus
     {
-        Uncontrolled = 0x001,
-        Clean        = 0x002,
-        Modified     = 0x004,
-        Added        = 0x008,
-        Removed      = 0x010,
-        Renamed      = 0x020,
-        Copied       = 0x040,
-        Ignored      = 0x080,
-        Missing      = 0x100,
+        Uncontrolled = 0x01,
+        Added = 0x02,
+        Clean = 0x04,
+        Modified = 0x08,
+        Removed = 0x10,
+        Renamed = 0x20,
+        Copied = 0x40,
+        Ignored = 0x80,
+        Missing = 0x100,
+
+        Different = Added | Modified | Removed | Renamed | Copied,
+        Comparable = Modified | Removed | Missing | Renamed | Copied,
+        Controlled = Clean | Modified | Removed | Missing | Renamed | Copied,
     };
 }

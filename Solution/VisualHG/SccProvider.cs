@@ -14,8 +14,8 @@ namespace VisualHg
     [ProvideMenuResource(1000, 1)]
     [ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHg", 106, 107, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.ProviderGuid)]
-    [ProvideToolWindow(typeof(HgPendingChangesToolWindow))]
-    [ProvideToolWindowVisibility(typeof(HgPendingChangesToolWindow), Guids.ProviderGuid)]
+    [ProvideToolWindow(typeof(PendingChangesToolWindow))]
+    [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.ProviderGuid)]
     [ProvideService(typeof(SccProviderService), ServiceName = "VisualHg")]
     [ProvideSourceControlProvider("VisualHg", "#100")]
     [ProvideAutoLoad(Guids.ProviderGuid)]
@@ -26,6 +26,23 @@ namespace VisualHg
         public string LastSeenProjectDirectory { get; set; }
         private IdleNotifier idleNotifier;
         private SccProviderService sccService;
+        private PendingChangesToolWindow _pendingChangesToolWindow;
+        
+        private PendingChangesToolWindow PendingChangesToolWindow
+        {
+            get
+            {
+                if (_pendingChangesToolWindow == null)
+                {
+                    _pendingChangesToolWindow = FindToolWindow(typeof(PendingChangesToolWindow), 0, true) as PendingChangesToolWindow;
+
+                    UpdatePendingChangesToolWindow();
+                }
+
+                return _pendingChangesToolWindow;
+            }
+        }
+
 
         public SccProvider()
         {
@@ -34,9 +51,17 @@ namespace VisualHg
             idleNotifier = new IdleNotifier();
         }
 
+
         private void NotifySolutionIsNotUnderVersionControl()
         {
             MessageBox.Show("Solution is not under Mercurial version contol\n\n" + SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        public void UpdatePendingChangesToolWindow()
+        {
+            var pendingFiles = sccService.Repository.GetPendingFiles();
+
+            PendingChangesToolWindow.SetFiles(pendingFiles);
         }
 
         new public object GetService(Type serviceType)
@@ -75,10 +100,5 @@ namespace VisualHg
 
         
         public static SccProvider Provider { get; private set; }
-
-        public static object GetServiceEx(Type serviceType)
-        {
-            return Provider != null ? Provider.GetService(serviceType) : null;
-        }
     }
 }

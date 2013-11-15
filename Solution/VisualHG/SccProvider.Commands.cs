@@ -152,42 +152,22 @@ namespace VisualHg
 
         private bool IsHgCommitSelectedMenuItemVisible()
         {
-            return SelectedFileContextStatusMatches
-               (HgFileStatus.Modified |
-                HgFileStatus.Added |
-                HgFileStatus.Copied |
-                HgFileStatus.Renamed |
-                HgFileStatus.Removed,
-                true);
+            return SelectedFileContextStatusMatches(HgFileStatus.Different, true);
         }
 
         private bool IsHgDiffMenuItemVisible()
         {
-            return SelectedFileStatusMatches
-               (HgFileStatus.Modified |
-                HgFileStatus.Removed |
-                HgFileStatus.Renamed |
-                HgFileStatus.Copied |
-                HgFileStatus.Missing);
+            return SelectedFileStatusMatches(HgFileStatus.Comparable);
         }
 
         private bool IsHgRevertMenuItemVisible()
         {
-            return SelectedFileContextStatusMatches
-               (HgFileStatus.Added |
-                HgFileStatus.Copied |
-                HgFileStatus.Modified |
-                HgFileStatus.Renamed |
-                HgFileStatus.Removed);
+            return SelectedFileContextStatusMatches(HgFileStatus.Different);
         }
 
         private bool IsHgHistoryMenuItemVisible()
         {
-            return SelectedFileStatusMatches
-                (HgFileStatus.Clean |
-                 HgFileStatus.Modified |
-                 HgFileStatus.Removed |
-                 HgFileStatus.Missing);
+            return SelectedFileStatusMatches(HgFileStatus.Controlled);
         }
 
         private bool IsHgAnnotateMenuItemVisible()
@@ -198,8 +178,7 @@ namespace VisualHg
 
         private void ShowPendingChangesToolWindow(object sender, EventArgs e)
         {
-            var window = FindToolWindow(typeof(HgPendingChangesToolWindow), 0, true);
-            var windowFrame = window != null ? window.Frame as IVsWindowFrame : null;
+            var windowFrame = PendingChangesToolWindow.Frame as IVsWindowFrame;
 
             if (windowFrame != null)
             {
@@ -355,13 +334,7 @@ namespace VisualHg
         {
             SaveSolutionIfDirty();
 
-            if (FileStatusMatches(fileName,
-                HgFileStatus.Clean |
-                HgFileStatus.Modified |
-                HgFileStatus.Removed |
-                HgFileStatus.Renamed |
-                HgFileStatus.Copied |
-                HgFileStatus.Missing))
+            if (FileStatusMatches(fileName, HgFileStatus.Controlled))
             {
                 ShowHistoryWindowPrivate(fileName);
             }

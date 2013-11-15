@@ -117,91 +117,97 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="pendingChangesContextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+  <metadata name="columnHeaderFileName.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="commitToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="commitToolStripMenuItem.Text" xml:space="preserve">
-    <value>Commit</value>
-  </data>
-  <data name="diffToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="diffToolStripMenuItem.Text" xml:space="preserve">
-    <value>Diff</value>
-  </data>
-  <data name="revertToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="revertToolStripMenuItem.Text" xml:space="preserve">
-    <value>Revert Changes</value>
-  </data>
-  <data name="historyToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="historyToolStripMenuItem.Text" xml:space="preserve">
-    <value>History</value>
-  </data>
-  <data name="annotateFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="annotateFileToolStripMenuItem.Text" xml:space="preserve">
-    <value>Annotate File</value>
-  </data>
-  <data name="openInEditorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 22</value>
-  </data>
-  <data name="openInEditorToolStripMenuItem.Text" xml:space="preserve">
-    <value>Open Files</value>
-  </data>
-  <data name="pendingChangesContextMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>157, 136</value>
-  </data>
-  <data name="&gt;&gt;pendingChangesContextMenu.Name" xml:space="preserve">
-    <value>pendingChangesContextMenu</value>
-  </data>
-  <data name="&gt;&gt;pendingChangesContextMenu.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="columnHeaderStatus.Text" xml:space="preserve">
+  <data name="columnHeaderFileName.Text" xml:space="preserve">
     <value>Filename</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="columnHeaderStatus.Width" type="System.Int32, mscorlib">
+  <data name="columnHeaderFileName.Width" type="System.Int32, mscorlib">
     <value>227</value>
   </data>
-  <data name="columnHeaderFileName.Text" xml:space="preserve">
+  <metadata name="columnHeaderPath.GenerateMember" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
+  <data name="columnHeaderPath.Text" xml:space="preserve">
     <value>Path</value>
   </data>
-  <data name="columnHeaderFileName.Width" type="System.Int32, mscorlib">
+  <data name="columnHeaderPath.Width" type="System.Int32, mscorlib">
     <value>450</value>
   </data>
+  <metadata name="contextMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="commitMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="commitMenuItem.Text" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="diffMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="diffMenuItem.Text" xml:space="preserve">
+    <value>Diff</value>
+  </data>
+  <data name="revertMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="revertMenuItem.Text" xml:space="preserve">
+    <value>Revert</value>
+  </data>
+  <data name="historyMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="historyMenuItem.Text" xml:space="preserve">
+    <value>Revision History</value>
+  </data>
+  <data name="annotateMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="annotateMenuItem.Text" xml:space="preserve">
+    <value>Annotate</value>
+  </data>
+  <data name="openMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 22</value>
+  </data>
+  <data name="openMenuItem.Text" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="contextMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>160, 158</value>
+  </data>
+  <data name="&gt;&gt;contextMenu.Name" xml:space="preserve">
+    <value>contextMenu</value>
+  </data>
+  <data name="&gt;&gt;contextMenu.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ContextMenuStrip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="_pendingItemsListView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+  <data name="fileListView.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
-  <data name="_pendingItemsListView.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="fileListView.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="_pendingItemsListView.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="fileListView.Size" type="System.Drawing.Size, System.Drawing">
     <value>681, 145</value>
   </data>
-  <data name="_pendingItemsListView.TabIndex" type="System.Int32, mscorlib">
+  <data name="fileListView.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
-  <data name="&gt;&gt;_pendingItemsListView.Name" xml:space="preserve">
-    <value>_pendingItemsListView</value>
+  <data name="&gt;&gt;fileListView.Name" xml:space="preserve">
+    <value>fileListView</value>
   </data>
-  <data name="&gt;&gt;_pendingItemsListView.Type" xml:space="preserve">
-    <value>VisualHg.PendingItemsListView, VisualHg, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null</value>
+  <data name="&gt;&gt;fileListView.Type" xml:space="preserve">
+    <value>VisualHg.HgFileInfoListView, VisualHg, Version=1.1.5.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;_pendingItemsListView.Parent" xml:space="preserve">
+  <data name="&gt;&gt;fileListView.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;_pendingItemsListView.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;fileListView.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
@@ -210,53 +216,53 @@
   <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
     <value>681, 145</value>
   </data>
-  <data name="&gt;&gt;commitToolStripMenuItem.Name" xml:space="preserve">
-    <value>commitToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;commitToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;diffToolStripMenuItem.Name" xml:space="preserve">
-    <value>diffToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;diffToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;revertToolStripMenuItem.Name" xml:space="preserve">
-    <value>revertToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;revertToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;historyToolStripMenuItem.Name" xml:space="preserve">
-    <value>historyToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;historyToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;annotateFileToolStripMenuItem.Name" xml:space="preserve">
-    <value>annotateFileToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;annotateFileToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;openInEditorToolStripMenuItem.Name" xml:space="preserve">
-    <value>openInEditorToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;openInEditorToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderStatus.Name" xml:space="preserve">
-    <value>columnHeaderStatus</value>
-  </data>
-  <data name="&gt;&gt;columnHeaderStatus.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;columnHeaderFileName.Name" xml:space="preserve">
     <value>columnHeaderFileName</value>
   </data>
   <data name="&gt;&gt;columnHeaderFileName.Type" xml:space="preserve">
     <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderPath.Name" xml:space="preserve">
+    <value>columnHeaderPath</value>
+  </data>
+  <data name="&gt;&gt;columnHeaderPath.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ColumnHeader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;commitMenuItem.Name" xml:space="preserve">
+    <value>commitMenuItem</value>
+  </data>
+  <data name="&gt;&gt;commitMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;diffMenuItem.Name" xml:space="preserve">
+    <value>diffMenuItem</value>
+  </data>
+  <data name="&gt;&gt;diffMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;revertMenuItem.Name" xml:space="preserve">
+    <value>revertMenuItem</value>
+  </data>
+  <data name="&gt;&gt;revertMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;historyMenuItem.Name" xml:space="preserve">
+    <value>historyMenuItem</value>
+  </data>
+  <data name="&gt;&gt;historyMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;annotateMenuItem.Name" xml:space="preserve">
+    <value>annotateMenuItem</value>
+  </data>
+  <data name="&gt;&gt;annotateMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;openMenuItem.Name" xml:space="preserve">
+    <value>openMenuItem</value>
+  </data>
+  <data name="&gt;&gt;openMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>HgPendingChangesToolWindowControl</value>

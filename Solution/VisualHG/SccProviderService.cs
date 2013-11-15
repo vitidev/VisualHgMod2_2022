@@ -194,7 +194,7 @@ namespace VisualHg
             {
                 RefreshNodesGlyphs();
                 UpdateMainWindowTitle();
-                UpdatePendingWindowState();
+                UpdatePendingChangesToolWindow();
             }
         }
 
@@ -230,14 +230,9 @@ namespace VisualHg
             };
         }
 
-        private void UpdatePendingWindowState()
+        private void UpdatePendingChangesToolWindow()
         {
-            var pendingChangesToolWindow = _sccProvider.FindToolWindow(typeof(HgPendingChangesToolWindow), 0, false) as HgPendingChangesToolWindow;
-
-            if (pendingChangesToolWindow != null)
-            {
-                pendingChangesToolWindow.UpdatePendingFiles(Repository.GetPendingFiles());
-            }
+            _sccProvider.UpdatePendingChangesToolWindow();
         }
 
         private void UpdateMainWindowTitle()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using HgLib;
@@ -14,7 +15,7 @@ namespace VisualHg
         private ListViewItemCache cache;
         private HgFileInfoComparer comparer;
 
-
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IList<HgFileInfo> Files
         {
             get { return readOnlyFiles; }
@@ -26,7 +27,7 @@ namespace VisualHg
                 }
 
                 BeginUpdate();
-                var selectedPaths = GetSelectedItemsPaths();
+                var selectedPaths = SelectedFiles;
 
                 files = new List<HgFileInfo>(value);
                 files.Sort(comparer);
@@ -37,6 +38,12 @@ namespace VisualHg
                 RestoreSelection(selectedPaths);
                 EndUpdate();
             }
+        }
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string[] SelectedFiles
+        {
+            get { return SelectedIndices.Cast<int>().Select(x => Files[x].FullName).ToArray(); }
         }
 
 
@@ -54,11 +61,6 @@ namespace VisualHg
             ColumnClick += (s, e) => SortByColumn(e.Column);
         }
 
-
-        private string[] GetSelectedItemsPaths()
-        {
-            return SelectedIndices.Cast<int>().Select(x => Files[x].FullName).ToArray();
-        }
 
         private void RestoreSelection(string[] paths)
         {
