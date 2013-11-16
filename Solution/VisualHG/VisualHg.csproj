@@ -107,7 +107,6 @@
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="IdleNotifier.cs" />
-    <Compile Include="HgRepositoryTracker.cs" />
     <Compile Include="ImageMapper.cs" />
     <Compile Include="RegistryTool.cs" />
     <Compile Include="SccProvider.Commands.cs" />
@@ -147,6 +146,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\PendingChangesWindow\PendingChangesToolWindow.cs" />
+    <Compile Include="VisualHgRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">

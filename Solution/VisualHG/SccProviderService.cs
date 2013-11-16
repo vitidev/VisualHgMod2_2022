@@ -35,7 +35,7 @@ namespace VisualHg
 
         public bool Active { get; private set; }
 
-        public HgRepositoryTracker Repository { get; private set; }
+        public VisualHgRepository Repository { get; private set; }
 
 
         public SccProviderService(SccProvider sccProvider)
@@ -44,7 +44,7 @@ namespace VisualHg
 
             _sccProvider = sccProvider;
 
-            Repository = new HgRepositoryTracker();
+            Repository = new VisualHgRepository();
             Repository.StatusChanged += SetNodesGlyphsDirty;
 
             var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
@@ -92,7 +92,7 @@ namespace VisualHg
             Active = true;
 
             var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-            Repository.UpdateProjects(solution);
+            Repository.UpdateSolution(solution);
             Repository.CacheUpdateRequired = true;
 
             return VSConstants.S_OK;

@@ -59,7 +59,7 @@ namespace VisualHg
 
             if (files.Length > 0)
             {
-                Repository.AddFilesToProjectCache(files);
+                Repository.AddSolutionFiles(files);
 
                 if (Configuration.Global.AutoAddFiles)
                 {
@@ -84,33 +84,21 @@ namespace VisualHg
 
         public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
         {
-            if (Repository.FileProjectMapCacheCount > 0)
-            { 
-                var project = pHierarchy as IVsSccProject2;
-                var files = SccProvider.GetProjectFiles(project);
-                
-                Repository.RemoveFilesFromProjectCache(files);
-            }
+            Repository.RemoveSolutionFiles(pHierarchy);
                         
             return VSConstants.S_OK;
         }
 
         public int OnBeforeCloseSolution(object pUnkReserved)
         {
-            Repository.ClearProjectCache();
+            Repository.ClearSolutionFiles();
 
             return VSConstants.S_OK;
         }
 
         public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
         {
-            if (Repository.FileProjectMapCacheCount > 0)
-            {
-                var project = pRealHierarchy as IVsSccProject2;
-                var files = SccProvider.GetProjectFiles(project);
-                
-                Repository.RemoveFilesFromProjectCache(files);
-            }
+            Repository.RemoveSolutionFiles(pRealHierarchy);
 
             return VSConstants.S_OK;
         }
@@ -233,5 +221,6 @@ namespace VisualHg
         {
             return VSConstants.E_NOTIMPL;
         }
+
     }
 }

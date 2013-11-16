@@ -13,28 +13,22 @@ namespace HgLib
     {
         public event EventHandler StatusChanged = (s, e) => { };
         
+        private const int UpdateInterval = 2000;
+
         private bool _updating;
         private HgCommandQueue _commands;
         private DirectoryWatcherMap _directoryWatchers;
         private HgFileInfoDictionary _cache;
-        private List<string> _projectCache;
         private Dictionary<string, string> _roots;
 
         private System.Timers.Timer _timer;
 
-        private volatile int UpdateInterval = 2000;
         private volatile bool _cacheUpdateRequired;
-        private volatile bool _solutionBuilding;
 
 
         public bool IsEmpty
         {
             get { return _directoryWatchers.Count == 0; }
-        }
-
-        public int FileProjectMapCacheCount
-        {
-            get { return _projectCache.Count; }
         }
         
         public bool CacheUpdateRequired
@@ -61,7 +55,6 @@ namespace HgLib
             _directoryWatchers = new DirectoryWatcherMap();
             _commands = new HgCommandQueue();
             _roots = new Dictionary<string, string>();
-            _projectCache = new List<string>();
             
             _timer = new System.Timers.Timer
             { 
@@ -354,49 +347,7 @@ namespace HgLib
 
             return roots;
         }
-
-        
-        public void AddFilesToProjectCache(IList<string> fileNames)
-        {
-            lock (_projectCache)
-            {
-                foreach (var fileName in fileNames)
-                {
-                    _projectCache.Add(fileName.ToLower());
-                }
-            }
-        }
-
-        public void RemoveFilesFromProjectCache(IList<string> fileNames)
-        {
-            lock (_projectCache)
-            {
-                foreach (var fileName in fileNames)
-                {
-                    _projectCache.Remove(fileName.ToLower());
-                }
-            }
-        }
-
-        public void ClearProjectCache()
-        {
-            lock (_projectCache)
-            {
-                _projectCache.Clear();
-            }
-        }
-        
-        
-        public void SolutionBuildStarted()
-        {
-            _solutionBuilding = true;
-        }
-
-        public void SolutionBuildEnded()
-        {
-            _solutionBuilding = false;
-        }
-        
+                
 
         private void OnTimerElapsed(object source, ElapsedEventArgs e)
         {
@@ -406,9 +357,9 @@ namespace HgLib
             {
                 RunCommands(commands);
             }
-            else if (!_solutionBuilding)
+            else
             {
-                UpdateIfNeeded();
+                Update();
             }
 
             _timer.Start();
@@ -434,7 +385,7 @@ namespace HgLib
             OnStatusChanged();
         }
 
-        private void UpdateIfNeeded()
+        protected virtual void Update()
         {
             long numberOfChangedFiles = 0;
             double elapsed = 0;
@@ -473,18 +424,8 @@ namespace HgLib
                 {
                     EndUpdate();
                 }
-
-                bool statusChanged = false;
-
-                lock (_projectCache)
-                {
-                    statusChanged = dirtyFiles.Any(x => _projectCache.Contains(x.ToLower()));
-                }
-
-                if (statusChanged)
-                {
-                    OnStatusChanged();
-                }
+                
+                OnStatusChanged(dirtyFiles);
             }
         }
 
@@ -583,7 +524,12 @@ namespace HgLib
         }
 
 
-        private void OnStatusChanged()
+        protected virtual void OnStatusChanged(string[] dirtyFiles)
+        {
+            OnStatusChanged();
+        }
+
+        protected virtual void OnStatusChanged()
         {
             StatusChanged(this, EventArgs.Empty);
         }
