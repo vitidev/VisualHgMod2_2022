@@ -241,18 +241,12 @@ namespace VisualHg
 
         private bool FileIsNotAdded(string fileName)
         {
-            return FileStatusMatches(fileName, HgFileStatus.Uncontrolled | HgFileStatus.Ignored);
+            return FileStatusMatches(fileName, HgFileStatus.NotTracked | HgFileStatus.Ignored);
         }
 
         private bool FileIsDirty(string fileName)
         {
-            return FileStatusMatches(fileName,
-                HgFileStatus.Modified |
-                HgFileStatus.Added |
-                HgFileStatus.Removed |
-                HgFileStatus.Renamed |
-                HgFileStatus.Copied |
-                HgFileStatus.Missing);
+            return FileStatusMatches(fileName, HgFileStatus.Different);
         }
 
         private bool AnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren)

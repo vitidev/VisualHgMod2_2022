@@ -139,7 +139,7 @@ namespace VisualHg
 
         private bool IsHgAddSelectedMenuItemVisible()
         {
-            return SelectedFileContextStatusMatches(HgFileStatus.Uncontrolled | HgFileStatus.Ignored);
+            return SelectedFileContextStatusMatches(HgFileStatus.NotTracked | HgFileStatus.Ignored);
         }
 
         private bool IsHgCommitSelectedMenuItemVisible()
@@ -159,7 +159,7 @@ namespace VisualHg
 
         private bool IsHgHistoryMenuItemVisible()
         {
-            return SelectedFileStatusMatches(HgFileStatus.Controlled);
+            return SelectedFileStatusMatches(HgFileStatus.Tracked);
         }
 
 
@@ -270,17 +270,7 @@ namespace VisualHg
                 return;
             }
 
-            if (FileStatusMatches(fileName, HgFileStatus.Uncontrolled | HgFileStatus.Added | HgFileStatus.Ignored))
-            {
-                return;
-            }
-
-            var parent = fileName;
-
-            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
-            {
-                parent = Hg.GetRenamedFileOriginalName(fileName);
-            }
+            var parent = GetOriginalFileName(fileName);
 
             if (String.IsNullOrEmpty(parent))
             {
@@ -316,24 +306,20 @@ namespace VisualHg
         {
             SaveSolutionIfDirty();
 
-            var status = HgFileStatus.Ignored;
+            var originalFileName = GetOriginalFileName(fileName);
 
-            if (!String.IsNullOrEmpty(fileName))
+            ShowHistoryWindowPrivate(originalFileName);
+        }
+
+        
+        private string GetOriginalFileName(string fileName)
+        {
+            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
             {
-                status = sccService.GetFileStatus(fileName);
+                return Hg.GetRenamedFileOriginalName(fileName);
             }
 
-            if (status == HgFileStatus.Renamed)
-            {
-                fileName = Hg.GetRenamedFileOriginalName(fileName);
-            }
-
-            if (!String.IsNullOrEmpty(fileName) &&
-                status != HgFileStatus.Uncontrolled &&
-                status != HgFileStatus.Ignored)
-            {
-                ShowHistoryWindowPrivate(fileName);
-            }
+            return fileName;
         }
     }
 }

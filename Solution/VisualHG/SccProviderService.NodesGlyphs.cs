@@ -45,45 +45,18 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        public int GetSccGlyph(int cFiles, string[] rgpszFullPaths, VsStateIcon[] rgsiGlyphs, uint[] rgdwSccStatus)
+        public int GetSccGlyph(int count, string[] fileNames, VsStateIcon[] icons, uint[] statuses)
         {
-            if (rgpszFullPaths[0] == null)
+            if (count == 0)
             {
                 return VSConstants.S_OK;
             }
 
-            if (rgdwSccStatus != null)
-            {
-                rgdwSccStatus[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
-            }
-            
-            var status = Repository.GetFileStatus(rgpszFullPaths[0]);
+            var status = Repository.GetFileStatus(fileNames[0]);
+            var imageIndex = ImageMapper.GetStatusIconIndex(status);
 
-            switch (status)
-            {
-                case HgFileStatus.Clean:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 0);
-                    break;
-
-                case HgFileStatus.Modified:
-                case HgFileStatus.Removed:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 1);
-                    break;
-
-                case HgFileStatus.Added:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 2);
-                    break;
-
-                case HgFileStatus.Renamed:
-                case HgFileStatus.Copied:
-                    rgsiGlyphs[0] = (VsStateIcon)(_baseIndex + 3);
-                    break;
-
-                case HgFileStatus.Ignored:
-                case HgFileStatus.Uncontrolled:
-                    rgsiGlyphs[0] = VsStateIcon.STATEICON_BLANK;
-                    break;
-            }
+            icons[0] = (VsStateIcon)(_baseIndex + imageIndex);
+            statuses[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
 
             return VSConstants.S_OK;
         }

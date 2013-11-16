@@ -76,7 +76,7 @@ namespace HgLib
                 .Where(x => x.FullName != null &&
                     x.Status != HgFileStatus.Clean &&
                     x.Status != HgFileStatus.Ignored &&
-                    x.Status != HgFileStatus.Uncontrolled)
+                    x.Status != HgFileStatus.NotTracked)
                 .ToArray();
         }
 

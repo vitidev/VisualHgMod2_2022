@@ -140,7 +140,7 @@ namespace VisualHg
                 HgFileInfo info;
                 Repository.GetFileInfo(rgpszMkDocuments[0], out info);
 
-                if (info == null || info.Status == HgFileStatus.Removed || info.Status == HgFileStatus.Uncontrolled)
+                if (info == null || info.Status == HgFileStatus.Removed || info.Status == HgFileStatus.NotTracked)
                 {
                     Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
                 }

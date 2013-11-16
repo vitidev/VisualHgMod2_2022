@@ -262,7 +262,7 @@ namespace HgLib
                 found = _cache.TryGetValue(fileName, out value);
             }
 
-            return (found ? value.Status : HgFileStatus.Uncontrolled);
+            return (found ? value.Status : HgFileStatus.NotTracked);
         }
 
         public HgFileInfo[] GetPendingFiles()

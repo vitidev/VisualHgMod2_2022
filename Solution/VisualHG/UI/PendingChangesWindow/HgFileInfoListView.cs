@@ -124,7 +124,7 @@ namespace VisualHg
 
             var listViewItem = new ListViewItem {
                 Text = file.Name,
-                ImageIndex = GetStateIcon(file.Status),
+                ImageIndex = ImageMapper.GetStatusIconIndex(file.Status),
             };
 
             listViewItem.SubItems.Add(file.FullName);
@@ -164,30 +164,6 @@ namespace VisualHg
 
             ClearVirtualItemsCache();
             Invalidate();
-        }
-
-
-        private static int GetStateIcon(HgFileStatus status)
-        {
-            switch (status)
-            {
-                case HgFileStatus.Modified:
-                    return 1;
-                case HgFileStatus.Added:
-                    return 2;
-                case HgFileStatus.Renamed:
-                    return 3;
-                case HgFileStatus.Removed:
-                    return 4;
-                case HgFileStatus.Missing:
-                    return 5;
-                case HgFileStatus.Uncontrolled:
-                    return 5;
-                case HgFileStatus.Copied:
-                    return 6;
-                default:
-                    return 0;
-            }
         }
     }
 }

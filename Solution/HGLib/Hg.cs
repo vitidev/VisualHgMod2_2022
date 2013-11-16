@@ -193,11 +193,6 @@ namespace HgLib
                 var file = Path.Combine(root, line.Substring(2));
                 var currentStatus = line[0];
 
-                if (!File.Exists(file))
-                {
-                    continue;
-                }
-
                 if (currentStatus == ' ' && prevStatus == 'A')
                 {
                     copyRenamedFiles[file] = prevFile;
@@ -227,11 +222,11 @@ namespace HgLib
 
                 if (orgFileStatus == 'R')
                 {
-                    status[entry.Value] = 'N';
+                    status[entry.Value] = 'r';
                 }
                 else
                 {
-                    status[entry.Value] = 'P';
+                    status[entry.Value] = 'c';
                 }
             }
 
@@ -314,24 +309,24 @@ namespace HgLib
         {
             switch (status)
             {
-                case 'C':
-                    return HgFileStatus.Clean;
                 case 'M':
                     return HgFileStatus.Modified;
                 case 'A':
                     return HgFileStatus.Added;
                 case 'R':
                     return HgFileStatus.Removed;
-                case 'I':
-                    return HgFileStatus.Ignored;
-                case 'N':
-                    return HgFileStatus.Renamed;
-                case 'P':
-                    return HgFileStatus.Copied;
-                case '?':
-                    return HgFileStatus.Uncontrolled;
+                case 'C':
+                    return HgFileStatus.Clean;
                 case '!':
                     return HgFileStatus.Missing;
+                case '?':
+                    return HgFileStatus.NotTracked;
+                case 'I':
+                    return HgFileStatus.Ignored;
+                case 'r':
+                    return HgFileStatus.Renamed;
+                case 'c':
+                    return HgFileStatus.Copied;
             }
 
             throw new ArgumentException("Unexpected status char");

@@ -18,7 +18,7 @@ namespace HgLib
         {
             get
             {
-                if (Status == HgFileStatus.Removed || Status == HgFileStatus.Uncontrolled)
+                if (Status == HgFileStatus.Removed || Status == HgFileStatus.NotTracked)
                 {
                     return false;
                 }

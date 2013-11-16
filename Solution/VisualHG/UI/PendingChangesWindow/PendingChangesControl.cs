@@ -114,7 +114,7 @@ namespace VisualHg
         {
             var single = fileListView.SelectedIndices.Count == 1;
 
-            var status = HgFileStatus.Uncontrolled;
+            var status = HgFileStatus.NotTracked;
             
             if (fileListView.SelectedIndices.Count > 0)
             {
@@ -124,10 +124,11 @@ namespace VisualHg
             }
 
             commitMenuItem.Visible = StatusMatches(status, HgFileStatus.Different);
+            revertMenuItem.Visible = StatusMatches(status, HgFileStatus.Different);
+            
             diffMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Comparable);
-            revertMenuItem.Visible = commitMenuItem.Visible;
-            historyMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Controlled);
-            openMenuItem.Visible = status != HgFileStatus.Removed;
+            historyMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Tracked);
+            openMenuItem.Visible = !StatusMatches(status, HgFileStatus.Deleted);
         }
 
         private bool StatusMatches(HgFileStatus status, HgFileStatus pattern)
