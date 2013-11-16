@@ -22,8 +22,6 @@ namespace HgLib
 
         private System.Timers.Timer _timer;
 
-        private SynchronizationContext _context;
-        
         private volatile int UpdateInterval = 2000;
         private volatile bool _cacheUpdateRequired;
         private volatile bool _solutionBuilding;
@@ -263,11 +261,6 @@ namespace HgLib
 
         public HgFileStatus GetFileStatus(string fileName)
         {
-            if (_context == null)
-            {
-                _context = WindowsFormsSynchronizationContext.Current;
-            }
-
             bool found = false;
             HgFileInfo value;
 
@@ -438,7 +431,7 @@ namespace HgLib
                 }
             }
 
-            OnStatusChanged(_context);
+            OnStatusChanged();
         }
 
         private void UpdateIfNeeded()
@@ -460,7 +453,7 @@ namespace HgLib
             if (_cacheUpdateRequired || numberOfChangedFiles > 200)
             {
                 UpdateCache();
-                OnStatusChanged(_context);
+                OnStatusChanged();
             }
             else if (numberOfChangedFiles > 0)
             {
@@ -490,7 +483,7 @@ namespace HgLib
 
                 if (statusChanged)
                 {
-                    OnStatusChanged(_context);
+                    OnStatusChanged();
                 }
             }
         }
@@ -590,16 +583,9 @@ namespace HgLib
         }
 
 
-        private void OnStatusChanged(SynchronizationContext context)
+        private void OnStatusChanged()
         {
-            if (context == null)
-            {
-                StatusChanged(this, EventArgs.Empty);
-            }
-            else
-            {
-                context.Post((SendOrPostCallback)(x => StatusChanged(this, EventArgs.Empty)), null);
-            }
+            StatusChanged(this, EventArgs.Empty);
         }
     }
 }
