@@ -135,7 +135,7 @@ namespace HgLib
                     var oldName = oldFileNames[i].Substring(rootDirectory.Length + 1);
                     var newName = newFileNames[i].Substring(rootDirectory.Length + 1);
                     
-                    RunHg(rootDirectory, String.Format("rename -A \"{0}}\" \"{1}\"", oldName, newName));
+                    RunHg(rootDirectory, String.Format("rename -A \"{0}\" \"{1}\"", oldName, newName));
                 }
             }
             catch
