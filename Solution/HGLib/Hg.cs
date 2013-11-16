@@ -275,7 +275,7 @@ namespace HgLib
             RunHg(rootDirectory, args);
         }
 
-        private static bool IsDirectory(string path)
+        public static bool IsDirectory(string path)
         {
             if (File.Exists(path) || Directory.Exists(path))
             {

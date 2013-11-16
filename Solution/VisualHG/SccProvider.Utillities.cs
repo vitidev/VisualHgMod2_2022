@@ -321,6 +321,11 @@ namespace VisualHg
                 return false;
             }
 
+            if (Hg.IsDirectory(fileName))
+            {
+                return false;
+            }
+
             var fileStatus = sccService.GetFileStatus(fileName);
 
             return (int)(status & fileStatus) > 0;
