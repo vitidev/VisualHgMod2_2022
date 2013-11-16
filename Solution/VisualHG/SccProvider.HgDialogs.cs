@@ -89,7 +89,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o => {
                 try
                 {
-                    TortoiseHg.ShowSelectedFilesWindow(files, command);
+                    TortoiseHg.StartForEachRoot(command, files);
 
                     sccService.Repository.CacheUpdateRequired = false;
                     sccService.Repository.Enqueue(new UpdateFileStatusHgCommand(files));
@@ -103,7 +103,7 @@ namespace VisualHg
             ThreadPool.QueueUserWorkItem(o => {
                 try
                 {
-                    var process = TortoiseHg.DiffDialog(parent, current, customDiffTool);
+                    var process = TortoiseHg.StartDiff(parent, current, customDiffTool);
 
                     if (process != null)
                     {

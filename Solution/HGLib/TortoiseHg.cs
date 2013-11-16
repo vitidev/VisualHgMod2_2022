@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace HgLib
 {
     public static class TortoiseHg
     {
-        public static Process Start(string dialog, string workingDirectory)
+        public static Process Start(string args, string workingDirectory)
         {
             try
             {
@@ -19,7 +20,7 @@ namespace HgLib
 
                 if (!String.IsNullOrEmpty(workingDirectory))
                 {
-                    return HgProvider.StartTortoiseHg(dialog, workingDirectory);
+                    return HgProvider.StartTortoiseHg(args, workingDirectory);
                 }
             }
             catch { }
@@ -28,7 +29,58 @@ namespace HgLib
         }
 
 
-        public static Process DiffDialog(string parent, string current, string customDiffTool)
+        public static void StartForEachRoot(string command, string[] files)
+        {
+            foreach (var group in files.GroupBy(x => HgProvider.FindRepositoryRoot(x)))
+            {
+                if (String.IsNullOrEmpty(group.Key))
+                {
+                    continue;
+                }
+
+                Start(command, group.Key, group);
+            }
+        }
+
+        private static void Start(string command, string root, IEnumerable<string> files)
+        {
+            var listFile = GetRandomTemporaryFileName();
+            var listCommand = String.Format("{0} --listfile \"{1}\"", command, listFile);
+
+            CreateListFile(listFile, files);
+
+            Start(listCommand, root).WaitForExit();
+
+            DeleteListFile(listFile);
+        }
+
+        private static void CreateListFile(string listFileName, IEnumerable<string> files)
+        {
+            using (var writer = File.CreateText(listFileName))
+            {
+                foreach (var fileName in files)
+                {
+                    writer.WriteLine(fileName);
+                }
+            }
+        }
+
+        private static void DeleteListFile(string groupListFile)
+        {
+            try
+            {
+                File.Delete(groupListFile);
+            }
+            catch { }
+        }
+
+        private static string GetRandomTemporaryFileName()
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        }
+
+
+        public static Process StartDiff(string parent, string current, string customDiffTool)
         {
             var workingDirectory = HgProvider.FindRepositoryRoot(current);
 
@@ -41,7 +93,7 @@ namespace HgLib
 
             if (!String.IsNullOrEmpty(customDiffTool))
             {
-                return StartCustomDiffTool(current, customDiffTool, temp);
+                return StartCustomDiff(current, customDiffTool, temp);
             }
 
             return StartKDiff(current, workingDirectory, temp);
@@ -73,7 +125,7 @@ namespace HgLib
             return HgProvider.StartKDiff(cmd, root);
         }
 
-        private static Process StartCustomDiffTool(string current, string customDiffTool, string temp)
+        private static Process StartCustomDiff(string current, string customDiffTool, string temp)
         {
             var cmd = PrepareDiffCommand(temp, current, customDiffTool);
             
@@ -101,53 +153,6 @@ namespace HgLib
             command = command.Replace("$(MineName)", Path.GetFileName(current));
             
             return command;
-        }
-
-
-        public static void ShowSelectedFilesWindow(string[] files, string command)
-        {
-            var tmpFile = GetRandomTemporaryFileName();
-            var stream = new StreamWriter(tmpFile, false, Encoding.Default);
-
-            var currentRoot = "";
-            
-            for (var n = 0; n < files.Length; ++n)
-            {
-                var root = HgProvider.FindRepositoryRoot(files[n]);
-
-                if (String.IsNullOrEmpty(root))
-                { 
-                    continue;
-                }
-
-                if (currentRoot == "")
-                {
-                    currentRoot = root;
-                }
-                else if (String.Compare(currentRoot, root, StringComparison.InvariantCultureIgnoreCase) != 0)
-                {
-                    stream.Close();
-                    
-                    Start(command + " --listfile \"" + tmpFile + "\"", root).WaitForExit();
-
-                    tmpFile = GetRandomTemporaryFileName();
-                    stream = new StreamWriter(tmpFile, false, Encoding.Default);
-                }
-
-                stream.WriteLine(files[n]);
-            }
-
-            stream.Close();
-
-            if (currentRoot != "")
-            {
-                Start(command + " --listfile \"" + tmpFile + "\"", currentRoot).WaitForExit();
-            }
-        }
-
-        private static string GetRandomTemporaryFileName()
-        {
-            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         }
     }
 }
