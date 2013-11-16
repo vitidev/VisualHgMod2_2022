@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
-    [Guid(Guids.ProviderOptionsPageGuid)]
+    [Guid(Guids.OptionsPage)]
     public class SccProviderOptions : DialogPage
     {
         private SccProviderOptionsControl _optionsControl;

@@ -8,7 +8,7 @@ namespace VisualHg
     {
         private Guid PackageGuid
         {
-            get { return Guids.guidSccProviderPkg; }
+            get { return Guids.PackageGuid; }
         }
 
         public string PackageName { get; private set; }

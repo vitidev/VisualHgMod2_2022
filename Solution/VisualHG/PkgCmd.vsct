@@ -1,98 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
   <Extern href="stdidcmd.h"/>
   <Extern href="vsshlids.h"/>
-
-  <Commands package="HgPackageGuid">
+  <Commands package="guidVisualHgPkg">
     <Menus>
-      <!-- Menu for commands under File/SourceControl -->
-      <Menu guid="HgCommandSet" id="Menu_MainScc" priority="0x0000" type="Menu">
-        <Parent guid="HgCommandSet" id="Group_MainScc"/>
+      <Menu guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000" type="Menu">
+        <Parent guid="guidVisualHgCmdSet" id="0"/>
         <Strings>
           <ButtonText>VisualHg</ButtonText>
         </Strings>
       </Menu>
-
-      <!-- Solution menu  -->
-      <Menu guid="HgCommandSet" id="Menu_SolutionMenu" priority="0x0100" type="Menu">
-        <Parent guid="HgCommandSet" id="Group_SolutionMenu"/>
-        <Strings>
-          <ButtonText>VisualHg</ButtonText>
-        </Strings>
-      </Menu>
-
-      <!-- Project menu  -->
-      <Menu guid="HgCommandSet" id="Menu_ProjectMenu" priority="0x0100" type="Menu">
-        <Parent guid="HgCommandSet" id="Group_ProjectMenu"/>
-        <Strings>
-          <ButtonText>VisualHg</ButtonText>
-        </Strings>
-      </Menu>
-
-      <!-- Single items menu  -->
-      <Menu guid="HgCommandSet" id="Menu_ItemMenu" priority="0x0100" type="Menu">
-        <Parent guid="HgCommandSet" id="Group_ItemMenu"/>
-        <Strings>
-          <ButtonText>VisualHg</ButtonText>
-        </Strings>
-      </Menu>
-
-      <!--  Create a top-level toolbar for source control commands -->
-      <Menu guid="HgCommandSet" id="Menu_Toolbar" priority="0x0000" type="Toolbar">
-        <Parent guid="HgCommandSet" id="Group_Nowhere"/>
+      <Menu guid="guidVisualHgCmdSet" id="RootCommandsToolbar" priority="0x0000" type="Toolbar">
+        <Parent guid="guidVisualHgCmdSet" id="0"/>
         <CommandFlag>DefaultDocked</CommandFlag>
         <Strings>
           <ButtonText>VisualHg</ButtonText>
         </Strings>
       </Menu>
     </Menus>
-
     <Groups>
-      <!-- 	Group for commands under View main menu -->
-      <Group guid="HgCommandSet" id="igrpViewToolWindowGroup" priority="0x0100">
+      <Group guid="guidVisualHgCmdSet" id="RootCommandsGroup" priority="0x0000">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsMenu"/>
+      </Group>
+      <Group guid="guidVisualHgCmdSet" id="SelectionCommandsGroup" priority="0x0000">
+        <Parent guid="guidVisualHgCmdSet" id="0"/>
+      </Group>
+      <Group guid="guidVisualHgCmdSet" id="RootCommandsMenuGroup" priority="0x0000">
+        <Parent guid="guidVisualHgCmdSet" id="0"/>
+      </Group>
+      <Group guid="guidVisualHgCmdSet" id="MainMenuViewGroup" priority="0x0100">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_VIEW"/>
       </Group>
-
-      <!-- 	Hg main commands -->
-      <Group guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-        <Parent guid="HgCommandSet" id="Group_Nowhere"/>
-      </Group>
-      
-      <!-- 	Hg special commands -->
-      <Group guid="HgCommandSet" id="Group_HgXCommands" priority="0x0000">
-        <Parent guid="HgCommandSet" id="Group_Nowhere"/>
-      </Group>
-
-      <!-- 	Hg menu in File File/SourceControl menu -->
-      <Group guid="HgCommandSet" id="Group_MainScc" priority="0x0800">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_FILE"/>
-      </Group>
-
-      <!-- 	Solution menu in solution explorer-->
-      <Group guid="HgCommandSet" id="Group_SolutionMenu" priority="0x0800">
-        <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
-      </Group>
-      
-      <!-- 	Single item menu in tab of codewindow -->
-      <Group guid="HgCommandSet" id="Group_ItemMenu" priority="0x0800">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
-      </Group>
-
-      <!-- Document TabWnd context menu -->
-      <Group guid="HgCommandSet" id="Group_DocTabWnd" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
-      </Group>
-      <!-- CodeWin context menu -->
-      <Group guid="HgCommandSet" id="Group_CodeWin" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
-      </Group>
     </Groups>
-    
     <Buttons>
-      <!-- 	Scc commands in context menus for SolutionExplorer -->
-      <Button guid="HgCommandSet" id="Cmd_HgCommit" priority="0x0010" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidPendingChanges" priority="0x0100" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="MainMenuViewGroup"/>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>VisualHgPendingChanges</ButtonText>
+          <MenuText>&amp;VisualHg Pending Changes</MenuText>
+        </Strings>
+      </Button>
+      <Button guid="guidVisualHgCmdSet" id="cmdidCommit" priority="0x0010" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconCommit"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -102,8 +53,8 @@
           <ToolTipText>Commit</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgStatus" priority="0x0011" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidStatus" priority="0x0011" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconStatus"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -113,8 +64,8 @@
           <ToolTipText>Status</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgWorkbench" priority="0x0012" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidWorkbench" priority="0x0012" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconWorkbench"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -124,30 +75,30 @@
           <ToolTipText>Workbench</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgSynchronize" priority="0x0013" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidSynchronize" priority="0x0013" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconSynchronize"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgSynchronize</ButtonText>
           <MenuText>Synchronize</MenuText>
+          <ToolTipText>Synchronize</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgUpdateToRevision" priority="0x0014" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidUpdate" priority="0x0014" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconUpdate"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>VisualHgUpdateToRevision</ButtonText>
-          <MenuText>Update To Revision</MenuText>
-          <MenuText>Update To Revision</MenuText>
+          <ButtonText>VisualHgUpdate</ButtonText>
+          <MenuText>Update</MenuText>
+          <ToolTipText>Update</ToolTipText>
         </Strings>
       </Button>
-
-      <Button guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0000" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgXCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="SelectionCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconAdd"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -156,8 +107,8 @@
           <MenuText>Add Selected</MenuText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0000" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgXCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidCommitSelected" priority="0x0000" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="SelectionCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconCommit"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -166,8 +117,8 @@
           <MenuText>Commit</MenuText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0001" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgXCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidDiff" priority="0x0001" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="SelectionCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconDiff"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -176,8 +127,8 @@
           <MenuText>Diff</MenuText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0002" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgXCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidRevert" priority="0x0002" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="SelectionCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconRevert"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -186,25 +137,14 @@
           <MenuText>Revert</MenuText>
         </Strings>
       </Button>
-      <Button guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0003" type="Button">
-        <Parent guid="HgCommandSet" id="Group_HgXCommands"/>
+      <Button guid="guidVisualHgCmdSet" id="cmdidHistory" priority="0x0003" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="SelectionCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconHistory"/>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
-          <ButtonText>VisualHgRevisionHistory</ButtonText>
-          <MenuText>Revision History</MenuText>
-        </Strings>
-      </Button>
-
-      <!-- 	View/ToolWindow command defined -->
-      <Button guid="HgCommandSet" id="icmdViewToolWindow" priority="0x0100" type="Button">
-        <Parent guid="HgCommandSet" id="igrpViewToolWindowGroup"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>VisualHgPendingChanges</ButtonText>
-          <MenuText>&amp;VisualHg Pending Changes</MenuText>
+          <ButtonText>VisualHgHistory</ButtonText>
+          <MenuText>History</MenuText>
         </Strings>
       </Button>
     </Buttons>
@@ -213,185 +153,107 @@
               usedList="iconCommit, iconHistory, iconSynchronize, iconStatus, iconDiff, iconUpdate, iconWorkbench, iconRevert, iconOpen, iconAdd"/>
     </Bitmaps>
   </Commands>
-
   <CommandPlacements>
-    <!--Context menu group for SolutionExplorer -->
-    <!--To add commands in context menus, a new group can be defined and placed into existing menus, -->
-    <!--in which case you'll have to add it to context menus for nodes of interest (solution, project, -->
-    <!--folder, item, solution folder, web reference node, properties node, etc),  -->
-    <!--A better approach though is to use one of the existing groups created for source control commands, -->
-    <!--like IDG_VS_CTXT_ITEM_SCC, IDG_VS_CTXT_PROJECT_SCC, IDG_VS_CTXT_SOLUTION_SCC. -->
-
-    <!-- place HgCommands in the files/VisualHg menu -->
-    <CommandPlacement guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-      <Parent guid="HgCommandSet" id="Menu_MainScc"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsGroup" priority="0x0000">
+      <Parent guid="guidVisualHgCmdSet" id="RootCommandsToolbar"/>
     </CommandPlacement>
-
-    <!-- place HgCommands in the toolbar -->
-    <CommandPlacement guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-      <Parent guid="HgCommandSet" id="Menu_Toolbar"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000">
+      <Parent guid="guidVisualHgCmdSet" id="RootCommandsMenuGroup"/>
     </CommandPlacement>
-
-    <!-- solution explorer menu -->
-
-
-    <!-- CTXT commands to Solution Explorer -->
-    <!-- add selected files -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0000">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenuGroup" priority="0x0800">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_FILE"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0000">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0000">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <!-- Commit selected item/file -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0000">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="SelectionCommandsGroup" priority="0x0800">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="SelectionCommandsGroup" priority="0x0600">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0000">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <!-- Diff of selected item/file-->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0001">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0001">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0001">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidCommitSelected" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <!-- Revert selected item/file -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0002">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0002">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0002">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidDiff" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <!-- History of selected item/file -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0003">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0003">
-      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0003">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidRevert" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-
-    <!-- solution VisualHg general menu on solution file soltree -->
-    <CommandPlacement guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-      <Parent guid="HgCommandSet" id="Menu_SolutionMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Menu_SolutionMenu" priority="0x0100">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidHistory" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_SCC"/>
     </CommandPlacement>
-    <!-- project VisualHg general menu on project file in soltree -->
-    <CommandPlacement guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-      <Parent guid="HgCommandSet" id="Menu_ProjectMenu"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Menu_ProjectMenu" priority="0x0100">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <!-- item VisualHg general menu on item file soltree -->
-    <CommandPlacement guid="HgCommandSet" id="Group_HgCommands" priority="0x0000">
-      <Parent guid="HgCommandSet" id="Menu_ItemMenu"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidCommitSelected" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Menu_ItemMenu" priority="0x0100">
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidDiff" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidRevert" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidHistory" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-
-    <!-- Document TabWnd context menu -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0600">
-      <Parent guid="HgCommandSet" id="Group_DocTabWnd"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidCommitSelected" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0600">
-      <Parent guid="HgCommandSet" id="Group_DocTabWnd"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidDiff" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0601">
-      <Parent guid="HgCommandSet" id="Group_DocTabWnd"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidRevert" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0602">
-      <Parent guid="HgCommandSet" id="Group_DocTabWnd"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0603">
-      <Parent guid="HgCommandSet" id="Group_DocTabWnd"/>
-    </CommandPlacement>
-
-    <!-- CodeWin context menu -->
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgAddSelected" priority="0x0600">
-      <Parent guid="HgCommandSet" id="Group_CodeWin"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgCommitSelected" priority="0x0600">
-      <Parent guid="HgCommandSet" id="Group_CodeWin"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgDiff" priority="0x0601">
-      <Parent guid="HgCommandSet" id="Group_CodeWin"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgRevert" priority="0x0602">
-      <Parent guid="HgCommandSet" id="Group_CodeWin"/>
-    </CommandPlacement>
-    <CommandPlacement guid="HgCommandSet" id="Cmd_HgHistorySelected" priority="0x0603">
-      <Parent guid="HgCommandSet" id="Group_CodeWin"/>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="cmdidHistory" priority="0x0000">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
     </CommandPlacement>
   </CommandPlacements>
-
   <KeyBindings>
-    <KeyBinding guid="HgCommandSet" id="Cmd_HgCommit" editor="guidVSStd97" key1="I" mod1="Alt Shift"/>
-    <KeyBinding guid="HgCommandSet" id="Cmd_HgStatus" editor="guidVSStd97" key1="S" mod1="Alt Shift"/>
-    <KeyBinding guid="HgCommandSet" id="Cmd_HgWorkbench" editor="guidVSStd97" key1="H" mod1="Alt Shift"/>
-    <KeyBinding guid="HgCommandSet" id="Cmd_HgSynchronize" editor="guidVSStd97" key1="Y" mod1="Alt Shift"/>
-    <KeyBinding guid="HgCommandSet" id="Cmd_HgUpdateToRevision" editor="guidVSStd97" key1="U" mod1="Alt Shift"/>
-    <KeyBinding guid="HgCommandSet" id="icmdViewToolWindow" editor="guidVSStd97" key1="W" mod1="Control" key2="V"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidCommit" editor="guidVSStd97" key1="I" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidStatus" editor="guidVSStd97" key1="S" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidWorkbench" editor="guidVSStd97" key1="H" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidSynchronize" editor="guidVSStd97" key1="Y" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidUpdate" editor="guidVSStd97" key1="U" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidPendingChanges" editor="guidVSStd97" key1="W" mod1="Control" key2="V"/>
   </KeyBindings>
-
   <Symbols>
-    <GuidSymbol name="HgPackageGuid" value="{DADADA00-dfd3-4e42-a61c-499121e136f3}" />
-    <GuidSymbol name="HgCommandSet" value="{DADADA00-1fd3-4e26-9c1d-c9cb723cea0e}" >
-
-      <IDSymbol name="Cmd_HgCommit" value="0x100"/>
-      <IDSymbol name="Cmd_HgStatus" value="0x101"/>
-      <IDSymbol name="Cmd_HgWorkbench" value="0x102"/>
-      <IDSymbol name="icmdViewToolWindow" value="0x103"/>
-      
-      <IDSymbol name="Cmd_PendingChangesCommandHistory" value="0x104"/>
-      
-      <IDSymbol name="Cmd_HgSynchronize" value="0x105"/>
-      <IDSymbol name="Cmd_HgUpdateToRevision" value="0x106"/>
-      <IDSymbol name="Cmd_HgDiff" value="0x107"/>
-      <IDSymbol name="Cmd_HgRevert" value="0x108"/>
-      <IDSymbol name="Cmd_HgCommitSelected" value="0x110"/>
-      <IDSymbol name="Cmd_HgHistorySelected" value="0x111"/>
-      <IDSymbol name="Cmd_HgAddSelected" value="0x112"/>
-
-      <IDSymbol name="Menu_MainScc" value="0x200"/>
-      <IDSymbol name="Menu_SolutionMenu" value="0x201"/>
-      <IDSymbol name="Menu_ProjectMenu" value="0x202"/>
-      <IDSymbol name="Menu_ItemMenu" value="0x203"/>
-
-      <IDSymbol name="Group_MainScc" value="0x300"/>
-      <IDSymbol name="Group_HgCommands" value="0x301"/>
-      <IDSymbol name="igrpViewToolWindowGroup" value="0x302"/>
-      <IDSymbol name="Group_Nowhere" value="0x304"/>
-      <IDSymbol name="Group_DocTabWnd" value="0x305"/>
-      <IDSymbol name="Group_CodeWin" value="0x306"/>
-      <IDSymbol name="Group_SolutionMenu" value="0x307"/>
-      <IDSymbol name="Group_ProjectMenu" value="0x308"/>
-      <IDSymbol name="Group_ItemMenu" value="0x309"/>
-      <IDSymbol name="Group_HgXCommands" value="0x310"/>
-
-      <IDSymbol name="Menu_Toolbar" value="0x400"/>
+    <GuidSymbol name="guidVisualHgPkg" value="{dadada00-dfd3-4e42-a61c-499121e136f3}" />
+    <GuidSymbol name="guidVisualHgCmdSet" value="{dadada00-1fd3-4e26-9c1d-c9cb723cea0e}" >
+      <IDSymbol name="cmdidPendingChanges" value="0x100"/>
+      <IDSymbol name="cmdidCommit" value="0x101"/>
+      <IDSymbol name="cmdidStatus" value="0x102"/>
+      <IDSymbol name="cmdidWorkbench" value="0x103"/>
+      <IDSymbol name="cmdidSynchronize" value="0x104"/>
+      <IDSymbol name="cmdidUpdate" value="0x105"/>
+      <IDSymbol name="cmdidAdd" value="0x106"/>
+      <IDSymbol name="cmdidCommitSelected" value="0x107"/>
+      <IDSymbol name="cmdidDiff" value="0x108"/>
+      <IDSymbol name="cmdidRevert" value="0x109"/>
+      <IDSymbol name="cmdidHistory" value="0x110"/>
+      <IDSymbol name="RootCommandsMenu" value="0x200"/>
+      <IDSymbol name="RootCommandsGroup" value="0x300"/>
+      <IDSymbol name="SelectionCommandsGroup" value="0x301"/>
+      <IDSymbol name="RootCommandsMenuGroup" value="0x302"/>
+      <IDSymbol name="MainMenuViewGroup" value="0x303"/>
+      <IDSymbol name="RootCommandsToolbar" value="0x400"/>
     </GuidSymbol>
-
-    <GuidSymbol name="guidVisualHgIcons" value="{DADADA00-3cf1-4487-89ea-08fa7772dbe2}" >
+    <GuidSymbol name="guidVisualHgIcons" value="{dadada00-3cf1-4487-89ea-08fa7772dbe2}" >
       <IDSymbol name="iconCommit" value="1"/>
       <IDSymbol name="iconHistory" value="2"/>
       <IDSymbol name="iconSynchronize" value="3"/>
@@ -402,6 +264,6 @@
       <IDSymbol name="iconRevert" value="8"/>
       <IDSymbol name="iconOpen" value="9"/>
       <IDSymbol name="iconAdd" value="10"/>
-     </GuidSymbol>
+    </GuidSymbol>
   </Symbols>
 </CommandTable>

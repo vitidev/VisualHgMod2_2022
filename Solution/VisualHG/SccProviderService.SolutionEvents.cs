@@ -20,7 +20,7 @@ namespace VisualHg
                 {
                     var rscp = _sccProvider.GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
                     
-                    rscp.RegisterSourceControlProvider(Guids.guidSccProvider);
+                    rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
                 }
             }
 

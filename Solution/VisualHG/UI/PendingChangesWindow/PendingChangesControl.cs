@@ -139,8 +139,8 @@ namespace VisualHg
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ColumnHeader columnHeaderFileName;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PendingChangesControl));
+            System.Windows.Forms.ColumnHeader columnHeaderFileName;
             System.Windows.Forms.ColumnHeader columnHeaderPath;
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.commitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -153,14 +153,6 @@ namespace VisualHg
             columnHeaderPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // columnHeaderFileName
-            // 
-            resources.ApplyResources(columnHeaderFileName, "columnHeaderFileName");
-            // 
-            // columnHeaderPath
-            // 
-            resources.ApplyResources(columnHeaderPath, "columnHeaderPath");
             // 
             // contextMenu
             // 
@@ -213,6 +205,14 @@ namespace VisualHg
             this.fileListView.UseCompatibleStateImageBehavior = false;
             this.fileListView.View = System.Windows.Forms.View.Details;
             this.fileListView.VirtualMode = true;
+            // 
+            // columnHeaderFileName
+            // 
+            resources.ApplyResources(columnHeaderFileName, "columnHeaderFileName");
+            // 
+            // columnHeaderPath
+            // 
+            resources.ApplyResources(columnHeaderPath, "columnHeaderPath");
             // 
             // PendingChangesControl
             // 

@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
-    [Guid(Guids.HgPendingChangesToolWindowGuid)]
+    [Guid(Guids.ToolWindow)]
     public class PendingChangesToolWindow : ToolWindowPane
     {
         private PendingChangesControl pendingChangesControl;

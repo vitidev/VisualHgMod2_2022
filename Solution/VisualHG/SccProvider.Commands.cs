@@ -25,47 +25,47 @@ namespace VisualHg
 
         private void AddMenuCommands(OleMenuCommandService menuCommandService)
         {
-            var commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdViewToolWindow);
+            var commandId = new CommandID(Guids.CommandSetGuid, CommandId.PendingChanges);
             var command = new MenuCommand(ShowPendingChangesToolWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommit);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Commit);
             command = new MenuCommand(ShowCommitWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgWorkbench);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Workbench);
             command = new MenuCommand(ShowWorkbenchWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgStatus);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Status);
             command = new MenuCommand(ShowStatusWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgSynchronize);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Synchronize);
             command = new MenuCommand(ShowSynchronizeWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgUpdate);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Update);
             command = new MenuCommand(ShowUpdateWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgAddSelected);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Add);
             command = new MenuCommand(ShowAddSelectedWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgCommitSelected);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.CommitSelected);
             command = new MenuCommand(ShowCommitSelectedWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgDiff);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Diff);
             command = new MenuCommand(ShowDiffWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgRevert);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Revert);
             command = new MenuCommand(ShowRevertWindow, commandId);
             menuCommandService.AddCommand(command);
 
-            commandId = new CommandID(Guids.guidSccProviderCmdSet, CommandId.icmdHgHistory);
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.History);
             command = new MenuCommand(ShowHistoryWindow, commandId);
             menuCommandService.AddCommand(command);
         }
@@ -80,7 +80,7 @@ namespace VisualHg
                 return VSConstants.E_INVALIDARG;
             }
 
-            if (guidCmdGroup != Guids.guidSccProviderCmdSet)
+            if (guidCmdGroup != Guids.CommandSetGuid)
             {
                 return (int)OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED;
             }
@@ -94,32 +94,32 @@ namespace VisualHg
 
             switch (prgCmds[0].cmdID)
             {
-                case CommandId.icmdViewToolWindow:
-                case CommandId.icmdHgCommit:
-                case CommandId.icmdHgWorkbench:
-                case CommandId.icmdHgStatus:
-                case CommandId.icmdHgSynchronize:
-                case CommandId.icmdHgUpdate:
+                case CommandId.PendingChanges:
+                case CommandId.Commit:
+                case CommandId.Workbench:
+                case CommandId.Status:
+                case CommandId.Synchronize:
+                case CommandId.Update:
                     cmdf = VisibleToOleCmdf(true);
                     break;
 
-                case CommandId.icmdHgAddSelected:
+                case CommandId.Add:
                     cmdf = VisibleToOleCmdf(IsHgAddSelectedMenuItemVisible());
                     break;
 
-                case CommandId.icmdHgCommitSelected:
+                case CommandId.CommitSelected:
                     cmdf = VisibleToOleCmdf(IsHgCommitSelectedMenuItemVisible());
                     break;
 
-                case CommandId.icmdHgDiff:
+                case CommandId.Diff:
                     cmdf = VisibleToOleCmdf(IsHgDiffMenuItemVisible());
                     break;
 
-                case CommandId.icmdHgRevert:
+                case CommandId.Revert:
                     cmdf = VisibleToOleCmdf(IsHgRevertMenuItemVisible());
                     break;
 
-                case CommandId.icmdHgHistory:
+                case CommandId.History:
                     cmdf = VisibleToOleCmdf(IsHgHistoryMenuItemVisible());
                     break;
 

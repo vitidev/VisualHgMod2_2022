@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    [Guid(Guids.ProviderServiceGuid)]
+    [Guid(Guids.Service)]
     public partial class SccProviderService :
         IVsSccProvider,
         IVsSccGlyphs,

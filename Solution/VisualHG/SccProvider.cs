@@ -9,18 +9,18 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace VisualHg
 {
     [DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
-    [InstalledProductRegistration(false, "#100", "#101", "1.1.5", IconResourceID = CommandId.iiconProductIcon)]
+    [InstalledProductRegistration(false, "#100", "#101", "1.1.5", IconResourceID = 400)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideMenuResource(1000, 1)]
     [ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHg", 106, 107, false)]
-    [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.ProviderGuid)]
+    [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [ProvideToolWindow(typeof(PendingChangesToolWindow))]
-    [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.ProviderGuid)]
+    [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.Provider)]
     [ProvideService(typeof(SccProviderService), ServiceName = "VisualHg")]
     [ProvideSourceControlProvider("VisualHg", "#100")]
-    [ProvideAutoLoad(Guids.ProviderGuid)]
+    [ProvideAutoLoad(Guids.Provider)]
     [ProvideSolutionPersistence("VisualHgProperties")]
-    [Guid(Guids.PackageGuid)]
+    [Guid(Guids.Package)]
     public sealed partial class SccProvider : Package, IOleCommandTarget
     {
         public string LastSeenProjectDirectory { get; set; }
@@ -80,7 +80,7 @@ namespace VisualHg
             InitializeMenuCommands();
 
             var rscp = GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
-            rscp.RegisterSourceControlProvider(Guids.guidSccProvider);
+            rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
 
             idleNotifier.Register(GetGlobalService(typeof(SOleComponentManager)) as IOleComponentManager);
             idleNotifier.Idle += sccService.UpdateDirtyNodesGlyphs;

@@ -9,17 +9,17 @@ namespace VisualHg
 	{
         public Guid ProviderGuid
         {
-            get { return Guids.guidSccProvider; }
+            get { return Guids.ProviderGuid; }
         }
 
         public Guid PackageGuid
         {
-            get { return Guids.guidSccProviderPkg; }
+            get { return Guids.PackageGuid; }
         }
 
         public Guid ServiceGuid
         {
-            get { return Guids.guidSccProviderService; }
+            get { return Guids.ServiceGuid; }
         }
 
         public string ProviderName { get; private set; }
