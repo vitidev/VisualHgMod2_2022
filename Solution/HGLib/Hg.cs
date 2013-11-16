@@ -308,5 +308,33 @@ namespace HgLib
 
             return outputLines;
         }
+
+        
+        public static HgFileStatus GetStatus(char status)
+        {
+            switch (status)
+            {
+                case 'C':
+                    return HgFileStatus.Clean;
+                case 'M':
+                    return HgFileStatus.Modified;
+                case 'A':
+                    return HgFileStatus.Added;
+                case 'R':
+                    return HgFileStatus.Removed;
+                case 'I':
+                    return HgFileStatus.Ignored;
+                case 'N':
+                    return HgFileStatus.Renamed;
+                case 'P':
+                    return HgFileStatus.Copied;
+                case '?':
+                    return HgFileStatus.Uncontrolled;
+                case '!':
+                    return HgFileStatus.Missing;
+            }
+
+            throw new ArgumentException("Unexpected status char");
+        }
     }
 }

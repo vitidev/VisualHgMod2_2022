@@ -5,46 +5,43 @@ namespace HgLib
 {
     public class HgFileInfo
     {
-        public DateTime LastWriteTime { get; private set; }
-
-        public long Length { get; private set; }
-
-        public string FullName { get; private set; }
+        private long length;
+        private DateTime lastWriteTime;
 
         public string Name { get; private set; }
 
+        public string FullName { get; private set; }
+
         public HgFileStatus Status { get; private set; }
+        
+        public bool HasChanged
+        {
+            get
+            {
+                if (Status == HgFileStatus.Removed || Status == HgFileStatus.Uncontrolled)
+                {
+                    return false;
+                }
+
+                var file = new FileInfo(FullName);
+
+                return !file.Exists || file.Length != length || file.LastWriteTime != lastWriteTime;
+            }
+        }
 
 
         public HgFileInfo(char status, string path)
         {
-            switch (status)
-            {
-                case 'C': Status = HgFileStatus.Clean; break;
-                case 'M': Status = HgFileStatus.Modified; break;
-                case 'A': Status = HgFileStatus.Added; break;
-                case 'R': Status = HgFileStatus.Removed; break;
-                case 'I': Status = HgFileStatus.Ignored; break;
-                case 'N': Status = HgFileStatus.Renamed; break;
-                case 'P': Status = HgFileStatus.Copied; break;
-                case '?': Status = HgFileStatus.Uncontrolled; break;
-                case '!': Status = HgFileStatus.Missing; break;
-            }
+            var file = new FileInfo(path);
+            
+            FullName = path;
+            Name = Path.GetFileName(path);
+            Status = Hg.GetStatus(status);
 
-            if (Status == HgFileStatus.Removed)
+            if (file.Exists)
             {
-                FullName = path;
-                LastWriteTime = DateTime.Now;
-                Length = 0;
-                Name = Path.GetFileName(path);
-            }
-            else if (File.Exists(path))
-            {
-                var fileInfo = new FileInfo(path);
-                FullName = fileInfo.FullName;
-                LastWriteTime = fileInfo.LastWriteTime;
-                Length = fileInfo.Length;
-                Name = fileInfo.Name;
+                length = file.Length;
+                lastWriteTime = file.LastWriteTime;
             }
         }
     }

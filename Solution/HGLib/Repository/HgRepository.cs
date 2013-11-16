@@ -453,31 +453,24 @@ namespace HgLib
 
         private bool PrepareDirtyFile(string fileName)
         {
-            bool dirty = true;
+            if (Hg.IsDirectory(fileName))
+            {
+                return false;
+            }
+            
+            if (fileName.IndexOf("\\.hg") != -1)
+            {
+                return false;
+            }
+            
+            if (fileName.IndexOf(".hg\\dirstate") != -1)
+            {
+                _cacheUpdateRequired = !_updating;
 
-            if (Directory.Exists(fileName))
-            {
-                dirty = false;
+                return false;
             }
-            else if (fileName.IndexOf("\\.hg") != -1)
-            {
-                dirty = false;
-            }
-            else if (fileName.IndexOf(".hg\\dirstate") > -1)
-            {
-                if (!_updating)
-                {
-                    _cacheUpdateRequired = true;
-                }
-
-                dirty = false;
-            }
-            else
-            {
-                dirty = IsDirty(fileName);
-            }
-
-            return dirty;
+            
+            return IsDirty(fileName);
         }
 
         private bool IsDirty(string fileName)
@@ -489,12 +482,7 @@ namespace HgLib
                 return true;
             }
             
-            if (IsControlled(fileInfo) && FileInfoChanged(fileName, fileInfo))
-            {
-                return true;
-            }
-
-            return false;
+            return fileInfo.HasChanged;
         }
 
         private HgFileInfo GetFileInfo(string fileName)
@@ -507,20 +495,6 @@ namespace HgLib
             }
 
             return fileInfo;
-        }
-
-        private static bool IsControlled(HgFileInfo fileInfo)
-        {
-            return fileInfo.Status != HgFileStatus.Removed && fileInfo.Status != HgFileStatus.Uncontrolled;
-        }
-
-        private static bool FileInfoChanged(string fileName, HgFileInfo fileInfo)
-        {
-            var fi = new FileInfo(fileName);
-
-            return !fi.Exists ||
-                fi.Length != fileInfo.Length ||
-                fi.LastWriteTime != fileInfo.LastWriteTime;
         }
 
 
