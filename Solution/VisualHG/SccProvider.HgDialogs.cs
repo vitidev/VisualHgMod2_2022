@@ -8,48 +8,48 @@ namespace VisualHg
     {
         public void ShowCommitWindow(string directory)
         {
-            QueueTortoiseHgStart("commit", directory);
+            StartTortoiseHg("commit", directory);
         }
 
         public void ShowWorkbenchWindow(string directory)
         {
-            QueueTortoiseHgStart("log", directory);
+            StartTortoiseHg("log", directory);
         }
 
         public void ShowStatusWindow(string directory)
         {
-            QueueTortoiseHgStart("status", directory);
+            StartTortoiseHg("status", directory);
         }
 
         public void ShowSynchronizeWindow(string directory)
         {
-            QueueTortoiseHgStart("synch", directory);
+            StartTortoiseHg("synch", directory);
         }
 
         public void ShowUpdateWindow(string directory)
         {
-            QueueTortoiseHgStart("update", directory);
+            StartTortoiseHg("update", directory);
         }
 
 
         public void ShowAddSelectedWindow(string[] files)
         {
-            QueueTortoiseHgStart(" --nofork add ", files);
+            StartTortoiseHg(" --nofork add ", files);
         }
 
         public void ShowCommitWindowPrivate(string[] files)
         {
-            QueueTortoiseHgStart(" --nofork commit ", files);
+            StartTortoiseHg(" --nofork commit ", files);
         }
 
         public void ShowDiffWindow(string parent, string current, string customDiffTool)
         {
-            QueueDiffToolStart(parent, current, customDiffTool);
+            StartDiff(parent, current, customDiffTool);
         }
 
         public void ShowRevertWindowPrivate(string[] files)
         {
-            QueueTortoiseHgStart(" --nofork revert ", files);
+            StartTortoiseHg(" --nofork revert ", files);
         }
 
         public void ShowHistoryWindowPrivate(string fileName)
@@ -60,61 +60,24 @@ namespace VisualHg
             {
                 fileName = fileName.Substring(root.Length + 1);
 
-                QueueTortoiseHgStart(String.Format("log \"{0}\"", fileName), root);
+                StartTortoiseHg(String.Format("log \"{0}\"", fileName), root);
             }
         }
 
 
-        private void QueueTortoiseHgStart(string command, string directory)
+        private void StartTortoiseHg(string command, string directory)
         {
-            ThreadPool.QueueUserWorkItem(o => {
-                try
-                {
-                    var process = TortoiseHg.Start(command, directory);
-
-                    if (process != null)
-                    {
-                        process.WaitForExit();
-                    }
-
-                    sccService.Repository.CacheUpdateRequired = false;
-                    sccService.Repository.Enqueue(new UpdateRootStatusHgCommand(directory));
-                }
-                catch { }
-            });
+            TortoiseHg.Start(command, directory);
         }
 
-        private void QueueTortoiseHgStart(string command, string[] files)
+        private void StartTortoiseHg(string command, string[] files)
         {
-            ThreadPool.QueueUserWorkItem(o => {
-                try
-                {
-                    TortoiseHg.StartForEachRoot(command, files);
-
-                    sccService.Repository.CacheUpdateRequired = false;
-                    sccService.Repository.Enqueue(new UpdateFileStatusHgCommand(files));
-                }
-                catch { }
-            });
+            TortoiseHg.StartForEachRoot(command, files);
         }
 
-        private void QueueDiffToolStart(string parent, string current, string customDiffTool)
+        private void StartDiff(string parent, string current, string customDiffTool)
         {
-            ThreadPool.QueueUserWorkItem(o => {
-                try
-                {
-                    var process = TortoiseHg.StartDiff(parent, current, customDiffTool);
-
-                    if (process != null)
-                    {
-                        process.WaitForExit();
-                    }
-
-                    sccService.Repository.CacheUpdateRequired = false;
-                    sccService.Repository.Enqueue(new UpdateFileStatusHgCommand(new[] { current }));
-                }
-                catch { }
-            });
+            TortoiseHg.StartDiff(parent, current, customDiffTool);
         }
     }
 }

@@ -457,16 +457,15 @@ namespace HgLib
             {
                 return false;
             }
-            
-            if (fileName.IndexOf("\\.hg") != -1)
-            {
-                return false;
-            }
-            
+
             if (fileName.IndexOf(".hg\\dirstate") != -1)
             {
                 _cacheUpdateRequired = !_updating;
-
+                return false;
+            }
+            
+            if (fileName.IndexOf("\\.hg") != -1)
+            {
                 return false;
             }
             
