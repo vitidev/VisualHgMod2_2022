@@ -35,8 +35,6 @@
     <Buttons>
       <Button guid="guidVisualHgCmdSet" id="cmdidPendingChanges" priority="0x0100" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="MainMenuViewGroup"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgPendingChanges</ButtonText>
           <MenuText>&amp;VisualHg Pending Changes</MenuText>
@@ -45,8 +43,6 @@
       <Button guid="guidVisualHgCmdSet" id="cmdidCommit" priority="0x0010" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconCommit"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgCommit</ButtonText>
           <MenuText>Commit</MenuText>
@@ -56,8 +52,6 @@
       <Button guid="guidVisualHgCmdSet" id="cmdidStatus" priority="0x0011" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconStatus"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgStatus</ButtonText>
           <MenuText>Status</MenuText>
@@ -67,8 +61,6 @@
       <Button guid="guidVisualHgCmdSet" id="cmdidWorkbench" priority="0x0012" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconWorkbench"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgWorkbench</ButtonText>
           <MenuText>Workbench</MenuText>
@@ -78,8 +70,6 @@
       <Button guid="guidVisualHgCmdSet" id="cmdidSynchronize" priority="0x0013" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconSynchronize"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgSynchronize</ButtonText>
           <MenuText>Synchronize</MenuText>
@@ -89,8 +79,6 @@
       <Button guid="guidVisualHgCmdSet" id="cmdidUpdate" priority="0x0014" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconUpdate"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
           <ButtonText>VisualHgUpdate</ButtonText>
           <MenuText>Update</MenuText>

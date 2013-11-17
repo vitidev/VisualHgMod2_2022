@@ -7,12 +7,13 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using OleInterop = Microsoft.VisualStudio.OLE.Interop;
 
 namespace VisualHg
 {
     partial class SccProvider
     {
+        private const int OLECMDERR_E_NOTSUPPORTED = (int)Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED;
+
         private void InitializeMenuCommands()
         {
             var menuCommandService = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
@@ -71,93 +72,75 @@ namespace VisualHg
         }
 
 
-        public int QueryStatus(ref Guid guidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
+        public int QueryStatus(ref Guid commandSetGuid, uint commandCount, OLECMD[] commands, IntPtr text)
         {
-            OLECMDF cmdf;
-
-            if (prgCmds == null)
+            if (commandCount != 1)
             {
                 return VSConstants.E_INVALIDARG;
             }
 
-            if (guidCmdGroup != Guids.CommandSetGuid)
+            if (commandSetGuid != Guids.CommandSetGuid)
             {
-                return (int)OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED;
+                return OLECMDERR_E_NOTSUPPORTED;
             }
 
-            if (!sccService.Active)
-            {
-                prgCmds[0].cmdf = (uint)VisibleToOleCmdf(false);
+            var visible = sccService.Active ? IsCommandVisible(commands[0].cmdID) : false;
 
-                return VSConstants.S_OK;
-            }
-
-            switch (prgCmds[0].cmdID)
-            {
-                case CommandId.PendingChanges:
-                case CommandId.Commit:
-                case CommandId.Workbench:
-                case CommandId.Status:
-                case CommandId.Synchronize:
-                case CommandId.Update:
-                    cmdf = VisibleToOleCmdf(true);
-                    break;
-
-                case CommandId.Add:
-                    cmdf = VisibleToOleCmdf(IsHgAddSelectedMenuItemVisible());
-                    break;
-
-                case CommandId.CommitSelected:
-                    cmdf = VisibleToOleCmdf(IsHgCommitSelectedMenuItemVisible());
-                    break;
-
-                case CommandId.Diff:
-                    cmdf = VisibleToOleCmdf(IsHgDiffMenuItemVisible());
-                    break;
-
-                case CommandId.Revert:
-                    cmdf = VisibleToOleCmdf(IsHgRevertMenuItemVisible());
-                    break;
-
-                case CommandId.History:
-                    cmdf = VisibleToOleCmdf(IsHgHistoryMenuItemVisible());
-                    break;
-
-                default:
-                    return (int)(OleInterop.Constants.OLECMDERR_E_NOTSUPPORTED);
-            }
-
-            prgCmds[0].cmdf = (uint)cmdf;
+            commands[0].cmdf = (uint)VisibleToOleCmdf(visible);
 
             return VSConstants.S_OK;
         }
-
+    
         private OLECMDF VisibleToOleCmdf(bool visible)
         {
             return OLECMDF.OLECMDF_SUPPORTED | (visible ? OLECMDF.OLECMDF_ENABLED : OLECMDF.OLECMDF_INVISIBLE);
         }
 
-        private bool IsHgAddSelectedMenuItemVisible()
+        private bool IsCommandVisible(uint commandId)
         {
-            return SelectedFileContextStatusMatches(HgFileStatus.NotTracked | HgFileStatus.Ignored);
+            switch (commandId)
+            {
+                case CommandId.Add:
+                    return IsAddMenuItemVisible();
+
+                case CommandId.CommitSelected:
+                    return IsCommitSelectedMenuItemVisible();
+
+                case CommandId.Diff:
+                    return IsDiffMenuItemVisible();
+
+                case CommandId.Revert:
+                    return IsRevertMenuItemVisible();
+
+                case CommandId.History:
+                    return IsHistoryMenuItemVisible();
+
+                default:
+                    return true;
+            }
         }
 
-        private bool IsHgCommitSelectedMenuItemVisible()
+        private bool IsAddMenuItemVisible()
         {
-            return SelectedFileContextStatusMatches(HgFileStatus.Different, true);
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.NotTracked | HgFileStatus.Ignored, true);
         }
 
-        private bool IsHgDiffMenuItemVisible()
+        private bool IsCommitSelectedMenuItemVisible()
+        {
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.Different, true);
+        }
+
+        private bool IsDiffMenuItemVisible()
         {
             return SelectedFileStatusMatches(HgFileStatus.Comparable);
         }
 
-        private bool IsHgRevertMenuItemVisible()
+        private bool IsRevertMenuItemVisible()
         {
-            return SelectedFileContextStatusMatches(HgFileStatus.Different);
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.Different);
         }
 
-        private bool IsHgHistoryMenuItemVisible()
+        private bool IsHistoryMenuItemVisible()
         {
             return SelectedFileStatusMatches(HgFileStatus.Tracked);
         }
@@ -201,7 +184,7 @@ namespace VisualHg
 
         private void GetRootAnd(Action<string> showWindow)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
             var root = CurrentRootDirectory;
 
@@ -218,9 +201,9 @@ namespace VisualHg
 
         private void ShowAddSelectedWindow(object sender, EventArgs e)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
-            var filesToAdd = GetSelectedFiles(false).Where(FileIsNotAdded).ToArray();
+            var filesToAdd = GetSelectedFiles(true).Where(FileIsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
             {
@@ -251,7 +234,7 @@ namespace VisualHg
 
         public void ShowCommitWindow(string[] files)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
             var filesToCommit = files.Where(FileIsDirty).ToArray();
 
@@ -263,7 +246,7 @@ namespace VisualHg
 
         public void ShowDiffWindow(string fileName)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
             if (String.IsNullOrEmpty(fileName))
             {
@@ -292,7 +275,7 @@ namespace VisualHg
 
         public void ShowRevertWindow(string[] files)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
             var filesToRevert = files.Where(FileIsDirty).ToArray();
 
@@ -304,7 +287,7 @@ namespace VisualHg
 
         public void ShowHistoryWindow(string fileName)
         {
-            SaveSolutionIfDirty();
+            SaveAllFiles();
 
             var originalFileName = GetOriginalFileName(fileName);
 

@@ -68,20 +68,19 @@ namespace VisualHg
         {
             get
             {
-                var fileName = "";
-                var selectedItems = GetSelectedItems();
                 var dte = GetService(typeof(SDTE)) as _DTE;
+                var selectedItems = GetSelectedItems();
 
-                if (selectedItems.Count == 1)
+                if (selectedItems.Length == 1)
                 {
-                    fileName = GetItemFileName(selectedItems[0]);
+                    return GetItemFileName(selectedItems[0]);
                 }
                 else if (dte != null && dte.ActiveDocument != null)
                 {
-                    fileName = dte.ActiveDocument.FullName;
+                    return dte.ActiveDocument.FullName;
                 }
 
-                return fileName;
+                return "";
             }
         }
 
@@ -136,7 +135,7 @@ namespace VisualHg
         }
 
 
-        public void SaveSolutionIfDirty()
+        public void SaveAllFiles()
         {
             var solution = GetService(typeof(IVsSolution)) as IVsSolution;
             var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
@@ -248,22 +247,35 @@ namespace VisualHg
         {
             return FileStatusMatches(fileName, HgFileStatus.Different);
         }
+        
+        private bool SearchAnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren = false)
+        {
+            if (Configuration.Global.EnableContextSearch)
+            {
+                return AnySelectedFileStatusMatches(status, includeChildren);
+            }
+
+            return true;
+        }
 
         private bool AnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren)
         {
-            var selectedItems = GetSelectedItems();
+            if (includeChildren)
+            {
+                return GetSelectedItems().Any(x => ItemOrChildrenStatusMatches(x, status));
+            }
+            
+            return GetSelectedItems().Any(x => ItemStatusMatches(x, status));
+        }
 
-            if (selectedItems.Any(x => ItemStatusMatches(x, status)))
+        private bool ItemOrChildrenStatusMatches(VSITEMSELECTION item, HgFileStatus status)
+        {
+            if (ItemStatusMatches(item, status))
             {
                 return true;
             }
 
-            if (!includeChildren)
-            {
-                return false;
-            }
-
-            return selectedItems.Any(x => AnyChildItemStatusMatches(x, status));
+            return AnyChildItemStatusMatches(item, status);
         }
 
         private bool AnyChildItemStatusMatches(VSITEMSELECTION item, HgFileStatus status)
@@ -292,16 +304,6 @@ namespace VisualHg
 
             return FileStatusMatches(fileName, status);
         }
-        
-        private bool SelectedFileContextStatusMatches(HgFileStatus status, bool includeChildren = false)
-        {
-            if (Configuration.Global.EnableContextSearch)
-            {
-                return AnySelectedFileStatusMatches(status, includeChildren);
-            }
-
-            return true;
-        }
 
         private bool SelectedFileStatusMatches(HgFileStatus status)
         {
@@ -326,81 +328,86 @@ namespace VisualHg
         }
         
  
-        private IList<VSITEMSELECTION> GetSelectedItems()
+        private VSITEMSELECTION[] GetSelectedItems()
         {
-            var monitorSelection = GetService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
-            Debug.Assert(monitorSelection != null, "Could not get the IVsMonitorSelection object from the services exposed by this project");
-            
-            if (monitorSelection == null)
-            {
-                throw new InvalidOperationException();
-            }
-
             var selectedItems = new List<VSITEMSELECTION>();
-            var hierarchyPtr = IntPtr.Zero;
-            var selectionContainerPtr = IntPtr.Zero;
+
+            var hierarchy = IntPtr.Zero;
+            var selectionContainer = IntPtr.Zero;
             
             try
             {
-                // Get the current project hierarchy, project item, and selection container for the current selection
-                // If the selection spans multiple hierachies, hierarchyPtr is Zero
-                uint itemid;
-                IVsMultiItemSelect multiItemSelect = null;
-                ErrorHandler.ThrowOnFailure(monitorSelection.GetCurrentSelection(out hierarchyPtr, out itemid, out multiItemSelect, out selectionContainerPtr));
+                uint itemId;
+                IVsMultiItemSelect multiSelect;
 
-                if (itemid != VSConstants.VSITEMID_SELECTION)
+                var selectionMonitor = GetService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
+                ErrorHandler.ThrowOnFailure(selectionMonitor.GetCurrentSelection(out hierarchy, out itemId, out multiSelect, out selectionContainer));
+
+                if (SingleItemSelected(itemId))
                 {
-                    // We only care if there are items selected in the tree
-                    if (itemid != VSConstants.VSITEMID_NIL)
-                    {
-                        if (hierarchyPtr == IntPtr.Zero)
-                        {
-                            // Solution is selected
-                            VSITEMSELECTION vsItemSelection;
-                            vsItemSelection.pHier = null;
-                            vsItemSelection.itemid = itemid;
-                            selectedItems.Add(vsItemSelection);
-                        }
-                        else
-                        {
-                            var hierarchy = (IVsHierarchy)Marshal.GetObjectForIUnknown(hierarchyPtr);
-                            // Single item selection
-                            VSITEMSELECTION vsItemSelection;
-                            vsItemSelection.pHier = hierarchy;
-                            vsItemSelection.itemid = itemid;
-                            selectedItems.Add(vsItemSelection);
-                        }
-                    }
+                    selectedItems.Add(GetSelectedItem(hierarchy, itemId));
                 }
-                else if (multiItemSelect != null)
+                else if (multiSelect != null)
                 {
-                    uint numberOfSelectedItems;
-                    int isSingleHierarchyInt;
-                    ErrorHandler.ThrowOnFailure(multiItemSelect.GetSelectionInfo(out numberOfSelectedItems, out isSingleHierarchyInt));
-
-                    Debug.Assert(numberOfSelectedItems > 0, "Bad number of selected itemd");
-                    if (numberOfSelectedItems > 0)
-                    {
-                        var vsItemSelections = new VSITEMSELECTION[numberOfSelectedItems];
-                        ErrorHandler.ThrowOnFailure(multiItemSelect.GetSelectedItems(0, numberOfSelectedItems, vsItemSelections));
-                        selectedItems.AddRange(vsItemSelections);
-                    }
+                    selectedItems.AddRange(GetSelectedItems(multiSelect));
                 }
             }
             finally
             {
-                if (hierarchyPtr != IntPtr.Zero)
-                {
-                    Marshal.Release(hierarchyPtr);
-                }
-            
-                if (selectionContainerPtr != IntPtr.Zero)
-                {
-                    Marshal.Release(selectionContainerPtr);
-                }
+                ReleasePtr(hierarchy);
+                ReleasePtr(selectionContainer);
             }
 
+            return selectedItems.ToArray();
+        }
+
+        private static bool SingleItemSelected(uint itemId)
+        {
+            return itemId != VSConstants.VSITEMID_SELECTION && itemId != VSConstants.VSITEMID_NIL;
+        }
+
+        private static VSITEMSELECTION GetSelectedItem(IntPtr hierarchyPtr, uint itemId)
+        {
+            var item = new VSITEMSELECTION { itemid = itemId };
+
+            if (hierarchyPtr != IntPtr.Zero)
+            {
+                var hierarchy = (IVsHierarchy)Marshal.GetObjectForIUnknown(hierarchyPtr);
+                item.pHier = hierarchy;
+            }
+
+            return item;
+        }
+
+        private static VSITEMSELECTION[] GetSelectedItems(IVsMultiItemSelect multiSelect)
+        {
+            var selectedItemsCount = GetSelectedItemsCount(multiSelect);
+            var selectedItems = new VSITEMSELECTION[selectedItemsCount];
+
+            if (selectedItemsCount > 0)
+            {
+                ErrorHandler.ThrowOnFailure(multiSelect.GetSelectedItems(0, selectedItemsCount, selectedItems));
+            }
+            
             return selectedItems;
+        }
+
+        private static uint GetSelectedItemsCount(IVsMultiItemSelect multiSelect)
+        {
+            uint selectedItemsCount;
+            int isSingleHierarchy;
+            
+            ErrorHandler.ThrowOnFailure(multiSelect.GetSelectionInfo(out selectedItemsCount, out isSingleHierarchy));
+            
+            return selectedItemsCount;
+        }
+
+        private static void ReleasePtr(IntPtr ptr)
+        {
+            if (ptr != IntPtr.Zero)
+            {
+                Marshal.Release(ptr);
+            }
         }
 
         
