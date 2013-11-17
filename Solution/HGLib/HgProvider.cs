@@ -13,6 +13,16 @@ namespace HgLib
         private static string kdiffExecutablePath;
 
 
+        public static bool IsDirectory(string path)
+        {
+            if (File.Exists(path) || Directory.Exists(path))
+            {
+                return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+            }
+
+            return false;
+        }
+
         public static string FindRepositoryRoot(string path)
         {
             while (!String.IsNullOrEmpty(path))

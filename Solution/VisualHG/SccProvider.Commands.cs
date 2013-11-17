@@ -122,12 +122,12 @@ namespace VisualHg
 
         private bool IsAddMenuItemVisible()
         {
-            return SearchAnySelectedFileStatusMatches(HgFileStatus.NotTracked | HgFileStatus.Ignored, true);
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.NotAdded, true);
         }
 
         private bool IsCommitSelectedMenuItemVisible()
         {
-            return SearchAnySelectedFileStatusMatches(HgFileStatus.Different, true);
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.Pending, true);
         }
 
         private bool IsDiffMenuItemVisible()
@@ -137,7 +137,7 @@ namespace VisualHg
 
         private bool IsRevertMenuItemVisible()
         {
-            return SearchAnySelectedFileStatusMatches(HgFileStatus.Different);
+            return SearchAnySelectedFileStatusMatches(HgFileStatus.Pending);
         }
 
         private bool IsHistoryMenuItemVisible()

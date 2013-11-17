@@ -7,12 +7,39 @@ namespace HgLib
     {
         private long length;
         private DateTime lastWriteTime;
+        private HgFileInfo _originalFile;
+
+
+        internal HgFileInfo OriginalFile
+        {
+            get { return _originalFile; }
+            set
+            {
+                _originalFile = value;
+
+                if (_originalFile != null)
+                {
+                    Status = File.Exists(_originalFile.FullName) ? HgFileStatus.Copied : HgFileStatus.Renamed;
+                }
+            }
+        }
+
 
         public string Name { get; private set; }
 
         public string FullName { get; private set; }
 
         public HgFileStatus Status { get; private set; }
+
+        public string OriginalName
+        {
+            get { return _originalFile != null ? _originalFile.Name : Name; }
+        }
+
+        public string OriginalFullName
+        {
+            get { return _originalFile != null ? _originalFile.FullName : FullName; }
+        }
         
         public bool HasChanged
         {
@@ -30,12 +57,12 @@ namespace HgLib
         }
 
 
-        public HgFileInfo(char status, string path)
+        public HgFileInfo(string fileName, char status)
         {
-            var file = new FileInfo(path);
+            var file = new FileInfo(fileName);
             
-            FullName = path;
-            Name = Path.GetFileName(path);
+            FullName = fileName;
+            Name = Path.GetFileName(fileName);
             Status = Hg.GetStatus(status);
 
             if (file.Exists)
@@ -43,6 +70,12 @@ namespace HgLib
                 length = file.Length;
                 lastWriteTime = file.LastWriteTime;
             }
+        }
+
+
+        public bool StatusMatches(HgFileStatus status)
+        {
+            return (Status & status) > 0;
         }
     }
 }

@@ -240,12 +240,12 @@ namespace VisualHg
 
         private bool FileIsNotAdded(string fileName)
         {
-            return FileStatusMatches(fileName, HgFileStatus.NotTracked | HgFileStatus.Ignored);
+            return FileStatusMatches(fileName, HgFileStatus.NotAdded);
         }
 
         private bool FileIsDirty(string fileName)
         {
-            return FileStatusMatches(fileName, HgFileStatus.Different);
+            return FileStatusMatches(fileName, HgFileStatus.Pending);
         }
         
         private bool SearchAnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren = false)
@@ -317,7 +317,7 @@ namespace VisualHg
                 return false;
             }
 
-            if (Hg.IsDirectory(fileName))
+            if (HgProvider.IsDirectory(fileName))
             {
                 return false;
             }

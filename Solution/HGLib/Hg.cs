@@ -3,308 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Text;
 
 namespace HgLib
 {
     public static class Hg
     {
-        public static string GetCurrentBranchName(string root)
-        {
-            return RunHg(root, "branch").FirstOrDefault() ?? "";
-        }
+        private const int ArgumentsLengthLimit = 20000; // Maximum command length including executable path is 32767
 
 
-        public static Dictionary<string, char> GetRootStatus(string directory)
-        {
-            var status = new Dictionary<string, char>();
-
-            if (!String.IsNullOrEmpty(directory))
-            {
-                var nameHistory = new Dictionary<string, string>();
-
-                var output = RunHg(directory, "status -m -a -r -d -c -C ");
-
-                UpdateStatus(directory, output, status, nameHistory);
-            }
-
-            return status;
-        }
-
-        public static Dictionary<string, char> GetFileStatus(string[] fileNames)
-        {
-            Dictionary<string, string> nameHistory;
-            return GetFileStatus(fileNames, out nameHistory);
-        }
-
-        private static Dictionary<string, char> GetFileStatus(string[] fileNames, out Dictionary<string, string> nameHistory)
-        {
-            var status = new Dictionary<string, char>();
-            nameHistory = new Dictionary<string, string>();
-            var commandLines = new Dictionary<string, string>();
-
-            try
-            {
-                if (fileNames.Length > 0)
-                {
-                    foreach (var fileName in fileNames)
-                    {
-                        var root = HgProvider.FindRepositoryRoot(fileName);
-
-                        var commandLine = "";
-                        commandLines.TryGetValue(root, out commandLine);
-                        commandLine += " \"" + fileName.Substring(root.Length + 1) + "\" ";
-
-                        if (commandLine.Length >= 2000)
-                        {
-                            var output = RunHg(root, "status -A " + commandLine);
-                            UpdateStatus(root, output, status, nameHistory);
-
-                            commandLine = "";
-                        }
-
-                        commandLines[root] = commandLine;
-                    }
-
-                    foreach (var directoryCommandLine in commandLines)
-                    {
-                        var root = directoryCommandLine.Key;
-                        var commandLine = directoryCommandLine.Value;
-
-                        if (commandLine.Length > 0)
-                        {
-                            var output = RunHg(root, "status -A " + commandLine);
-                            UpdateStatus(root, output, status, nameHistory);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                return null;
-            }
-
-            return status;
-        }
-
-
-        public static Dictionary<string, char> AddFiles(string[] fileNames)
-        {
-            var filesToAdd = GetFilesToAdd(fileNames);
-
-            if (filesToAdd.Length == 0)
-            {
-                return null;
-            }
-
-            return GetStatus("add", filesToAdd);
-        }
-
-        private static string[] GetFilesToAdd(string[] fileNames)
-        {
-            var filesToAdd = new List<string>();
-
-            var status = GetFileStatus(fileNames);
-
-            foreach (var fileStatus in status)
-            {
-                if (fileStatus.Value == '?' || fileStatus.Value == 'R')
-                {
-                    filesToAdd.Add(fileStatus.Key);
-                }
-            }
-            
-            return filesToAdd.ToArray();
-        }
-
-        public static List<string> Update(string root)
-        {
-            return RunHg(root, "update -C");
-        }
-
-
-        public static bool RenameFiles(string[] oldFileNames, string[] newFileNames)
-        {
-            try
-            {
-                for (int i = 0; i < oldFileNames.Length; ++i)
-                {
-                    var workingDirectory = Path.GetDirectoryName(oldFileNames[i]);
-                    var rootDirectory = HgProvider.FindRepositoryRoot(workingDirectory);
-
-                    var oldName = oldFileNames[i].Substring(rootDirectory.Length + 1);
-                    var newName = newFileNames[i].Substring(rootDirectory.Length + 1);
-                    
-                    RunHg(rootDirectory, String.Format("rename -A \"{0}\" \"{1}\"", oldName, newName));
-                }
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static Dictionary<string, char> RemoveFiles(string[] fileNames)
-        {
-            return GetStatus("remove", fileNames);
-        }
-
-
-        public static string GetRenamedFileOriginalName(string newFileName)
-        {
-            var originalFileName = "";
-            
-            Dictionary<string, string> nameHistory;
-            var status = GetFileStatus(new[] { newFileName }, out nameHistory);
-            
-            if (status != null)
-            {
-                nameHistory.TryGetValue(newFileName.ToLower(), out originalFileName);
-            }
-
-            return originalFileName;
-        }
-
-
-        private static Dictionary<string, char> GetStatus(string command, string[] fileNames)
-        {
-            try
-            {
-                RunHg(command, fileNames, false);
-                return GetFileStatus(fileNames);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static bool UpdateStatus(string root, List<string> output, Dictionary<string, char> status, Dictionary<string, string> nameHistory)
-        {
-            var copyRenamedFiles = new Dictionary<string, string>();
-
-            var prevStatus = ' ';
-            var prevFile = "";
-
-            foreach (var line in output)
-            {
-                var file = Path.Combine(root, line.Substring(2));
-                var currentStatus = line[0];
-
-                if (currentStatus == ' ' && prevStatus == 'A')
-                {
-                    copyRenamedFiles[file] = prevFile;
-                    nameHistory[prevFile.ToLower()] = file;
-                    file = prevFile;
-                }
-
-                status[file] = currentStatus;
-
-                prevFile = file;
-                prevStatus = currentStatus;
-            }
-
-            foreach (var entry in copyRenamedFiles)
-            {
-                char orgFileStatus;
-
-                if (!status.TryGetValue(entry.Key, out orgFileStatus))
-                {
-                    var fileStatusOriginalFile = GetFileStatus(new[] { entry.Key });
-
-                    if (fileStatusOriginalFile != null)
-                    {
-                        fileStatusOriginalFile.TryGetValue(entry.Key, out orgFileStatus);
-                    }
-                }
-
-                if (orgFileStatus == 'R')
-                {
-                    status[entry.Value] = 'r';
-                }
-                else
-                {
-                    status[entry.Value] = 'c';
-                }
-            }
-
-            return true;
-        }
-
-
-        private static List<string> RunHg(string workingDirectory, string arguments)
-        {
-            var process = HgProvider.StartHg(arguments, workingDirectory);
-
-            return ReadStandardOutputFrom(process);
-        }
-
-        private static void RunHg(string command, string[] paths, bool includeDirectories)
-        {
-            var workingDirectory = Path.GetDirectoryName(paths[0]);
-            var rootDirectory = HgProvider.FindRepositoryRoot(workingDirectory);
-            var args = command;
-
-            var counter = 0;
-
-            foreach (var path in paths)
-            {
-                counter++;
-
-                if (!includeDirectories && IsDirectory(path))
-                {
-                    continue;
-                }
-
-                args += " \"" + path.Substring(rootDirectory.Length + 1) + "\" ";
-
-                if (counter > 20 || args.Length > 1024)
-                {
-                    RunHg(rootDirectory, args);
-                    args = command;
-                }
-            }
-
-            RunHg(rootDirectory, args);
-        }
-
-        public static bool IsDirectory(string path)
-        {
-            if (File.Exists(path) || Directory.Exists(path))
-            {
-                return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
-            }
-
-            return false;
-        }
-
-        
-        private static List<string> ReadStandardOutputFrom(Process process)
-        {
-            var str = "";
-            var outputLines = new List<string>();
-
-            while (!process.HasExited)
-            {
-                while ((str = process.StandardOutput.ReadLine()) != null)
-                {
-                    outputLines.Add(str);
-                }
-
-                Thread.Sleep(0);
-            }
-
-            while ((str = process.StandardOutput.ReadLine()) != null)
-            {
-                outputLines.Add(str);
-            }
-
-            return outputLines;
-        }
-
-        
         public static HgFileStatus GetStatus(char status)
         {
             switch (status)
@@ -323,13 +30,239 @@ namespace HgLib
                     return HgFileStatus.NotTracked;
                 case 'I':
                     return HgFileStatus.Ignored;
-                case 'r':
-                    return HgFileStatus.Renamed;
-                case 'c':
-                    return HgFileStatus.Copied;
+                case ' ':
+                    return HgFileStatus.None;
             }
 
             throw new ArgumentException("Unexpected status char");
+        }
+
+
+        public static string GetCurrentBranchName(string root)
+        {
+            return RunHg("branch", root).FirstOrDefault() ?? "";
+        }
+
+        public static string GetRenamedFileOriginalName(string newFileName)
+        {
+            var originalName = "";
+
+            var fileStatus = GetRawFileInfo(newFileName);
+            var renames = GetRenames(fileStatus);
+
+            renames.TryGetValue(newFileName, out originalName);
+
+            return originalName;
+        }
+
+
+        public static HgFileInfo[] GetRootStatus(string directory)
+        {
+            if (String.IsNullOrEmpty(directory))
+            {
+                return new HgFileInfo[0];
+            }
+
+            var output = RunHg("status -m -a -r -d -c -C", directory);
+
+            return DetectRenames(ParseStatusOutput(directory, output));
+        }
+
+
+        public static HgFileInfo[] AddFiles(string[] fileNames)
+        {
+            var filesToAdd = GetFilesToAdd(fileNames);
+
+            if (filesToAdd.Length == 0)
+            {
+                return null;
+            }
+
+            return ProcessFilesAndGetStatus("add", filesToAdd);
+        }
+
+        public static HgFileInfo[] RemoveFiles(string[] fileNames)
+        {
+            return ProcessFilesAndGetStatus("remove", fileNames);
+        }
+
+        public static HgFileInfo[] RenameFiles(string[] fileNames, string[] newFileNames)
+        {
+            for (int i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); ++i)
+            {
+                var root = HgProvider.FindRepositoryRoot(fileNames[i]);
+
+                var oldName = StripRoot(fileNames[i], root);
+                var newName = StripRoot(newFileNames[i], root);
+
+                RunHg(String.Format("rename -A \"{0}\" \"{1}\"", oldName, newName), root);
+            }
+
+            return GetFileInfo(fileNames.Concat(newFileNames).ToArray());
+        }
+
+
+        public static HgFileInfo[] GetFileInfo(params string[] fileNames)
+        {
+            var rawFileStatus = GetRawFileInfo(fileNames);
+
+            return DetectRenames(rawFileStatus);
+        }
+
+        
+        private static HgFileInfo[] GetRawFileInfo(params string[] fileNames)
+        {
+            var files = new List<HgFileInfo>();
+
+            foreach (var item in ProcessFiles("status -A", fileNames))
+            {
+                var root = item.Key;
+                var output = item.Value;
+
+                files.AddRange(ParseStatusOutput(root, output));
+            }
+
+            return files.ToArray();
+        }
+
+        private static HgFileInfo[] ProcessFilesAndGetStatus(string command, string[] fileNames)
+        {
+            ProcessFiles(command, fileNames);
+         
+            return GetFileInfo(fileNames);
+        }
+        
+        private static Dictionary<string, string[]> ProcessFiles(string command, string[] fileNames)
+        {
+            var rootOutput = new Dictionary<string, string[]>();
+
+            foreach (var rootGroup in fileNames.GroupBy(x => HgProvider.FindRepositoryRoot(x)))
+            {
+                var root = rootGroup.Key;
+                var output = new List<string>();
+
+                foreach (var fileArgs in GetFileArguments(root, rootGroup))
+                {
+                    var commandOutput = RunHg(String.Concat(command, fileArgs), root);
+
+                    output.AddRange(commandOutput);
+                }
+
+                rootOutput[root] = output.ToArray();
+            }
+
+            return rootOutput;
+        }
+
+        private static string[] GetFileArguments(string root, IEnumerable<string> fileNames)
+        {
+            var args = new List<string>();
+            var sb = new StringBuilder();
+
+            foreach (var fileName in fileNames.Where(x => !HgProvider.IsDirectory(x)).Select(x => StripRoot(x, root)))
+            {
+                if (sb.Length > ArgumentsLengthLimit - fileName.Length - 3)
+                {
+                    args.Add(sb.ToString());
+                    sb.Length = 0;
+                }
+                
+                sb.Append(' ').Append('"').Append(fileName).Append('"');
+            }
+
+            args.Add(sb.ToString());
+
+            return args.ToArray();
+        }
+
+
+        private static string[] RunHg(string args, string workingDirectory)
+        {
+            var process = HgProvider.StartHg(args, workingDirectory);
+
+            return ReadOutputFrom(process);
+        }
+        
+        private static string[] ReadOutputFrom(Process process)
+        {
+            var line = "";
+            var outputLines = new List<string>();
+
+            while (!process.StandardOutput.EndOfStream)
+            {
+                outputLines.Add(process.StandardOutput.ReadLine());
+            }
+
+            return outputLines.ToArray();
+        }
+
+                
+        private static HgFileInfo[] ParseStatusOutput(string root, string[] output)
+        {
+            return output.Select(x => new HgFileInfo(Path.Combine(root, x.Substring(2)), x[0])).ToArray();
+        }
+
+        private static HgFileInfo[] DetectRenames(HgFileInfo[] files)
+        {
+            var renames = GetRenames(files);
+            var filteredFiles = files.Where(x => x.Status != HgFileStatus.None).ToArray();
+            
+            foreach (var item in renames)
+            {
+                var newFileName = item.Key;
+                var fileName = item.Value;
+
+                var file = filteredFiles.FirstOrDefault(x => x.FullName == newFileName);
+
+                if (file != null)
+                {
+                    file.OriginalFile = 
+                        files.FirstOrDefault(x => x.FullName == fileName) ??
+                        GetRawFileInfo(fileName).FirstOrDefault();
+                }
+            }
+
+            return filteredFiles;
+        }
+
+        private static Dictionary<string, string> GetRenames(HgFileInfo[] files)
+        {
+            var renames = new Dictionary<string, string>();
+            
+            var newFileName = default(string);
+            var newStatus = HgFileStatus.None;
+
+            foreach (var file in files)
+            {
+                var fileName = file.FullName;
+                var status = file.Status;
+
+                if (newStatus == HgFileStatus.Added && status == HgFileStatus.None)
+                {
+                    renames.Add(newFileName, fileName);
+                }
+
+                newFileName = fileName;
+                newStatus = status;
+            }
+
+            return renames;
+        }
+
+
+        private static string[] GetFilesToAdd(string[] fileNames)
+        {
+            var files = GetRawFileInfo(fileNames);
+
+            return files
+                .Where(x => x.StatusMatches(HgFileStatus.NotAdded))
+                .Select(x => x.FullName)
+                .ToArray();
+        }
+
+        private static string StripRoot(string fileName, string root)
+        {
+            return fileName.Substring(root.Length + 1);
         }
     }
 }

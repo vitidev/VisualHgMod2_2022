@@ -123,8 +123,8 @@ namespace VisualHg
                     .Aggregate((x, y) => x | y);
             }
 
-            commitMenuItem.Visible = StatusMatches(status, HgFileStatus.Different);
-            revertMenuItem.Visible = StatusMatches(status, HgFileStatus.Different);
+            commitMenuItem.Visible = StatusMatches(status, HgFileStatus.Pending);
+            revertMenuItem.Visible = StatusMatches(status, HgFileStatus.Pending);
             
             diffMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Comparable);
             historyMenuItem.Visible = single && StatusMatches(status, HgFileStatus.Tracked);

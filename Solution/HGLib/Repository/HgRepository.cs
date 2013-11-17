@@ -15,7 +15,7 @@ namespace HgLib
         
         private const int UpdateInterval = 2000;
 
-        private bool _updating;
+        private int _updatingLevel;
         private HgCommandQueue _commands;
         private DirectoryWatcherMap _directoryWatchers;
         private HgFileInfoDictionary _cache;
@@ -77,13 +77,6 @@ namespace HgLib
 
         public void AddFiles(string[] fileNames)
         {
-            fileNames = FilterIgnored(fileNames);
-
-            if (fileNames.Length == 0)
-            {
-                return;
-            }
-
             try
             {
                 BeginUpdate();
@@ -145,88 +138,54 @@ namespace HgLib
                 }
             }
 
-            if (moved.Count > 0)
-            {
-                RenameFiles(moved.ToArray(), renamed.ToArray());
-            }
-
-            if (removed.Count > 0)
-            {
-                try
-                {
-                    BeginUpdate();
-                    Cache(Hg.RemoveFiles(removed.ToArray()));
-                }
-                finally
-                {
-                    EndUpdate();
-                }
-            }
-        }
-
-        public void RenameFiles(string[] oldFileNames, string[] newFileNames)
-        {
-            var oldNames = new List<string>();
-            var newNames = new List<string>();
-
-            lock (_cache)
-            {
-                for (int i = 0; i < oldFileNames.Length; i++)
-                {
-                    var oldName = oldFileNames[i];
-                    var newName = newFileNames[i];
-
-                    if (newName.EndsWith("\\") || oldName.ToLower() == newName.ToLower())
-                    {
-                        continue;
-                    }
-                 
-                    oldNames.Add(oldName);
-                    newNames.Add(newName);
-                    _cache.Remove(oldName);
-                    _cache.Remove(newName);
-                }
-            }
-
-            if (oldNames.Count > 0)
+            try
             {
                 BeginUpdate();
-                Hg.RenameFiles(oldNames.ToArray(), newNames.ToArray());
+
+                if (removed.Count > 0)
+                {
+                    Cache(Hg.RemoveFiles(removed.ToArray()));
+                }
+
+                if (moved.Count > 0)
+                {
+                    RenameFiles(moved.ToArray(), renamed.ToArray());
+                }
+            }
+            finally
+            {
                 EndUpdate();
             }
         }
 
+        public void RenameFiles(string[] fileNames, string[] newFileNames)
+        {
+            lock (_cache)
+            {
+                foreach (var fileName in fileNames)
+                {
+                    _cache.Remove(fileName);
+                }
+
+                foreach (var fileName in newFileNames)
+                {
+                    _cache.Remove(fileName);
+                }
+            }
+         
+            BeginUpdate();
+            Cache(Hg.RenameFiles(fileNames, newFileNames));
+            EndUpdate();
+        }
+
         public void UpdateFileStatus(string[] fileNames)
         {
-            Cache(Hg.GetFileStatus(fileNames));
+            Cache(Hg.GetFileInfo(fileNames));
         }
 
         public void UpdateRootStatus(string path)
         {
             Cache(Hg.GetRootStatus(path));
-        }
-
-
-        private string[] FilterIgnored(string[] fileNames)
-        {
-            var filtered = new List<string>();
-
-            lock (_cache)
-            {
-                foreach (var fileName in fileNames)
-                {
-                    HgFileInfo fileInfo = null;
-                    
-                    _cache.TryGetValue(fileName.ToLower(), out fileInfo);
-
-                    if (fileInfo != null && fileInfo.Status != HgFileStatus.Ignored)
-                    {
-                        filtered.Add(fileName);
-                    }
-                }
-            }
-
-            return filtered.ToArray();
         }
 
 
@@ -245,11 +204,6 @@ namespace HgLib
             _roots.TryGetValue(directory, out branch);
             
             return branch;
-        }
-
-        public bool GetFileInfo(string fileName, out HgFileInfo info)
-        {
-            return _cache.TryGetValue(fileName, out info);
         }
 
         public HgFileStatus GetFileStatus(string fileName)
@@ -296,21 +250,18 @@ namespace HgLib
         
         private void BeginUpdate()
         {
-            _updating = true;
+            _updatingLevel++;
         }
 
         private void EndUpdate()
         {
-            _updating = false;
+            _updatingLevel--;
         }
 
 
-        private void Cache(Dictionary<string, char> status)
+        private void Cache(HgFileInfo[] status)
         {
-            if (status != null)
-            {
-                _cache.Add(status);
-            }
+            _cache.Add(status);
         }
 
         private void UpdateCache()
@@ -378,7 +329,7 @@ namespace HgLib
             {
                 lock (_cache)
                 {
-                    Cache(Hg.GetFileStatus(dirtyFilesList.ToArray()));
+                    Cache(Hg.GetFileInfo(dirtyFilesList.ToArray()));
                 }
             }
 
@@ -418,7 +369,7 @@ namespace HgLib
                 try
                 {
                     BeginUpdate();
-                    Cache(Hg.GetFileStatus(dirtyFiles));
+                    Cache(Hg.GetFileInfo(dirtyFiles));
                 }
                 finally
                 {
@@ -453,14 +404,14 @@ namespace HgLib
 
         private bool PrepareDirtyFile(string fileName)
         {
-            if (Hg.IsDirectory(fileName))
+            if (HgProvider.IsDirectory(fileName))
             {
                 return false;
             }
 
             if (fileName.IndexOf(".hg\\dirstate") != -1)
             {
-                _cacheUpdateRequired = !_updating;
+                _cacheUpdateRequired = _updatingLevel == 0;
                 return false;
             }
             

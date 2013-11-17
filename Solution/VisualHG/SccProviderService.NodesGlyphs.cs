@@ -56,7 +56,6 @@ namespace VisualHg
             var imageIndex = ImageMapper.GetStatusIconIndex(status);
 
             icons[0] = (VsStateIcon)(_baseIndex + imageIndex);
-            statuses[0] = (uint)__SccStatus.SCC_STATUS_CONTROLLED;
 
             return VSConstants.S_OK;
         }

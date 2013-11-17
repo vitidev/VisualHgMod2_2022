@@ -15,8 +15,9 @@
         Copied = 0x100,
 
         Tracked = Modified | Removed | Clean | Missing | Renamed | Copied,
-        Different = Modified | Added | Removed | Missing | Renamed | Copied,
+        Pending = Modified | Added | Removed | Missing | Renamed | Copied,
         Comparable = Modified | Renamed | Copied,
         Deleted = Removed | Missing,
+        NotAdded = NotTracked | Ignored,
     };
 }

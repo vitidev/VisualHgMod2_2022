@@ -137,13 +137,8 @@ namespace VisualHg
 
             if (Configuration.Global.AutoAddFiles)
             {
-                HgFileInfo info;
-                Repository.GetFileInfo(rgpszMkDocuments[0], out info);
-
-                if (info == null || info.Status == HgFileStatus.Removed || info.Status == HgFileStatus.NotTracked)
-                {
-                    Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
-                }
+                Repository.Enqueue(new UpdateFileStatusHgCommand(rgpszMkDocuments));
+                Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
             }
 
             return VSConstants.S_OK;

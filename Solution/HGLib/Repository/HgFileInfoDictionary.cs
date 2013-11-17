@@ -7,7 +7,7 @@ namespace HgLib
 {
     public class HgFileInfoDictionary
     {
-        private Dictionary<string, HgFileInfo> _files = new Dictionary<string, HgFileInfo>();
+        private Dictionary<string, HgFileInfo> _files;
 
         public int Count
         {
@@ -25,27 +25,11 @@ namespace HgLib
 	    }
 
 
-        public void Add(Dictionary<string, char> newFiles)
+        public void Add(HgFileInfo[] files)
         {
-            var addedFiles = new Dictionary<string, bool>();
-
-            foreach (var k in newFiles)
+            foreach (var file in files)
             {
-                // detect case type dependend renames e.g. resource.h to Resource.h
-                if (k.Value == 'A')
-                {
-                    addedFiles[k.Key.ToLower()] = true;
-                }
-
-                if (k.Value == 'R' && addedFiles.ContainsKey(k.Key.ToLower()))
-                {
-                    // don't add this removed status because it comes from remove add sequence 
-                    // the file was renamed, so we skip this file status
-                }
-                else
-                {
-                    SetAt(k.Key, new HgFileInfo(k.Value, k.Key));
-                }
+                SetAt(file.FullName, file);
             }
         }
 
@@ -73,10 +57,7 @@ namespace HgLib
         public HgFileInfo[] GetPendingFiles()
         {
             return _files.Values
-                .Where(x => x.FullName != null &&
-                    x.Status != HgFileStatus.Clean &&
-                    x.Status != HgFileStatus.Ignored &&
-                    x.Status != HgFileStatus.NotTracked)
+                .Where(x => (x.Status & HgFileStatus.Pending) > 0)
                 .ToArray();
         }
 
