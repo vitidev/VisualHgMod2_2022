@@ -80,7 +80,7 @@ namespace HgLib
             try
             {
                 BeginUpdate();
-                Cache(Hg.AddFiles(fileNames));
+                Cache(Hg.AddFiles(fileNames, HgFileStatus.NotTracked));
             }
             finally
             {
