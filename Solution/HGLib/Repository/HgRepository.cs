@@ -110,10 +110,16 @@ namespace HgLib
                     _cache.Remove(fileName);
                 }
             }
-         
-            BeginUpdate();
-            Cache(Hg.RenameFiles(fileNames, newFileNames));
-            EndUpdate();
+
+            try
+            {
+                BeginUpdate();
+                Cache(Hg.RenameFiles(fileNames, newFileNames));
+            }
+            catch
+            {
+                EndUpdate();
+            }
         }
 
         public void UpdateFileStatus(string[] fileNames)
