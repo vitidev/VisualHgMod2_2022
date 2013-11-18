@@ -8,11 +8,11 @@ namespace HgLib
         private bool exists;
         private DateTime lastWriteTime;
         private HgFileStatus _status;
-        private HgFileInfo _originalFile;
 
 
         internal HgFileInfo OriginalFile { get; set; }
 
+        public string Root { get; private set; }
 
         public string Name { get; private set; }
 
@@ -40,7 +40,7 @@ namespace HgLib
         {
             get { return OriginalFile != null ? OriginalFile.FullName : FullName; }
         }
-        
+
         public bool HasChanged
         {
             get
@@ -53,7 +53,7 @@ namespace HgLib
                 try
                 {
                     var file = new FileInfo(FullName);
-                    
+
                     return exists != file.Exists || file.LastWriteTime != lastWriteTime;
                 }
                 catch
@@ -63,14 +63,18 @@ namespace HgLib
             }
         }
 
-
-        public HgFileInfo(string fileName, char status)
+        
+        public HgFileInfo(string root, string name, char status)
         {
-            FullName = fileName;
-            Name = Path.GetFileName(fileName);
-            _status = Hg.GetStatus(status);
+            Root = root;
+            Name = name;
+            _status = Hg.ConvertToStatus(status);
+            FullName = Path.Combine(root, name);
 
-            InitializeFileProperties(fileName);
+            if (Status != HgFileStatus.None && !StatusMatches(HgFileStatus.Deleted))
+            {
+                InitializeFileProperties(FullName);
+            }
         }
 
         private void InitializeFileProperties(string fileName)
@@ -92,6 +96,16 @@ namespace HgLib
         public bool StatusMatches(HgFileStatus pattern)
         {
             return Status == pattern || (Status & pattern) > 0;
+        }
+
+        public static HgFileInfo FromHgOutput(string root, string output)
+        {
+            return new HgFileInfo(root, output.Substring(2), output[0]);
+        }
+
+        public override string ToString()
+        {
+            return String.Concat(Status, ' ', Name);
         }
     }
 }

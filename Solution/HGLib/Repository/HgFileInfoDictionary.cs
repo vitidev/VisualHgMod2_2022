@@ -23,14 +23,10 @@ namespace HgLib
 
                 lock (SyncRoot)
                 {
-                    _files.TryGetValue(fileName.ToLower(), out fileInfo);
+                    _files.TryGetValue(fileName, out fileInfo);
                 }
 
                 return fileInfo;
-            }
-            private set
-            {
-                _files[fileName.ToLower()] = value;
             }
         }
 
@@ -38,7 +34,7 @@ namespace HgLib
         public HgFileInfoDictionary()
 	    {
             SyncRoot = new object();
-            _files = new Dictionary<string, HgFileInfo>();
+            _files = new Dictionary<string, HgFileInfo>(StringComparer.InvariantCultureIgnoreCase);
 	    }
 
 
@@ -48,7 +44,7 @@ namespace HgLib
             {
                 foreach (var file in files)
                 {
-                    this[file.FullName] = file;
+                    _files[file.FullName] = file;
                 }
             }
         }
@@ -65,7 +61,7 @@ namespace HgLib
         {
             lock (SyncRoot)
             {
-                _files.Remove(fileName.ToLower());
+                _files.Remove(fileName);
             }
         }
 

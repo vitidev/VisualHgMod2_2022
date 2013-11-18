@@ -27,7 +27,7 @@ namespace HgLib
         }
 
 
-        public static HgFileStatus GetStatus(char status)
+        public static HgFileStatus ConvertToStatus(char status)
         {
             switch (status)
             {
@@ -62,15 +62,15 @@ namespace HgLib
         {
             var originalName = "";
 
-            var fileStatus = GetRawFileInfo(newFileName);
-            var renames = GetRenames(fileStatus);
+            var fileInfo = GetRawFileInfo(newFileName);
+            var renames = GetRenames(fileInfo);
 
             renames.TryGetValue(newFileName, out originalName);
 
             return originalName;
         }
 
-
+        
         public static HgFileInfo[] GetRootStatus(string directory)
         {
             if (String.IsNullOrEmpty(directory))
@@ -103,14 +103,16 @@ namespace HgLib
 
         public static HgFileInfo[] RenameFiles(string[] fileNames, string[] newFileNames)
         {
-            for (int i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); ++i)
+            for (int i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); i++)
             {
                 var root = HgPath.FindRepositoryRoot(fileNames[i]);
 
                 var oldName = StripRoot(fileNames[i], root);
                 var newName = StripRoot(newFileNames[i], root);
 
-                RunHg(String.Format("rename -A \"{0}\" \"{1}\"", oldName, newName), root);
+                var option = StringComparer.InvariantCultureIgnoreCase.Equals(oldName, newName) ? null : " -A";
+                
+                RunHg(String.Format("rename {0} \"{1}\" \"{2}\"", option, oldName, newName), root);
             }
 
             return GetFileInfo(fileNames.Concat(newFileNames).ToArray());
@@ -119,9 +121,9 @@ namespace HgLib
 
         public static HgFileInfo[] GetFileInfo(params string[] fileNames)
         {
-            var rawFileStatus = GetRawFileInfo(fileNames);
+            var rawFileInfo = GetRawFileInfo(fileNames);
 
-            return DetectRenames(rawFileStatus);
+            return DetectRenames(rawFileInfo);
         }
 
         
@@ -200,7 +202,6 @@ namespace HgLib
         
         private static string[] ReadOutputFrom(Process process)
         {
-            var line = "";
             var outputLines = new List<string>();
 
             while (!process.StandardOutput.EndOfStream)
@@ -214,7 +215,7 @@ namespace HgLib
                 
         private static HgFileInfo[] ParseStatusOutput(string root, string[] output)
         {
-            return output.Select(x => new HgFileInfo(Path.Combine(root, x.Substring(2)), x[0])).ToArray();
+            return output.Select(x => HgFileInfo.FromHgOutput(root, x)).ToArray();
         }
 
         private static HgFileInfo[] DetectRenames(HgFileInfo[] files)
@@ -231,12 +232,27 @@ namespace HgLib
                 if (file != null)
                 {
                     file.OriginalFile = 
-                        files.FirstOrDefault(x => x.FullName == fileName) ??
+                        filteredFiles.FirstOrDefault(x => x.FullName == fileName) ??
                         GetRawFileInfo(fileName).FirstOrDefault();
                 }
             }
 
-            return filteredFiles;
+            return ExcludeCaseSensitiveRenames(filteredFiles);
+        }
+
+        private static HgFileInfo[] ExcludeCaseSensitiveRenames(HgFileInfo[] files)
+        {
+            var dictionary = new Dictionary<string, HgFileInfo>(StringComparer.InvariantCultureIgnoreCase);
+
+            foreach (var file in files)
+            {
+                if (!dictionary.ContainsKey(file.FullName) || dictionary[file.FullName].Status != HgFileStatus.Renamed || file.Status != HgFileStatus.Removed)
+                {
+                    dictionary[file.FullName] = file;
+                }
+            }
+
+            return dictionary.Values.ToArray();
         }
 
         private static Dictionary<string, string> GetRenames(HgFileInfo[] files)
