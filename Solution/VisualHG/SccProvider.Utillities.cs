@@ -27,7 +27,7 @@ namespace VisualHg
 
                     if (!String.IsNullOrEmpty(fileName))
                     {
-                        return HgProvider.FindRepositoryRoot(fileName);
+                        return HgPath.FindRepositoryRoot(fileName);
                     }
                 }
 
@@ -39,12 +39,12 @@ namespace VisualHg
         {
             get
             {
-                var root = HgProvider.FindRepositoryRoot(SolutionFileName);
+                var root = HgPath.FindRepositoryRoot(SolutionFileName);
 
                 // This is for WebPage projects. The solution file is not included inside the Hg root dir.
                 if (String.IsNullOrEmpty(root) && LastSeenProjectDirectory != null)
                 {
-                    return HgProvider.FindRepositoryRoot(LastSeenProjectDirectory);
+                    return HgPath.FindRepositoryRoot(LastSeenProjectDirectory);
                 }
 
                 return root;
@@ -317,7 +317,7 @@ namespace VisualHg
                 return false;
             }
 
-            if (HgProvider.IsDirectory(fileName))
+            if (HgPath.IsDirectory(fileName))
             {
                 return false;
             }

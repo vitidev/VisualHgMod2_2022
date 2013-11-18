@@ -54,7 +54,7 @@ namespace VisualHg
 
         public void ShowHistoryWindowPrivate(string fileName)
         {
-            var root = HgProvider.FindRepositoryRoot(fileName);
+            var root = HgPath.FindRepositoryRoot(fileName);
 
             if (!String.IsNullOrEmpty(root))
             {

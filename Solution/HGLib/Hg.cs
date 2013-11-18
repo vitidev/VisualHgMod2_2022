@@ -12,6 +12,21 @@ namespace HgLib
         private const int ArgumentsLengthLimit = 20000; // Maximum command length including executable path is 32767
 
 
+        public static string CreateParentRevisionTempFile(string fileName, string root)
+        {
+            var tempFileName = Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName) + " (base)");
+
+            File.Delete(tempFileName);
+
+            var command = String.Format("cat \"{0}\"  -o \"{1}\"", StripRoot(fileName, root), tempFileName);
+            RunHg(command, root);
+
+            Debug.Assert(File.Exists(tempFileName));
+
+            return tempFileName;
+        }
+
+
         public static HgFileStatus GetStatus(char status)
         {
             switch (status)
@@ -90,7 +105,7 @@ namespace HgLib
         {
             for (int i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); ++i)
             {
-                var root = HgProvider.FindRepositoryRoot(fileNames[i]);
+                var root = HgPath.FindRepositoryRoot(fileNames[i]);
 
                 var oldName = StripRoot(fileNames[i], root);
                 var newName = StripRoot(newFileNames[i], root);
@@ -136,7 +151,7 @@ namespace HgLib
         {
             var rootOutput = new Dictionary<string, string[]>();
 
-            foreach (var rootGroup in fileNames.GroupBy(x => HgProvider.FindRepositoryRoot(x)))
+            foreach (var rootGroup in fileNames.GroupBy(x => HgPath.FindRepositoryRoot(x)))
             {
                 var root = rootGroup.Key;
                 var output = new List<string>();
@@ -159,7 +174,7 @@ namespace HgLib
             var args = new List<string>();
             var sb = new StringBuilder();
 
-            foreach (var fileName in fileNames.Where(x => !HgProvider.IsDirectory(x)).Select(x => StripRoot(x, root)))
+            foreach (var fileName in fileNames.Where(x => !HgPath.IsDirectory(x)).Select(x => StripRoot(x, root)))
             {
                 if (sb.Length > ArgumentsLengthLimit - fileName.Length - 3)
                 {
@@ -178,7 +193,7 @@ namespace HgLib
 
         private static string[] RunHg(string args, string workingDirectory)
         {
-            var process = HgProvider.StartHg(args, workingDirectory);
+            var process = ProcessLauncher.StartHg(args, workingDirectory);
 
             return ReadOutputFrom(process);
         }

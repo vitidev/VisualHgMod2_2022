@@ -20,7 +20,7 @@ namespace HgLib
 
                 if (!String.IsNullOrEmpty(workingDirectory))
                 {
-                    return HgProvider.StartTortoiseHg(args, workingDirectory);
+                    return ProcessLauncher.StartTortoiseHg(args, workingDirectory);
                 }
             }
             catch { }
@@ -31,7 +31,7 @@ namespace HgLib
 
         public static void StartForEachRoot(string command, string[] files)
         {
-            foreach (var group in files.GroupBy(x => HgProvider.FindRepositoryRoot(x)))
+            foreach (var group in files.GroupBy(x => HgPath.FindRepositoryRoot(x)))
             {
                 if (String.IsNullOrEmpty(group.Key))
                 {
@@ -82,14 +82,14 @@ namespace HgLib
 
         public static Process StartDiff(string parent, string current, string customDiffTool)
         {
-            var workingDirectory = HgProvider.FindRepositoryRoot(current);
+            var workingDirectory = HgPath.FindRepositoryRoot(current);
 
             if (String.IsNullOrEmpty(workingDirectory))
             {
                 return null;
             }
 
-            var temp = CreateParentRevisionTempFile(parent, workingDirectory);
+            var temp = Hg.CreateParentRevisionTempFile(parent, workingDirectory);
 
             if (!String.IsNullOrEmpty(customDiffTool))
             {
@@ -99,37 +99,18 @@ namespace HgLib
             return StartKDiff(current, workingDirectory, temp);
         }
 
-        private static string CreateParentRevisionTempFile(string fileName, string root)
-        {
-            var tempFileName = GetTempFileName(fileName);
-
-            File.Delete(tempFileName);
-
-            var cmd = String.Format("cat \"{0}\"  -o \"{1}\"", fileName.Replace(root + "\\", ""), tempFileName);
-            HgProvider.StartHg(cmd, root).WaitForExit();
-
-            Debug.Assert(File.Exists(tempFileName));
-
-            return tempFileName;
-        }
-
-        private static string GetTempFileName(string fileName)
-        {
-            return Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName) + " (base)");
-        }
-
         private static Process StartKDiff(string current, string root, string temp)
         {
             var cmd = PrepareDiffCommand(temp, current, " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ");
 
-            return HgProvider.StartKDiff(cmd, root);
+            return ProcessLauncher.StartKDiff(cmd, root);
         }
 
         private static Process StartCustomDiff(string current, string customDiffTool, string temp)
         {
             var cmd = PrepareDiffCommand(temp, current, customDiffTool);
             
-            return HgProvider.Start(cmd, "", "");
+            return ProcessLauncher.Start(cmd, "", "");
         }
 
         private static string PrepareDiffCommand(string parent, string current, string commandMask)

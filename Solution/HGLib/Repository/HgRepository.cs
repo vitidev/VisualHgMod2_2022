@@ -95,7 +95,7 @@ namespace HgLib
                 return;
             }
 
-            var root = HgProvider.FindRepositoryRoot(directory);
+            var root = HgPath.FindRepositoryRoot(directory);
 
             if (String.IsNullOrEmpty(root) || _roots.ContainsKey(root))
             {
@@ -404,7 +404,7 @@ namespace HgLib
 
         private bool PrepareDirtyFile(string fileName)
         {
-            if (HgProvider.IsDirectory(fileName))
+            if (HgPath.IsDirectory(fileName))
             {
                 return false;
             }

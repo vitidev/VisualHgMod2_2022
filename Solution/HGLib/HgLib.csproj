@@ -60,7 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HgProvider.cs" />
+    <Compile Include="ProcessLauncher.cs" />
+    <Compile Include="HgPath.cs" />
     <Compile Include="Repository\DirectoryWatcher.cs" />
     <Compile Include="Repository\DirectoryWatcherMap.cs" />
     <Compile Include="Repository\HgFileInfo.cs" />

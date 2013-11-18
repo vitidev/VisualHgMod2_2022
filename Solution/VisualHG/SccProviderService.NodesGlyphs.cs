@@ -95,7 +95,7 @@ namespace VisualHg
             var status = Repository.GetFileStatus(files[0]);
             var statusName = Enum.IsDefined(typeof(HgFileStatus), status) ? status.ToString() : "";
 
-            var root = HgProvider.FindRepositoryRoot(files[0]);
+            var root = HgPath.FindRepositoryRoot(files[0]);
             var branch = Repository.GetDirectoryBranch(root);
 
             if (!String.IsNullOrEmpty(statusName) && !String.IsNullOrEmpty(branch))
