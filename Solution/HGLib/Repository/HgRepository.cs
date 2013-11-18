@@ -11,66 +11,67 @@ namespace HgLib
 {
     public class HgRepository
     {
-        public event EventHandler StatusChanged = (s, e) => { };
-        
         private const int UpdateInterval = 2000;
 
-        private int _updatingLevel;
-        private HgCommandQueue _commands;
-        private DirectoryWatcherMap _directoryWatchers;
-        private HgFileInfoDictionary _cache;
-        private Dictionary<string, string> _roots;
+        private int running;
+        private HgCommandQueue commands;
+        private DirectoryWatcherMap directoryWatchers;
+        private HgFileInfoDictionary cache;
+        private Dictionary<string, string> rootBranchDictionary;
 
-        private System.Timers.Timer _updateTimer;
-
-        private volatile bool _cacheUpdateRequired;
+        private bool cacheUpdateRequired;
+        
+        private System.Timers.Timer updateTimer;
 
 
         public bool IsEmpty
         {
-            get { return _directoryWatchers.Count == 0; }
-        }
-        
-        public bool CacheUpdateRequired
-        {
-            set { _cacheUpdateRequired = value; }
+            get { return directoryWatchers.Count == 0; }
         }
 
+        public HgFileInfo[] PendingFiles
+        {
+            get { return cache.PendingFiles; }
+        }
+        
         public bool FileSystemWatch
         {
-            set { _directoryWatchers.FileSystemWatch = value; }
+            set { directoryWatchers.FileSystemWatch = value; }
         }
+
+
+        public event EventHandler StatusChanged = (s, e) => { };
 
 
         public HgRepository()
         {
             Initialize();
 
-            _updateTimer.Start();
+            updateTimer.Start();
         }
 
         private void Initialize()
         {
-            _cache = new HgFileInfoDictionary();
-            _directoryWatchers = new DirectoryWatcherMap();
-            _commands = new HgCommandQueue();
-            _roots = new Dictionary<string, string>();
+            cache = new HgFileInfoDictionary();
+            directoryWatchers = new DirectoryWatcherMap();
+            commands = new HgCommandQueue();
+            rootBranchDictionary = new Dictionary<string, string>();
             
-            _updateTimer = new System.Timers.Timer
+            updateTimer = new System.Timers.Timer
             { 
                 AutoReset = false,
                 Interval = 100,
             };
 
-            _updateTimer.Elapsed += OnTimerElapsed;
+            updateTimer.Elapsed += OnTimerElapsed;
         }
 
 
         public void Enqueue(HgCommand command)
         {
-            lock (_commands)
+            lock (commands)
             {
-                _commands.Enqueue(command);
+                commands.Enqueue(command);
             }
         }
 
@@ -103,11 +104,11 @@ namespace HgLib
 
         internal void RenameFiles(string[] fileNames, string[] newFileNames)
         {
-            lock (_cache.SyncRoot)
+            lock (cache.SyncRoot)
             {
                 foreach (var fileName in fileNames.Concat(newFileNames))
                 {
-                    _cache.Remove(fileName);
+                    cache.Remove(fileName);
                 }
             }
 
@@ -136,8 +137,8 @@ namespace HgLib
                 return;
             }
 
-            _directoryWatchers.WatchDirectory(root);
-            _roots[root] = Hg.GetCurrentBranchName(root);
+            directoryWatchers.WatchDirectory(root);
+            rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
 
             Cache(Hg.GetRootStatus(root));
         }
@@ -145,9 +146,9 @@ namespace HgLib
 
         public string GetBranchNames()
         {
-            lock (_roots)
+            lock (rootBranchDictionary)
             {
-                return _roots.Count > 0 ? _roots.Values.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
+                return rootBranchDictionary.Count > 0 ? rootBranchDictionary.Values.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
             }
         }
 
@@ -155,55 +156,50 @@ namespace HgLib
         {
             var branch = "";
 
-            _roots.TryGetValue(directory, out branch);
+            rootBranchDictionary.TryGetValue(directory, out branch);
             
             return branch;
         }
 
         public HgFileStatus GetFileStatus(string fileName)
         {
-            var fileInfo = _cache[fileName];
+            var fileInfo = cache[fileName];
 
             return fileInfo != null ? fileInfo.Status : HgFileStatus.NotTracked;
-        }
-
-        public HgFileInfo[] GetPendingFiles()
-        {
-            return _cache.GetPendingFiles();
         }
 
 
         public void ClearCache()
         {
-            lock (_directoryWatchers.SyncRoot)
+            lock (directoryWatchers.SyncRoot)
             {
-                _directoryWatchers.UnsubscribeEvents();
-                _directoryWatchers.Clear();
+                directoryWatchers.UnsubscribeEvents();
+                directoryWatchers.Clear();
             }
 
-            lock (_roots)
+            lock (rootBranchDictionary)
             {
-                _roots.Clear();
+                rootBranchDictionary.Clear();
             }
 
-            _cache.Clear();
+            cache.Clear();
         }
 
         
         private void BeginUpdate()
         {
-            _updatingLevel++;
+            running++;
         }
 
         private void EndUpdate()
         {
-            _updatingLevel = Math.Max(0, _updatingLevel - 1);
+            running = Math.Max(0, running - 1);
         }
 
 
         private void Cache(HgFileInfo[] files)
         {
-            _cache.Add(files);
+            cache.Add(files);
         }
 
         private void UpdateCache()
@@ -212,15 +208,15 @@ namespace HgLib
             {
                 BeginUpdate();
 
-                _cacheUpdateRequired = false;
+                cacheUpdateRequired = false;
                 
-                _cache.Clear();
-                _directoryWatchers.DumpDirtyFiles();
+                cache.Clear();
+                directoryWatchers.DumpDirtyFiles();
 
-                foreach (var root in GetRoots().Where(x => !String.IsNullOrEmpty(x)))
+                foreach (var root in GetRoots())
                 {
                     Cache(Hg.GetRootStatus(root));
-                    _roots[root] = Hg.GetCurrentBranchName(root);
+                    rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
                 }
             }
             finally
@@ -229,16 +225,12 @@ namespace HgLib
             }
         }
 
-        private List<string> GetRoots()
+        private string[] GetRoots()
         {
-            List<string> roots = null;
-            
-            lock (_roots)
+            lock (rootBranchDictionary)
             {
-                roots = new List<string>(_roots.Keys);
+                return rootBranchDictionary.Keys.Where(x => !String.IsNullOrEmpty(x)).ToArray();
             }
-
-            return roots;
         }
                 
 
@@ -246,11 +238,11 @@ namespace HgLib
         {
             try
             {
-                var commands = _commands.DumpCommands();
+                var commandsToRun = commands.DumpCommands();
 
-                if (commands.Count > 0)
+                if (commandsToRun.Count > 0)
                 {
-                    RunCommands(commands);
+                    RunCommands(commandsToRun);
                 }
                 else
                 {
@@ -259,7 +251,7 @@ namespace HgLib
             }
             finally
             {
-                _updateTimer.Start();
+                updateTimer.Start();
             }
         }
 
@@ -275,13 +267,13 @@ namespace HgLib
 
         protected virtual void Update()
         {
-            long dirtyFilesCount = 0;
-            double elapsed = 0;
+            int dirtyFilesCount;
+            double elapsed;
 
-            lock (_directoryWatchers.SyncRoot)
+            lock (directoryWatchers.SyncRoot)
             {
-                dirtyFilesCount = _directoryWatchers.DirtyFilesCount;
-                elapsed = (DateTime.Now - _directoryWatchers.GetLatestChange()).TotalMilliseconds;
+                dirtyFilesCount = directoryWatchers.DirtyFilesCount;
+                elapsed = (DateTime.Now - directoryWatchers.LatestChange).TotalMilliseconds;
             }
 
             if (elapsed < UpdateInterval)
@@ -289,7 +281,7 @@ namespace HgLib
                 return;
             }
 
-            if (_cacheUpdateRequired || dirtyFilesCount > 200)
+            if (cacheUpdateRequired || dirtyFilesCount > 200)
             {
                 UpdateCache();
                 OnStatusChanged();
@@ -298,7 +290,7 @@ namespace HgLib
             {
                 var dirtyFiles = PrepareDirtyFiles();
 
-                if (_cacheUpdateRequired || dirtyFiles.Length == 0)
+                if (cacheUpdateRequired || dirtyFiles.Length == 0)
                 {
                     return;
                 }
@@ -312,14 +304,14 @@ namespace HgLib
         {
             var dirtyFiles = new List<string>();
 
-            foreach (var dirtyFile in _directoryWatchers.DumpDirtyFiles())
+            foreach (var dirtyFile in directoryWatchers.DumpDirtyFiles())
             {
                 if (!PrepareDirtyFile(dirtyFile))
                 {
                     continue;
                 }
    
-                if (_cacheUpdateRequired) // Can be set by PrepareWatchedFile
+                if (cacheUpdateRequired) // Can be set by PrepareWatchedFile
                 {
                     break;
                 }
@@ -339,7 +331,7 @@ namespace HgLib
 
             if (fileName.IndexOf(".hg\\dirstate") != -1)
             {
-                _cacheUpdateRequired = _updatingLevel == 0;
+                cacheUpdateRequired = running == 0;
                 return false;
             }
             
@@ -353,7 +345,7 @@ namespace HgLib
 
         private bool HasChanged(string fileName)
         {
-            var fileInfo = _cache[fileName];
+            var fileInfo = cache[fileName];
 
             return fileInfo == null || fileInfo.HasChanged;
         }

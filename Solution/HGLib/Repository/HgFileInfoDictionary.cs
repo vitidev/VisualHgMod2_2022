@@ -12,7 +12,26 @@ namespace HgLib
 
         public int Count
         {
-            get { return _files.Count; }
+            get
+            {
+                lock (SyncRoot)
+                {
+                    return _files.Count;
+                }
+            }
+        }
+
+        public HgFileInfo[] PendingFiles
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    return _files.Values
+                        .Where(x => x.StatusMatches(HgFileStatus.Pending))
+                        .ToArray();
+                }
+            }
         }
 
         public HgFileInfo this[string fileName]
@@ -62,16 +81,6 @@ namespace HgLib
             lock (SyncRoot)
             {
                 _files.Remove(fileName);
-            }
-        }
-
-        public HgFileInfo[] GetPendingFiles()
-        {
-            lock (SyncRoot)
-            {
-                return _files.Values
-                    .Where(x => x.StatusMatches(HgFileStatus.Pending))
-                    .ToArray();
             }
         }
     }

@@ -59,7 +59,7 @@ namespace VisualHg
 
         public void UpdatePendingChangesToolWindow()
         {
-            var pendingFiles = sccService.Repository.GetPendingFiles();
+            var pendingFiles = sccService.Repository.PendingFiles;
 
             PendingChangesToolWindow.SetFiles(pendingFiles);
         }

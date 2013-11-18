@@ -39,6 +39,27 @@ namespace HgLib
                 }
             }
         }
+        
+        public DateTime LatestChange
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    var latestChange = _watchers.Count > 0 ? DateTime.Today : DateTime.Now;
+
+                    foreach (var watcher in _watchers)
+                    {
+                        if (watcher.LastChange > latestChange)
+                        {
+                            latestChange = watcher.LastChange;
+                        }
+                    }
+
+                    return latestChange;
+                }
+            }
+        }
 
         public DirectoryWatcher[] Watchers
         {
@@ -136,24 +157,6 @@ namespace HgLib
             }
         }
 
-
-        public DateTime GetLatestChange()
-        {
-            lock (SyncRoot)
-            {
-                var latestChange = _watchers.Count > 0 ? DateTime.Today : DateTime.Now;
-                
-                foreach (var watcher in _watchers)
-                {
-                    if (watcher.LastChange > latestChange)
-                    {
-                        latestChange = watcher.LastChange;
-                    }
-                }
-
-                return latestChange;
-            }
-        }
 
         public string[] DumpDirtyFiles()
         {

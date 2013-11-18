@@ -92,8 +92,8 @@ namespace VisualHg
             Active = true;
 
             var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            
             Repository.UpdateSolution(solution);
-            Repository.CacheUpdateRequired = true;
 
             return VSConstants.S_OK;
         }
