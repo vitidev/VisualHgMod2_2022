@@ -90,43 +90,10 @@ namespace HgLib
         
         public void RemoveFiles(string[] fileNames)
         {
-            var moved = new List<string>();
-            var removed = new List<string>();
-            var renamed = new List<string>();
-
-            lock (_cache)
-            {
-                foreach (var fileName in fileNames)
-                {
-                    _cache.Remove(fileName);
-
-                    string newName;
-
-                    if (_cache.FileMoved(fileName, out newName))
-                    {
-                        moved.Add(fileName);
-                        renamed.Add(newName);
-                    }
-                    else
-                    {
-                        removed.Add(fileName);
-                    }
-                }
-            }
-
             try
             {
                 BeginUpdate();
-
-                if (removed.Count > 0)
-                {
-                    Cache(Hg.RemoveFiles(removed.ToArray()));
-                }
-
-                if (moved.Count > 0)
-                {
-                    RenameFiles(moved.ToArray(), renamed.ToArray());
-                }
+                Cache(Hg.RemoveFiles(fileNames));
             }
             finally
             {
@@ -136,14 +103,9 @@ namespace HgLib
 
         public void RenameFiles(string[] fileNames, string[] newFileNames)
         {
-            lock (_cache)
+            lock (_cache.SyncRoot)
             {
-                foreach (var fileName in fileNames)
-                {
-                    _cache.Remove(fileName);
-                }
-
-                foreach (var fileName in newFileNames)
+                foreach (var fileName in fileNames.Concat(newFileNames))
                 {
                     _cache.Remove(fileName);
                 }
@@ -194,23 +156,14 @@ namespace HgLib
 
         public HgFileStatus GetFileStatus(string fileName)
         {
-            bool found = false;
-            HgFileInfo value;
+            var fileInfo = _cache[fileName];
 
-            lock (_cache)
-            {
-                found = _cache.TryGetValue(fileName, out value);
-            }
-
-            return (found ? value.Status : HgFileStatus.NotTracked);
+            return fileInfo != null ? fileInfo.Status : HgFileStatus.NotTracked;
         }
 
         public HgFileInfo[] GetPendingFiles()
         {
-            lock (_cache)
-            {
-                return _cache.GetPendingFiles();
-            }
+            return _cache.GetPendingFiles();
         }
 
 
@@ -227,10 +180,7 @@ namespace HgLib
                 _roots.Clear();
             }
 
-            lock (_cache)
-            {
-                _cache.Clear();
-            }
+            _cache.Clear();
         }
 
         
@@ -245,9 +195,9 @@ namespace HgLib
         }
 
 
-        private void Cache(HgFileInfo[] status)
+        private void Cache(HgFileInfo[] files)
         {
-            _cache.Add(status);
+            _cache.Add(files);
         }
 
         private void UpdateCache()
@@ -313,10 +263,7 @@ namespace HgLib
 
             if (dirtyFilesList.Count > 0)
             {
-                lock (_cache)
-                {
-                    Cache(Hg.GetFileInfo(dirtyFilesList.ToArray()));
-                }
+                Cache(Hg.GetFileInfo(dirtyFilesList.ToArray()));
             }
 
             OnStatusChanged();
@@ -411,26 +358,9 @@ namespace HgLib
 
         private bool HasChanged(string fileName)
         {
-            var fileInfo = GetFileInfo(fileName);
+            var fileInfo = _cache[fileName];
 
-            if (fileInfo == null)
-            {
-                return true;
-            }
-            
-            return fileInfo.HasChanged;
-        }
-
-        private HgFileInfo GetFileInfo(string fileName)
-        {
-            HgFileInfo fileInfo = null;
-
-            lock (_cache)
-            {
-                _cache.TryGetValue(fileName, out fileInfo);
-            }
-
-            return fileInfo;
+            return fileInfo == null || fileInfo.HasChanged;
         }
 
 

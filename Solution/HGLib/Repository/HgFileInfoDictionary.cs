@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 namespace HgLib
 {
@@ -9,79 +8,75 @@ namespace HgLib
     {
         private Dictionary<string, HgFileInfo> _files;
 
+        public object SyncRoot { get; private set; }
+
         public int Count
         {
             get { return _files.Count; }
         }
 
-        public void Clear()
+        public HgFileInfo this[string fileName]
         {
-            _files.Clear();
+            get
+            {
+                HgFileInfo fileInfo = null;
+
+                lock (SyncRoot)
+                {
+                    _files.TryGetValue(fileName.ToLower(), out fileInfo);
+                }
+
+                return fileInfo;
+            }
+            private set
+            {
+                _files[fileName.ToLower()] = value;
+            }
         }
+
 
         public HgFileInfoDictionary()
 	    {
+            SyncRoot = new object();
             _files = new Dictionary<string, HgFileInfo>();
 	    }
 
 
         public void Add(HgFileInfo[] files)
         {
-            foreach (var file in files)
+            lock (SyncRoot)
             {
-                SetAt(file.FullName, file);
+                foreach (var file in files)
+                {
+                    this[file.FullName] = file;
+                }
             }
         }
 
-        public void Remove(string file)
+        public void Clear()
         {
-            _files.Remove(file.ToLower());
-        }
-
-        void SetAt(string file, HgFileInfo info)
-        {
-            _files[file.ToLower()] = info;
-        }
-
-        public bool TryGetValue(string fileName, out HgFileInfo info)
-        {
-            if (String.IsNullOrEmpty(fileName))
+            lock (SyncRoot)
             {
-                info = null;
-                return false;
+                _files.Clear();
             }
+        }
 
-            return _files.TryGetValue(fileName.ToLower(), out info);
+        public void Remove(string fileName)
+        {
+            lock (SyncRoot)
+            {
+                _files.Remove(fileName.ToLower());
+            }
         }
 
         public HgFileInfo[] GetPendingFiles()
         {
-            return _files.Values
-                .Where(x => x.StatusMatches(HgFileStatus.Pending))
-                .ToArray();
-        }
-
-        public bool FileMoved(string fileName, out string newName)
-        {
-            var root = HgPath.FindRepositoryRoot(fileName);
-            var name = Path.GetFileName(fileName);
-
-            foreach (var fileInfo in _files.Values.Where(x => x.StatusMatches(HgFileStatus.Added)))
+            lock (SyncRoot)
             {
-                if (name.Equals(fileInfo.Name, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    var root2 = HgPath.FindRepositoryRoot(fileInfo.FullName);
-
-                    if (root.Equals(root2, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        newName = fileInfo.FullName;
-                        return true;
-                    }
-                }
+                return _files.Values
+                    .Where(x => x.StatusMatches(HgFileStatus.Pending))
+                    .ToArray();
             }
-
-            newName = "";
-            return false;
         }
     }
 }
