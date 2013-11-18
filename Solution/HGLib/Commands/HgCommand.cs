@@ -4,6 +4,6 @@ namespace HgLib
 {
     public interface HgCommand
     {
-        void Run(HgRepository repo, List<string> dirtyFilesList);
+        void Run(HgRepository repo);
     }
 }

@@ -11,7 +11,7 @@ namespace HgLib
             _directory = directory;
         }
 
-        public void Run(HgRepository repo, List<string> dirtyFilesList)
+        public void Run(HgRepository repo)
         {
             repo.UpdateRootStatus(_directory);
         }

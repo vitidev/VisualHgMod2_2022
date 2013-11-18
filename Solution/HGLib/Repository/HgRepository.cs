@@ -75,7 +75,7 @@ namespace HgLib
         }
 
 
-        public void AddFiles(string[] fileNames)
+        internal void AddFiles(string[] fileNames)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace HgLib
             }
         }
         
-        public void RemoveFiles(string[] fileNames)
+        internal void RemoveFiles(string[] fileNames)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace HgLib
             }
         }
 
-        public void RenameFiles(string[] fileNames, string[] newFileNames)
+        internal void RenameFiles(string[] fileNames, string[] newFileNames)
         {
             lock (_cache.SyncRoot)
             {
@@ -122,12 +122,12 @@ namespace HgLib
             }
         }
 
-        public void UpdateFileStatus(string[] fileNames)
+        internal void UpdateFileStatus(string[] fileNames)
         {
             Cache(Hg.GetFileInfo(fileNames));
         }
 
-        public void UpdateRootStatus(string path)
+        internal void UpdateRootStatus(string path)
         {
             var root = HgPath.FindRepositoryRoot(path);
 
@@ -265,18 +265,11 @@ namespace HgLib
 
         private void RunCommands(HgCommandQueue commands)
         {
-            var dirtyFilesList = new List<string>();
-
             foreach (var command in commands)
             {
-                command.Run(this, dirtyFilesList);
+                command.Run(this);
             }
-
-            if (dirtyFilesList.Count > 0)
-            {
-                Cache(Hg.GetFileInfo(dirtyFilesList.ToArray()));
-            }
-
+            
             OnStatusChanged();
         }
 
@@ -310,16 +303,7 @@ namespace HgLib
                     return;
                 }
 
-                try
-                {
-                    BeginUpdate();
-                    Cache(Hg.GetFileInfo(dirtyFiles));
-                }
-                finally
-                {
-                    EndUpdate();
-                }
-                
+                UpdateFileStatus(dirtyFiles);
                 OnStatusChanged(dirtyFiles);
             }
         }

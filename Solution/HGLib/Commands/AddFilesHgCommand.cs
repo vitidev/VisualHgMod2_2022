@@ -12,7 +12,7 @@ namespace HgLib
             _fileNames = fileNames;
         }
 
-        public void Run(HgRepository repo, List<string> dirtyFilesList)
+        public void Run(HgRepository repo)
         {   
             repo.AddFiles(_fileNames);
         }
