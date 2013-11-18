@@ -47,7 +47,7 @@ namespace VisualHg
 
         public int GetSccGlyph(int count, string[] fileNames, VsStateIcon[] icons, uint[] statuses)
         {
-            if (count == 0)
+            if (count == 0 || String.IsNullOrEmpty(fileNames[0]))
             {
                 return VSConstants.S_OK;
             }
