@@ -6,24 +6,20 @@ namespace HgLib
 {
     public class DirectoryWatcher : IDisposable
     {
-        FileSystemWatcher _watcher;
-        List<string> _dirtyFiles;
-        DateTime _lastChange = DateTime.Today;
-        object _syncRoot;
+        private List<string> _dirtyFiles;
+        private FileSystemWatcher _watcher;
+
+        public object SyncRoot { get; private set; }
 
         public string Directory { get; private set; }
 
-        public DateTime LastChange
-        {
-            get { return _lastChange; }
-            set { _lastChange = value; }
-        }
+        public DateTime LastChange { get; private set; }
 
         public int DirtyFilesCount
         {
             get
             {
-                lock (_syncRoot)
+                lock (SyncRoot)
                 {
                     return _dirtyFiles.Count;
                 }
@@ -34,7 +30,7 @@ namespace HgLib
         {
             set
             {
-                lock (_syncRoot)
+                lock (SyncRoot)
                 {
                     _watcher.EnableRaisingEvents = value;
                 }
@@ -42,12 +38,12 @@ namespace HgLib
         }
 
 
-        public DirectoryWatcher(string directory)
+        public DirectoryWatcher(string directory, object syncRoot)
         {
+            SyncRoot = syncRoot;
             Directory = directory;
 
             _dirtyFiles = new List<string>();
-            _syncRoot = new object();
 
             _watcher = new FileSystemWatcher
             {
@@ -77,7 +73,7 @@ namespace HgLib
 
         public void UnsubscribeEvents()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 _watcher.EnableRaisingEvents = false;
                 _watcher.Changed -= OnChanged;
@@ -89,7 +85,7 @@ namespace HgLib
 
         public string[] DumpDirtyFiles()
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 var dump = _dirtyFiles.ToArray();
                 
@@ -118,7 +114,7 @@ namespace HgLib
 
         private void OnRenamed(object sender, RenamedEventArgs e)
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 AddDirtyFile(e.OldFullPath);
                 AddDirtyFile(e.FullPath);
@@ -127,7 +123,7 @@ namespace HgLib
 
         private void AddDirtyFile(string path)
         {
-            lock (_syncRoot)
+            lock (SyncRoot)
             {
                 if (!_dirtyFiles.Contains(path))
                 {

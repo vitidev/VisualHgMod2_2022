@@ -12,6 +12,7 @@ namespace HgLib
     public class HgRepository : IDisposable
     {
         private const int UpdateInterval = 2000;
+        private const int FullUpdateDirtyFilesLimit = 200;
 
         private int running;
         private HgCommandQueue commands;
@@ -19,7 +20,7 @@ namespace HgLib
         private HgFileInfoDictionary cache;
         private Dictionary<string, string> rootBranchDictionary;
 
-        private bool cacheUpdateRequired;
+        private bool updateRequired;
         
         private System.Timers.Timer updateTimer;
 
@@ -203,44 +204,12 @@ namespace HgLib
             running = Math.Max(0, running - 1);
         }
 
-
         private void Cache(HgFileInfo[] files)
         {
             cache.Add(files);
         }
 
-        private void UpdateCache()
-        {
-            try
-            {
-                BeginUpdate();
-
-                cacheUpdateRequired = false;
-                
-                cache.Clear();
-                directoryWatchers.DumpDirtyFiles();
-
-                foreach (var root in GetRoots())
-                {
-                    Cache(Hg.GetRootStatus(root));
-                    rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
-                }
-            }
-            finally
-            {
-                EndUpdate();
-            }
-        }
-
-        private string[] GetRoots()
-        {
-            lock (rootBranchDictionary)
-            {
-                return rootBranchDictionary.Keys.Where(x => !String.IsNullOrEmpty(x)).ToArray();
-            }
-        }
-                
-
+        
         private void OnTimerElapsed(object source, ElapsedEventArgs e)
         {
             try
@@ -262,6 +231,7 @@ namespace HgLib
             }
         }
 
+
         private void RunCommands(HgCommandQueue commands)
         {
             foreach (var command in commands)
@@ -272,7 +242,72 @@ namespace HgLib
             OnStatusChanged();
         }
 
+
         protected virtual void Update()
+        {
+            if (updateRequired)
+            {
+                UpdateAllRoots();
+            }
+            else
+            {
+                UpdateDirtyFiles();
+            }
+        }
+
+        private void UpdateAllRoots()
+        {
+            try
+            {
+                BeginUpdate();
+
+                updateRequired = false;
+                
+                cache.Clear();
+                directoryWatchers.DumpDirtyFiles();
+
+                foreach (var root in GetRoots())
+                {
+                    Cache(Hg.GetRootStatus(root));
+                    rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
+                }
+            }
+            finally
+            {
+                EndUpdate();
+            }
+
+            OnStatusChanged();
+        }
+
+        private string[] GetRoots()
+        {
+            lock (rootBranchDictionary)
+            {
+                return rootBranchDictionary.Keys.Where(x => !String.IsNullOrEmpty(x)).ToArray();
+            }
+        }
+
+        private void UpdateDirtyFiles()
+        {
+            if (CanIgnoreDirtyFiles())
+            {
+                return;
+            }
+
+            var dirtyFiles = directoryWatchers.DumpDirtyFiles();
+
+            if (HgDirstateChanged(dirtyFiles))
+            {
+                RequireFullUpdate();
+            }
+            else
+            {
+                UpdateDirtyFiles(dirtyFiles);
+            }
+        }
+
+        private bool CanIgnoreDirtyFiles()
         {
             int dirtyFilesCount;
             double elapsed;
@@ -283,62 +318,38 @@ namespace HgLib
                 elapsed = (DateTime.Now - directoryWatchers.LatestChange).TotalMilliseconds;
             }
 
-            if (elapsed < UpdateInterval)
+            return elapsed < UpdateInterval || dirtyFilesCount == 0;
+        }
+
+        private bool HgDirstateChanged(string[] dirtyFiles)
+        {
+            return dirtyFiles.Any(x => x.IndexOf(".hg\\dirstate") != -1);
+        }
+
+        private void UpdateDirtyFiles(string[] dirtyFiles)
+        {
+            var filteredDirtyFiles = dirtyFiles.Where(x => IsNotSpecial(x)).ToArray();
+
+            if (filteredDirtyFiles.Length > FullUpdateDirtyFilesLimit)
             {
-                return;
+                RequireFullUpdate();
             }
-
-            if (cacheUpdateRequired || dirtyFilesCount > 200)
+            else if (filteredDirtyFiles.Length > 0)
             {
-                UpdateCache();
-                OnStatusChanged();
-            }
-            else if (dirtyFilesCount > 0)
-            {
-                var dirtyFiles = PrepareDirtyFiles();
-
-                if (cacheUpdateRequired || dirtyFiles.Length == 0)
-                {
-                    return;
-                }
-
                 UpdateFileStatus(dirtyFiles);
                 OnStatusChanged(dirtyFiles);
             }
         }
 
-        private string[] PrepareDirtyFiles()
+        private void RequireFullUpdate()
         {
-            var dirtyFiles = new List<string>();
-
-            foreach (var dirtyFile in directoryWatchers.DumpDirtyFiles())
-            {
-                if (!PrepareDirtyFile(dirtyFile))
-                {
-                    continue;
-                }
-   
-                if (cacheUpdateRequired) // Can be set by PrepareWatchedFile
-                {
-                    break;
-                }
-
-                dirtyFiles.Add(dirtyFile);
-            }
-
-            return dirtyFiles.ToArray();
+            updateRequired = running == 0;
         }
 
-        private bool PrepareDirtyFile(string fileName)
+        private bool IsNotSpecial(string fileName)
         {
             if (HgPath.IsDirectory(fileName))
             {
-                return false;
-            }
-
-            if (fileName.IndexOf(".hg\\dirstate") != -1)
-            {
-                cacheUpdateRequired = running == 0;
                 return false;
             }
             

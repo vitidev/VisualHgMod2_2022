@@ -61,17 +61,6 @@ namespace HgLib
             }
         }
 
-        public DirectoryWatcher[] Watchers
-        {
-            get
-            {
-                lock (SyncRoot)
-                {
-                    return _watchers.ToArray();
-                }
-            }
-        }
-
         public bool FileSystemWatch
         {
             set
@@ -152,7 +141,7 @@ namespace HgLib
                         watcher.FileSystemWatch = false;
                     }
 
-                    _watchers.Add(new DirectoryWatcher(directory));
+                    _watchers.Add(new DirectoryWatcher(directory, SyncRoot));
                 }
             }
         }
@@ -169,7 +158,10 @@ namespace HgLib
 
         public string[] DumpDirtyFiles()
         {
-            return _watchers.SelectMany(x => x.DumpDirtyFiles()).ToArray(); // NOTE: DumpDirtyFiles has side effects
+            lock (SyncRoot)
+            {
+                return _watchers.SelectMany(x => x.DumpDirtyFiles()).ToArray(); // NOTE: DumpDirtyFiles has side effects
+            }
         }
 
         public void UnsubscribeEvents()
