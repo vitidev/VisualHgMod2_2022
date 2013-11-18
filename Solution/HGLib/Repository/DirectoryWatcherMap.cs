@@ -21,12 +21,22 @@ namespace HgLib
                 }
             }
         }
-
-        public void Clear()
+        
+        public int DirtyFilesCount
         {
-            lock (SyncRoot)
+            get
             {
-                _watchers.Clear();
+                lock (SyncRoot)
+                {
+                    var count = 0;
+
+                    foreach (var watcher in _watchers)
+                    {
+                        count += watcher.DirtyFilesCount;
+                    }
+
+                    return count;
+                }
             }
         }
 
@@ -118,6 +128,15 @@ namespace HgLib
         }
 
 
+        public void Clear()
+        {
+            lock (SyncRoot)
+            {
+                _watchers.Clear();
+            }
+        }
+
+
         public DateTime GetLatestChange()
         {
             lock (SyncRoot)
@@ -133,21 +152,6 @@ namespace HgLib
                 }
 
                 return latestChange;
-            }
-        }
-
-        public long GetNumberOfChangedFiles()
-        {
-            lock (SyncRoot)
-            {
-                long count = 0;
-
-                foreach (var watcher in _watchers)
-                {
-                    count += watcher.DirtyFilesCount;
-                }
-
-                return count;
             }
         }
 

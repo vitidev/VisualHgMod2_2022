@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Collections.Generic;
 
 namespace HgLib
 {
@@ -13,9 +14,9 @@ namespace HgLib
 
         public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            foreach (var fileName in _fileNames)
+            foreach (var root in _fileNames.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
-                repo.AddRootDirectory(fileName);
+                repo.UpdateRootStatus(root);
             }
             
             repo.AddFiles(_fileNames);

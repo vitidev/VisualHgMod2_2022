@@ -88,7 +88,7 @@ namespace VisualHg
 
         private void UpdateRootDirectory(string directory)
         {
-            Enqueue(new AddRootDirectoryHgCommand(directory));
+            Enqueue(new UpdateRootStatusHgCommand(directory));
         }
 
         private static string[] GetProjectDirectories(IVsSolution solution)

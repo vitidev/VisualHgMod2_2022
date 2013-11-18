@@ -88,30 +88,6 @@ namespace HgLib
             }
         }
         
-        public void AddRootDirectory(string directory)
-        {
-            if (String.IsNullOrEmpty(directory))
-            {
-                return;
-            }
-
-            var root = HgPath.FindRepositoryRoot(directory);
-
-            if (String.IsNullOrEmpty(root) || _roots.ContainsKey(root))
-            {
-                return;
-            }
-
-            _roots[root] = Hg.GetCurrentBranchName(root);
-
-            if (!_directoryWatchers.ContainsDirectory(root))
-            {
-                _directoryWatchers.WatchDirectory(root);
-            }
-
-            Cache(Hg.GetRootStatus(root));
-        }
-
         public void RemoveFiles(string[] fileNames)
         {
             var moved = new List<string>();
@@ -185,7 +161,17 @@ namespace HgLib
 
         public void UpdateRootStatus(string path)
         {
-            Cache(Hg.GetRootStatus(path));
+            var root = HgPath.FindRepositoryRoot(path);
+
+            if (String.IsNullOrEmpty(root))
+            {
+                return;
+            }
+
+            _directoryWatchers.WatchDirectory(root);
+            _roots[root] = Hg.GetCurrentBranchName(root);
+
+            Cache(Hg.GetRootStatus(root));
         }
 
 
@@ -255,7 +241,7 @@ namespace HgLib
 
         private void EndUpdate()
         {
-            _updatingLevel--;
+            _updatingLevel = Math.Max(0, _updatingLevel - 1);
         }
 
 
@@ -338,12 +324,12 @@ namespace HgLib
 
         protected virtual void Update()
         {
-            long numberOfChangedFiles = 0;
+            long dirtyFilesCount = 0;
             double elapsed = 0;
 
             lock (_directoryWatchers.SyncRoot)
             {
-                numberOfChangedFiles = _directoryWatchers.GetNumberOfChangedFiles();
+                dirtyFilesCount = _directoryWatchers.DirtyFilesCount;
                 elapsed = (DateTime.Now - _directoryWatchers.GetLatestChange()).TotalMilliseconds;
             }
 
@@ -352,12 +338,12 @@ namespace HgLib
                 return;
             }
 
-            if (_cacheUpdateRequired || numberOfChangedFiles > 200)
+            if (_cacheUpdateRequired || dirtyFilesCount > 200)
             {
                 UpdateCache();
                 OnStatusChanged();
             }
-            else if (numberOfChangedFiles > 0)
+            else if (dirtyFilesCount > 0)
             {
                 var dirtyFiles = PrepareDirtyFiles();
 
@@ -420,10 +406,10 @@ namespace HgLib
                 return false;
             }
             
-            return IsDirty(fileName);
+            return HasChanged(fileName);
         }
 
-        private bool IsDirty(string fileName)
+        private bool HasChanged(string fileName)
         {
             var fileInfo = GetFileInfo(fileName);
 

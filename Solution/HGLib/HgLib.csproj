@@ -71,9 +71,8 @@
     <Compile Include="Hg.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\HgCommandQueue.cs" />
-    <Compile Include="Commands\UpdateRootStatusHgCommand.cs" />
     <Compile Include="Commands\UpdateFileStatusHgCommand.cs" />
-    <Compile Include="Commands\AddRootDirectoryHgCommand.cs" />
+    <Compile Include="Commands\UpdateRootStatusHgCommand.cs" />
     <Compile Include="Commands\AddFilesHgCommand.cs" />
     <Compile Include="Commands\RemoveFilesHgCommand.cs" />
     <Compile Include="Commands\RenameFilesHgCommand.cs" />

@@ -4,16 +4,16 @@ namespace HgLib
 {
     public class UpdateRootStatusHgCommand : HgCommand
     {
-        private string _root;
-
-        public UpdateRootStatusHgCommand(string root)
+        private string _directory;
+        
+        public UpdateRootStatusHgCommand(string directory)
         {
-            _root = root;
+            _directory = directory;
         }
 
         public void Run(HgRepository repo, List<string> dirtyFilesList)
         {
-            repo.UpdateRootStatus(_root);
+            repo.UpdateRootStatus(_directory);
         }
     }
 }
