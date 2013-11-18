@@ -21,7 +21,7 @@ namespace HgLib
         private HgFileInfoDictionary _cache;
         private Dictionary<string, string> _roots;
 
-        private System.Timers.Timer _timer;
+        private System.Timers.Timer _updateTimer;
 
         private volatile bool _cacheUpdateRequired;
 
@@ -46,7 +46,7 @@ namespace HgLib
         {
             Initialize();
 
-            _timer.Start();
+            _updateTimer.Start();
         }
 
         private void Initialize()
@@ -56,13 +56,13 @@ namespace HgLib
             _commands = new HgCommandQueue();
             _roots = new Dictionary<string, string>();
             
-            _timer = new System.Timers.Timer
+            _updateTimer = new System.Timers.Timer
             { 
                 AutoReset = false,
                 Interval = 100,
             };
 
-            _timer.Elapsed += OnTimerElapsed;
+            _updateTimer.Elapsed += OnTimerElapsed;
         }
 
 
@@ -238,18 +238,23 @@ namespace HgLib
 
         private void OnTimerElapsed(object source, ElapsedEventArgs e)
         {
-            var commands = _commands.DumpCommands();
-            
-            if (commands.Count > 0)
+            try
             {
-                RunCommands(commands);
-            }
-            else
-            {
-                Update();
-            }
+                var commands = _commands.DumpCommands();
 
-            _timer.Start();
+                if (commands.Count > 0)
+                {
+                    RunCommands(commands);
+                }
+                else
+                {
+                    Update();
+                }
+            }
+            finally
+            {
+                _updateTimer.Start();
+            }
         }
 
         private void RunCommands(HgCommandQueue commands)
