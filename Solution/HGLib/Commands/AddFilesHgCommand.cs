@@ -13,12 +13,7 @@ namespace HgLib
         }
 
         public void Run(HgRepository repo, List<string> dirtyFilesList)
-        {
-            foreach (var root in _fileNames.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
-            {
-                repo.UpdateRootStatus(root);
-            }
-            
+        {   
             repo.AddFiles(_fileNames);
         }
     }

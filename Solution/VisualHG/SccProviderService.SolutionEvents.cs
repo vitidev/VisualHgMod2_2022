@@ -54,22 +54,19 @@ namespace VisualHg
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
         {
             var project = pHierarchy as IVsSccProject2;
-            var files = Repository.AddSolutionFiles(files);
+                        
+            var files = Repository.AddSolutionFiles(pHierarchy);
+
+            foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
+            {
+                Repository.Enqueue(new UpdateRootStatusHgCommand(root));
+            }
 
             if (Configuration.Global.AutoAddFiles)
             {
                 Repository.Enqueue(new AddFilesHgCommand(files));
             }
-            else
-            {
-                Repository.Enqueue(new UpdateFileStatusHgCommand(files));
-            }
             
-            if (project != null)
-            {
-                Repository.UpdateProject(project);
-            }
-
             _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(pHierarchy);
 
             return VSConstants.S_OK;

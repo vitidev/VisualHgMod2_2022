@@ -90,7 +90,7 @@ namespace HgLib
 
             if (filesToAdd.Length == 0)
             {
-                return null;
+                return new HgFileInfo[0];
             }
 
             return ProcessFilesAndGetStatus("add", filesToAdd);
