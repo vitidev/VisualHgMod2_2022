@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HgLib
 {
-    public class DirectoryWatcherMap
+    public class DirectoryWatcherMap : IDisposable
     {
         List<DirectoryWatcher> _watchers;
         
@@ -91,6 +91,15 @@ namespace HgLib
         {
             _watchers = new List<DirectoryWatcher>();
             SyncRoot = new object();
+        }
+
+
+        public void Dispose()
+        {
+            foreach (var watcher in _watchers)
+            {
+                watcher.Dispose();
+            }
         }
 
 

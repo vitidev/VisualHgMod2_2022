@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace HgLib
 {
-    public class HgRepository
+    public class HgRepository : IDisposable
     {
         private const int UpdateInterval = 2000;
 
@@ -64,6 +64,13 @@ namespace HgLib
             };
 
             updateTimer.Elapsed += OnTimerElapsed;
+        }
+
+        
+        public void Dispose()
+        {
+            updateTimer.Dispose();
+            directoryWatchers.Dispose();
         }
 
 
