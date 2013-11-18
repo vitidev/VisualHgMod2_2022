@@ -219,13 +219,12 @@ namespace HgLib
 
         private static HgFileInfo[] DetectRenames(HgFileInfo[] files)
         {
-            var renames = GetRenames(files);
             var filteredFiles = files.Where(x => x.Status != HgFileStatus.None).ToArray();
             
-            foreach (var item in renames)
+            foreach (var item in GetRenames(files))
             {
-                var newFileName = item.Key;
                 var fileName = item.Value;
+                var newFileName = item.Key;
 
                 var file = filteredFiles.FirstOrDefault(x => x.FullName == newFileName);
 
@@ -243,22 +242,17 @@ namespace HgLib
         private static Dictionary<string, string> GetRenames(HgFileInfo[] files)
         {
             var renames = new Dictionary<string, string>();
-            
-            var newFileName = default(string);
-            var newStatus = HgFileStatus.None;
+      
+            var newFile = files.FirstOrDefault();
 
             foreach (var file in files)
             {
-                var fileName = file.FullName;
-                var status = file.Status;
-
-                if (newStatus == HgFileStatus.Added && status == HgFileStatus.None)
+                if (newFile.Status == HgFileStatus.Added && file.Status == HgFileStatus.None)
                 {
-                    renames.Add(newFileName, fileName);
+                    renames.Add(newFile.FullName, file.FullName);
                 }
 
-                newFileName = fileName;
-                newStatus = status;
+                newFile = file;
             }
 
             return renames;

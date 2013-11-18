@@ -5,77 +5,93 @@ namespace HgLib
 {
     public class HgFileInfo
     {
-        private long length;
+        private bool exists;
         private DateTime lastWriteTime;
+        private HgFileStatus _status;
         private HgFileInfo _originalFile;
 
 
-        internal HgFileInfo OriginalFile
-        {
-            get { return _originalFile; }
-            set
-            {
-                _originalFile = value;
-
-                if (_originalFile != null)
-                {
-                    Status = File.Exists(_originalFile.FullName) ? HgFileStatus.Copied : HgFileStatus.Renamed;
-                }
-            }
-        }
+        internal HgFileInfo OriginalFile { get; set; }
 
 
         public string Name { get; private set; }
 
         public string FullName { get; private set; }
 
-        public HgFileStatus Status { get; private set; }
+        public HgFileStatus Status
+        {
+            get
+            {
+                if (OriginalFile != null)
+                {
+                    return OriginalFile.exists ? HgFileStatus.Copied : HgFileStatus.Renamed;
+                }
+
+                return _status;
+            }
+        }
 
         public string OriginalName
         {
-            get { return _originalFile != null ? _originalFile.Name : Name; }
+            get { return OriginalFile != null ? OriginalFile.Name : Name; }
         }
 
         public string OriginalFullName
         {
-            get { return _originalFile != null ? _originalFile.FullName : FullName; }
+            get { return OriginalFile != null ? OriginalFile.FullName : FullName; }
         }
         
         public bool HasChanged
         {
             get
             {
-                if (Status == HgFileStatus.Removed || Status == HgFileStatus.NotTracked)
+                if (StatusMatches(HgFileStatus.NotAdded))
                 {
                     return false;
                 }
 
-                var file = new FileInfo(FullName);
-
-                return !file.Exists || file.Length != length || file.LastWriteTime != lastWriteTime;
+                try
+                {
+                    var file = new FileInfo(FullName);
+                    
+                    return exists != file.Exists || file.LastWriteTime != lastWriteTime;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 
 
         public HgFileInfo(string fileName, char status)
         {
-            var file = new FileInfo(fileName);
-            
             FullName = fileName;
             Name = Path.GetFileName(fileName);
-            Status = Hg.GetStatus(status);
+            _status = Hg.GetStatus(status);
 
-            if (file.Exists)
+            InitializeFileProperties(fileName);
+        }
+
+        private void InitializeFileProperties(string fileName)
+        {
+            try
             {
-                length = file.Length;
-                lastWriteTime = file.LastWriteTime;
+                var file = new FileInfo(fileName);
+
+                if (file.Exists)
+                {
+                    exists = true;
+                    lastWriteTime = file.LastWriteTime;
+                }
             }
+            catch { }
         }
 
 
-        public bool StatusMatches(HgFileStatus status)
+        public bool StatusMatches(HgFileStatus pattern)
         {
-            return (Status & status) > 0;
+            return Status == pattern || (Status & pattern) > 0;
         }
     }
 }

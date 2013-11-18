@@ -248,37 +248,37 @@ namespace VisualHg
             return FileStatusMatches(fileName, HgFileStatus.Pending);
         }
         
-        private bool SearchAnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren = false)
+        private bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren = false)
         {
             if (Configuration.Global.EnableContextSearch)
             {
-                return AnySelectedFileStatusMatches(status, includeChildren);
+                return AnySelectedFileStatusMatches(pattern, includeChildren);
             }
 
             return true;
         }
 
-        private bool AnySelectedFileStatusMatches(HgFileStatus status, bool includeChildren)
+        private bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
         {
             if (includeChildren)
             {
-                return GetSelectedItems().Any(x => ItemOrChildrenStatusMatches(x, status));
+                return GetSelectedItems().Any(x => ItemOrChildrenStatusMatches(x, pattern));
             }
             
-            return GetSelectedItems().Any(x => ItemStatusMatches(x, status));
+            return GetSelectedItems().Any(x => ItemStatusMatches(x, pattern));
         }
 
-        private bool ItemOrChildrenStatusMatches(VSITEMSELECTION item, HgFileStatus status)
+        private bool ItemOrChildrenStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
-            if (ItemStatusMatches(item, status))
+            if (ItemStatusMatches(item, pattern))
             {
                 return true;
             }
 
-            return AnyChildItemStatusMatches(item, status);
+            return AnyChildItemStatusMatches(item, pattern);
         }
 
-        private bool AnyChildItemStatusMatches(VSITEMSELECTION item, HgFileStatus status)
+        private bool AnyChildItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
             var project = item.pHier as IVsProject;
 
@@ -288,29 +288,29 @@ namespace VisualHg
             }
 
             return GetProjectItemIds(item.pHier, item.itemid).
-                Any(x => ItemStatusMatches(x, project, status));
+                Any(x => ItemStatusMatches(x, project, pattern));
         }
 
-        private bool ItemStatusMatches(VSITEMSELECTION item, HgFileStatus status)
+        private bool ItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
             var fileName = GetItemFileName(item);
 
-            return FileStatusMatches(fileName, status);
+            return FileStatusMatches(fileName, pattern);
         }
 
-        private bool ItemStatusMatches(uint itemId, IVsProject project, HgFileStatus status)
+        private bool ItemStatusMatches(uint itemId, IVsProject project, HgFileStatus pattern)
         {
             var fileName = GetItemFileName(project, itemId);
 
-            return FileStatusMatches(fileName, status);
+            return FileStatusMatches(fileName, pattern);
         }
 
-        private bool SelectedFileStatusMatches(HgFileStatus status)
+        private bool SelectedFileStatusMatches(HgFileStatus pattern)
         {
-            return FileStatusMatches(SelectedFile, status);
+            return FileStatusMatches(SelectedFile, pattern);
         }
 
-        private bool FileStatusMatches(string fileName, HgFileStatus status)
+        private bool FileStatusMatches(string fileName, HgFileStatus pattern)
         {
             if (String.IsNullOrEmpty(fileName))
             {
@@ -322,9 +322,9 @@ namespace VisualHg
                 return false;
             }
 
-            var fileStatus = sccService.GetFileStatus(fileName);
+            var status = sccService.GetFileStatus(fileName);
 
-            return (int)(status & fileStatus) > 0;
+            return (status & pattern) > 0;
         }
         
  

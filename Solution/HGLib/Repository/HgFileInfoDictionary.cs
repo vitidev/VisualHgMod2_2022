@@ -57,7 +57,7 @@ namespace HgLib
         public HgFileInfo[] GetPendingFiles()
         {
             return _files.Values
-                .Where(x => (x.Status & HgFileStatus.Pending) > 0)
+                .Where(x => x.StatusMatches(HgFileStatus.Pending))
                 .ToArray();
         }
 
@@ -66,7 +66,7 @@ namespace HgLib
             var root = HgPath.FindRepositoryRoot(fileName);
             var name = Path.GetFileName(fileName);
 
-            foreach (var fileInfo in _files.Values.Where(x => x.Status == HgFileStatus.Added))
+            foreach (var fileInfo in _files.Values.Where(x => x.StatusMatches(HgFileStatus.Added)))
             {
                 if (name.Equals(fileInfo.Name, StringComparison.CurrentCultureIgnoreCase))
                 {
