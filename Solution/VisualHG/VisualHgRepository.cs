@@ -30,15 +30,20 @@ namespace VisualHg
         }
 
 
-        public void AddSolutionFiles(string[] fileNames)
+        public string[] AddSolutionFiles(IVsHierarchy hierarchy)
         {
+            var project = hierarchy as IVsSccProject2;
+            var files = SccProvider.GetProjectFiles(project);
+
             lock (_solutionFiles)
             {
-                foreach (var fileName in fileNames)
+                foreach (var fileName in files)
                 {
                     _solutionFiles.Add(fileName.ToLower());
                 }
             }
+
+            return files;
         }
 
         public void ClearSolutionFiles()

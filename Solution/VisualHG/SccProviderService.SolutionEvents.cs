@@ -54,21 +54,15 @@ namespace VisualHg
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
         {
             var project = pHierarchy as IVsSccProject2;
+            var files = Repository.AddSolutionFiles(files);
 
-            var files = SccProvider.GetProjectFiles(project);
-
-            if (files.Length > 0)
+            if (Configuration.Global.AutoAddFiles)
             {
-                Repository.AddSolutionFiles(files);
-
-                if (Configuration.Global.AutoAddFiles)
-                {
-                    Repository.Enqueue(new AddFilesHgCommand(files));
-                }
-                else
-                {
-                    Repository.Enqueue(new UpdateFileStatusHgCommand(files));
-                }
+                Repository.Enqueue(new AddFilesHgCommand(files));
+            }
+            else
+            {
+                Repository.Enqueue(new UpdateFileStatusHgCommand(files));
             }
             
             if (project != null)
@@ -77,7 +71,6 @@ namespace VisualHg
             }
 
             _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(pHierarchy);
-
 
             return VSConstants.S_OK;
         }
@@ -137,7 +130,6 @@ namespace VisualHg
 
             if (Configuration.Global.AutoAddFiles)
             {
-                Repository.Enqueue(new UpdateFileStatusHgCommand(rgpszMkDocuments));
                 Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
             }
 
@@ -157,6 +149,7 @@ namespace VisualHg
         public int OnQueryRemoveFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, [Out] VSQUERYREMOVEFILERESULTS[] pSummaryResult, [Out] VSQUERYREMOVEFILERESULTS[] rgResults)
         {
             Repository.FileSystemWatch = false;
+
             return VSConstants.S_OK;
         }
 
@@ -216,6 +209,5 @@ namespace VisualHg
         {
             return VSConstants.E_NOTIMPL;
         }
-
     }
 }
