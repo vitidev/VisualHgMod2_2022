@@ -9,31 +9,28 @@ namespace VisualHg
     [Guid(Guids.OptionsPage)]
     public class SccProviderOptions : DialogPage
     {
-        private SccProviderOptionsControl _optionsControl;
+        private SccProviderOptionsControl control;
 
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         protected override IWin32Window Window
         {
-            get { return _optionsControl; }
+            get { return control; }
         }
 
         public SccProviderOptions()
         {
-            _optionsControl = new SccProviderOptionsControl();
+            control = new SccProviderOptionsControl();
         }
 
         protected override void OnActivate(CancelEventArgs e)
         {
             base.OnActivate(e);
-         
-            _optionsControl.Configuration = Configuration.Global;
+            control.Configuration = Configuration.Global;
         }
 
         protected override void OnApply(PageApplyEventArgs e)
         {
+            Configuration.Global = control.Configuration;
             base.OnApply(e);
-            
-            Configuration.Global = _optionsControl.Configuration;
         }
     }
 }

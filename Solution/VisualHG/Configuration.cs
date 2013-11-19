@@ -1,25 +1,15 @@
-﻿namespace VisualHg
+﻿using System;
+using System.IO;
+
+namespace VisualHg
 {
     public class Configuration
     {
-        private static Configuration _global;
-
-        public static Configuration Global
-        {
-            get { return _global ?? (_global = LoadConfiguration()); }
-            set
-            {
-                _global = value;
-                StoreConfiguration(_global);
-            }
-        }
-
-
         public bool AutoActivatePlugin { get; set; }
 
         public bool AutoAddFiles { get; set; }
 
-        public bool EnableContextSearch { get; set; }
+        public bool SearchIncludingChildren { get; set; }
 
         public string ExternalDiffToolCommandMask { get; set; }
 
@@ -28,23 +18,38 @@
         {
             AutoActivatePlugin = true;
             AutoAddFiles = true;
-            EnableContextSearch = true;
+            SearchIncludingChildren = true;
             ExternalDiffToolCommandMask = "";
         }
 
+        
+        private static Configuration _global;
+
+        public static Configuration Global
+        {
+            get { return _global ?? (_global = LoadConfiguration()); }
+            set
+            {
+                _global = value;
+                SaveConfiguration(_global);
+            }
+        }
+
+
+        private static string configurationPath = Path.Combine
+               (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                @"VisualHg2\Configuration.xml");
 
         private static Configuration LoadConfiguration()
         {
-            var configuration = new Configuration();
-            
-            RegistryTool.LoadProperties("Configuration", configuration);
-            
-            return configuration;
+            return Serializer.Deserialize<Configuration>(configurationPath) ?? new Configuration();
         }
 
-        private static void StoreConfiguration(Configuration configuration)
+        private static void SaveConfiguration(Configuration configuration)
         {
-            RegistryTool.StoreProperties("Configuration", configuration);
+            Directory.CreateDirectory(Path.GetDirectoryName(configurationPath));
+
+            Serializer.Serialize(configurationPath, configuration);
         }
     }
 }

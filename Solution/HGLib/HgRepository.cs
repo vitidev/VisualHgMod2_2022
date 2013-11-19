@@ -129,8 +129,17 @@ namespace HgLib
             }
             finally
             {
+                RestartUpdateTimer();
+            }
+        }
+
+        private void RestartUpdateTimer()
+        {
+            try
+            {
                 updateTimer.Start();
             }
+            catch (ObjectDisposedException) { }
         }
 
 

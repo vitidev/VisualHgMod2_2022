@@ -23,7 +23,7 @@ namespace VisualHg
                 return new Configuration {
                     AutoActivatePlugin = autoActivateCheckBox.Checked,
                     AutoAddFiles = autoAddFilesCheckBox.Checked,
-                    EnableContextSearch = enableContextSearchCheckBox.Checked,
+                    SearchIncludingChildren = enableContextSearchCheckBox.Checked,
                     ExternalDiffToolCommandMask = diffToolTemplateTextBox.Text,
                 };
             }
@@ -31,7 +31,7 @@ namespace VisualHg
             {
                 autoActivateCheckBox.Checked = value.AutoActivatePlugin;
                 autoAddFilesCheckBox.Checked = value.AutoAddFiles;
-                enableContextSearchCheckBox.Checked = value.EnableContextSearch;
+                enableContextSearchCheckBox.Checked = value.SearchIncludingChildren;
                 diffToolTemplateTextBox.Text = value.ExternalDiffToolCommandMask;
             }
         }

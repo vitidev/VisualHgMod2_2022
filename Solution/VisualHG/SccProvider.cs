@@ -8,7 +8,6 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    [DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\9.0Exp")]
     [InstalledProductRegistration(false, "#100", "#101", "1.1.5", IconResourceID = 400)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideMenuResource(1000, 1)]

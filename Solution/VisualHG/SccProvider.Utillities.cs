@@ -249,7 +249,7 @@ namespace VisualHg
 
         private bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
-            return AnySelectedFileStatusMatches(pattern, Configuration.Global.EnableContextSearch);
+            return AnySelectedFileStatusMatches(pattern, Configuration.Global.SearchIncludingChildren);
         }
 
         private bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
