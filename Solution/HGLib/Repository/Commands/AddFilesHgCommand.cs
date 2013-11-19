@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HgLib.Repository.Commands
 {
-    public class AddFilesHgCommand : HgCommand
+    internal class AddFilesHgCommand : HgCommand
     {
         private string[] _fileNames;
 
@@ -12,9 +12,9 @@ namespace HgLib.Repository.Commands
             _fileNames = fileNames;
         }
 
-        public void Run(HgRepositoryBase repo)
+        public void Run(HgRepository repo)
         {   
-            repo.AddFiles(_fileNames);
+            repo.AddFilesInternal(_fileNames);
         }
     }
 }

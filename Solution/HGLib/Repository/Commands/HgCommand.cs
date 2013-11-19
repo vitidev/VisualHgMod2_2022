@@ -4,6 +4,6 @@ namespace HgLib.Repository.Commands
 {
     public interface HgCommand
     {
-        void Run(HgRepositoryBase repo);
+        void Run(HgRepository repo);
     }
 }

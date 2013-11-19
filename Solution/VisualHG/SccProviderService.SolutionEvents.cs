@@ -59,12 +59,12 @@ namespace VisualHg
 
             foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
-                Repository.Enqueue(new UpdateRootStatusHgCommand(root));
+                Repository.UpdateRootStatus(root);
             }
 
             if (Configuration.Global.AutoAddFiles)
             {
-                Repository.Enqueue(new AddFilesHgCommand(files));
+                Repository.AddFiles(files);
             }
             
             _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(pHierarchy);
@@ -127,7 +127,7 @@ namespace VisualHg
 
             if (Configuration.Global.AutoAddFiles)
             {
-                Repository.Enqueue(new AddFilesHgCommand(rgpszMkDocuments));
+                Repository.AddFiles(rgpszMkDocuments);
             }
 
             return VSConstants.S_OK;
@@ -161,7 +161,7 @@ namespace VisualHg
 
             if (!File.Exists(rgpszMkDocuments[0]))
             {
-                Repository.Enqueue(new RemoveFilesHgCommand(rgpszMkDocuments));
+                Repository.RemoveFiles(rgpszMkDocuments);
             }
 
             return VSConstants.S_OK;
@@ -187,7 +187,7 @@ namespace VisualHg
         public int OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)
         {
             Repository.FileSystemWatch = true;
-            Repository.Enqueue(new RenameFilesHgCommand(rgszMkOldNames, rgszMkNewNames));
+            Repository.RenameFiles(rgszMkOldNames, rgszMkNewNames);
             
             return VSConstants.S_OK;
         }

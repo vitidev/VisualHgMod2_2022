@@ -11,9 +11,9 @@ namespace HgLib.Repository.Commands
             _fileNames = fileNames;
         }
 
-        public void Run(HgRepositoryBase repo)
+        public void Run(HgRepository repo)
         {
-            repo.RemoveFiles(_fileNames);
+            repo.RemoveFilesInternal(_fileNames);
         }
     }
 }

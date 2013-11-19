@@ -13,9 +13,9 @@ namespace HgLib.Repository.Commands
             _newFileNames = newFileNames;
         }
 
-        public void Run(HgRepositoryBase repo)
+        public void Run(HgRepository repo)
         {
-            repo.RenameFiles(_fileNames, _newFileNames);
+            repo.RenameFilesInternal(_fileNames, _newFileNames);
         }
     }
 }

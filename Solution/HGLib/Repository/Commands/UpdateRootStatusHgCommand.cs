@@ -11,9 +11,9 @@ namespace HgLib.Repository.Commands
             _directory = directory;
         }
 
-        public void Run(HgRepositoryBase repo)
+        public void Run(HgRepository repo)
         {
-            repo.UpdateRootStatus(_directory);
+            repo.UpdateRootStatusInternal(_directory);
         }
     }
 }

@@ -40,6 +40,58 @@ namespace HgLib
         }
 
 
+        public void AddFiles(params string[] fileNames)
+        {
+            Enqueue(new AddFilesHgCommand(fileNames));
+        }
+
+        public void RemoveFiles(params string[] fileNames)
+        {
+            Enqueue(new RemoveFilesHgCommand(fileNames));
+        }
+
+        public void RenameFiles(string[] fileNames, string[] newFileNames)
+        {
+            Enqueue(new RenameFilesHgCommand(fileNames, newFileNames));
+        }
+
+        public void UpdateFileStatus(params string[] fileNames)
+        {
+            Enqueue(new UpdateFileStatusHgCommand(fileNames));
+        }
+
+        public void UpdateRootStatus(string path)
+        {
+            Enqueue(new UpdateRootStatusHgCommand(path));
+        }
+
+
+        internal void AddFilesInternal(string[] fileNames)
+        {
+            AddFilesProtected(fileNames);
+        }
+
+        internal void RemoveFilesInternal(string[] fileNames)
+        {
+            RemoveFilesProtected(fileNames);
+        }
+
+        internal void RenameFilesInternal(string[] fileNames, string[] newFileNames)
+        {
+            RenameFilesProtected(fileNames, newFileNames);
+        }
+
+        internal void UpdateFileStatusInternal(string[] fileNames)
+        {
+            UpdateFileStatusProtected(fileNames);
+        }
+
+        internal void UpdateRootStatusInternal(string path)
+        {
+            UpdateRootStatusProtected(path);
+        }
+
+
         public void Dispose()
         {
             updateTimer.Dispose();
@@ -59,11 +111,6 @@ namespace HgLib
             base.Clear();
         }
 
-        public void Enqueue(HgCommand command)
-        {
-            commands.Enqueue(command);
-        }
-        
 
         private void OnTimerElapsed(object source, ElapsedEventArgs e)
         {
@@ -86,6 +133,11 @@ namespace HgLib
             }
         }
 
+
+        private void Enqueue(HgCommand command)
+        {
+            commands.Enqueue(command);
+        }
 
         private void RunCommands(HgCommand[] commands)
         {
@@ -128,7 +180,7 @@ namespace HgLib
 
                 foreach (var root in Roots)
                 {
-                    UpdateRootStatus(root);
+                    UpdateRootStatusProtected(root);
                 }
             }
             finally
@@ -185,7 +237,7 @@ namespace HgLib
             }
             else if (filesToUpdate.Length > 0)
             {
-                UpdateFileStatus(dirtyFiles);
+                UpdateFileStatusProtected(dirtyFiles);
                 OnStatusChanged(dirtyFiles);
             }
         }

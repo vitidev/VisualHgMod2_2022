@@ -41,28 +41,28 @@ namespace HgLib
         }
 
 
-        internal void AddFiles(string[] fileNames)
+        protected void AddFilesProtected(string[] fileNames)
         {
             Cache(Hg.AddFiles(fileNames, HgFileStatus.NotTracked));
         }
 
-        internal void RemoveFiles(string[] fileNames)
+        protected void RemoveFilesProtected(string[] fileNames)
         {
             Cache(Hg.RemoveFiles(fileNames));
         }
 
-        internal void RenameFiles(string[] fileNames, string[] newFileNames)
+        protected void RenameFilesProtected(string[] fileNames, string[] newFileNames)
         {
             cache.Remove(fileNames.Concat(newFileNames));
             Cache(Hg.RenameFiles(fileNames, newFileNames));
         }
 
-        internal void UpdateFileStatus(string[] fileNames)
+        protected void UpdateFileStatusProtected(string[] fileNames)
         {
             Cache(Hg.GetFileInfo(fileNames));
         }
 
-        internal void UpdateRootStatus(string path)
+        protected void UpdateRootStatusProtected(string path)
         {
             var root = HgPath.FindRepositoryRoot(path);
 

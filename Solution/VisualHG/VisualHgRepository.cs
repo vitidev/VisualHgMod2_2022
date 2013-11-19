@@ -81,20 +81,15 @@ namespace VisualHg
         {
             foreach (var directory in GetProjectDirectories(solution))
             {
-                UpdateRootDirectory(directory);
+                UpdateRootStatus(directory);
             }
         }
 
         public void UpdateProject(IVsSccProject2 project)
         {
-            UpdateRootDirectory(SccProvider.GetDirectoryName((IVsHierarchy)project));
+            UpdateRootStatus(SccProvider.GetDirectoryName((IVsHierarchy)project));
         }
 
-
-        private void UpdateRootDirectory(string directory)
-        {
-            Enqueue(new UpdateRootStatusHgCommand(directory));
-        }
 
         private static string[] GetProjectDirectories(IVsSolution solution)
         {

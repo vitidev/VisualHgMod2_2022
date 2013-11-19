@@ -164,7 +164,7 @@ namespace VisualHg
                         File.SetAttributes(pszMkDocument, (attribures & ~FileAttributes.ReadOnly));
                     }
 
-                    Repository.Enqueue(new UpdateFileStatusHgCommand(new [] { pszMkDocument }));
+                    Repository.UpdateFileStatus(pszMkDocument);
                 }
                 catch { }
             }
@@ -176,7 +176,7 @@ namespace VisualHg
 
         public int QuerySaveFiles(uint rgfQuerySave, int cFiles, string[] rgpszMkDocuments, uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
         {
-            Repository.Enqueue(new UpdateFileStatusHgCommand(rgpszMkDocuments));
+            Repository.UpdateFileStatus(rgpszMkDocuments);
 
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
 
