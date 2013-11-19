@@ -9,6 +9,15 @@ namespace HgLib
 {
     public static class TortoiseHg
     {
+        public static string Version { get; private set; }
+
+
+        static TortoiseHg()
+        {
+            Version = ProcessLauncher.RunTortoiseHg("version", "").FirstOrDefault();
+        }
+
+
         public static void ShowCommitWindow(string directory)
         {
             Start("commit", directory);
@@ -66,24 +75,15 @@ namespace HgLib
             }
         }
 
-        
+
         private static Process Start(string args, string workingDirectory)
         {
-            try
+            while (!Directory.Exists(workingDirectory) && workingDirectory.Length > 0)
             {
-                while (!Directory.Exists(workingDirectory) && workingDirectory.Length > 0)
-                {
-                    workingDirectory = workingDirectory.Substring(0, workingDirectory.LastIndexOf('\\'));
-                }
-
-                if (!String.IsNullOrEmpty(workingDirectory))
-                {
-                    return ProcessLauncher.StartTortoiseHg(args, workingDirectory);
-                }
+                workingDirectory = workingDirectory.Substring(0, workingDirectory.LastIndexOf('\\'));
             }
-            catch { }
-            
-            return null;
+
+            return ProcessLauncher.StartTortoiseHg(args, workingDirectory);
         }
 
 
@@ -140,37 +140,39 @@ namespace HgLib
         }
 
 
-        private static Process StartDiff(string parent, string current, string customDiffTool)
+        private static void StartDiff(string parent, string current, string customDiffTool)
         {
             var workingDirectory = HgPath.FindRepositoryRoot(current);
 
             if (String.IsNullOrEmpty(workingDirectory))
             {
-                return null;
+                return;
             }
 
             var temp = Hg.CreateParentRevisionTempFile(parent, workingDirectory);
 
             if (!String.IsNullOrEmpty(customDiffTool))
             {
-                return StartCustomDiff(current, customDiffTool, temp);
+                StartCustomDiff(current, customDiffTool, temp);
             }
-
-            return StartKDiff(current, workingDirectory, temp);
+            else
+            {
+                StartKDiff(current, workingDirectory, temp);
+            }
         }
 
-        private static Process StartKDiff(string current, string root, string temp)
+        private static void StartKDiff(string current, string root, string temp)
         {
             var cmd = PrepareDiffCommand(temp, current, " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ");
 
-            return ProcessLauncher.StartKDiff(cmd, root);
+            ProcessLauncher.StartKDiff(cmd, root);
         }
 
-        private static Process StartCustomDiff(string current, string customDiffTool, string temp)
+        private static void StartCustomDiff(string current, string customDiffTool, string temp)
         {
             var cmd = PrepareDiffCommand(temp, current, customDiffTool);
             
-            return ProcessLauncher.Start(cmd, "", "");
+            ProcessLauncher.Start(cmd, "", "");
         }
 
         private static string PrepareDiffCommand(string parent, string current, string commandMask)

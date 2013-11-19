@@ -11,6 +11,13 @@ namespace HgLib
     {
         private const int ArgumentsLengthLimit = 20000; // Maximum command length including executable path is 32767
 
+        public static string Version { get; private set; }
+
+        static Hg()
+        {
+            Version = ProcessLauncher.RunHg("version", "").FirstOrDefault();
+        }
+
 
         public static string CreateParentRevisionTempFile(string fileName, string root)
         {
@@ -19,13 +26,13 @@ namespace HgLib
             File.Delete(tempFileName);
 
             var command = String.Format("cat \"{0}\"  -o \"{1}\"", StripRoot(fileName, root), tempFileName);
-            RunHg(command, root);
+            Run(command, root);
 
             Debug.Assert(File.Exists(tempFileName));
 
             return tempFileName;
         }
-
+        
 
         public static HgFileStatus ConvertToStatus(char status)
         {
@@ -55,7 +62,7 @@ namespace HgLib
 
         public static string GetCurrentBranchName(string root)
         {
-            return RunHg("branch", root).FirstOrDefault() ?? "";
+            return Run("branch", root).FirstOrDefault() ?? "";
         }
 
         public static string GetRenamedFileOriginalName(string newFileName)
@@ -78,7 +85,7 @@ namespace HgLib
                 return new HgFileInfo[0];
             }
 
-            var output = RunHg("status -m -a -r -d -c -C", directory);
+            var output = Run("status -m -a -r -d -c -C", directory);
 
             return DetectRenames(ParseStatusOutput(directory, output));
         }
@@ -112,7 +119,7 @@ namespace HgLib
 
                 var option = StringComparer.InvariantCultureIgnoreCase.Equals(oldName, newName) ? null : " -A";
                 
-                RunHg(String.Format("rename {0} \"{1}\" \"{2}\"", option, oldName, newName), root);
+                Run(String.Format("rename {0} \"{1}\" \"{2}\"", option, oldName, newName), root);
             }
 
             return GetFileInfo(fileNames.Concat(newFileNames).ToArray());
@@ -160,7 +167,7 @@ namespace HgLib
 
                 foreach (var fileArgs in GetFileArguments(root, rootGroup))
                 {
-                    var commandOutput = RunHg(String.Concat(command, fileArgs), root);
+                    var commandOutput = Run(String.Concat(command, fileArgs), root);
 
                     output.AddRange(commandOutput);
                 }
@@ -193,23 +200,9 @@ namespace HgLib
         }
 
 
-        private static string[] RunHg(string args, string workingDirectory)
+        private static string[] Run(string args, string workingDirectory)
         {
-            var process = ProcessLauncher.StartHg(args, workingDirectory);
-
-            return ReadOutputFrom(process);
-        }
-        
-        private static string[] ReadOutputFrom(Process process)
-        {
-            var outputLines = new List<string>();
-
-            while (!process.StandardOutput.EndOfStream)
-            {
-                outputLines.Add(process.StandardOutput.ReadLine());
-            }
-
-            return outputLines.ToArray();
+            return ProcessLauncher.RunHg(args, workingDirectory);
         }
 
                 
