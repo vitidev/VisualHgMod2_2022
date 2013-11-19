@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using HgLib;
@@ -16,35 +17,6 @@ namespace VisualHg
             if (filesToCommit.Length > 0)
             {
                 TortoiseHg.ShowCommitWindow(filesToCommit);
-            }
-        }
-
-        public void ShowDiffWindow(string fileName)
-        {
-            SaveAllFiles();
-
-            if (String.IsNullOrEmpty(fileName))
-            {
-                return;
-            }
-
-            var parent = GetOriginalFileName(fileName);
-
-            if (String.IsNullOrEmpty(parent))
-            {
-                return;
-            }
-
-            try
-            {
-                TortoiseHg.ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
-            }
-            catch
-            {
-                if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
-                {
-                    MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
             }
         }
 
@@ -69,7 +41,58 @@ namespace VisualHg
             TortoiseHg.ShowHistoryWindow(originalFileName);
         }
 
-        
+
+        public void ShowDiffWindow(string fileName)
+        {
+            SaveAllFiles();
+
+            var root = HgPath.FindRepositoryRoot(fileName);
+            var parent = GetOriginalFileName(fileName);
+            var temp = Hg.CreateParentRevisionTempFile(parent, root);
+            
+            var diffTool = GetDiffTool();
+
+            diffTool.Exited += (s, e) => DeleteFile(temp);
+
+            diffTool.Start(temp, fileName, root);
+        }
+
+        private static void DeleteFile(string file)
+        {
+            File.Delete(file);
+        }
+
+        private static DiffTool GetDiffTool()
+        {
+            if (String.IsNullOrEmpty(Configuration.Global.DiffToolPath))
+            {
+                return GetKDiff();
+            }
+         
+            return new DiffTool
+            {
+                FileName = Configuration.Global.DiffToolPath,
+                Arguments = Configuration.Global.DiffToolArguments,
+            };
+        }
+
+        private static DiffTool GetKDiff()
+        {
+            var args = Configuration.Global.DiffToolArguments;
+
+            if (String.IsNullOrEmpty(args))
+            {
+                args = "%PathA% --fname %NameA%  %PathB% --fname %NameB%";
+            }
+
+            return new DiffTool
+            {
+                FileName = HgPath.KDiffExecutable,
+                Arguments = args,
+            };
+        }
+
+
         private string GetOriginalFileName(string fileName)
         {
             if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))

@@ -11,7 +11,9 @@ namespace VisualHg
 
         public bool SearchIncludingChildren { get; set; }
 
-        public string ExternalDiffToolCommandMask { get; set; }
+        public string DiffToolPath { get; set; }
+
+        public string DiffToolArguments { get; set; }
 
 
         public Configuration()
@@ -19,7 +21,8 @@ namespace VisualHg
             AutoActivatePlugin = true;
             AutoAddFiles = true;
             SearchIncludingChildren = true;
-            ExternalDiffToolCommandMask = "";
+            DiffToolPath = "";
+            DiffToolArguments = "";
         }
 
         
@@ -51,5 +54,6 @@ namespace VisualHg
 
             Serializer.Serialize(configurationPath, configuration);
         }
+
     }
 }

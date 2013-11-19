@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 
 namespace HgLib
 {
@@ -28,10 +29,6 @@ namespace HgLib
             return Start(HgPath.HgExecutable, args, workingDirectory);
         }
 
-        internal static Process StartKDiff(string args, string workingDirectory)
-        {
-            return Start(HgPath.KDiffExecutable, args, workingDirectory);
-        }
 
         internal static Process Start(string executable, string args, string workingDirectory)
         {

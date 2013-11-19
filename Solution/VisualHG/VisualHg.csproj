@@ -106,6 +106,7 @@
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="DiffTool.cs" />
     <Compile Include="IdleNotifier.cs" />
     <Compile Include="ImageMapper.cs" />
     <Compile Include="SccProvider.Commands.cs" />
@@ -130,12 +131,6 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="SccProviderService.cs" />
-    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\OptionsPage\SelectDiffToolTemplateDialog.Designer.cs">
-      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\PendingChangesWindow\HgFileInfoListViewItem.cs" />
     <Compile Include="UI\PendingChangesWindow\HgFileInfoComparer.cs" />
     <Compile Include="UI\PendingChangesWindow\HgFileInfoListView.cs">
@@ -159,9 +154,6 @@
     <EmbeddedResource Include="UI\OptionsPage\SccProviderOptionsControl.resx">
       <DependentUpon>SccProviderOptionsControl.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\OptionsPage\SelectDiffToolTemplateDialog.resx">
-      <DependentUpon>SelectDiffToolTemplateDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\PendingChangesWindow\PendingChangesControl.resx">
       <DependentUpon>PendingChangesControl.cs</DependentUpon>

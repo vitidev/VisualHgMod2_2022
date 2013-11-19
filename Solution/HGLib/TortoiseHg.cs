@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace HgLib
 {
@@ -51,11 +50,6 @@ namespace HgLib
         public static void ShowCommitWindow(string[] files)
         {
             StartForEachRoot("commit ", files);
-        }
-
-        public static void ShowDiffWindow(string parent, string current, string customDiffTool)
-        {
-            StartDiff(parent, current, customDiffTool);
         }
 
         public static void ShowRevertWindow(string[] files)
@@ -137,65 +131,6 @@ namespace HgLib
         private static string GetRandomTemporaryFileName()
         {
             return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        }
-
-
-        private static void StartDiff(string parent, string current, string customDiffTool)
-        {
-            var workingDirectory = HgPath.FindRepositoryRoot(current);
-
-            if (String.IsNullOrEmpty(workingDirectory))
-            {
-                return;
-            }
-
-            var temp = Hg.CreateParentRevisionTempFile(parent, workingDirectory);
-
-            if (!String.IsNullOrEmpty(customDiffTool))
-            {
-                StartCustomDiff(current, customDiffTool, temp);
-            }
-            else
-            {
-                StartKDiff(current, workingDirectory, temp);
-            }
-        }
-
-        private static void StartKDiff(string current, string root, string temp)
-        {
-            var cmd = PrepareDiffCommand(temp, current, " \"$(Base)\" --fname \"$(BaseName)\" \"$(Mine)\" --fname \"$(MineName)\" ");
-
-            ProcessLauncher.StartKDiff(cmd, root);
-        }
-
-        private static void StartCustomDiff(string current, string customDiffTool, string temp)
-        {
-            var cmd = PrepareDiffCommand(temp, current, customDiffTool);
-            
-            ProcessLauncher.Start(cmd, "", "");
-        }
-
-        private static string PrepareDiffCommand(string parent, string current, string commandMask)
-        {
-            var programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-            var programFiles    = programFilesX86;
-            var index = programFiles.IndexOf(" (x86)");
-
-            if (index > 0)
-            {
-                programFiles = programFiles.Substring(0, index);
-            }
-                
-            var command = commandMask;
-            
-            command = command.Replace("$(ProgramFiles (x86))", programFilesX86);
-            command = command.Replace("$(ProgramFiles)", programFiles);
-            command = command.Replace("$(Base)", parent);
-            command = command.Replace("$(Mine)", current);
-            command = command.Replace("$(BaseName)", Path.GetFileName(parent));
-            command = command.Replace("$(MineName)", Path.GetFileName(current));
-            
-            return command;
         }
     }
 }
