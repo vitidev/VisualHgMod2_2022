@@ -29,7 +29,7 @@ namespace VisualHg
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
-            Repository.ClearCache();
+            Repository.Clear();
             _sccProvider.LastSeenProjectDirectory = "";
             
             UpdatePendingChangesToolWindow();

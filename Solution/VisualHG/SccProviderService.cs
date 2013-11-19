@@ -238,7 +238,10 @@ namespace VisualHg
 
         private void UpdateMainWindowTitle()
         {
-            _sccProvider.UpdateMainWindowCaption(Repository.GetBranchNames());
+            var branches = Repository.Branches;
+            var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
+
+            _sccProvider.UpdateMainWindowCaption(text);
         }
 
 

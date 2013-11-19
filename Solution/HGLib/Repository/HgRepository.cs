@@ -14,12 +14,12 @@ namespace HgLib
         private const int UpdateInterval = 2000;
         private const int FullUpdateDirtyFilesLimit = 200;
 
-        private int running;
+        private HgFileInfoDictionary cache;
         private HgCommandQueue commands;
         private DirectoryWatcherMap directoryWatchers;
-        private HgFileInfoDictionary cache;
-        private Dictionary<string, string> rootBranchDictionary;
+        private HgRootDictionary roots;
 
+        private int ignoreRequireUpdate;
         private bool updateRequired;
         
         private System.Timers.Timer updateTimer;
@@ -28,6 +28,11 @@ namespace HgLib
         public bool IsEmpty
         {
             get { return directoryWatchers.Count == 0; }
+        }
+
+        public string[] Branches
+        {
+            get { return roots.Branches; }
         }
 
         public HgFileInfo[] PendingFiles
@@ -54,9 +59,9 @@ namespace HgLib
         private void Initialize()
         {
             cache = new HgFileInfoDictionary();
-            directoryWatchers = new DirectoryWatcherMap();
             commands = new HgCommandQueue();
-            rootBranchDictionary = new Dictionary<string, string>();
+            directoryWatchers = new DirectoryWatcherMap();
+            roots = new HgRootDictionary();
             
             updateTimer = new System.Timers.Timer
             { 
@@ -145,28 +150,16 @@ namespace HgLib
                 return;
             }
 
+            roots.Update(root);
             directoryWatchers.WatchDirectory(root);
-            rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
 
             Cache(Hg.GetRootStatus(root));
         }
 
 
-        public string GetBranchNames()
+        public string GetBranch(string path)
         {
-            lock (rootBranchDictionary)
-            {
-                return rootBranchDictionary.Count > 0 ? rootBranchDictionary.Values.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
-            }
-        }
-
-        public string GetDirectoryBranch(string directory)
-        {
-            var branch = "";
-
-            rootBranchDictionary.TryGetValue(directory, out branch);
-            
-            return branch;
+            return roots.GetBranch(path);
         }
 
         public HgFileStatus GetFileStatus(string fileName)
@@ -177,31 +170,22 @@ namespace HgLib
         }
 
 
-        public void ClearCache()
+        public void Clear()
         {
-            lock (directoryWatchers.SyncRoot)
-            {
-                directoryWatchers.UnsubscribeEvents();
-                directoryWatchers.Clear();
-            }
-
-            lock (rootBranchDictionary)
-            {
-                rootBranchDictionary.Clear();
-            }
-
+            directoryWatchers.Clear();
             cache.Clear();
+            roots.Clear();
         }
 
         
         private void BeginUpdate()
         {
-            running++;
+            ignoreRequireUpdate++;
         }
 
         private void EndUpdate()
         {
-            running = Math.Max(0, running - 1);
+            ignoreRequireUpdate = Math.Max(0, ignoreRequireUpdate - 1);
         }
 
         private void Cache(HgFileInfo[] files)
@@ -266,10 +250,10 @@ namespace HgLib
                 cache.Clear();
                 directoryWatchers.DumpDirtyFiles();
 
-                foreach (var root in GetRoots())
+                foreach (var root in roots.Roots)
                 {
+                    roots.Update(root);
                     Cache(Hg.GetRootStatus(root));
-                    rootBranchDictionary[root] = Hg.GetCurrentBranchName(root);
                 }
             }
             finally
@@ -278,14 +262,6 @@ namespace HgLib
             }
 
             OnStatusChanged();
-        }
-
-        private string[] GetRoots()
-        {
-            lock (rootBranchDictionary)
-            {
-                return rootBranchDictionary.Keys.Where(x => !String.IsNullOrEmpty(x)).ToArray();
-            }
         }
 
         private void UpdateDirtyFiles()
@@ -343,7 +319,7 @@ namespace HgLib
 
         private void RequireFullUpdate()
         {
-            updateRequired = running == 0;
+            updateRequired = (ignoreRequireUpdate == 0);
         }
 
         private bool IsNotSpecial(string fileName)

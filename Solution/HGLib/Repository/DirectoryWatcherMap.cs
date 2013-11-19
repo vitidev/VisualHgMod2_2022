@@ -151,7 +151,16 @@ namespace HgLib
         {
             lock (SyncRoot)
             {
+                UnsubscribeEvents();
                 _watchers.Clear();
+            }
+        }
+        
+        private void UnsubscribeEvents()
+        {
+            foreach (var watcher in _watchers)
+            {
+                watcher.UnsubscribeEvents();
             }
         }
 
@@ -161,17 +170,6 @@ namespace HgLib
             lock (SyncRoot)
             {
                 return _watchers.SelectMany(x => x.DumpDirtyFiles()).ToArray(); // NOTE: DumpDirtyFiles has side effects
-            }
-        }
-
-        public void UnsubscribeEvents()
-        {
-            lock (SyncRoot)
-            {
-                foreach (var watcher in _watchers)
-                {
-                    watcher.UnsubscribeEvents();
-                }
             }
         }
     }

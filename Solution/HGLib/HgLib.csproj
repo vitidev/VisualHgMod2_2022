@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="ProcessLauncher.cs" />
     <Compile Include="HgPath.cs" />
+    <Compile Include="Repository\HgRootDictionary.cs" />
     <Compile Include="Repository\DirectoryWatcher.cs" />
     <Compile Include="Repository\DirectoryWatcherMap.cs" />
     <Compile Include="Repository\HgFileInfo.cs" />

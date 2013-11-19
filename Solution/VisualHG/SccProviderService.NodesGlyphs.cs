@@ -92,18 +92,19 @@ namespace VisualHg
                 return VSConstants.S_OK;
             }
 
-            var status = Repository.GetFileStatus(files[0]);
-            var statusName = Enum.IsDefined(typeof(HgFileStatus), status) ? status.ToString() : "";
+            var fileName = files[0];
+            var status = Repository.GetFileStatus(fileName).ToString();
+            var branch = Repository.GetBranch(fileName);
 
-            var root = HgPath.FindRepositoryRoot(files[0]);
-            var branch = Repository.GetDirectoryBranch(root);
-
-            if (!String.IsNullOrEmpty(statusName) && !String.IsNullOrEmpty(branch))
+            if (!String.IsNullOrEmpty(status))
             {
-                statusName += " (" + branch + ")";
+                pbstrTooltipText = status;
             }
 
-            pbstrTooltipText = statusName;
+            if (!String.IsNullOrEmpty(branch))
+            {
+                pbstrTooltipText += " (" + branch + ")";
+            }
 
             return VSConstants.S_OK;
         }
