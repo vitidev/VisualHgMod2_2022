@@ -4,12 +4,23 @@ using System.Linq;
 
 namespace HgLib
 {
-    public class HgRootDictionary
+    internal class HgRootDictionary
     {
-        private Dictionary<string, string> _items;
+        private Dictionary<string, string> items;
 
 
         public object SyncRoot { get; private set; }
+
+        public int Count
+        {
+            get
+            {
+                lock (SyncRoot)
+                {
+                    return items.Count;
+                }
+            }
+        }
 
         public string[] Branches
         {
@@ -17,7 +28,7 @@ namespace HgLib
             {
                 lock (SyncRoot)
                 {
-                    return _items.Values.ToArray();
+                    return items.Values.ToArray();
                 }
             }
         }
@@ -28,7 +39,7 @@ namespace HgLib
             {
                 lock (SyncRoot)
                 {
-                    return _items.Keys.ToArray();
+                    return items.Keys.ToArray();
                 }
             }
         }
@@ -37,7 +48,7 @@ namespace HgLib
         public HgRootDictionary()
         {
             SyncRoot = new object();
-            _items = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            items = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         }
 
 
@@ -50,7 +61,7 @@ namespace HgLib
 
             lock (SyncRoot)
             {
-                _items[root] = Hg.GetCurrentBranchName(root);
+                items[root] = Hg.GetCurrentBranchName(root);
             }
         }
 
@@ -58,7 +69,7 @@ namespace HgLib
         {
             lock (SyncRoot)
             {
-                _items.Clear();
+                items.Clear();
             }
         }
 
@@ -69,7 +80,7 @@ namespace HgLib
 
             lock (SyncRoot)
             {
-                _items.TryGetValue(root, out branch);
+                items.TryGetValue(root, out branch);
             }
 
             return branch;

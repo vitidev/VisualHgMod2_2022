@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace HgLib
 {
-    public class DirectoryWatcherMap : IDisposable
+    internal class DirectoryWatcherMap : IDisposable
     {
-        List<DirectoryWatcher> _watchers;
+        private List<DirectoryWatcher> _watchers;
         
         public object SyncRoot { get; private set; }
 

@@ -2,21 +2,39 @@
 
 namespace HgLib
 {
-    public class HgCommandQueue : Queue<HgCommand>
+    public class HgCommandQueue
     {
-        public HgCommandQueue DumpCommands() // NOTE: I doubt that this makes sense
-        {
-            var copy = new HgCommandQueue();
+        private Queue<HgCommand> items;
 
-            lock (this)
+        public object SyncRoot { get; private set; }
+
+        public HgCommandQueue()
+        {
+            items = new Queue<HgCommand>();
+            SyncRoot = new object();
+        }
+
+        public void Enqueue(HgCommand command)
+        {
+            lock (SyncRoot)
             {
-                while (Count > 0)
+                items.Enqueue(command);
+            }
+        }
+
+        public HgCommand[] Dump()
+        {
+            var commands = new List<HgCommand>();
+
+            lock (SyncRoot)
+            {
+                while (items.Count > 0)
                 {
-	                copy.Enqueue(Dequeue());
+	                commands.Add(items.Dequeue());
                 }
             }
             
-            return copy;
+            return commands.ToArray();
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace HgLib
 {
-    public class HgFileInfoDictionary
+    internal class HgFileInfoDictionary
     {
-        private Dictionary<string, HgFileInfo> _files;
+        private Dictionary<string, HgFileInfo> items;
 
         public object SyncRoot { get; private set; }
 
@@ -16,7 +16,7 @@ namespace HgLib
             {
                 lock (SyncRoot)
                 {
-                    return _files.Count;
+                    return items.Count;
                 }
             }
         }
@@ -27,7 +27,7 @@ namespace HgLib
             {
                 lock (SyncRoot)
                 {
-                    return _files.Values
+                    return items.Values
                         .Where(x => x.StatusMatches(HgFileStatus.Pending))
                         .ToArray();
                 }
@@ -42,7 +42,7 @@ namespace HgLib
 
                 lock (SyncRoot)
                 {
-                    _files.TryGetValue(fileName, out fileInfo);
+                    items.TryGetValue(fileName, out fileInfo);
                 }
 
                 return fileInfo;
@@ -53,7 +53,7 @@ namespace HgLib
         public HgFileInfoDictionary()
 	    {
             SyncRoot = new object();
-            _files = new Dictionary<string, HgFileInfo>(StringComparer.InvariantCultureIgnoreCase);
+            items = new Dictionary<string, HgFileInfo>(StringComparer.InvariantCultureIgnoreCase);
 	    }
 
 
@@ -63,7 +63,7 @@ namespace HgLib
             {
                 foreach (var file in files)
                 {
-                    _files[file.FullName] = file;
+                    items[file.FullName] = file;
                 }
             }
         }
@@ -72,15 +72,18 @@ namespace HgLib
         {
             lock (SyncRoot)
             {
-                _files.Clear();
+                items.Clear();
             }
         }
 
-        public void Remove(string fileName)
+        public void Remove(IEnumerable<string> fileNames)
         {
             lock (SyncRoot)
             {
-                _files.Remove(fileName);
+                foreach (var fileName in fileNames)
+                {
+                    items.Remove(fileName);
+                }
             }
         }
     }

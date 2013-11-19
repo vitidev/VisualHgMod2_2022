@@ -4,7 +4,7 @@ using System.IO;
 
 namespace HgLib
 {
-    public class DirectoryWatcher : IDisposable
+    internal class DirectoryWatcher : IDisposable
     {
         private List<string> _dirtyFiles;
         private FileSystemWatcher _watcher;
