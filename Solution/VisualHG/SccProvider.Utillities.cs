@@ -246,15 +246,10 @@ namespace VisualHg
         {
             return FileStatusMatches(fileName, HgFileStatus.Pending);
         }
-        
-        private bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren = false)
-        {
-            if (Configuration.Global.EnableContextSearch)
-            {
-                return AnySelectedFileStatusMatches(pattern, includeChildren);
-            }
 
-            return true;
+        private bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
+        {
+            return AnySelectedFileStatusMatches(pattern, Configuration.Global.EnableContextSearch);
         }
 
         private bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
