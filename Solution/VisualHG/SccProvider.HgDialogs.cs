@@ -1,83 +1,83 @@
 ﻿using System;
-using System.Threading;
+using System.Linq;
+using System.Windows.Forms;
 using HgLib;
 
 namespace VisualHg
 {
     partial class SccProvider
     {
-        public void ShowCommitWindow(string directory)
+        public void ShowCommitWindow(string[] files)
         {
-            StartTortoiseHg("commit", directory);
-        }
+            SaveAllFiles();
 
-        public void ShowWorkbenchWindow(string directory)
-        {
-            StartTortoiseHg("log", directory);
-        }
+            var filesToCommit = files.Where(FileIsPending).ToArray();
 
-        public void ShowStatusWindow(string directory)
-        {
-            StartTortoiseHg("status", directory);
-        }
-
-        public void ShowSynchronizeWindow(string directory)
-        {
-            StartTortoiseHg("synch", directory);
-        }
-
-        public void ShowUpdateWindow(string directory)
-        {
-            StartTortoiseHg("update", directory);
-        }
-
-
-        public void ShowAddSelectedWindow(string[] files)
-        {
-            StartTortoiseHg(" --nofork add ", files);
-        }
-
-        public void ShowCommitWindowPrivate(string[] files)
-        {
-            StartTortoiseHg(" --nofork commit ", files);
-        }
-
-        public void ShowDiffWindow(string parent, string current, string customDiffTool)
-        {
-            StartDiff(parent, current, customDiffTool);
-        }
-
-        public void ShowRevertWindowPrivate(string[] files)
-        {
-            StartTortoiseHg(" --nofork revert ", files);
-        }
-
-        public void ShowHistoryWindowPrivate(string fileName)
-        {
-            var root = HgPath.FindRepositoryRoot(fileName);
-
-            if (!String.IsNullOrEmpty(root))
+            if (filesToCommit.Length > 0)
             {
-                fileName = fileName.Substring(root.Length + 1);
-
-                StartTortoiseHg(String.Format("log \"{0}\"", fileName), root);
+                TortoiseHg.ShowCommitWindow(filesToCommit);
             }
         }
 
-
-        private void StartTortoiseHg(string command, string directory)
+        public void ShowDiffWindow(string fileName)
         {
-            TortoiseHg.Start(command, directory);
+            SaveAllFiles();
+
+            if (String.IsNullOrEmpty(fileName))
+            {
+                return;
+            }
+
+            var parent = GetOriginalFileName(fileName);
+
+            if (String.IsNullOrEmpty(parent))
+            {
+                return;
+            }
+
+            try
+            {
+                TortoiseHg.ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
+            }
+            catch
+            {
+                if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
+                {
+                    MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
         }
 
-        private void StartTortoiseHg(string command, string[] files)
+        public void ShowRevertWindow(string[] files)
         {
-            TortoiseHg.StartForEachRoot(command, files);
+            SaveAllFiles();
+
+            var filesToRevert = files.Where(FileIsPending).ToArray();
+
+            if (filesToRevert.Length > 0)
+            {
+                TortoiseHg.ShowRevertWindow(filesToRevert.ToArray());
+            }
         }
 
-        private void StartDiff(string parent, string current, string customDiffTool)
+        public void ShowHistoryWindow(string fileName)
         {
-            TortoiseHg.StartDiff(parent, current, customDiffTool);
+            SaveAllFiles();
+
+            var originalFileName = GetOriginalFileName(fileName);
+
+            TortoiseHg.ShowHistoryWindow(originalFileName);
+        }
+
+        
+        private string GetOriginalFileName(string fileName)
+        {
+            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
+            {
+                return Hg.GetRenamedFileOriginalName(fileName);
+            }
+
+            return fileName;
         }
     }
 }

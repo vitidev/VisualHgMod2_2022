@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.Design;
 using System.Linq;
-using System.Windows.Forms;
 using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -159,27 +158,27 @@ namespace VisualHg
 
         private void ShowCommitWindow(object sender, EventArgs e)
         {
-            GetRootAnd(ShowCommitWindow);
+            GetRootAnd(TortoiseHg.ShowCommitWindow);
         }
 
         private void ShowWorkbenchWindow(object sender, EventArgs e)
         {
-            GetRootAnd(ShowWorkbenchWindow);
+            GetRootAnd(TortoiseHg.ShowWorkbenchWindow);
         }
 
         private void ShowStatusWindow(object sender, EventArgs e)
         {
-            GetRootAnd(ShowStatusWindow);
+            GetRootAnd(TortoiseHg.ShowStatusWindow);
         }
 
         private void ShowSynchronizeWindow(object sender, EventArgs e)
         {
-            GetRootAnd(ShowSynchronizeWindow);
+            GetRootAnd(TortoiseHg.ShowSynchronizeWindow);
         }
 
         private void ShowUpdateWindow(object sender, EventArgs e)
         {
-            GetRootAnd(ShowUpdateWindow);
+            GetRootAnd(TortoiseHg.ShowUpdateWindow);
         }
 
         private void GetRootAnd(Action<string> showWindow)
@@ -207,7 +206,7 @@ namespace VisualHg
 
             if (filesToAdd.Length > 0)
             {
-                ShowAddSelectedWindow(filesToAdd);
+                TortoiseHg.ShowAddWindow(filesToAdd);
             }
         }
 
@@ -229,80 +228,6 @@ namespace VisualHg
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
             ShowHistoryWindow(SelectedFile);
-        }
-
-
-        public void ShowCommitWindow(string[] files)
-        {
-            SaveAllFiles();
-
-            var filesToCommit = files.Where(FileIsDirty).ToArray();
-
-            if (filesToCommit.Length > 0)
-            {
-                ShowCommitWindowPrivate(filesToCommit);
-            }
-        }
-
-        public void ShowDiffWindow(string fileName)
-        {
-            SaveAllFiles();
-
-            if (String.IsNullOrEmpty(fileName))
-            {
-                return;
-            }
-
-            var parent = GetOriginalFileName(fileName);
-
-            if (String.IsNullOrEmpty(parent))
-            {
-                return;
-            }
-
-            try
-            {
-                ShowDiffWindow(parent, fileName, Configuration.Global.ExternalDiffToolCommandMask);
-            }
-            catch
-            {
-                if (!String.IsNullOrEmpty(Configuration.Global.ExternalDiffToolCommandMask))
-                {
-                    MessageBox.Show("The DiffTool raised an error\nPlease check your command mask:\n\n" + Configuration.Global.ExternalDiffToolCommandMask, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                }
-            }
-        }
-
-        public void ShowRevertWindow(string[] files)
-        {
-            SaveAllFiles();
-
-            var filesToRevert = files.Where(FileIsDirty).ToArray();
-
-            if (filesToRevert.Length > 0)
-            {
-                ShowRevertWindowPrivate(filesToRevert.ToArray());
-            }
-        }
-
-        public void ShowHistoryWindow(string fileName)
-        {
-            SaveAllFiles();
-
-            var originalFileName = GetOriginalFileName(fileName);
-
-            ShowHistoryWindowPrivate(originalFileName);
-        }
-
-        
-        private string GetOriginalFileName(string fileName)
-        {
-            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
-            {
-                return Hg.GetRenamedFileOriginalName(fileName);
-            }
-
-            return fileName;
         }
     }
 }

@@ -9,7 +9,65 @@ namespace HgLib
 {
     public static class TortoiseHg
     {
-        public static Process Start(string args, string workingDirectory)
+        public static void ShowCommitWindow(string directory)
+        {
+            Start("commit", directory);
+        }
+
+        public static void ShowWorkbenchWindow(string directory)
+        {
+            Start("workbench", directory);
+        }
+
+        public static void ShowStatusWindow(string directory)
+        {
+            Start("status", directory);
+        }
+
+        public static void ShowSynchronizeWindow(string directory)
+        {
+            Start("sync", directory);
+        }
+
+        public static void ShowUpdateWindow(string directory)
+        {
+            Start("update", directory);
+        }
+
+        public static void ShowAddWindow(string[] files)
+        {
+            StartForEachRoot("add ", files);
+        }
+
+        public static void ShowCommitWindow(string[] files)
+        {
+            StartForEachRoot("commit ", files);
+        }
+
+        public static void ShowDiffWindow(string parent, string current, string customDiffTool)
+        {
+            StartDiff(parent, current, customDiffTool);
+        }
+
+        public static void ShowRevertWindow(string[] files)
+        {
+            StartForEachRoot("revert", files);
+        }
+
+        public static void ShowHistoryWindow(string fileName)
+        {
+            var root = HgPath.FindRepositoryRoot(fileName);
+
+            if (!String.IsNullOrEmpty(root))
+            {
+                fileName = fileName.Substring(root.Length + 1);
+
+                Start(String.Format("history \"{0}\"", fileName), root);
+            }
+        }
+
+        
+        private static Process Start(string args, string workingDirectory)
         {
             try
             {
@@ -29,8 +87,10 @@ namespace HgLib
         }
 
 
-        public static void StartForEachRoot(string command, string[] files)
+        private static void StartForEachRoot(string command, string[] files)
         {
+            var commandWithOptions = String.Concat("--nofork ", command);
+
             foreach (var group in files.GroupBy(x => HgPath.FindRepositoryRoot(x)))
             {
                 if (String.IsNullOrEmpty(group.Key))
@@ -38,7 +98,7 @@ namespace HgLib
                     continue;
                 }
 
-                Start(command, group.Key, group);
+                Start(commandWithOptions, group.Key, group);
             }
         }
 
@@ -80,7 +140,7 @@ namespace HgLib
         }
 
 
-        public static Process StartDiff(string parent, string current, string customDiffTool)
+        private static Process StartDiff(string parent, string current, string customDiffTool)
         {
             var workingDirectory = HgPath.FindRepositoryRoot(current);
 

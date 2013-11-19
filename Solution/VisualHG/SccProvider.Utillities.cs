@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -243,7 +242,7 @@ namespace VisualHg
             return FileStatusMatches(fileName, HgFileStatus.NotAdded);
         }
 
-        private bool FileIsDirty(string fileName)
+        private bool FileIsPending(string fileName)
         {
             return FileStatusMatches(fileName, HgFileStatus.Pending);
         }
