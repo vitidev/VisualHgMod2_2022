@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using HgLib;
 
 namespace VisualHg
 {
     public class HgFileInfoComparer : IComparer<HgFileInfo>
-    {
+    {   
         public int ColumnToSort { get; private set; }
 
         public SortOrder Sorting { get; private set; }
@@ -22,7 +22,7 @@ namespace VisualHg
 
         public void SortByColumn(int columnIndex)
         {
-            if (Sorting != SortOrder.Ascending || ColumnToSort != columnIndex)
+            if (ColumnToSort != columnIndex || Sorting == SortOrder.None)
             {
                 Sorting = SortOrder.Ascending;
             }
@@ -30,18 +30,52 @@ namespace VisualHg
             {
                 Sorting = SortOrder.Descending;
             }
+            else
+            {
+                Sorting = SortOrder.None;
+            }
 
             ColumnToSort = columnIndex;
         }
 
         public int Compare(HgFileInfo x, HgFileInfo y)
         {
-            if (ColumnToSort < -1)
+            if (ColumnToSort < 0 || Sorting == SortOrder.None)
             {
-                return 0;
+                return CompareDefault(x, y);
             }
 
-            var result = CaseInsensitiveComparer.DefaultInvariant.Compare(GetText(x), GetText(y));
+            return Compare(x, y, ColumnToSort);
+        }
+
+        private int CompareDefault(HgFileInfo x, HgFileInfo y)
+        {
+            var result = Compare(x, y, HgFileInfoListViewItem.StatusColumn);
+
+            if (result == 0)
+            {
+                result = Compare(x, y, HgFileInfoListViewItem.PathColumn);
+            }
+
+            return result;
+        }
+
+        private int Compare(HgFileInfo x, HgFileInfo y, int columnToSort)
+        {
+            var xText = HgFileInfoListViewItem.GetText(x, columnToSort);
+            var yText = HgFileInfoListViewItem.GetText(y, columnToSort);
+
+            var result = 0;
+
+            if (columnToSort == HgFileInfoListViewItem.PathColumn)
+            {
+                result = GetPathDepth(xText).CompareTo(GetPathDepth(yText));
+            }
+
+            if (result == 0)
+            {
+                result = CaseInsensitiveComparer.DefaultInvariant.Compare(xText, yText);
+            }
 
             if (Sorting == SortOrder.Descending)
             {
@@ -51,14 +85,9 @@ namespace VisualHg
             return result;
         }
 
-        private string GetText(HgFileInfo fileInfo)
+        private static int GetPathDepth(string path)
         {
-            if (ColumnToSort == 1)
-            {
-                return fileInfo.FullName;
-            }
-
-            return fileInfo.Name;
+            return path.Count(x => x == '\\');
         }
     }
 }

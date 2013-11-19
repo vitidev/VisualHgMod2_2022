@@ -16,6 +16,8 @@ namespace VisualHg
         private ToolStripMenuItem diffMenuItem;
         private ToolStripMenuItem revertMenuItem;
         private ToolStripMenuItem historyMenuItem;
+        private ColumnHeader statusColumnHeader;
+        private ColumnHeader pathColumnHeader;
         private ToolStripMenuItem openMenuItem;
 
         public PendingChangesControl()
@@ -141,8 +143,8 @@ namespace VisualHg
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PendingChangesControl));
-            System.Windows.Forms.ColumnHeader columnHeaderFileName;
-            System.Windows.Forms.ColumnHeader columnHeaderPath;
+            System.Windows.Forms.ColumnHeader fileNameColumnHeader;
+            System.Windows.Forms.ColumnHeader rootColumnHeader;
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.commitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.diffMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -150,8 +152,10 @@ namespace VisualHg
             this.historyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileListView = new VisualHg.HgFileInfoListView();
-            columnHeaderFileName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            columnHeaderPath = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.statusColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.pathColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            fileNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            rootColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -193,10 +197,13 @@ namespace VisualHg
             // 
             // fileListView
             // 
+            this.fileListView.AllowColumnReorder = true;
             this.fileListView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.fileListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            columnHeaderFileName,
-            columnHeaderPath});
+            fileNameColumnHeader,
+            this.statusColumnHeader,
+            rootColumnHeader,
+            this.pathColumnHeader});
             this.fileListView.ContextMenuStrip = this.contextMenu;
             resources.ApplyResources(this.fileListView, "fileListView");
             this.fileListView.FullRowSelect = true;
@@ -207,13 +214,21 @@ namespace VisualHg
             this.fileListView.View = System.Windows.Forms.View.Details;
             this.fileListView.VirtualMode = true;
             // 
-            // columnHeaderFileName
+            // fileNameColumnHeader
             // 
-            resources.ApplyResources(columnHeaderFileName, "columnHeaderFileName");
+            resources.ApplyResources(fileNameColumnHeader, "fileNameColumnHeader");
             // 
-            // columnHeaderPath
+            // statusColumnHeader
             // 
-            resources.ApplyResources(columnHeaderPath, "columnHeaderPath");
+            resources.ApplyResources(this.statusColumnHeader, "statusColumnHeader");
+            // 
+            // rootColumnHeader
+            // 
+            resources.ApplyResources(rootColumnHeader, "rootColumnHeader");
+            // 
+            // pathColumnHeader
+            // 
+            resources.ApplyResources(this.pathColumnHeader, "pathColumnHeader");
             // 
             // PendingChangesControl
             // 

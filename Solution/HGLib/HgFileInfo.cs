@@ -14,7 +14,11 @@ namespace HgLib
 
         public string Root { get; private set; }
 
+        public string RootName { get; private set; }
+
         public string Name { get; private set; }
+        
+        public string ShortName { get; private set; }
 
         public string FullName { get; private set; }
 
@@ -69,6 +73,8 @@ namespace HgLib
             Root = root;
             Name = name;
             _status = Hg.ConvertToStatus(status);
+            RootName = new DirectoryInfo(root).Name;
+            ShortName = Path.GetFileName(name);
             FullName = Path.Combine(root, name);
 
             if (Status != HgFileStatus.None && !StatusMatches(HgFileStatus.Deleted))

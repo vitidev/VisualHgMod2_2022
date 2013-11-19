@@ -120,16 +120,7 @@ namespace VisualHg
 
         private ListViewItem CreateListViewItem(int index)
         {
-            var file = Files[index];
-
-            var listViewItem = new ListViewItem {
-                Text = file.Name,
-                ImageIndex = ImageMapper.GetStatusIconIndex(file.Status),
-            };
-
-            listViewItem.SubItems.Add(file.FullName);
-
-            return listViewItem;
+            return new HgFileInfoListViewItem(Files[index]);
         }
 
 
@@ -147,6 +138,7 @@ namespace VisualHg
                     break;
                 }
             }
+
             return index;
         }
 
