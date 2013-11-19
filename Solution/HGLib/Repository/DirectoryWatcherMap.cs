@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace HgLib
+namespace HgLib.Repository
 {
     internal class DirectoryWatcherMap : IDisposable
     {

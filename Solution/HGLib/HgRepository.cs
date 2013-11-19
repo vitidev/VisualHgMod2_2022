@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Timers;
+using HgLib.Repository;
+using HgLib.Repository.Commands;
 
 namespace HgLib
 {
-    public class HgUpdatingRepository : HgRepository, IDisposable
+    public class HgRepository : HgRepositoryBase, IDisposable
     {
         private const int UpdateInterval = 2000;
         private const int RequireUpdateAllFileLimit = 200;
@@ -22,7 +24,7 @@ namespace HgLib
         }
 
 
-        public HgUpdatingRepository()
+        public HgRepository()
         {
             commands = new HgCommandQueue();
             directoryWatchers = new DirectoryWatcherMap();

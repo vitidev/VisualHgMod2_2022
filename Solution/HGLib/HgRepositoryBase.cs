@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
+using HgLib.Repository;
 
 namespace HgLib
 {
-    public abstract class HgRepository
+    public abstract class HgRepositoryBase
     {
         private HgFileInfoDictionary cache;
         private HgRootDictionary roots;
@@ -33,7 +34,7 @@ namespace HgLib
         public event EventHandler StatusChanged = (s, e) => { };
 
 
-        public HgRepository()
+        public HgRepositoryBase()
         {
             cache = new HgFileInfoDictionary();
             roots = new HgRootDictionary();

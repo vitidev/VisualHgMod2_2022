@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public class RenameFilesHgCommand : HgCommand
     {
@@ -13,7 +13,7 @@ namespace HgLib
             _newFileNames = newFileNames;
         }
 
-        public void Run(HgRepository repo)
+        public void Run(HgRepositoryBase repo)
         {
             repo.RenameFiles(_fileNames, _newFileNames);
         }

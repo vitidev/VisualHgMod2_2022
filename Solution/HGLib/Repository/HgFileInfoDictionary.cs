@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HgLib
+namespace HgLib.Repository
 {
     internal class HgFileInfoDictionary
     {

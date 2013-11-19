@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public interface HgCommand
     {
-        void Run(HgRepository repo);
+        void Run(HgRepositoryBase repo);
     }
 }

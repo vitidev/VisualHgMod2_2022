@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public class HgCommandQueue
     {

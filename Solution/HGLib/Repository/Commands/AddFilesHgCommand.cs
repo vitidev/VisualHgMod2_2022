@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public class AddFilesHgCommand : HgCommand
     {
@@ -12,7 +12,7 @@ namespace HgLib
             _fileNames = fileNames;
         }
 
-        public void Run(HgRepository repo)
+        public void Run(HgRepositoryBase repo)
         {   
             repo.AddFiles(_fileNames);
         }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public class RemoveFilesHgCommand : HgCommand
     {
@@ -11,7 +11,7 @@ namespace HgLib
             _fileNames = fileNames;
         }
 
-        public void Run(HgRepository repo)
+        public void Run(HgRepositoryBase repo)
         {
             repo.RemoveFiles(_fileNames);
         }

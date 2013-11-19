@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace HgLib
+namespace HgLib.Repository
 {
     internal class DirectoryWatcher : IDisposable
     {

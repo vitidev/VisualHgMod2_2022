@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    public class VisualHgRepository : HgUpdatingRepository
+    public class VisualHgRepository : HgRepository
     {
         private bool _solutionBuilding;
         private List<string> _solutionFiles;

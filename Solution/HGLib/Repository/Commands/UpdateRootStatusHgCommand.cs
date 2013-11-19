@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HgLib
+namespace HgLib.Repository.Commands
 {
     public class UpdateRootStatusHgCommand : HgCommand
     {
@@ -11,7 +11,7 @@ namespace HgLib
             _directory = directory;
         }
 
-        public void Run(HgRepository repo)
+        public void Run(HgRepositoryBase repo)
         {
             repo.UpdateRootStatus(_directory);
         }
