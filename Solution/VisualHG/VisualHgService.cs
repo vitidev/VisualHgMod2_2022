@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using HgLib;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
@@ -26,7 +27,6 @@ namespace VisualHg
 
         private DateTime lastUpdate;
 
-        private SccProvider _sccProvider;
         private IdlenessNotifier idlenessNotifier;
 
 
@@ -37,7 +37,7 @@ namespace VisualHg
             {
                 if (value && !_active)
                 {
-                    var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+                    var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
 
                     Repository.UpdateSolution(solution);
                 }
@@ -49,12 +49,8 @@ namespace VisualHg
         public VisualHgRepository Repository { get; private set; }
 
 
-        public VisualHgService(SccProvider sccProvider)
+        public VisualHgService()
         {
-            Debug.Assert(sccProvider != null);
-
-            _sccProvider = sccProvider;
-
             idlenessNotifier = new IdlenessNotifier();
             idlenessNotifier.Idle += UpdateDirtyNodesGlyphs;
             idlenessNotifier.Register();
@@ -62,15 +58,15 @@ namespace VisualHg
             Repository = new VisualHgRepository();
             Repository.StatusChanged += SetNodesGlyphsDirty;
 
-            var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             solution.AdviseSolutionEvents(this, out vsSolutionEventsCookie);
             Debug.Assert(vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL);
 
-            var trackProjectDocuments = _sccProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+            var trackProjectDocuments = Package.GetGlobalService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
             trackProjectDocuments.AdviseTrackProjectDocumentsEvents(this, out trackProjectDocumentsEventsCookie);
             Debug.Assert(trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL);
 
-            var buildManager = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+            var buildManager = Package.GetGlobalService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
             buildManager.AdviseUpdateSolutionEvents(this, out buildManagerCookie);
             Debug.Assert(buildManagerCookie != VSConstants.VSCOOKIE_NIL);
         }
@@ -87,21 +83,21 @@ namespace VisualHg
 
             if (vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var solution = _sccProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+                var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
                 solution.UnadviseSolutionEvents(vsSolutionEventsCookie);
                 vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
             if (trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var trackProjectDocuments = _sccProvider.GetService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+                var trackProjectDocuments = Package.GetGlobalService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
                 trackProjectDocuments.UnadviseTrackProjectDocumentsEvents(trackProjectDocumentsEventsCookie);
                 trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
             if (buildManagerCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var buildManager = _sccProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+                var buildManager = Package.GetGlobalService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
                 buildManager.UnadviseUpdateSolutionEvents(buildManagerCookie);
             }
         }
@@ -131,23 +127,23 @@ namespace VisualHg
         private void RefreshNodesGlyphs()
         {
             var nodes = new [] { GetSolutionVsItemSelection() }
-                .Concat(_sccProvider.LoadedProjects.Select(GetVsItemSelection))
+                .Concat(SccProvider.LoadedProjects.Select(GetVsItemSelection))
                 .ToArray();
 
-            _sccProvider.UpdateGlyphs(nodes);
+            SccProvider.UpdateGlyphs(nodes);
 
             lastUpdate = DateTime.Now;
             nodesGlyphsDirty = false;
         }
 
-        private VSITEMSELECTION GetSolutionVsItemSelection()
+        private static VSITEMSELECTION GetSolutionVsItemSelection()
         {
-            var hierarchy = _sccProvider.GetService(typeof(SVsSolution)) as IVsHierarchy;
+            var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
 
             return GetVsItemSelection(hierarchy);
         }
 
-        private VSITEMSELECTION GetVsItemSelection(IVsHierarchy hierarchy)
+        private static VSITEMSELECTION GetVsItemSelection(IVsHierarchy hierarchy)
         {
             return new VSITEMSELECTION {
                 itemid = VSConstants.VSITEMID_ROOT,
@@ -157,7 +153,9 @@ namespace VisualHg
 
         private void UpdatePendingChangesToolWindow()
         {
-            _sccProvider.UpdatePendingChangesToolWindow();
+            var sccProvider = Package.GetGlobalService(typeof(IServiceProvider)) as SccProvider;
+
+            sccProvider.UpdatePendingChangesToolWindow();
         }
 
         private void UpdateMainWindowTitle()
@@ -165,7 +163,7 @@ namespace VisualHg
             var branches = Repository.Branches;
             var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
 
-            _sccProvider.UpdateMainWindowCaption(text);
+            SccProvider.UpdateMainWindowCaption(text);
         }
 
 
@@ -226,7 +224,7 @@ namespace VisualHg
 
         private void OnAfterCloseSolution()
         {
-            _sccProvider.LastSeenProjectDirectory = "";
+            SccProvider.LastSeenProjectDirectory = "";
 
             Repository.Clear();
             UpdatePendingChangesToolWindow();
@@ -234,14 +232,14 @@ namespace VisualHg
 
         private void OnAfterLoadProject(IVsHierarchy hierarchy)
         {
-            _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(hierarchy);
-
             var project = hierarchy as IVsSccProject2;
 
             if (project != null)
             {
                 Repository.UpdateProject(project);
             }
+
+            UpdateLastSeenProjectDirectory(hierarchy);
         }
 
         private void OnAfterOpenProject(IVsHierarchy hierarchy)
@@ -259,19 +257,24 @@ namespace VisualHg
             {
                 Repository.AddFiles(files);
             }
-            
-            _sccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(hierarchy);
+
+            UpdateLastSeenProjectDirectory(hierarchy);
+        }
+
+        private static void UpdateLastSeenProjectDirectory(IVsHierarchy hierarchy)
+        {
+            SccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(hierarchy);
         }
 
         private void OnAfterOpenSolution()
         {
             if (!Active && Configuration.Global.AutoActivatePlugin)
             {
-                var root = _sccProvider.SolutionRootDirectory;
+                var root = SccProvider.SolutionRootDirectory;
                 
                 if (!String.IsNullOrEmpty(root))
                 {
-                    var rscp = _sccProvider.GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
+                    var rscp = Package.GetGlobalService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
                     
                     rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
                 }

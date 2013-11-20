@@ -22,7 +22,6 @@ namespace VisualHg
     [Guid(Guids.Package)]
     public sealed partial class SccProvider : Package, IOleCommandTarget
     {
-        public string LastSeenProjectDirectory { get; set; }
         private VisualHgService visualHgService;
         private PendingChangesToolWindow _pendingChangesToolWindow;
         
@@ -44,7 +43,6 @@ namespace VisualHg
 
         public SccProvider()
         {
-            Provider = this;
             LastSeenProjectDirectory = "";
         }
 
@@ -61,18 +59,15 @@ namespace VisualHg
             PendingChangesToolWindow.SetFiles(pendingFiles);
         }
 
-        new public object GetService(Type serviceType)
-        {
-            return base.GetService(serviceType);
-        }
 
         protected override void Initialize()
         {
             base.Initialize();
 
-            visualHgService = new VisualHgService(this);
-            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
             ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
+
+            visualHgService = new VisualHgService();
+            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
 
             InitializeMenuCommands();
 
@@ -82,14 +77,8 @@ namespace VisualHg
 
         protected override void Dispose(bool disposing)
         {
-            Provider = null;
-
             visualHgService.Dispose();
-            
             base.Dispose(disposing);
         }
-
-        
-        public static SccProvider Provider { get; private set; }
     }
 }

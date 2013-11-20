@@ -8,13 +8,16 @@ using EnvDTE;
 using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
     partial class SccProvider
     {
-        public string CurrentRootDirectory
+        public static string LastSeenProjectDirectory { get; set; }
+
+        public static string CurrentRootDirectory
         {
             get
             {
@@ -34,7 +37,7 @@ namespace VisualHg
             }
         }
 
-        public string SolutionRootDirectory
+        public static string SolutionRootDirectory
         {
             get
             {
@@ -50,11 +53,11 @@ namespace VisualHg
             }
         }
 
-        public string SolutionFileName
+        public static string SolutionFileName
         {
             get
             {
-                var solution = GetService(typeof(SVsSolution)) as IVsSolution;
+                var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
                 string solutionDirectory, solutionFile, solutionUserOptions;
 
                 solution.GetSolutionInfo(out solutionDirectory, out solutionFile, out solutionUserOptions);
@@ -63,11 +66,11 @@ namespace VisualHg
             }
         }
 
-        public string SelectedFile
+        public static string SelectedFile
         {
             get
             {
-                var dte = GetService(typeof(SDTE)) as _DTE;
+                var dte = Package.GetGlobalService(typeof(SDTE)) as _DTE;
                 var selectedItems = GetSelectedItems();
 
                 if (selectedItems.Length == 1)
@@ -83,11 +86,11 @@ namespace VisualHg
             }
         }
 
-        public IEnumerable<IVsHierarchy> LoadedProjects
+        public static IEnumerable<IVsHierarchy> LoadedProjects
         {
             get
             {
-                var solution = GetService(typeof(SVsSolution)) as IVsSolution;
+                var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
 
                 var options = (uint)__VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION;
                 var typeGuid = new Guid();
@@ -106,7 +109,7 @@ namespace VisualHg
         }
 
 
-        public string[] GetSelectedFiles(bool includeChildren)
+        private static string[] GetSelectedFiles(bool includeChildren)
         {
             var selectedFiles = new List<string>();
             
@@ -134,16 +137,16 @@ namespace VisualHg
         }
 
 
-        public void SaveAllFiles()
+        private static void SaveAllFiles()
         {
-            var solution = GetService(typeof(IVsSolution)) as IVsSolution;
+            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
             var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
             
             solution.SaveSolutionElement(options, null, 0);
         }
 
 
-        public void UpdateGlyphs(VSITEMSELECTION[] items)
+        public static void UpdateGlyphs(VSITEMSELECTION[] items)
         {
             foreach (var item in items)
             {
@@ -151,7 +154,7 @@ namespace VisualHg
             }
         }
 
-        private void UpdateGlyph(VSITEMSELECTION item)
+        private static void UpdateGlyph(VSITEMSELECTION item)
         {
             var project = item.pHier as IVsSccProject2;
 
@@ -165,7 +168,7 @@ namespace VisualHg
             }
         }
 
-        private void UpdateRootGlyph(IVsSccProject2 project)
+        private static void UpdateRootGlyph(IVsSccProject2 project)
         {
             if (project == null)
             {
@@ -177,37 +180,44 @@ namespace VisualHg
             }
         }
 
-        private void UpdateSolutionGlyph()
+        private static void UpdateSolutionGlyph()
         {
-            var hierarchy = GetService(typeof(SVsSolution)) as IVsHierarchy;
+            var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
             var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
-            var glyph = visualHgService.GetStateIcon(SolutionFileName);
+            var glyph = GetStateIcon(SolutionFileName);
 
             hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, glyph);
         }
 
-        private void UpdateAllProjectItemsGlyphs(IVsSccProject2 project)
+        private static void UpdateAllProjectItemsGlyphs(IVsSccProject2 project)
         {
             project.SccGlyphChanged(0, null, null, null);
         }
 
-        private void UpdateItemGlyph(IVsSccProject2 project, uint itemId)
+        private static void UpdateItemGlyph(IVsSccProject2 project, uint itemId)
         {
             var fileName = GetItemFiles(project, itemId).FirstOrDefault();
 
             if (!String.IsNullOrEmpty(fileName))
             {
                 var affectedItem = new[] { itemId };
-                var glyph = new[] { visualHgService.GetStateIcon(fileName) };
+                var glyph = new[] { GetStateIcon(fileName) };
 
                 project.SccGlyphChanged(1, affectedItem, glyph, new uint[1]);
             }
         }
 
-
-        public void UpdateMainWindowCaption(string branch)
+        private static VsStateIcon GetStateIcon(string fileName)
         {
-            var dte = GetService(typeof(SDTE)) as _DTE;
+            var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
+
+            return visualHgService.GetStateIcon(fileName);
+        }
+
+
+        public static void UpdateMainWindowCaption(string branch)
+        {
+            var dte = Package.GetGlobalService(typeof(SDTE)) as _DTE;
 
             if (dte == null || dte.MainWindow == null)
             {
@@ -228,22 +238,22 @@ namespace VisualHg
         }
 
 
-        private bool FileIsNotAdded(string fileName)
+        private static bool FileIsNotAdded(string fileName)
         {
             return FileStatusMatches(fileName, HgFileStatus.NotAdded);
         }
 
-        private bool FileIsPending(string fileName)
+        private static bool FileIsPending(string fileName)
         {
             return FileStatusMatches(fileName, HgFileStatus.Pending);
         }
 
-        private bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
+        private static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
             return AnySelectedFileStatusMatches(pattern, Configuration.Global.SearchIncludingChildren);
         }
 
-        private bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
+        private static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
         {
             if (includeChildren)
             {
@@ -253,7 +263,7 @@ namespace VisualHg
             return GetSelectedItems().Any(x => ItemStatusMatches(x, pattern));
         }
 
-        private bool ItemOrChildrenStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
+        private static bool ItemOrChildrenStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
             if (ItemStatusMatches(item, pattern))
             {
@@ -263,7 +273,7 @@ namespace VisualHg
             return AnyChildItemStatusMatches(item, pattern);
         }
 
-        private bool AnyChildItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
+        private static bool AnyChildItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
             var project = item.pHier as IVsProject;
 
@@ -276,26 +286,26 @@ namespace VisualHg
                 Any(x => ItemStatusMatches(x, project, pattern));
         }
 
-        private bool ItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
+        private static bool ItemStatusMatches(VSITEMSELECTION item, HgFileStatus pattern)
         {
             var fileName = GetItemFileName(item);
 
             return FileStatusMatches(fileName, pattern);
         }
 
-        private bool ItemStatusMatches(uint itemId, IVsProject project, HgFileStatus pattern)
+        private static bool ItemStatusMatches(uint itemId, IVsProject project, HgFileStatus pattern)
         {
             var fileName = GetItemFileName(project, itemId);
 
             return FileStatusMatches(fileName, pattern);
         }
 
-        private bool SelectedFileStatusMatches(HgFileStatus pattern)
+        private static bool SelectedFileStatusMatches(HgFileStatus pattern)
         {
             return FileStatusMatches(SelectedFile, pattern);
         }
 
-        private bool FileStatusMatches(string fileName, HgFileStatus pattern)
+        private static bool FileStatusMatches(string fileName, HgFileStatus pattern)
         {
             if (String.IsNullOrEmpty(fileName))
             {
@@ -307,13 +317,15 @@ namespace VisualHg
                 return false;
             }
 
+            var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
+            
             var status = visualHgService.GetFileStatus(fileName);
 
             return (status & pattern) > 0;
         }
         
  
-        private VSITEMSELECTION[] GetSelectedItems()
+        private static VSITEMSELECTION[] GetSelectedItems()
         {
             var selectedItems = new List<VSITEMSELECTION>();
 
@@ -325,7 +337,7 @@ namespace VisualHg
                 uint itemId;
                 IVsMultiItemSelect multiSelect;
 
-                var selectionMonitor = GetService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
+                var selectionMonitor = Package.GetGlobalService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
                 ErrorHandler.ThrowOnFailure(selectionMonitor.GetCurrentSelection(out hierarchy, out itemId, out multiSelect, out selectionContainer));
 
                 if (SingleItemSelected(itemId))
@@ -396,7 +408,7 @@ namespace VisualHg
         }
 
         
-        private string GetItemFileName(VSITEMSELECTION item)
+        private static string GetItemFileName(VSITEMSELECTION item)
         {
             var project = item.pHier as IVsProject;
 
@@ -408,7 +420,7 @@ namespace VisualHg
             return GetItemFileName(project, item.itemid);
         }
        
-        private string GetItemFileName(IVsProject project, uint itemId)
+        private static string GetItemFileName(IVsProject project, uint itemId)
         {
             string fileName;
 
