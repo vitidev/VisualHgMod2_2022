@@ -238,16 +238,6 @@ namespace VisualHg
         }
 
 
-        private static bool FileIsNotAdded(string fileName)
-        {
-            return FileStatusMatches(fileName, HgFileStatus.NotAdded);
-        }
-
-        private static bool FileIsPending(string fileName)
-        {
-            return FileStatusMatches(fileName, HgFileStatus.Pending);
-        }
-
         private static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
             return AnySelectedFileStatusMatches(pattern, Configuration.Global.SearchIncludingChildren);
@@ -290,38 +280,19 @@ namespace VisualHg
         {
             var fileName = GetItemFileName(item);
 
-            return FileStatusMatches(fileName, pattern);
+            return VisualHgFileStatus.Matches(fileName, pattern);
         }
 
         private static bool ItemStatusMatches(uint itemId, IVsProject project, HgFileStatus pattern)
         {
             var fileName = GetItemFileName(project, itemId);
 
-            return FileStatusMatches(fileName, pattern);
+            return VisualHgFileStatus.Matches(fileName, pattern);
         }
 
         private static bool SelectedFileStatusMatches(HgFileStatus pattern)
         {
-            return FileStatusMatches(SelectedFile, pattern);
-        }
-
-        private static bool FileStatusMatches(string fileName, HgFileStatus pattern)
-        {
-            if (String.IsNullOrEmpty(fileName))
-            {
-                return false;
-            }
-
-            if (HgPath.IsDirectory(fileName))
-            {
-                return false;
-            }
-
-            var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
-            
-            var status = visualHgService.GetFileStatus(fileName);
-
-            return (status & pattern) > 0;
+            return VisualHgFileStatus.Matches(SelectedFile, pattern);
         }
         
  

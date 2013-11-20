@@ -12,7 +12,7 @@ namespace VisualHg
         {
             SaveAllFiles();
 
-            var filesToCommit = files.Where(FileIsPending).ToArray();
+            var filesToCommit = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
             if (filesToCommit.Length > 0)
             {
@@ -24,11 +24,11 @@ namespace VisualHg
         {
             SaveAllFiles();
 
-            var filesToRevert = files.Where(FileIsPending).ToArray();
+            var filesToRevert = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
             if (filesToRevert.Length > 0)
             {
-                TortoiseHg.ShowRevertWindow(filesToRevert.ToArray());
+                TortoiseHg.ShowRevertWindow(filesToRevert);
             }
         }
 
@@ -99,7 +99,7 @@ namespace VisualHg
 
         private string GetOriginalFileName(string fileName)
         {
-            if (FileStatusMatches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
+            if (VisualHgFileStatus.Matches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
             {
                 return Hg.GetRenamedFileOriginalName(fileName);
             }

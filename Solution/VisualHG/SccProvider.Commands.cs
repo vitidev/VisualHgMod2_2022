@@ -202,7 +202,7 @@ namespace VisualHg
         {
             SaveAllFiles();
 
-            var filesToAdd = GetSelectedFiles(true).Where(FileIsNotAdded).ToArray();
+            var filesToAdd = GetSelectedFiles(true).Where(VisualHgFileStatus.IsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
             {
