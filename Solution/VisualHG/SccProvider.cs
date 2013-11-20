@@ -23,7 +23,6 @@ namespace VisualHg
     public sealed partial class SccProvider : Package, IOleCommandTarget
     {
         public string LastSeenProjectDirectory { get; set; }
-        private IdlenessNotifier idlenessNotifier;
         private VisualHgService visualHgService;
         private PendingChangesToolWindow _pendingChangesToolWindow;
         
@@ -47,7 +46,6 @@ namespace VisualHg
         {
             Provider = this;
             LastSeenProjectDirectory = "";
-            idlenessNotifier = new IdlenessNotifier();
         }
 
 
@@ -80,16 +78,10 @@ namespace VisualHg
 
             var rscp = GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
             rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
-
-            idlenessNotifier.Register();
-            idlenessNotifier.Idle += visualHgService.UpdateDirtyNodesGlyphs;
         }
 
         protected override void Dispose(bool disposing)
         {
-            idlenessNotifier.Idle -= visualHgService.UpdateDirtyNodesGlyphs;
-            idlenessNotifier.Revoke();
-
             Provider = null;
 
             visualHgService.Dispose();

@@ -27,6 +27,7 @@ namespace VisualHg
         private DateTime lastUpdate;
 
         private SccProvider _sccProvider;
+        private IdlenessNotifier idlenessNotifier;
 
 
         public bool Active
@@ -54,6 +55,10 @@ namespace VisualHg
 
             _sccProvider = sccProvider;
 
+            idlenessNotifier = new IdlenessNotifier();
+            idlenessNotifier.Idle += UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Register();
+
             Repository = new VisualHgRepository();
             Repository.StatusChanged += SetNodesGlyphsDirty;
 
@@ -72,6 +77,9 @@ namespace VisualHg
 
         public void Dispose()
         {
+            idlenessNotifier.Idle -= UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Revoke();
+
             Repository.StatusChanged -= SetNodesGlyphsDirty;
             Repository.Dispose();
 
@@ -110,7 +118,7 @@ namespace VisualHg
             nodesGlyphsDirty = true;
         }
 
-        public void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
+        private void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
         {
             if (nodesGlyphsDirty && (DateTime.Now - lastUpdate).Milliseconds > 100)
             {
