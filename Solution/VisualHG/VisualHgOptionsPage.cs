@@ -3,22 +3,23 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.Shell;
+using VisualHg.Controls;
 
 namespace VisualHg
 {
     [Guid(Guids.OptionsPage)]
-    public class SccProviderOptions : DialogPage
+    public class VisualHgOptionsPage : DialogPage
     {
-        private SccProviderOptionsControl control;
+        private VisualHgOptionsControl control;
 
         protected override IWin32Window Window
         {
             get { return control; }
         }
 
-        public SccProviderOptions()
+        public VisualHgOptionsPage()
         {
-            control = new SccProviderOptionsControl();
+            control = new VisualHgOptionsControl();
         }
 
         protected override void OnActivate(CancelEventArgs e)

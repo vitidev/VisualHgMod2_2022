@@ -1,11 +1,11 @@
-using System.Linq;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using HgLib;
 using Microsoft.VisualStudio.Shell;
 
-namespace VisualHg
+namespace VisualHg.Controls
 {
     public class PendingChangesControl : UserControl
     {
@@ -152,7 +152,7 @@ namespace VisualHg
             this.revertMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.historyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fileListView = new VisualHg.HgFileInfoListView();
+            this.fileListView = new HgFileInfoListView();
             this.statusColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pathColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             fileNameColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));

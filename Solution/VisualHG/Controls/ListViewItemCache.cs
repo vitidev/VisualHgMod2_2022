@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace VisualHg
+namespace VisualHg.Controls
 {
     public class ListViewItemCache
     {

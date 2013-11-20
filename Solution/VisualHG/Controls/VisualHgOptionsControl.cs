@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using HgLib;
 
-namespace VisualHg
+namespace VisualHg.Controls
 {
-    public class SccProviderOptionsControl : UserControl
+    public class VisualHgOptionsControl : UserControl
     {
         private Container components;
         private CheckBox addFilesOnLoadCheckBox;
@@ -48,7 +48,7 @@ namespace VisualHg
             }
         }
 
-        public SccProviderOptionsControl()
+        public VisualHgOptionsControl()
         {
             InitializeComponent();
 

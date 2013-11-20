@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using HgLib;
 using Microsoft.VisualStudio.Shell;
+using VisualHg.Controls;
 
 namespace VisualHg
 {
@@ -11,7 +12,7 @@ namespace VisualHg
     {
         private PendingChangesControl pendingChangesControl;
 
-        
+
         public override IWin32Window Window
         {
             get { return (IWin32Window)pendingChangesControl; }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using HgLib;
 
-namespace VisualHg
+namespace VisualHg.Controls
 {
     public class HgFileInfoListView : ListView
     {

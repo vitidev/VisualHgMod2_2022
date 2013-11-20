@@ -14,7 +14,7 @@ namespace VisualHg
     [InstalledProductRegistration(false, "#100", "#101", "1.1.5", IconResourceID = 400)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideMenuResource(1000, 1)]
-    [ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHg", 106, 107, false)]
+    [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 106, 107, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [ProvideToolWindow(typeof(PendingChangesToolWindow))]
     [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.Provider)]

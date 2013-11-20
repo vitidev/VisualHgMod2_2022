@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace VisualHg
+namespace VisualHg.Controls
 {
     public class ListViewColumnIcons
     {
