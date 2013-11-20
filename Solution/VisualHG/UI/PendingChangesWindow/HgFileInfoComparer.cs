@@ -67,7 +67,11 @@ namespace VisualHg
 
             var result = 0;
 
-            if (columnToSort == HgFileInfoListViewItem.PathColumn)
+            if (columnToSort == HgFileInfoListViewItem.StatusColumn)
+            {
+                result = GetStatusPriority(x.Status).CompareTo(GetStatusPriority(y.Status));
+            }
+            else if (columnToSort == HgFileInfoListViewItem.PathColumn)
             {
                 result = GetPathDepth(xText).CompareTo(GetPathDepth(yText));
             }
@@ -88,6 +92,33 @@ namespace VisualHg
         private static int GetPathDepth(string path)
         {
             return path.Count(x => x == '\\');
+        }
+
+        private static int GetStatusPriority(HgFileStatus status)
+        {
+            switch (status)
+            {
+                case HgFileStatus.Modified:
+                    return 0;
+                case HgFileStatus.Copied:
+                    return 2;
+                case HgFileStatus.Renamed:
+                    return 1;
+                case HgFileStatus.Added:
+                    return 3;
+                case HgFileStatus.Removed:
+                    return 4;
+                case HgFileStatus.Missing:
+                    return 5;
+                case HgFileStatus.NotTracked:
+                    return 6;
+                case HgFileStatus.Ignored:
+                    return 7;
+                case HgFileStatus.Clean:
+                    return 8;
+                default:
+                    return 9;
+            }
         }
     }
 }
