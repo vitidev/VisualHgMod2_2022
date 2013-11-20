@@ -108,7 +108,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="VisualHgSolutionFiles.cs" />
     <Compile Include="DiffTool.cs" />
-    <Compile Include="IdleNotifier.cs" />
+    <Compile Include="IdlenessNotifier.cs" />
     <Compile Include="ImageMapper.cs" />
     <Compile Include="SccProvider.Commands.cs" />
     <Compile Include="SccProvider.Utillities.cs" />

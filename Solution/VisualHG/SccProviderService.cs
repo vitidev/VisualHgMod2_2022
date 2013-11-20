@@ -191,6 +191,7 @@ namespace VisualHg
             return Repository.GetFileStatus(filename);
         }
 
+
         public void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
         {
             if (_nodesGlyphsDirty && (DateTime.Now - _lastUpdate).Milliseconds > 100)
@@ -199,11 +200,6 @@ namespace VisualHg
                 UpdateMainWindowTitle();
                 UpdatePendingChangesToolWindow();
             }
-        }
-
-        private void SetNodesGlyphsDirty(object sender, EventArgs e)
-        {
-            _nodesGlyphsDirty = true;
         }
 
         private void RefreshNodesGlyphs()
@@ -244,6 +240,12 @@ namespace VisualHg
             var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
 
             _sccProvider.UpdateMainWindowCaption(text);
+        }
+
+
+        private void SetNodesGlyphsDirty(object sender, EventArgs e)
+        {
+            _nodesGlyphsDirty = true;
         }
 
 
