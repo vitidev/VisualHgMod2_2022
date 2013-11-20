@@ -8,9 +8,8 @@ namespace VisualHg
 {
     public partial class SccProviderService
     {
-        private uint _baseIndex;
-        private ImageList _glyphList;
-        private ImageMapper _statusImages = new ImageMapper();
+        private uint iconBaseIndex;
+        private ImageList statusImageList;
 
         public int BrowseForProject(out string pbstrDirectory, out int pfOK)
         {
@@ -34,13 +33,14 @@ namespace VisualHg
         
         public int GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
         {
-            if (_glyphList == null)
+            if (statusImageList==null)
             {
-                _baseIndex = BaseIndex;
-                _glyphList = _statusImages.CreateStatusImageList();
+                statusImageList = ImageMapper.CreateStatusImageList(Configuration.Global.StatusImageFileName);
             }
 
-            pdwImageListHandle = unchecked((uint)_glyphList.Handle);
+            iconBaseIndex = BaseIndex;
+                
+            pdwImageListHandle = unchecked((uint)statusImageList.Handle);
 
             return VSConstants.S_OK;
         }
@@ -53,9 +53,9 @@ namespace VisualHg
             }
 
             var status = Repository.GetFileStatus(fileNames[0]);
-            var imageIndex = ImageMapper.GetStatusIconIndex(status);
+            var iconIndex = ImageMapper.GetStatusIconIndex(status);
 
-            icons[0] = (VsStateIcon)(_baseIndex + imageIndex);
+            icons[0] = (VsStateIcon)(iconBaseIndex + iconIndex);
 
             return VSConstants.S_OK;
         }

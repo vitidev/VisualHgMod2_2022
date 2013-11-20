@@ -10,34 +10,20 @@ namespace VisualHg
 {
     public class ImageMapper
     {
-        private ImageList _statusImageList;
-        private ImageList _menuImageList;
-
-        public ImageList StatusImageList
+        public static ImageList CreateStatusImageList(string fileName)
         {
-            get { return _statusImageList ?? (_statusImageList = CreateStatusImageList()); }
+            return CreateImageList(7, "StatusIcons.bmp", fileName);
         }
 
-        public ImageList MenuImageList
+        public static ImageList CreateMenuImageList()
         {
-            get { return _menuImageList ?? (_menuImageList = CreateMenuImageList()); }
-        }
-
-        public ImageList CreateStatusImageList()
-        {
-            return CreateImageList("StatusIcons.bmp", 7);
+            return CreateImageList(16, "MenuIcons.bmp");
         }
 
 
-        public ImageList CreateMenuImageList()
+        private static ImageList CreateImageList(int imageWidth, string resourceName, string fileName = "")
         {
-            return CreateImageList("MenuIcons.bmp", 16);
-        }
-
-
-        private static ImageList CreateImageList(string fileName, int imageWidth)
-        {
-            using (var imageStream = GetImageStream(fileName))
+            using (var imageStream = GetImageStream(resourceName, fileName))
             {
                 if (imageStream == null)
                 {
@@ -65,18 +51,17 @@ namespace VisualHg
             }
         }
 
-        private static Stream GetImageStream(string fileName)
+        private static Stream GetImageStream(string resourceName, string fileName)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var assemblyDirectory = Path.GetDirectoryName(assembly.Location);
-            var imagePath = Path.Combine(assemblyDirectory, fileName);
-
-            if (File.Exists(imagePath))
+            if (File.Exists(fileName))
             {
-                return File.OpenRead(imagePath);
+                return File.OpenRead(fileName);
             }
 
-            return assembly.GetManifestResourceStream(String.Concat(typeof(ImageMapper).Namespace, ".Resources.", fileName));
+            var assembly = Assembly.GetExecutingAssembly();
+            var resource = String.Concat(typeof(ImageMapper).Namespace, ".Resources.", resourceName);
+
+            return assembly.GetManifestResourceStream(resource);
         }
 
 

@@ -38,9 +38,7 @@ namespace VisualHg
 
         private void SetMenuItemImages()
         {
-            var menuImageList = new ImageMapper().MenuImageList;
-
-            if (menuImageList != null)
+            using (var menuImageList = ImageMapper.CreateMenuImageList())
             {
                 commitMenuItem.Image = menuImageList.Images[0];
                 historyMenuItem.Image = menuImageList.Images[1];

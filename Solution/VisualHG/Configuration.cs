@@ -17,6 +17,8 @@ namespace VisualHg
 
         public string DiffToolArguments { get; set; }
 
+        public string StatusImageFileName { get; set; }
+
 
         public Configuration()
         {

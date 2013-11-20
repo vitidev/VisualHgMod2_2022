@@ -65,6 +65,8 @@ namespace VisualHg
         {
             Repository.StatusChanged -= SetNodesGlyphsDirty;
             Repository.Dispose();
+
+            statusImageList.Dispose();
             
             if (_vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
