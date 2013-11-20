@@ -62,7 +62,7 @@ namespace VisualHg
                 Repository.UpdateRootStatus(root);
             }
 
-            if (Configuration.Global.AutoAddFiles)
+            if (Configuration.Global.AddFilesOnLoad)
             {
                 Repository.AddFiles(files);
             }
@@ -125,7 +125,7 @@ namespace VisualHg
         {
             Repository.FileSystemWatch = true;
 
-            if (Configuration.Global.AutoAddFiles)
+            if (Configuration.Global.AutoAddNewFiles)
             {
                 Repository.AddFiles(rgpszMkDocuments);
             }

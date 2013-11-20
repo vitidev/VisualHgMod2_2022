@@ -7,7 +7,9 @@ namespace VisualHg
     {
         public bool AutoActivatePlugin { get; set; }
 
-        public bool AutoAddFiles { get; set; }
+        public bool AddFilesOnLoad { get; set; }
+
+        public bool AutoAddNewFiles { get; set; }
 
         public bool SearchIncludingChildren { get; set; }
 
@@ -19,10 +21,8 @@ namespace VisualHg
         public Configuration()
         {
             AutoActivatePlugin = true;
-            AutoAddFiles = true;
+            AutoAddNewFiles = true;
             SearchIncludingChildren = true;
-            DiffToolPath = "";
-            DiffToolArguments = "";
         }
 
         
