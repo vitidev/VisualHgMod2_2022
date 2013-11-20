@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HgLib;
@@ -10,12 +9,13 @@ namespace VisualHg
     public class VisualHgRepository : HgRepository
     {
         private bool _solutionBuilding;
-        private List<string> _solutionFiles;
+
+        public VisualHgSolutionFiles SolutionFiles { get; private set; }
 
 
         public VisualHgRepository()
         {
-            _solutionFiles = new List<string>();
+            SolutionFiles = new VisualHgSolutionFiles();
         }
 
 
@@ -29,54 +29,6 @@ namespace VisualHg
             _solutionBuilding = false;
         }
 
-
-        public string[] AddSolutionFiles(IVsHierarchy hierarchy)
-        {
-            var project = hierarchy as IVsSccProject2;
-            var files = SccProvider.GetProjectFiles(project);
-
-            lock (_solutionFiles)
-            {
-                foreach (var fileName in files)
-                {
-                    _solutionFiles.Add(fileName.ToLower());
-                }
-            }
-
-            return files;
-        }
-
-        public void ClearSolutionFiles()
-        {
-            lock (_solutionFiles)
-            {
-                _solutionFiles.Clear();
-            }
-        }
-
-        public void RemoveSolutionFiles(IVsHierarchy hierarchy)
-        {
-            if (_solutionFiles.Count > 0)
-            {
-                var project = hierarchy as IVsSccProject2;
-                var files = SccProvider.GetProjectFiles(project);
-
-                RemoveSolutionFiles(files);
-            }
-        }
-
-        private void RemoveSolutionFiles(string[] fileNames)
-        {
-            lock (_solutionFiles)
-            {
-                foreach (var fileName in fileNames)
-                {
-                    _solutionFiles.Remove(fileName.ToLower());
-                }
-            }
-        }
-
-        
         public void UpdateSolution(IVsSolution solution)
         {
             foreach (var directory in GetProjectDirectories(solution))
@@ -119,19 +71,9 @@ namespace VisualHg
             }
         }
 
-        protected override void OnStatusChanged(string[] dirtyFiles)
+        protected override bool FileChangeIsOfInterest(string fileName)
         {
-            bool statusChanged = false;
-
-            lock (_solutionFiles)
-            {
-                statusChanged = dirtyFiles.Any(x => _solutionFiles.Contains(x.ToLower()));
-            }
-
-            if (statusChanged)
-            {
-                base.OnStatusChanged(dirtyFiles);
-            }
+            return SolutionFiles.Contains(fileName) && base.FileChangeIsOfInterest(fileName);
         }
     }
 }

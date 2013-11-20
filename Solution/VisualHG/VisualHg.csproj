@@ -106,6 +106,7 @@
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="VisualHgSolutionFiles.cs" />
     <Compile Include="DiffTool.cs" />
     <Compile Include="IdleNotifier.cs" />
     <Compile Include="ImageMapper.cs" />

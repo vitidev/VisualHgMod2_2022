@@ -247,11 +247,11 @@ namespace HgLib
             else if (filesToUpdate.Length > 0)
             {
                 UpdateFileStatusProtected(dirtyFiles);
-                OnStatusChanged(dirtyFiles);
+                OnStatusChanged();
             }
         }
 
-        private bool FileChangeIsOfInterest(string fileName)
+        protected virtual bool FileChangeIsOfInterest(string fileName)
         {
             if (HgPath.IsDirectory(fileName))
             {

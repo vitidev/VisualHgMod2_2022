@@ -118,11 +118,6 @@ namespace HgLib
         }
 
 
-        protected virtual void OnStatusChanged(string[] dirtyFiles)
-        {
-            OnStatusChanged();
-        }
-
         protected virtual void OnStatusChanged()
         {
             StatusChanged(this, EventArgs.Empty);

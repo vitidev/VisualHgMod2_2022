@@ -55,7 +55,7 @@ namespace VisualHg
         {
             var project = pHierarchy as IVsSccProject2;
                         
-            var files = Repository.AddSolutionFiles(pHierarchy);
+            var files = Repository.SolutionFiles.Add(pHierarchy);
 
             foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
@@ -74,21 +74,21 @@ namespace VisualHg
 
         public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
         {
-            Repository.RemoveSolutionFiles(pHierarchy);
+            Repository.SolutionFiles.Remove(pHierarchy);
                         
             return VSConstants.S_OK;
         }
 
         public int OnBeforeCloseSolution(object pUnkReserved)
         {
-            Repository.ClearSolutionFiles();
+            Repository.SolutionFiles.Clear();
 
             return VSConstants.S_OK;
         }
 
         public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
         {
-            Repository.RemoveSolutionFiles(pRealHierarchy);
+            Repository.SolutionFiles.Remove(pRealHierarchy);
 
             return VSConstants.S_OK;
         }
