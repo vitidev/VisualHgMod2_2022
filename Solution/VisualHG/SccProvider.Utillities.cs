@@ -233,7 +233,7 @@ namespace VisualHg
 
             if (caption != newCaption)
             {
-                SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
+                NativeMethods.SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
             }
         }
 
@@ -687,10 +687,5 @@ namespace VisualHg
 
             return false;
         }
-
-
-
-        [DllImport("user32.dll")]
-        private static extern bool SetWindowText(IntPtr hWnd, string lpString);
     }
 }
