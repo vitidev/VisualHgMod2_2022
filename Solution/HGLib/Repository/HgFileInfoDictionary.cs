@@ -40,9 +40,12 @@ namespace HgLib.Repository
             {
                 HgFileInfo fileInfo = null;
 
-                lock (SyncRoot)
+                if (!String.IsNullOrEmpty(fileName))
                 {
-                    items.TryGetValue(fileName, out fileInfo);
+                    lock (SyncRoot)
+                    {
+                        items.TryGetValue(fileName, out fileInfo);
+                    }
                 }
 
                 return fileInfo;
