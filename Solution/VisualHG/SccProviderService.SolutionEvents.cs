@@ -116,15 +116,11 @@ namespace VisualHg
 
         public int OnQueryAddFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, [Out] VSQUERYADDFILERESULTS[] pSummaryResult, [Out] VSQUERYADDFILERESULTS[] rgResults)
         {
-            Repository.FileSystemWatch = false;
-            
             return VSConstants.S_OK;
         }
 
         public int OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
-            Repository.FileSystemWatch = true;
-
             if (Configuration.Global.AutoAddNewFiles)
             {
                 Repository.AddFiles(rgpszMkDocuments);
@@ -145,15 +141,11 @@ namespace VisualHg
 
         public int OnQueryRemoveFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, [Out] VSQUERYREMOVEFILERESULTS[] pSummaryResult, [Out] VSQUERYREMOVEFILERESULTS[] rgResults)
         {
-            Repository.FileSystemWatch = false;
-
             return VSConstants.S_OK;
         }
 
         public int OnAfterRemoveFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEFILEFLAGS[] rgFlags)
         {
-            Repository.FileSystemWatch = true;
-
             if (rgpProjects == null || rgpszMkDocuments == null)
             {
                 return VSConstants.E_POINTER;
@@ -179,16 +171,12 @@ namespace VisualHg
 
         public int OnQueryRenameFiles(IVsProject pProject, int cFiles, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] rgFlags, [Out] VSQUERYRENAMEFILERESULTS[] pSummaryResult, [Out] VSQUERYRENAMEFILERESULTS[] rgResults)
         {
-            Repository.FileSystemWatch = false;
-            
             return VSConstants.S_OK;
         }
 
         public int OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)
         {
-            Repository.FileSystemWatch = true;
             Repository.RenameFiles(rgszMkOldNames, rgszMkNewNames);
-            
             return VSConstants.S_OK;
         }
 

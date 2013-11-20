@@ -61,20 +61,6 @@ namespace HgLib.Repository
             }
         }
 
-        public bool FileSystemWatch
-        {
-            set
-            {
-                lock (SyncRoot)
-                {
-                    foreach (var watcher in _watchers)
-                    {
-                        watcher.FileSystemWatch = value;
-                    }
-                }
-            }
-        }
-
 
         public DirectoryWatcherMap()
         {
@@ -138,7 +124,6 @@ namespace HgLib.Repository
                     {
                         var watcher = removeWatcher[pos];
                         _watchers.Remove(watcher);
-                        watcher.FileSystemWatch = false;
                     }
 
                     _watchers.Add(new DirectoryWatcher(directory, SyncRoot));

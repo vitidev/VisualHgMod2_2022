@@ -18,12 +18,6 @@ namespace HgLib
         private DirectoryWatcherMap directoryWatchers;
 
 
-        public bool FileSystemWatch
-        {
-            set { directoryWatchers.FileSystemWatch = value; }
-        }
-
-
         public HgRepository()
         {
             commands = new HgCommandQueue();

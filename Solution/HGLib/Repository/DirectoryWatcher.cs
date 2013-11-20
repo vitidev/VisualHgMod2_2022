@@ -26,17 +26,6 @@ namespace HgLib.Repository
             }
         }
 
-        public bool FileSystemWatch
-        {
-            set
-            {
-                lock (SyncRoot)
-                {
-                    _watcher.EnableRaisingEvents = value;
-                }
-            }
-        }
-
 
         public DirectoryWatcher(string directory, object syncRoot)
         {
