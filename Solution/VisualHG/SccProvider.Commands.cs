@@ -183,8 +183,6 @@ namespace VisualHg
 
         private void GetRootAnd(Action<string> showWindow)
         {
-            SaveAllFiles();
-
             var root = VisualHgSolution.CurrentRootDirectory;
 
             if (!String.IsNullOrEmpty(root))
@@ -200,8 +198,6 @@ namespace VisualHg
 
         private void ShowAddSelectedWindow(object sender, EventArgs e)
         {
-            SaveAllFiles();
-
             var filesToAdd = VisualHgSolution.GetSelectedFiles(true).Where(VisualHgFileStatus.IsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
@@ -228,15 +224,6 @@ namespace VisualHg
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
             ShowHistoryWindow(VisualHgSolution.SelectedFile);
-        }
-
-
-        private static void SaveAllFiles()
-        {
-            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
-            var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
-            
-            solution.SaveSolutionElement(options, null, 0);
         }
     }
 }

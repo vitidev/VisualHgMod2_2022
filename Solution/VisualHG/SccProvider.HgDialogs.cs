@@ -10,8 +10,6 @@ namespace VisualHg
     {
         public void ShowCommitWindow(string[] files)
         {
-            SaveAllFiles();
-
             var filesToCommit = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
             if (filesToCommit.Length > 0)
@@ -22,8 +20,6 @@ namespace VisualHg
 
         public void ShowRevertWindow(string[] files)
         {
-            SaveAllFiles();
-
             var filesToRevert = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
             if (filesToRevert.Length > 0)
@@ -34,8 +30,6 @@ namespace VisualHg
 
         public void ShowHistoryWindow(string fileName)
         {
-            SaveAllFiles();
-
             var originalFileName = GetOriginalFileName(fileName);
 
             TortoiseHg.ShowHistoryWindow(originalFileName);
@@ -44,8 +38,6 @@ namespace VisualHg
 
         public void ShowDiffWindow(string fileName)
         {
-            SaveAllFiles();
-
             var root = HgPath.FindRepositoryRoot(fileName);
             var parent = GetOriginalFileName(fileName);
             var temp = Hg.CreateParentRevisionTempFile(parent, root);
