@@ -39,7 +39,7 @@ namespace VisualHg
 
         public void UpdateProject(IVsSccProject2 project)
         {
-            UpdateRootStatus(SccProvider.GetDirectoryName((IVsHierarchy)project));
+            UpdateRootStatus(VisualHgSolution.GetDirectoryName((IVsHierarchy)project));
         }
 
 

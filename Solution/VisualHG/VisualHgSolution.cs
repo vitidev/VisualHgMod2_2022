@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    partial class SccProvider
+    public static class VisualHgSolution
     {
         public static string LastSeenProjectDirectory { get; set; }
 
@@ -44,7 +44,7 @@ namespace VisualHg
                 var root = HgPath.FindRepositoryRoot(SolutionFileName);
 
                 // This is for WebPage projects. The solution file is not included inside the Hg root dir.
-                if (String.IsNullOrEmpty(root) && LastSeenProjectDirectory != null)
+                if (String.IsNullOrEmpty(root) && !String.IsNullOrEmpty(LastSeenProjectDirectory))
                 {
                     return HgPath.FindRepositoryRoot(LastSeenProjectDirectory);
                 }
@@ -109,7 +109,7 @@ namespace VisualHg
         }
 
 
-        private static string[] GetSelectedFiles(bool includeChildren)
+        public static string[] GetSelectedFiles(bool includeChildren)
         {
             var selectedFiles = new List<string>();
             
@@ -134,15 +134,6 @@ namespace VisualHg
             }
 
             return selectedFiles.Where(x => !String.IsNullOrEmpty(x)).ToArray();
-        }
-
-
-        private static void SaveAllFiles()
-        {
-            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
-            var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
-            
-            solution.SaveSolutionElement(options, null, 0);
         }
 
 
@@ -215,35 +206,12 @@ namespace VisualHg
         }
 
 
-        public static void UpdateMainWindowCaption(string branch)
-        {
-            var dte = Package.GetGlobalService(typeof(SDTE)) as _DTE;
-
-            if (dte == null || dte.MainWindow == null)
-            {
-                return;
-            }
-
-            var caption = dte.MainWindow.Caption;
-            var additionalInfo = String.IsNullOrEmpty(branch) ? "" : String.Concat(" (", branch, ") ");
-
-            var newCaption = Regex.Replace(caption, 
-                @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)$",
-                String.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
-
-            if (caption != newCaption)
-            {
-                NativeMethods.SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
-            }
-        }
-
-
-        private static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
+        public static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
             return AnySelectedFileStatusMatches(pattern, Configuration.Global.SearchIncludingChildren);
         }
 
-        private static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
+        public static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
         {
             if (includeChildren)
             {
@@ -290,7 +258,7 @@ namespace VisualHg
             return VisualHgFileStatus.Matches(fileName, pattern);
         }
 
-        private static bool SelectedFileStatusMatches(HgFileStatus pattern)
+        public static bool SelectedFileStatusMatches(HgFileStatus pattern)
         {
             return VisualHgFileStatus.Matches(SelectedFile, pattern);
         }

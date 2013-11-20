@@ -121,27 +121,27 @@ namespace VisualHg
 
         private bool IsAddMenuItemVisible()
         {
-            return SearchAnySelectedFileStatusMatches(HgFileStatus.NotAdded);
+            return VisualHgSolution.SearchAnySelectedFileStatusMatches(HgFileStatus.NotAdded);
         }
 
         private bool IsCommitSelectedMenuItemVisible()
         {
-            return SearchAnySelectedFileStatusMatches(HgFileStatus.Pending);
+            return VisualHgSolution.SearchAnySelectedFileStatusMatches(HgFileStatus.Pending);
         }
 
         private bool IsDiffMenuItemVisible()
         {
-            return SelectedFileStatusMatches(HgFileStatus.Comparable);
+            return VisualHgSolution.SelectedFileStatusMatches(HgFileStatus.Comparable);
         }
 
         private bool IsRevertMenuItemVisible()
         {
-            return AnySelectedFileStatusMatches(HgFileStatus.Pending, false);
+            return VisualHgSolution.AnySelectedFileStatusMatches(HgFileStatus.Pending, false);
         }
 
         private bool IsHistoryMenuItemVisible()
         {
-            return SelectedFileStatusMatches(HgFileStatus.Tracked);
+            return VisualHgSolution.SelectedFileStatusMatches(HgFileStatus.Tracked);
         }
 
 
@@ -185,7 +185,7 @@ namespace VisualHg
         {
             SaveAllFiles();
 
-            var root = CurrentRootDirectory;
+            var root = VisualHgSolution.CurrentRootDirectory;
 
             if (!String.IsNullOrEmpty(root))
             {
@@ -202,7 +202,7 @@ namespace VisualHg
         {
             SaveAllFiles();
 
-            var filesToAdd = GetSelectedFiles(true).Where(VisualHgFileStatus.IsNotAdded).ToArray();
+            var filesToAdd = VisualHgSolution.GetSelectedFiles(true).Where(VisualHgFileStatus.IsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
             {
@@ -212,22 +212,31 @@ namespace VisualHg
 
         private void ShowCommitSelectedWindow(object sender, EventArgs e)
         {
-            ShowCommitWindow(GetSelectedFiles(true));
+            ShowCommitWindow(VisualHgSolution.GetSelectedFiles(true));
         }
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
-            ShowDiffWindow(SelectedFile);
+            ShowDiffWindow(VisualHgSolution.SelectedFile);
         }
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
-            ShowRevertWindow(GetSelectedFiles(false));
+            ShowRevertWindow(VisualHgSolution.GetSelectedFiles(false));
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
-            ShowHistoryWindow(SelectedFile);
+            ShowHistoryWindow(VisualHgSolution.SelectedFile);
+        }
+
+
+        private static void SaveAllFiles()
+        {
+            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
+            var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
+            
+            solution.SaveSolutionElement(options, null, 0);
         }
     }
 }

@@ -2,7 +2,9 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using EnvDTE;
 using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -119,7 +121,7 @@ namespace VisualHg
             if (nodesGlyphsDirty && (DateTime.Now - lastUpdate).Milliseconds > 100)
             {
                 RefreshNodesGlyphs();
-                UpdateMainWindowTitle();
+                UpdateMainWindowCaption();
                 UpdatePendingChangesToolWindow();
             }
         }
@@ -127,10 +129,10 @@ namespace VisualHg
         private void RefreshNodesGlyphs()
         {
             var nodes = new [] { GetSolutionVsItemSelection() }
-                .Concat(SccProvider.LoadedProjects.Select(GetVsItemSelection))
+                .Concat(VisualHgSolution.LoadedProjects.Select(GetVsItemSelection))
                 .ToArray();
 
-            SccProvider.UpdateGlyphs(nodes);
+            VisualHgSolution.UpdateGlyphs(nodes);
 
             lastUpdate = DateTime.Now;
             nodesGlyphsDirty = false;
@@ -158,13 +160,36 @@ namespace VisualHg
             sccProvider.UpdatePendingChangesToolWindow();
         }
 
-        private void UpdateMainWindowTitle()
+        private void UpdateMainWindowCaption()
         {
             var branches = Repository.Branches;
             var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
 
-            SccProvider.UpdateMainWindowCaption(text);
+            UpdateMainWindowCaption(text);
         }
+
+        private static void UpdateMainWindowCaption(string text)
+        {
+            var dte = Package.GetGlobalService(typeof(SDTE)) as _DTE;
+
+            if (dte == null || dte.MainWindow == null)
+            {
+                return;
+            }
+
+            var caption = dte.MainWindow.Caption;
+            var additionalInfo = String.IsNullOrEmpty(text) ? "" : String.Concat(" (", text, ") ");
+
+            var newCaption = Regex.Replace(caption, 
+                @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)$",
+                String.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
+
+            if (caption != newCaption)
+            {
+                NativeMethods.SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
+            }
+        }
+
 
 
         private bool AnyItemsUnderSourceControl
@@ -201,7 +226,7 @@ namespace VisualHg
 
         private string GetToolTipText(IVsHierarchy hierarchy, uint itemId)
         {
-            var files = SccProvider.GetItemFiles(hierarchy, itemId);
+            var files = VisualHgSolution.GetItemFiles(hierarchy, itemId);
             
             if (files.Length == 0)
             {
@@ -224,7 +249,7 @@ namespace VisualHg
 
         private void OnAfterCloseSolution()
         {
-            SccProvider.LastSeenProjectDirectory = "";
+            VisualHgSolution.LastSeenProjectDirectory = "";
 
             Repository.Clear();
             UpdatePendingChangesToolWindow();
@@ -263,14 +288,14 @@ namespace VisualHg
 
         private static void UpdateLastSeenProjectDirectory(IVsHierarchy hierarchy)
         {
-            SccProvider.LastSeenProjectDirectory = SccProvider.GetDirectoryName(hierarchy);
+            VisualHgSolution.LastSeenProjectDirectory = VisualHgSolution.GetDirectoryName(hierarchy);
         }
 
         private void OnAfterOpenSolution()
         {
             if (!Active && Configuration.Global.AutoActivatePlugin)
             {
-                var root = SccProvider.SolutionRootDirectory;
+                var root = VisualHgSolution.SolutionRootDirectory;
                 
                 if (!String.IsNullOrEmpty(root))
                 {

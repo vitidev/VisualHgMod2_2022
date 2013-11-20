@@ -75,7 +75,7 @@ namespace VisualHg
         {
             var project = hierarchy as IVsSccProject2;
             
-            return SccProvider.GetProjectFiles(project);
+            return VisualHgSolution.GetProjectFiles(project);
         }
     }
 }

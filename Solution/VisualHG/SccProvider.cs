@@ -41,15 +41,9 @@ namespace VisualHg
         }
 
 
-        public SccProvider()
-        {
-            LastSeenProjectDirectory = "";
-        }
-
-
         private void NotifySolutionIsNotUnderVersionControl()
         {
-            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + VisualHgSolution.SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         public void UpdatePendingChangesToolWindow()
