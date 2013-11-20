@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -9,9 +11,62 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    partial class SccProvider
+    [InstalledProductRegistration(false, "#100", "#101", "1.1.5", IconResourceID = 400)]
+    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [ProvideMenuResource(1000, 1)]
+    [ProvideOptionPage(typeof(SccProviderOptions), "Source Control", "VisualHg", 106, 107, false)]
+    [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
+    [ProvideToolWindow(typeof(PendingChangesToolWindow))]
+    [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.Provider)]
+    [ProvideService(typeof(VisualHgService), ServiceName = "VisualHg")]
+    [ProvideSourceControlProvider("VisualHg", "#100")]
+    [ProvideAutoLoad(Guids.Provider)]
+    [ProvideSolutionPersistence("VisualHgProperties")]
+    [Guid(Guids.Package)]
+    public sealed partial class VisualHgPackage : Package
     {
         private const int OLECMDERR_E_NOTSUPPORTED = (int)Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED;
+
+        private VisualHgService visualHgService;
+        private PendingChangesToolWindow _pendingChangesToolWindow;
+
+
+        public void UpdatePendingChangesToolWindow()
+        {
+            if (_pendingChangesToolWindow == null)
+            {
+                _pendingChangesToolWindow = FindToolWindow(typeof(PendingChangesToolWindow), 0, true) as PendingChangesToolWindow;
+            }
+
+            _pendingChangesToolWindow.SetFiles(visualHgService.PendingFiles);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            visualHgService.Dispose();
+            base.Dispose(disposing);
+        }
+
+
+        private void NotifySolutionIsNotUnderVersionControl()
+        {
+            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + VisualHgSolution.SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
+
+            visualHgService = new VisualHgService();
+            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
+
+            InitializeMenuCommands();
+
+            var rscp = GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
+            rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
+        }
 
         private void InitializeMenuCommands()
         {
@@ -89,7 +144,7 @@ namespace VisualHg
 
             return VSConstants.S_OK;
         }
-    
+
         private OLECMDF VisibleToOleCmdf(bool visible)
         {
             return OLECMDF.OLECMDF_SUPPORTED | (visible ? OLECMDF.OLECMDF_ENABLED : OLECMDF.OLECMDF_INVISIBLE);
@@ -147,7 +202,12 @@ namespace VisualHg
 
         private void ShowPendingChangesToolWindow(object sender, EventArgs e)
         {
-            var windowFrame = PendingChangesToolWindow.Frame as IVsWindowFrame;
+            if (_pendingChangesToolWindow == null)
+            {
+                UpdatePendingChangesToolWindow();
+            }
+
+            var windowFrame = _pendingChangesToolWindow.Frame as IVsWindowFrame;
 
             if (windowFrame != null)
             {

@@ -112,11 +112,10 @@
     <Compile Include="DiffTool.cs" />
     <Compile Include="IdlenessNotifier.cs" />
     <Compile Include="ImageMapper.cs" />
-    <Compile Include="SccProvider.Commands.cs" />
     <Compile Include="VisualHgSolution.cs" />
     <Compile Include="VisualHgDialogs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SccProvider.cs" />
+    <Compile Include="VisualHgPackage.cs" />
     <Compile Include="CommandId.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Resources.Designer.cs">

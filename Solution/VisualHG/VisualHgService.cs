@@ -29,6 +29,7 @@ namespace VisualHg
 
         private DateTime lastUpdate;
 
+        private VisualHgRepository repository;
         private IdlenessNotifier idlenessNotifier;
 
 
@@ -41,14 +42,17 @@ namespace VisualHg
                 {
                     var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
 
-                    Repository.UpdateSolution(solution);
+                    repository.UpdateSolution(solution);
                 }
 
                 _active = value;
             }
         }
 
-        public VisualHgRepository Repository { get; private set; }
+        public HgFileInfo[] PendingFiles
+        {
+            get { return repository.PendingFiles; }
+        }
 
 
         public VisualHgService()
@@ -57,8 +61,8 @@ namespace VisualHg
             idlenessNotifier.Idle += UpdateDirtyNodesGlyphs;
             idlenessNotifier.Register();
 
-            Repository = new VisualHgRepository();
-            Repository.StatusChanged += SetNodesGlyphsDirty;
+            repository = new VisualHgRepository();
+            repository.StatusChanged += SetNodesGlyphsDirty;
 
             var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             solution.AdviseSolutionEvents(this, out vsSolutionEventsCookie);
@@ -78,8 +82,8 @@ namespace VisualHg
             idlenessNotifier.Idle -= UpdateDirtyNodesGlyphs;
             idlenessNotifier.Revoke();
 
-            Repository.StatusChanged -= SetNodesGlyphsDirty;
-            Repository.Dispose();
+            repository.StatusChanged -= SetNodesGlyphsDirty;
+            repository.Dispose();
 
             statusImageList.Dispose();
 
@@ -107,7 +111,7 @@ namespace VisualHg
         
         public HgFileStatus GetFileStatus(string filename)
         {
-            return Repository.GetFileStatus(filename);
+            return repository.GetFileStatus(filename);
         }
 
 
@@ -152,17 +156,17 @@ namespace VisualHg
                 pHier = hierarchy,
             };
         }
-
+        
         private void UpdatePendingChangesToolWindow()
         {
-            var sccProvider = Package.GetGlobalService(typeof(IServiceProvider)) as SccProvider;
+            var visualHg = Package.GetGlobalService(typeof(IServiceProvider)) as VisualHgPackage;
 
-            sccProvider.UpdatePendingChangesToolWindow();
+            visualHg.UpdatePendingChangesToolWindow();
         }
 
         private void UpdateMainWindowCaption()
         {
-            var branches = Repository.Branches;
+            var branches = repository.Branches;
             var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
 
             UpdateMainWindowCaption(text);
@@ -194,7 +198,7 @@ namespace VisualHg
 
         private bool AnyItemsUnderSourceControl
         {
-            get { return Active && !Repository.IsEmpty; }
+            get { return Active && !repository.IsEmpty; }
         }
 
 
@@ -210,7 +214,7 @@ namespace VisualHg
 
         public VsStateIcon GetStateIcon(string fileName)
         {
-            var status = Repository.GetFileStatus(fileName);
+            var status = repository.GetFileStatus(fileName);
             var iconIndex = ImageMapper.GetStatusIconIndex(status);
 
             return (VsStateIcon)(iconBaseIndex + iconIndex);
@@ -220,7 +224,7 @@ namespace VisualHg
         {
             if (project != null)
             {
-                Repository.UpdateProject(project);
+                repository.UpdateProject(project);
             }
         }
 
@@ -235,8 +239,8 @@ namespace VisualHg
 
             var fileName = files[0];
             
-            var text = Repository.GetFileStatus(fileName).ToString();
-            var branch = Repository.GetBranch(fileName);
+            var text = repository.GetFileStatus(fileName).ToString();
+            var branch = repository.GetBranch(fileName);
 
             if (!String.IsNullOrEmpty(branch))
             {
@@ -251,7 +255,7 @@ namespace VisualHg
         {
             VisualHgSolution.LastSeenProjectDirectory = "";
 
-            Repository.Clear();
+            repository.Clear();
             UpdatePendingChangesToolWindow();
         }
 
@@ -261,7 +265,7 @@ namespace VisualHg
 
             if (project != null)
             {
-                Repository.UpdateProject(project);
+                repository.UpdateProject(project);
             }
 
             UpdateLastSeenProjectDirectory(hierarchy);
@@ -271,16 +275,16 @@ namespace VisualHg
         {
             var project = hierarchy as IVsSccProject2;
                         
-            var files = Repository.SolutionFiles.Add(hierarchy);
+            var files = repository.SolutionFiles.Add(hierarchy);
 
             foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
-                Repository.UpdateRootStatus(root);
+                repository.UpdateRootStatus(root);
             }
 
             if (Configuration.Global.AddFilesOnLoad)
             {
-                Repository.AddFiles(files);
+                repository.AddFiles(files);
             }
 
             UpdateLastSeenProjectDirectory(hierarchy);
@@ -308,35 +312,35 @@ namespace VisualHg
 
         private void OnBeforeCloseProject(IVsHierarchy hierarchy)
         {
-            Repository.SolutionFiles.Remove(hierarchy);
+            repository.SolutionFiles.Remove(hierarchy);
         }
 
         private void OnBeforeCloseSolution()
         {
-            Repository.SolutionFiles.Clear();
+            repository.SolutionFiles.Clear();
         }
 
         private void OnBeforeUnloadProject(IVsHierarchy hierarchy)
         {
-            Repository.SolutionFiles.Remove(hierarchy);
+            repository.SolutionFiles.Remove(hierarchy);
         }
 
 
         private void OnSolutionBuildEnded()
         {
-            Repository.SolutionBuildEnded();
+            repository.SolutionBuildEnded();
         }
 
         private void OnSolutionBuildStarted()
         {
-            Repository.SolutionBuildStarted();
+            repository.SolutionBuildStarted();
         }
 
         private void OnFileSave(params string[] fileNames)
         {
             if (Active)
             {
-                Repository.UpdateFileStatus(fileNames);
+                repository.UpdateFileStatus(fileNames);
             }
         }
 
@@ -345,18 +349,18 @@ namespace VisualHg
         {
             if (Configuration.Global.AutoAddNewFiles)
             {
-                Repository.AddFiles(fileNames);
+                repository.AddFiles(fileNames);
             }
         }
 
         private void OnAfterRemoveFiles(string[] fileNames)
         {
-            Repository.RemoveFiles(fileNames);
+            repository.RemoveFiles(fileNames);
         }
 
         private void OnAfterRenameFiles(string[] fileNames, string[] newFileNames)
         {
-            Repository.RenameFiles(fileNames, newFileNames);
+            repository.RenameFiles(fileNames, newFileNames);
         }
 
 
