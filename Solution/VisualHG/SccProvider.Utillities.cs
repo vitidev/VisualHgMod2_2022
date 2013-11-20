@@ -181,7 +181,7 @@ namespace VisualHg
         {
             var hierarchy = GetService(typeof(SVsSolution)) as IVsHierarchy;
             var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
-            var glyph = GetGlyph(SolutionFileName);
+            var glyph = sccService.GetStateIcon(SolutionFileName);
 
             hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, glyph);
         }
@@ -198,19 +198,10 @@ namespace VisualHg
             if (!String.IsNullOrEmpty(fileName))
             {
                 var affectedItem = new[] { itemId };
-                var glyph = new[] { GetGlyph(fileName) };
+                var glyph = new[] { sccService.GetStateIcon(fileName) };
 
                 project.SccGlyphChanged(1, affectedItem, glyph, new uint[1]);
             }
-        }
-
-        private VsStateIcon GetGlyph(string fileName)
-        {
-            var glyph = new VsStateIcon[1];
-
-            sccService.GetSccGlyph(1, new[] { fileName }, glyph, new uint[1]);
-
-            return glyph[0];
         }
 
 
