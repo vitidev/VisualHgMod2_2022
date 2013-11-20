@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace VisualHg
 {
     [Guid(Guids.Service)]
-    public partial class SccProviderService : IDisposable,
+    public partial class VisualHgService : IDisposable,
         IVsSccProvider, IVsSccGlyphs, IVsSccManager2, IVsSccManagerTooltip,
         IVsSolutionEvents, IVsUpdateSolutionEvents, IVsQueryEditQuerySave2, IVsTrackProjectDocumentsEvents2
     {
@@ -48,7 +48,7 @@ namespace VisualHg
         public VisualHgRepository Repository { get; private set; }
 
 
-        public SccProviderService(SccProvider sccProvider)
+        public VisualHgService(SccProvider sccProvider)
         {
             Debug.Assert(sccProvider != null);
 

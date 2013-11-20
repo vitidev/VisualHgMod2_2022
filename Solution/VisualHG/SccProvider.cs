@@ -15,7 +15,7 @@ namespace VisualHg
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [ProvideToolWindow(typeof(PendingChangesToolWindow))]
     [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.Provider)]
-    [ProvideService(typeof(SccProviderService), ServiceName = "VisualHg")]
+    [ProvideService(typeof(VisualHgService), ServiceName = "VisualHg")]
     [ProvideSourceControlProvider("VisualHg", "#100")]
     [ProvideAutoLoad(Guids.Provider)]
     [ProvideSolutionPersistence("VisualHgProperties")]
@@ -24,7 +24,7 @@ namespace VisualHg
     {
         public string LastSeenProjectDirectory { get; set; }
         private IdlenessNotifier idlenessNotifier;
-        private SccProviderService sccService;
+        private VisualHgService visualHgService;
         private PendingChangesToolWindow _pendingChangesToolWindow;
         
         private PendingChangesToolWindow PendingChangesToolWindow
@@ -58,7 +58,7 @@ namespace VisualHg
 
         public void UpdatePendingChangesToolWindow()
         {
-            var pendingFiles = sccService.Repository.PendingFiles;
+            var pendingFiles = visualHgService.Repository.PendingFiles;
 
             PendingChangesToolWindow.SetFiles(pendingFiles);
         }
@@ -72,8 +72,8 @@ namespace VisualHg
         {
             base.Initialize();
 
-            sccService = new SccProviderService(this);
-            ((IServiceContainer)this).AddService(typeof(SccProviderService), sccService, true);
+            visualHgService = new VisualHgService(this);
+            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
             ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
 
             InitializeMenuCommands();
@@ -82,17 +82,17 @@ namespace VisualHg
             rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
 
             idlenessNotifier.Register();
-            idlenessNotifier.Idle += sccService.UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Idle += visualHgService.UpdateDirtyNodesGlyphs;
         }
 
         protected override void Dispose(bool disposing)
         {
-            idlenessNotifier.Idle -= sccService.UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Idle -= visualHgService.UpdateDirtyNodesGlyphs;
             idlenessNotifier.Revoke();
 
             Provider = null;
 
-            sccService.Dispose();
+            visualHgService.Dispose();
             
             base.Dispose(disposing);
         }

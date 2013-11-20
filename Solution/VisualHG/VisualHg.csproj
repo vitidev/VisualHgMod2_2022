@@ -129,7 +129,7 @@
     <Compile Include="UI\OptionsPage\SccProviderOptionsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SccProviderService.cs" />
+    <Compile Include="VisualHgService.cs" />
     <Compile Include="UI\PendingChangesWindow\HgFileInfoListViewItem.cs" />
     <Compile Include="UI\PendingChangesWindow\HgFileInfoComparer.cs" />
     <Compile Include="UI\PendingChangesWindow\HgFileInfoListView.cs">

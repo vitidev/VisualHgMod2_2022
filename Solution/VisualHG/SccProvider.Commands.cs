@@ -83,7 +83,7 @@ namespace VisualHg
                 return OLECMDERR_E_NOTSUPPORTED;
             }
 
-            var visible = sccService.Active ? IsCommandVisible(commands[0].cmdID) : false;
+            var visible = visualHgService.Active ? IsCommandVisible(commands[0].cmdID) : false;
 
             commands[0].cmdf = (uint)VisibleToOleCmdf(visible);
 
