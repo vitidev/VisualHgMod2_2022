@@ -208,22 +208,22 @@ namespace VisualHg
 
         private void ShowCommitSelectedWindow(object sender, EventArgs e)
         {
-            ShowCommitWindow(VisualHgSolution.GetSelectedFiles(true));
+            VisualHgDialogs.ShowCommitWindow(VisualHgSolution.GetSelectedFiles(true));
         }
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
-            ShowDiffWindow(VisualHgSolution.SelectedFile);
+            VisualHgDialogs.ShowDiffWindow(VisualHgSolution.SelectedFile);
         }
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
-            ShowRevertWindow(VisualHgSolution.GetSelectedFiles(false));
+            VisualHgDialogs.ShowRevertWindow(VisualHgSolution.GetSelectedFiles(false));
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
-            ShowHistoryWindow(VisualHgSolution.SelectedFile);
+            VisualHgDialogs.ShowHistoryWindow(VisualHgSolution.SelectedFile);
         }
     }
 }

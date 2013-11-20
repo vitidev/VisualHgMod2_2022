@@ -6,9 +6,9 @@ using HgLib;
 
 namespace VisualHg
 {
-    partial class SccProvider
+    public static class VisualHgDialogs
     {
-        public void ShowCommitWindow(string[] files)
+        public static void ShowCommitWindow(string[] files)
         {
             var filesToCommit = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
@@ -18,7 +18,7 @@ namespace VisualHg
             }
         }
 
-        public void ShowRevertWindow(string[] files)
+        public static void ShowRevertWindow(string[] files)
         {
             var filesToRevert = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
@@ -28,7 +28,7 @@ namespace VisualHg
             }
         }
 
-        public void ShowHistoryWindow(string fileName)
+        public static void ShowHistoryWindow(string fileName)
         {
             var originalFileName = GetOriginalFileName(fileName);
 
@@ -36,7 +36,7 @@ namespace VisualHg
         }
 
 
-        public void ShowDiffWindow(string fileName)
+        public static void ShowDiffWindow(string fileName)
         {
             var root = HgPath.FindRepositoryRoot(fileName);
             var parent = GetOriginalFileName(fileName);
@@ -89,7 +89,7 @@ namespace VisualHg
         }
 
 
-        private string GetOriginalFileName(string fileName)
+        private static string GetOriginalFileName(string fileName)
         {
             if (VisualHgFileStatus.Matches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
             {

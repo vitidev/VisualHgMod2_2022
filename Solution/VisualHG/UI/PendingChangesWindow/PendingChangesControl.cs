@@ -20,9 +20,6 @@ namespace VisualHg
         private ColumnHeader pathColumnHeader;
         private ToolStripMenuItem openMenuItem;
 
-        private SccProvider sccProvider;
-
-
         public PendingChangesControl()
         {
             InitializeComponent();
@@ -38,7 +35,6 @@ namespace VisualHg
             fileListView.KeyDown += OnFilesListViewKeyDown;
             fileListView.ItemSelectionChanged += UpdateMenuItemVisibility;
 
-            sccProvider = Package.GetGlobalService(typeof(IServiceProvider)) as SccProvider;
         }
 
         private void SetMenuItemImages()
@@ -66,7 +62,9 @@ namespace VisualHg
             {
                 try
                 {
-                    VsShellUtilities.OpenDocument(sccProvider, fileName);
+                    var serviceProvider = Package.GetGlobalService(typeof(IServiceProvider)) as IServiceProvider;
+                    
+                    VsShellUtilities.OpenDocument(serviceProvider, fileName);
                 }
                 catch (Exception ex)
                 {
@@ -82,27 +80,27 @@ namespace VisualHg
 
         private void ShowCommitWindow(object sender, EventArgs e)
         {
-            sccProvider.ShowCommitWindow(fileListView.SelectedFiles);
+            VisualHgDialogs.ShowCommitWindow(fileListView.SelectedFiles);
         }
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
             if (fileListView.SelectedIndices.Count == 1)
             {
-                sccProvider.ShowDiffWindow(fileListView.SelectedFiles[0]);
+                VisualHgDialogs.ShowDiffWindow(fileListView.SelectedFiles[0]);
             }
         }
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
-            sccProvider.ShowRevertWindow(fileListView.SelectedFiles);
+            VisualHgDialogs.ShowRevertWindow(fileListView.SelectedFiles);
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
             if (fileListView.SelectedIndices.Count == 1)
             {
-                sccProvider.ShowHistoryWindow(fileListView.SelectedFiles[0]);
+                VisualHgDialogs.ShowHistoryWindow(fileListView.SelectedFiles[0]);
             }
         }
 
