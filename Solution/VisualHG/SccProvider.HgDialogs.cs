@@ -57,9 +57,13 @@ namespace VisualHg
             diffTool.Start(temp, fileName, root);
         }
 
-        private static void DeleteFile(string file)
+        private static void DeleteFile(string fileName)
         {
-            File.Delete(file);
+            try
+            {
+                File.Delete(fileName);
+            }
+            catch { }
         }
 
         private static DiffTool GetDiffTool()
