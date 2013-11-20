@@ -108,7 +108,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="VisualHgFileStatus.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="VisualHgSolutionFiles.cs" />
+    <Compile Include="VisualHgFileSet.cs" />
     <Compile Include="DiffTool.cs" />
     <Compile Include="IdlenessNotifier.cs" />
     <Compile Include="ImageMapper.cs" />

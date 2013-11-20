@@ -10,12 +10,12 @@ namespace VisualHg
     {
         private bool _solutionBuilding;
 
-        public VisualHgSolutionFiles SolutionFiles { get; private set; }
+        public VisualHgFileSet SolutionFiles { get; private set; }
 
 
         public VisualHgRepository()
         {
-            SolutionFiles = new VisualHgSolutionFiles();
+            SolutionFiles = new VisualHgFileSet();
         }
 
 

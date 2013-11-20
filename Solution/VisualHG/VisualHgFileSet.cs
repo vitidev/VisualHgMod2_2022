@@ -4,14 +4,14 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    public class VisualHgSolutionFiles
+    public class VisualHgFileSet
     {
         private HashSet<string> items;
 
         public object SyncRoot { get; private set; }
 
 
-        public VisualHgSolutionFiles()
+        public VisualHgFileSet()
         {
             items = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
             SyncRoot = new object();
