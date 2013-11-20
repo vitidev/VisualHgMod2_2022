@@ -6,17 +6,15 @@ namespace VisualHg
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public sealed class ProvideSolutionPersistenceAttribute : RegistrationAttribute
     {
-        private Guid PackageGuid
-        {
-            get { return Guids.PackageGuid; }
-        }
-
         public string PackageName { get; private set; }
 
+        public Guid PackageGuid { get; private set; }
 
-        public ProvideSolutionPersistenceAttribute(string packageName)
+
+        public ProvideSolutionPersistenceAttribute(string packageName, string packageGuid)
         {
             PackageName = packageName;
+            PackageGuid = new Guid(packageGuid);
         }
 
         public override void Register(RegistrationContext context)

@@ -19,7 +19,7 @@ namespace VisualHg
         }
 
 
-        public PendingChangesToolWindow() : base(null)
+        public PendingChangesToolWindow()
         {
             Caption = Resources.ResourceManager.GetString("100");
             pendingChangesControl = new PendingChangesControl();

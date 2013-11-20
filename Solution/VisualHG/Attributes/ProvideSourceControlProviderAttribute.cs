@@ -7,30 +7,21 @@ namespace VisualHg
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public sealed class ProvideSourceControlProviderAttribute : RegistrationAttribute
 	{
-        public Guid ProviderGuid
-        {
-            get { return Guids.ProviderGuid; }
-        }
-
-        public Guid PackageGuid
-        {
-            get { return Guids.PackageGuid; }
-        }
-
-        public Guid ServiceGuid
-        {
-            get { return Guids.ServiceGuid; }
-        }
-
-        public string ProviderName { get; private set; }
-        
         public string PackageName { get; private set; }
+        
+        public Guid ProviderGuid { get; private set; }
+
+        public Guid ServiceGuid { get; private set; }
+
+        public Guid PackageGuid { get; private set; }
 
 
-        public ProvideSourceControlProviderAttribute(string providerName, string packageName)
+        public ProvideSourceControlProviderAttribute(string packageName, string providerGuid, string serviceGuid, string packageGuid)
 		{
-            ProviderName = providerName;
             PackageName = packageName;
+            ProviderGuid = new Guid(providerGuid);
+            ServiceGuid = new Guid(serviceGuid);
+            PackageGuid = new Guid(packageGuid);
     	}
 
 
@@ -38,7 +29,7 @@ namespace VisualHg
 		{
             using (var key = context.CreateKey(GetKeyName()))
             {
-                key.SetValue("", ProviderName);
+                key.SetValue("", PackageName);
                 key.SetValue("Service", ServiceGuid.ToString("B"));
 
                 using (var subKey = key.CreateSubkey("Name"))
