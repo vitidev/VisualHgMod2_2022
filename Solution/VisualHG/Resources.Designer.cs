@@ -70,7 +70,7 @@ namespace VisualHg {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mercurial source contol provider..
+        ///   Looks up a localized string similar to Provides integration with Mercurial and TortoiseHg..
         /// </summary>
         internal static string _101 {
             get {

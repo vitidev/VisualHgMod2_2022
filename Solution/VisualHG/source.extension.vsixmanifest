@@ -2,9 +2,13 @@
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="DADADA00-caaf-423f-b21d-2df00fa25ca3">
     <Name>VisualHg</Name>
-    <Author>VisualHg@live.de</Author>
-    <Version>1.0.0.5</Version>
-    <Description xml:space="preserve">Mercurial source control integration</Description>
+    <Author>Dmitry Popov</Author>
+    <Version>2.0.0.0</Version>
+    <Description xml:space="preserve">Provides integration with Mercurial and TortoiseHg</Description>
+    <MoreInfoUrl>https://bitbucket.org/lmn/visualhg2</MoreInfoUrl>
+    <License>License.txt</License>
+    <Icon>Resources\Package.ico</Icon>
+    <PreviewImage>Resources\Preview.png</PreviewImage>
     <Locale>1033</Locale>
     <InstalledByMsi>false</InstalledByMsi>
     <SupportedProducts>
