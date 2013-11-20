@@ -53,7 +53,7 @@ namespace VisualHg.Controls
 
             comparer = new HgFileInfoComparer();
          
-            SmallImageList = ImageMapper.CreateStatusImageList(Configuration.Global.StatusImageFileName);
+            SmallImageList = ImageMapper.CreateStatusImageList(VisualHgOptions.Global.StatusImageFileName);
 
             CacheVirtualItems += (s, e) => UpdateCache(e.StartIndex, e.EndIndex);
             RetrieveVirtualItem += (s, e) => e.Item = GetItem(e.ItemIndex);

@@ -208,7 +208,7 @@ namespace VisualHg
 
             if (statusImageList == null)
             {
-                statusImageList = ImageMapper.CreateStatusImageList(Configuration.Global.StatusImageFileName);
+                statusImageList = ImageMapper.CreateStatusImageList(VisualHgOptions.Global.StatusImageFileName);
             }
         }
 
@@ -282,7 +282,7 @@ namespace VisualHg
                 repository.UpdateRootStatus(root);
             }
 
-            if (Configuration.Global.AddFilesOnLoad)
+            if (VisualHgOptions.Global.AddFilesOnLoad)
             {
                 repository.AddFiles(files);
             }
@@ -297,7 +297,7 @@ namespace VisualHg
 
         private void OnAfterOpenSolution()
         {
-            if (!Active && Configuration.Global.AutoActivatePlugin)
+            if (!Active && VisualHgOptions.Global.AutoActivatePlugin)
             {
                 var root = VisualHgSolution.SolutionRootDirectory;
                 
@@ -347,7 +347,7 @@ namespace VisualHg
         
         private void OnAfterAddFiles(string[] fileNames)
         {
-            if (Configuration.Global.AutoAddNewFiles)
+            if (VisualHgOptions.Global.AutoAddNewFiles)
             {
                 repository.AddFiles(fileNames);
             }

@@ -208,7 +208,7 @@ namespace VisualHg
 
         public static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
-            return AnySelectedFileStatusMatches(pattern, Configuration.Global.SearchIncludingChildren);
+            return AnySelectedFileStatusMatches(pattern, VisualHgOptions.Global.SearchIncludingChildren);
         }
 
         public static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)

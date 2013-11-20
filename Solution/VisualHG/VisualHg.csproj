@@ -105,7 +105,7 @@
     <Compile Include="Attributes\ProvideOptionsPageVisibilityAttribute.cs" />
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="VisualHgOptions.cs" />
     <Compile Include="VisualHgFileStatus.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="VisualHgFileSet.cs" />
@@ -169,7 +169,7 @@
     <None Include="Resources\Product.ico" />
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="PkgCmd.vsct">
+    <VSCTCompile Include="VisualHgPackage.vsct">
       <ResourceName>1000</ResourceName>
       <SubType>Designer</SubType>
     </VSCTCompile>

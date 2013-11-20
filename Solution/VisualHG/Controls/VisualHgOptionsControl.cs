@@ -22,11 +22,11 @@ namespace VisualHg.Controls
         private OpenFileDialog selectStatusImageFileDialog;
         private CheckBox enableContextSearchCheckBox;
 
-        public Configuration Configuration
+        public VisualHgOptions Configuration
         {
             get
             {
-                return new Configuration {
+                return new VisualHgOptions {
                     AutoActivatePlugin = autoActivateCheckBox.Checked,
                     AddFilesOnLoad = addFilesOnLoadCheckBox.Checked,
                     AutoAddNewFiles = autoAddNewFilesCheckBox.Checked,

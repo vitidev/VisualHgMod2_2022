@@ -3,7 +3,7 @@ using System.IO;
 
 namespace VisualHg
 {
-    public class Configuration
+    public class VisualHgOptions
     {
         public bool AutoActivatePlugin { get; set; }
 
@@ -20,7 +20,7 @@ namespace VisualHg
         public string StatusImageFileName { get; set; }
 
 
-        public Configuration()
+        public VisualHgOptions()
         {
             AutoActivatePlugin = true;
             AutoAddNewFiles = true;
@@ -28,33 +28,33 @@ namespace VisualHg
         }
 
         
-        private static Configuration _global;
+        private static VisualHgOptions _global;
 
-        public static Configuration Global
+        public static VisualHgOptions Global
         {
-            get { return _global ?? (_global = LoadConfiguration()); }
+            get { return _global ?? (_global = Load()); }
             set
             {
                 _global = value;
-                SaveConfiguration(_global);
+                Save(_global);
             }
         }
 
 
-        private static string configurationPath = Path.Combine
+        private static string optionsPath = Path.Combine
                (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"VisualHg2\Configuration.xml");
+                @"VisualHg2\Options.xml");
 
-        private static Configuration LoadConfiguration()
+        private static VisualHgOptions Load()
         {
-            return Serializer.Deserialize<Configuration>(configurationPath) ?? new Configuration();
+            return Serializer.Deserialize<VisualHgOptions>(optionsPath) ?? new VisualHgOptions();
         }
 
-        private static void SaveConfiguration(Configuration configuration)
+        private static void Save(VisualHgOptions options)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(configurationPath));
+            Directory.CreateDirectory(Path.GetDirectoryName(optionsPath));
 
-            Serializer.Serialize(configurationPath, configuration);
+            Serializer.Serialize(optionsPath, options);
         }
 
     }

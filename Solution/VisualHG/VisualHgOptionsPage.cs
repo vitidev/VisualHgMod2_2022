@@ -25,12 +25,12 @@ namespace VisualHg
         protected override void OnActivate(CancelEventArgs e)
         {
             base.OnActivate(e);
-            control.Configuration = Configuration.Global;
+            control.Configuration = VisualHgOptions.Global;
         }
 
         protected override void OnApply(PageApplyEventArgs e)
         {
-            Configuration.Global = control.Configuration;
+            VisualHgOptions.Global = control.Configuration;
             base.OnApply(e);
         }
     }

@@ -60,21 +60,21 @@ namespace VisualHg
 
         private static DiffTool GetDiffTool()
         {
-            if (String.IsNullOrEmpty(Configuration.Global.DiffToolPath))
+            if (String.IsNullOrEmpty(VisualHgOptions.Global.DiffToolPath))
             {
                 return GetKDiff();
             }
          
             return new DiffTool
             {
-                FileName = Configuration.Global.DiffToolPath,
-                Arguments = Configuration.Global.DiffToolArguments,
+                FileName = VisualHgOptions.Global.DiffToolPath,
+                Arguments = VisualHgOptions.Global.DiffToolArguments,
             };
         }
 
         private static DiffTool GetKDiff()
         {
-            var args = Configuration.Global.DiffToolArguments;
+            var args = VisualHgOptions.Global.DiffToolArguments;
 
             if (String.IsNullOrEmpty(args))
             {
