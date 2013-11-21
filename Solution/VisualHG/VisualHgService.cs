@@ -21,7 +21,7 @@ namespace VisualHg
         private ImageList statusImageList;
         
         private bool _active;
-        private bool nodesGlyphsDirty = true;
+        private bool hasRepositoryStatusChanged = true;
 
         private uint vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
         private uint trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
@@ -58,11 +58,11 @@ namespace VisualHg
         public VisualHgService()
         {
             idlenessNotifier = new IdlenessNotifier();
-            idlenessNotifier.Idle += UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Idle += OnIdle;
             idlenessNotifier.Register();
 
             repository = new VisualHgRepository();
-            repository.StatusChanged += SetNodesGlyphsDirty;
+            repository.StatusChanged += OnRepositoryStatusChanged;
 
             var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             solution.AdviseSolutionEvents(this, out vsSolutionEventsCookie);
@@ -79,10 +79,10 @@ namespace VisualHg
 
         public void Dispose()
         {
-            idlenessNotifier.Idle -= UpdateDirtyNodesGlyphs;
+            idlenessNotifier.Idle -= OnIdle;
             idlenessNotifier.Revoke();
 
-            repository.StatusChanged -= SetNodesGlyphsDirty;
+            repository.StatusChanged -= OnRepositoryStatusChanged;
             repository.Dispose();
 
             statusImageList.Dispose();
@@ -115,47 +115,53 @@ namespace VisualHg
         }
 
 
-        private void SetNodesGlyphsDirty(object sender, EventArgs e)
+        private void OnRepositoryStatusChanged(object sender, EventArgs e)
         {
-            nodesGlyphsDirty = true;
+            hasRepositoryStatusChanged = true;
         }
 
-        private void UpdateDirtyNodesGlyphs(object sender, EventArgs e)
+        private void OnIdle(object sender, EventArgs e)
         {
-            if (nodesGlyphsDirty && (DateTime.Now - lastUpdate).Milliseconds > 100)
+            Update();
+        }
+
+        private void Update()
+        {
+            if (hasRepositoryStatusChanged && (DateTime.Now - lastUpdate).Milliseconds > 100)
             {
-                RefreshNodesGlyphs();
+                lastUpdate = DateTime.Now;
+
+                UpdateStatusIcons();
                 UpdateMainWindowCaption();
                 UpdatePendingChangesToolWindow();
             }
         }
 
-        private void RefreshNodesGlyphs()
+        private void UpdateStatusIcons()
         {
-            var nodes = new [] { GetSolutionVsItemSelection() }
-                .Concat(VisualHgSolution.LoadedProjects.Select(GetVsItemSelection))
-                .ToArray();
+            hasRepositoryStatusChanged = false;
 
-            VisualHgSolution.UpdateGlyphs(nodes);
-
-            lastUpdate = DateTime.Now;
-            nodesGlyphsDirty = false;
+            UpdateSolutionGlyph();
+            UpdateAllProjectItemsGlyphs();
         }
 
-        private static VSITEMSELECTION GetSolutionVsItemSelection()
+        private void UpdateSolutionGlyph()
         {
             var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
+            var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
+            var glyph = GetStateIcon(VisualHgSolution.SolutionFileName);
 
-            return GetVsItemSelection(hierarchy);
+            hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, glyph);
         }
 
-        private static VSITEMSELECTION GetVsItemSelection(IVsHierarchy hierarchy)
+        private void UpdateAllProjectItemsGlyphs()
         {
-            return new VSITEMSELECTION {
-                itemid = VSConstants.VSITEMID_ROOT,
-                pHier = hierarchy,
-            };
+            foreach (var project in VisualHgSolution.LoadedProjects)
+            {
+                project.SccGlyphChanged(0, null, null, null);
+            }
         }
+
         
         private void UpdatePendingChangesToolWindow()
         {

@@ -86,7 +86,7 @@ namespace VisualHg
             }
         }
 
-        public static IEnumerable<IVsHierarchy> LoadedProjects
+        public static IEnumerable<IVsSccProject2> LoadedProjects
         {
             get
             {
@@ -103,7 +103,7 @@ namespace VisualHg
 
                 while (ErrorHandler.Succeeded(projectEnumerator.Next(1, projectArray, out count)) && count == 1)
                 {
-                    yield return projectArray[0];
+                    yield return projectArray[0] as IVsSccProject2;
                 }
             }
         }
@@ -134,75 +134,6 @@ namespace VisualHg
             }
 
             return selectedFiles.Where(x => !String.IsNullOrEmpty(x)).ToArray();
-        }
-
-
-        public static void UpdateGlyphs(VSITEMSELECTION[] items)
-        {
-            foreach (var item in items)
-            {
-                UpdateGlyph(item);
-            }
-        }
-
-        private static void UpdateGlyph(VSITEMSELECTION item)
-        {
-            var project = item.pHier as IVsSccProject2;
-
-            if (item.itemid == VSConstants.VSITEMID_ROOT)
-            {
-                UpdateRootGlyph(project);
-            }
-            else
-            {
-                UpdateItemGlyph(project, item.itemid);
-            }
-        }
-
-        private static void UpdateRootGlyph(IVsSccProject2 project)
-        {
-            if (project == null)
-            {
-                UpdateSolutionGlyph();
-            }
-            else
-            {
-                UpdateAllProjectItemsGlyphs(project);
-            }
-        }
-
-        private static void UpdateSolutionGlyph()
-        {
-            var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
-            var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
-            var glyph = GetStateIcon(SolutionFileName);
-
-            hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, glyph);
-        }
-
-        private static void UpdateAllProjectItemsGlyphs(IVsSccProject2 project)
-        {
-            project.SccGlyphChanged(0, null, null, null);
-        }
-
-        private static void UpdateItemGlyph(IVsSccProject2 project, uint itemId)
-        {
-            var fileName = GetItemFiles(project, itemId).FirstOrDefault();
-
-            if (!String.IsNullOrEmpty(fileName))
-            {
-                var affectedItem = new[] { itemId };
-                var glyph = new[] { GetStateIcon(fileName) };
-
-                project.SccGlyphChanged(1, affectedItem, glyph, new uint[1]);
-            }
-        }
-
-        private static VsStateIcon GetStateIcon(string fileName)
-        {
-            var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
-
-            return visualHgService.GetStateIcon(fileName);
         }
 
 
@@ -558,7 +489,7 @@ namespace VisualHg
             return new string[0];
         }
 
-        private static string[] GetItemFiles(IVsSccProject2 project, uint itemId)
+        public static string[] GetItemFiles(IVsSccProject2 project, uint itemId)
         {
             var itemFiles = new List<string>();
 
