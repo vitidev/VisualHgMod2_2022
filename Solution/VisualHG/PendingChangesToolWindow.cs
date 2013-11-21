@@ -10,36 +10,19 @@ namespace VisualHg
     [Guid(Guids.ToolWindow)]
     public class PendingChangesToolWindow : ToolWindowPane
     {
-        private PendingChangesControl pendingChangesControl;
-
-
-        public override IWin32Window Window
-        {
-            get { return (IWin32Window)pendingChangesControl; }
-        }
-
+        private PendingChangesView pendingChangesControl;
 
         public PendingChangesToolWindow()
         {
-            Caption = Resources.ResourceManager.GetString("100");
-            pendingChangesControl = new PendingChangesControl();
-        }
+            pendingChangesControl = new PendingChangesView();
 
+            Content = pendingChangesControl;
+            Caption = Resources.ResourceManager.GetString("100");
+        }
 
         public void SetFiles(HgFileInfo[] files)
         {
             pendingChangesControl.SetFiles(files);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && pendingChangesControl != null)
-            {
-                pendingChangesControl.Dispose();
-                pendingChangesControl = null;
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

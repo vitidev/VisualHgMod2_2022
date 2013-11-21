@@ -1,15 +1,58 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using HgLib;
 
 namespace VisualHg
 {
     public class ImageMapper
     {
+        public static BitmapImage[] CreateStatusBitmapImages(string fileName)
+        {
+            using (var imageList = ImageMapper.CreateStatusImageList(fileName))
+            {
+                return BitmapImagesFrom(imageList);
+            }
+        }
+
+        public static BitmapImage[] CreateMenuBitmapImages()
+        {
+            using (var imageList = ImageMapper.CreateMenuImageList())
+            {
+                return BitmapImagesFrom(imageList);
+            }
+        }
+
+        private static BitmapImage[] BitmapImagesFrom(ImageList imageList)
+        {
+            return imageList.Images.Cast<Bitmap>().Select(ToBitmapImage).ToArray();
+        }
+
+        private static BitmapImage ToBitmapImage(Bitmap bitmap)
+        {
+            var image = new BitmapImage();
+
+            using (var stream = new MemoryStream())
+            {
+                bitmap.Save(stream, ImageFormat.Png);
+                stream.Position = 0;
+
+                image.BeginInit();
+                image.StreamSource = stream;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+            }
+
+            return image;
+        }
+
+        
         public static ImageList CreateStatusImageList(string fileName)
         {
             return CreateImageList(7, "StatusIcons.bmp", fileName);

@@ -105,6 +105,14 @@
     <Compile Include="Attributes\ProvideOptionsPageVisibilityAttribute.cs" />
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
+    <Compile Include="ViewModel\ListViewSortingIcons.cs" />
+    <Compile Include="ViewModel\StatusImageConverter.cs" />
+    <Compile Include="ViewModel\DesignTimePendingChanges.cs" />
+    <Compile Include="ViewModel\PendingChanges.cs" />
+    <Compile Include="ViewModel\PendingChange.cs" />
+    <Compile Include="Controls\PendingChangesView.xaml.cs">
+      <DependentUpon>PendingChangesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VisualHgOptions.cs" />
     <Compile Include="VisualHgFileStatus.cs" />
     <Compile Include="NativeMethods.cs" />
@@ -131,16 +139,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="VisualHgService.cs" />
-    <Compile Include="Controls\HgFileInfoListViewItem.cs" />
-    <Compile Include="Controls\HgFileInfoComparer.cs" />
-    <Compile Include="Controls\HgFileInfoListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ListViewColumnIcons.cs" />
-    <Compile Include="Controls\ListViewItemCache.cs" />
-    <Compile Include="Controls\PendingChangesControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="ViewModel\PendingChangeComparer.cs" />
     <Compile Include="PendingChangesToolWindow.cs" />
     <Compile Include="VisualHgRepository.cs" />
   </ItemGroup>
@@ -154,9 +153,6 @@
     <EmbeddedResource Include="Controls\VisualHgOptionsControl.resx">
       <DependentUpon>VisualHgOptionsControl.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PendingChangesControl.resx">
-      <DependentUpon>PendingChangesControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PendingChangesToolWindow.resx">
       <DependentUpon>PendingChangesToolWindow.cs</DependentUpon>
@@ -193,6 +189,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\PendingChangesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <RegisterOutputPackage>true</RegisterOutputPackage>
     <RegisterWithCodebase>true</RegisterWithCodebase>
