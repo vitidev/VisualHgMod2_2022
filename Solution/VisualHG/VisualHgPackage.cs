@@ -23,7 +23,7 @@ namespace VisualHg
     [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 106, 107, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [Guid(Guids.Package)]
-    public sealed partial class VisualHgPackage : Package
+    public sealed partial class VisualHgPackage : Package, IOleCommandTarget
     {
         private const int OLECMDERR_E_NOTSUPPORTED = (int)Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED;
 
