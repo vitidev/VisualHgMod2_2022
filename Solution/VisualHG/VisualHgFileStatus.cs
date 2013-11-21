@@ -29,10 +29,15 @@ namespace VisualHg
             }
 
             var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
-            
+
             var status = visualHgService.GetFileStatus(fileName);
 
+            return Matches(status, pattern);
+        }
+
+        public static bool Matches(HgFileStatus status, HgFileStatus pattern)
+        {
             return (status & pattern) > 0;
         }
-    };
+    }
 }

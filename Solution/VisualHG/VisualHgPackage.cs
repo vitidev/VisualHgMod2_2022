@@ -191,7 +191,7 @@ namespace VisualHg
 
         private bool IsRevertMenuItemVisible()
         {
-            return VisualHgSolution.AnySelectedFileStatusMatches(HgFileStatus.Pending, false);
+            return VisualHgSolution.SearchAnySelectedFileStatusMatches(HgFileStatus.Pending);
         }
 
         private bool IsHistoryMenuItemVisible()
@@ -258,7 +258,7 @@ namespace VisualHg
 
         private void ShowAddSelectedWindow(object sender, EventArgs e)
         {
-            var filesToAdd = VisualHgSolution.GetSelectedFiles(true).Where(VisualHgFileStatus.IsNotAdded).ToArray();
+            var filesToAdd = GetSelectedFiles().Where(VisualHgFileStatus.IsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
             {
@@ -268,7 +268,7 @@ namespace VisualHg
 
         private void ShowCommitSelectedWindow(object sender, EventArgs e)
         {
-            VisualHgDialogs.ShowCommitWindow(VisualHgSolution.GetSelectedFiles(true));
+            VisualHgDialogs.ShowCommitWindow(GetSelectedFiles());
         }
 
         private void ShowDiffWindow(object sender, EventArgs e)
@@ -278,12 +278,18 @@ namespace VisualHg
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
-            VisualHgDialogs.ShowRevertWindow(VisualHgSolution.GetSelectedFiles(false));
+            VisualHgDialogs.ShowRevertWindow(GetSelectedFiles());
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
             VisualHgDialogs.ShowHistoryWindow(VisualHgSolution.SelectedFile);
+        }
+
+
+        private string[] GetSelectedFiles()
+        {
+            return VisualHgSolution.GetSelectedFiles(VisualHgOptions.Global.ProjectStatusIncludesChildren);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace VisualHg.Controls
         private TextBox statusImageFileNameTextBox;
         private Button selectStatusImageFileButton;
         private OpenFileDialog selectStatusImageFileDialog;
-        private CheckBox enableContextSearchCheckBox;
+        private CheckBox projectStatusIncludesChildrenCheckBox;
 
         public VisualHgOptions Configuration
         {
@@ -30,7 +30,7 @@ namespace VisualHg.Controls
                     AutoActivatePlugin = autoActivateCheckBox.Checked,
                     AddFilesOnLoad = addFilesOnLoadCheckBox.Checked,
                     AutoAddNewFiles = autoAddNewFilesCheckBox.Checked,
-                    SearchIncludingChildren = enableContextSearchCheckBox.Checked,
+                    ProjectStatusIncludesChildren = projectStatusIncludesChildrenCheckBox.Checked,
                     DiffToolPath = diffToolPathTextBox.Text,
                     DiffToolArguments = diffToolArgumentsTextBox.Text,
                     StatusImageFileName = statusImageFileNameTextBox.Text,
@@ -41,7 +41,7 @@ namespace VisualHg.Controls
                 autoActivateCheckBox.Checked = value.AutoActivatePlugin;
                 addFilesOnLoadCheckBox.Checked = value.AddFilesOnLoad;
                 autoAddNewFilesCheckBox.Checked = value.AutoAddNewFiles;
-                enableContextSearchCheckBox.Checked = value.SearchIncludingChildren;
+                projectStatusIncludesChildrenCheckBox.Checked = value.ProjectStatusIncludesChildren;
                 diffToolPathTextBox.Text = value.DiffToolPath;
                 diffToolArgumentsTextBox.Text = value.DiffToolArguments;
                 statusImageFileNameTextBox.Text = value.StatusImageFileName;
@@ -96,14 +96,14 @@ namespace VisualHg.Controls
             this.autoActivateCheckBox = new System.Windows.Forms.CheckBox();
             this.selectDiffToolButton = new System.Windows.Forms.Button();
             this.diffToolPathTextBox = new System.Windows.Forms.TextBox();
-            this.enableContextSearchCheckBox = new System.Windows.Forms.CheckBox();
+            this.projectStatusIncludesChildrenCheckBox = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.tortoiseHgVersionTextBox = new System.Windows.Forms.TextBox();
             this.diffToolArgumentsTextBox = new System.Windows.Forms.TextBox();
             this.autoAddNewFilesCheckBox = new System.Windows.Forms.CheckBox();
-            this.selectDiffToolDialog = new System.Windows.Forms.OpenFileDialog();
+            this.tortoiseHgVersionTextBox = new System.Windows.Forms.TextBox();
             this.statusImageFileNameTextBox = new System.Windows.Forms.TextBox();
             this.selectStatusImageFileButton = new System.Windows.Forms.Button();
+            this.selectDiffToolDialog = new System.Windows.Forms.OpenFileDialog();
             this.selectStatusImageFileDialog = new System.Windows.Forms.OpenFileDialog();
             diffToolPathLabel = new System.Windows.Forms.Label();
             tortoiseHgVersionLabel = new System.Windows.Forms.Label();
@@ -145,9 +145,9 @@ namespace VisualHg.Controls
             noteLabel.Location = new System.Drawing.Point(16, 85);
             noteLabel.Margin = new System.Windows.Forms.Padding(16, 0, 0, 0);
             noteLabel.Name = "noteLabel";
-            noteLabel.Size = new System.Drawing.Size(328, 13);
+            noteLabel.Size = new System.Drawing.Size(212, 13);
             noteLabel.TabIndex = 4;
-            noteLabel.Text = "NOTE: This may slow down opening Solution Explorer context menu";
+            noteLabel.Text = "NOTE: This may be slow with large projects";
             // 
             // label1
             // 
@@ -160,6 +160,18 @@ namespace VisualHg.Controls
             label1.Size = new System.Drawing.Size(370, 13);
             label1.TabIndex = 8;
             label1.Text = "Diff arguments (use %PathA%, %NameA%, %PathB%, %NameB%, no quotes):";
+            // 
+            // statusImageFileNameLabel
+            // 
+            statusImageFileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            statusImageFileNameLabel.AutoSize = true;
+            this.tableLayoutPanel.SetColumnSpan(statusImageFileNameLabel, 3);
+            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 209);
+            statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0);
+            statusImageFileNameLabel.Name = "statusImageFileNameLabel";
+            statusImageFileNameLabel.Size = new System.Drawing.Size(165, 13);
+            statusImageFileNameLabel.TabIndex = 10;
+            statusImageFileNameLabel.Text = "Status image file (requires restart):";
             // 
             // addFilesOnLoadCheckBox
             // 
@@ -207,18 +219,18 @@ namespace VisualHg.Controls
             this.diffToolPathTextBox.Size = new System.Drawing.Size(423, 20);
             this.diffToolPathTextBox.TabIndex = 6;
             // 
-            // enableContextSearchCheckBox
+            // projectStatusIncludesChildrenCheckBox
             // 
-            this.enableContextSearchCheckBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.enableContextSearchCheckBox.AutoSize = true;
-            this.tableLayoutPanel.SetColumnSpan(this.enableContextSearchCheckBox, 3);
-            this.enableContextSearchCheckBox.Location = new System.Drawing.Point(0, 65);
-            this.enableContextSearchCheckBox.Margin = new System.Windows.Forms.Padding(0);
-            this.enableContextSearchCheckBox.Name = "enableContextSearchCheckBox";
-            this.enableContextSearchCheckBox.Size = new System.Drawing.Size(359, 17);
-            this.enableContextSearchCheckBox.TabIndex = 3;
-            this.enableContextSearchCheckBox.Text = "Include child items for determining Add and Commit menu items visibility";
-            this.enableContextSearchCheckBox.UseVisualStyleBackColor = true;
+            this.projectStatusIncludesChildrenCheckBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.projectStatusIncludesChildrenCheckBox.AutoSize = true;
+            this.tableLayoutPanel.SetColumnSpan(this.projectStatusIncludesChildrenCheckBox, 3);
+            this.projectStatusIncludesChildrenCheckBox.Location = new System.Drawing.Point(0, 65);
+            this.projectStatusIncludesChildrenCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.projectStatusIncludesChildrenCheckBox.Name = "projectStatusIncludesChildrenCheckBox";
+            this.projectStatusIncludesChildrenCheckBox.Size = new System.Drawing.Size(251, 17);
+            this.projectStatusIncludesChildrenCheckBox.TabIndex = 3;
+            this.projectStatusIncludesChildrenCheckBox.Text = "Include child items for determining project status";
+            this.projectStatusIncludesChildrenCheckBox.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel
             // 
@@ -230,7 +242,7 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.Controls.Add(this.selectDiffToolButton, 2, 7);
             this.tableLayoutPanel.Controls.Add(this.diffToolPathTextBox, 0, 7);
             this.tableLayoutPanel.Controls.Add(diffToolPathLabel, 0, 6);
-            this.tableLayoutPanel.Controls.Add(this.enableContextSearchCheckBox, 0, 3);
+            this.tableLayoutPanel.Controls.Add(this.projectStatusIncludesChildrenCheckBox, 0, 3);
             this.tableLayoutPanel.Controls.Add(this.addFilesOnLoadCheckBox, 0, 1);
             this.tableLayoutPanel.Controls.Add(noteLabel, 0, 4);
             this.tableLayoutPanel.Controls.Add(label1, 0, 9);
@@ -266,18 +278,6 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.Size = new System.Drawing.Size(460, 334);
             this.tableLayoutPanel.TabIndex = 0;
             // 
-            // tortoiseHgVersionTextBox
-            // 
-            this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
-            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 277);
-            this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
-            this.tortoiseHgVersionTextBox.Name = "tortoiseHgVersionTextBox";
-            this.tortoiseHgVersionTextBox.ReadOnly = true;
-            this.tortoiseHgVersionTextBox.Size = new System.Drawing.Size(460, 20);
-            this.tortoiseHgVersionTextBox.TabIndex = 14;
-            this.tortoiseHgVersionTextBox.TabStop = false;
-            // 
             // diffToolArgumentsTextBox
             // 
             this.diffToolArgumentsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -301,25 +301,17 @@ namespace VisualHg.Controls
             this.autoAddNewFilesCheckBox.Text = "Automatically add new files to repository";
             this.autoAddNewFilesCheckBox.UseVisualStyleBackColor = true;
             // 
-            // selectDiffToolDialog
+            // tortoiseHgVersionTextBox
             // 
-            this.selectDiffToolDialog.AddExtension = false;
-            this.selectDiffToolDialog.DefaultExt = "exe";
-            this.selectDiffToolDialog.Filter = "Executable files|*.exe|All files|*.*";
-            this.selectDiffToolDialog.ShowReadOnly = true;
-            this.selectDiffToolDialog.Title = "Select diff tool";
-            // 
-            // statusImageFileNameLabel
-            // 
-            statusImageFileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            statusImageFileNameLabel.AutoSize = true;
-            this.tableLayoutPanel.SetColumnSpan(statusImageFileNameLabel, 3);
-            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 209);
-            statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0);
-            statusImageFileNameLabel.Name = "statusImageFileNameLabel";
-            statusImageFileNameLabel.Size = new System.Drawing.Size(165, 13);
-            statusImageFileNameLabel.TabIndex = 10;
-            statusImageFileNameLabel.Text = "Status image file (requires restart):";
+            this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
+            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 277);
+            this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
+            this.tortoiseHgVersionTextBox.Name = "tortoiseHgVersionTextBox";
+            this.tortoiseHgVersionTextBox.ReadOnly = true;
+            this.tortoiseHgVersionTextBox.Size = new System.Drawing.Size(460, 20);
+            this.tortoiseHgVersionTextBox.TabIndex = 14;
+            this.tortoiseHgVersionTextBox.TabStop = false;
             // 
             // statusImageFileNameTextBox
             // 
@@ -341,6 +333,14 @@ namespace VisualHg.Controls
             this.selectStatusImageFileButton.Text = "...";
             this.selectStatusImageFileButton.UseVisualStyleBackColor = true;
             // 
+            // selectDiffToolDialog
+            // 
+            this.selectDiffToolDialog.AddExtension = false;
+            this.selectDiffToolDialog.DefaultExt = "exe";
+            this.selectDiffToolDialog.Filter = "Executable files|*.exe|All files|*.*";
+            this.selectDiffToolDialog.ShowReadOnly = true;
+            this.selectDiffToolDialog.Title = "Select diff tool";
+            // 
             // selectStatusImageFileDialog
             // 
             this.selectStatusImageFileDialog.AddExtension = false;
@@ -348,14 +348,14 @@ namespace VisualHg.Controls
             this.selectStatusImageFileDialog.ShowReadOnly = true;
             this.selectStatusImageFileDialog.Title = "Select status image file";
             // 
-            // SccProviderOptionsControl
+            // VisualHgOptionsControl
             // 
             this.AllowDrop = true;
             this.AutoScroll = true;
             this.Controls.Add(this.tableLayoutPanel);
             this.MaximumSize = new System.Drawing.Size(460, 334);
             this.MinimumSize = new System.Drawing.Size(460, 334);
-            this.Name = "SccProviderOptionsControl";
+            this.Name = "VisualHgOptionsControl";
             this.Size = new System.Drawing.Size(460, 334);
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();

@@ -11,7 +11,7 @@ namespace VisualHg
 
         public bool AutoAddNewFiles { get; set; }
 
-        public bool SearchIncludingChildren { get; set; }
+        public bool ProjectStatusIncludesChildren { get; set; }
 
         public string DiffToolPath { get; set; }
 
@@ -24,7 +24,7 @@ namespace VisualHg
         {
             AutoActivatePlugin = true;
             AutoAddNewFiles = true;
-            SearchIncludingChildren = true;
+            ProjectStatusIncludesChildren = true;
         }
 
         

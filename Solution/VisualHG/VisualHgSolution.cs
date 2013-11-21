@@ -86,7 +86,7 @@ namespace VisualHg
             }
         }
 
-        public static IEnumerable<IVsSccProject2> LoadedProjects
+        public static IEnumerable<IVsHierarchy> LoadedProjects
         {
             get
             {
@@ -103,11 +103,26 @@ namespace VisualHg
 
                 while (ErrorHandler.Succeeded(projectEnumerator.Next(1, projectArray, out count)) && count == 1)
                 {
-                    yield return projectArray[0] as IVsSccProject2;
+                    yield return projectArray[0];
                 }
             }
         }
 
+        
+
+        public static IVsHierarchy FindProject(string fileName)
+        {
+            var itemId = VSConstants.VSITEMID_ROOT;
+
+            return LoadedProjects.FirstOrDefault(x => GetItemFiles(x, itemId).Any(y => y == fileName));
+        }
+
+        public static IEnumerable<string> GetChildrenFiles(IVsHierarchy hierarchy)
+        {
+            return GetProjectItemIds(hierarchy, VSConstants.VSITEMID_ROOT)
+                .Skip(1)
+                .Select(x => VisualHgSolution.GetItemFiles(hierarchy, x).FirstOrDefault());
+        }
 
         public static string[] GetSelectedFiles(bool includeChildren)
         {
@@ -139,10 +154,10 @@ namespace VisualHg
 
         public static bool SearchAnySelectedFileStatusMatches(HgFileStatus pattern)
         {
-            return AnySelectedFileStatusMatches(pattern, VisualHgOptions.Global.SearchIncludingChildren);
+            return AnySelectedFileStatusMatches(pattern, VisualHgOptions.Global.ProjectStatusIncludesChildren);
         }
 
-        public static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
+        private static bool AnySelectedFileStatusMatches(HgFileStatus pattern, bool includeChildren)
         {
             if (includeChildren)
             {
@@ -358,6 +373,7 @@ namespace VisualHg
 
             return itemIds.SelectMany(x => GetItemFiles(project, x)).ToArray();
         }
+
 
         private static IEnumerable<uint> GetProjectItemIds(IVsHierarchy hierarchy, uint itemId)
         {

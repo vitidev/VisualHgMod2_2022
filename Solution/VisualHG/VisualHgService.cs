@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -141,25 +142,32 @@ namespace VisualHg
         {
             hasRepositoryStatusChanged = false;
 
-            UpdateSolutionGlyph();
-            UpdateAllProjectItemsGlyphs();
+            UpdateSolutionStatusIcon();
+            UpdateLoadedProjectsStatusIcons();
         }
 
-        private void UpdateSolutionGlyph()
+        private void UpdateSolutionStatusIcon()
         {
             var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
             var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
-            var glyph = GetStateIcon(VisualHgSolution.SolutionFileName);
+            var icon = GetStatusIcon(VisualHgSolution.SolutionFileName);
 
-            hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, glyph);
+            hierarchy.SetProperty(VSConstants.VSITEMID_ROOT, property, icon);
         }
 
-        private void UpdateAllProjectItemsGlyphs()
+        private void UpdateLoadedProjectsStatusIcons()
         {
             foreach (var project in VisualHgSolution.LoadedProjects)
             {
-                project.SccGlyphChanged(0, null, null, null);
+                UpdateProjectStatusIcons(project);
             }
+        }
+
+        private void UpdateProjectStatusIcons(IVsHierarchy hierarchy)
+        {
+            var project = hierarchy as IVsSccProject2;
+        
+            project.SccGlyphChanged(0, null, null, null);
         }
 
         
@@ -218,9 +226,49 @@ namespace VisualHg
             }
         }
 
-        public VsStateIcon GetStateIcon(string fileName)
+        private VsStateIcon GetStatusIcon(string fileName)
         {
             var status = repository.GetFileStatus(fileName);
+
+            if (OverrideStatus(fileName, status))
+            {
+                status = HgFileStatus.Modified;
+            }
+            
+            return GetStatusIcon(status);
+        }
+
+        private bool OverrideStatus(string fileName, HgFileStatus status)
+        {
+            if (NeedToSearchChildren(fileName, status))
+            {
+                var project = VisualHgSolution.FindProject(fileName);
+
+                return HasPendingChildren(project);
+            }
+
+            return false;
+        }
+
+        private bool NeedToSearchChildren(string fileName, HgFileStatus status)
+        {
+            return VisualHgOptions.Global.ProjectStatusIncludesChildren &&
+                IsProject(fileName) &&
+                !VisualHgFileStatus.Matches(status, HgFileStatus.Pending);
+        }
+
+        private bool IsProject(string fileName)
+        {
+            return !String.IsNullOrEmpty(fileName) && Path.GetExtension(fileName).EndsWith("proj");
+        }
+
+        private static bool HasPendingChildren(IVsHierarchy hierarchy)
+        {
+            return VisualHgSolution.GetChildrenFiles(hierarchy).Any(x => VisualHgFileStatus.IsPending(x));
+        }
+
+        private VsStateIcon GetStatusIcon(HgFileStatus status)
+        {
             var iconIndex = ImageMapper.GetStatusIconIndex(status);
 
             return (VsStateIcon)(iconBaseIndex + iconIndex);
@@ -420,7 +468,7 @@ namespace VisualHg
                 return VSConstants.S_OK;
             }
 
-            rgsiGlyphs[0] = GetStateIcon(rgpszFullPaths[0]);
+            rgsiGlyphs[0] = GetStatusIcon(rgpszFullPaths[0]);
 
             return VSConstants.S_OK;
         }
