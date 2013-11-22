@@ -43,7 +43,7 @@ namespace VisualHg
 
         private static string optionsPath = Path.Combine
                (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"VisualHg2\Options.xml");
+                @"VisualHg\Options.xml");
 
         private static VisualHgOptions Load()
         {

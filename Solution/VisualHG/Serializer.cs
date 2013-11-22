@@ -57,15 +57,12 @@ namespace VisualHg
                 using (var textReader = new StreamReader(path))
                 {
                     var settings = new XmlReaderSettings { IgnoreWhitespace = true };
+                    var reader = XmlReader.Create(textReader, settings);
+                    var xmlSerializer = new XmlSerializer(typeof(T));
 
-                    using (var reader = XmlReader.Create(textReader, settings))
+                    if (xmlSerializer.CanDeserialize(reader))
                     {
-                        var xmlSerializer = new XmlSerializer(typeof(T));
-
-                        if (xmlSerializer.CanDeserialize(reader))
-                        {
-                            return xmlSerializer.Deserialize(reader) as T;
-                        }
+                        return xmlSerializer.Deserialize(reader) as T;
                     }
                 }
             }

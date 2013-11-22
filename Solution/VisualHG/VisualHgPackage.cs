@@ -23,7 +23,7 @@ namespace VisualHg
     [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 106, 107, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [Guid(Guids.Package)]
-    public sealed partial class VisualHgPackage : Package, IOleCommandTarget
+    public sealed partial class VisualHgPackage : Package, IOleCommandTarget, IDisposable
     {
         private const int OLECMDERR_E_NOTSUPPORTED = (int)Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED;
 
@@ -45,9 +45,19 @@ namespace VisualHg
             RegisterSourceControlProvider();
         }
 
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         protected override void Dispose(bool disposing)
         {
-            visualHgService.Dispose();
+            if (disposing)
+            {
+                visualHgService.Dispose();
+            }
+
             base.Dispose(disposing);
         }
 

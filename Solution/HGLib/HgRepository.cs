@@ -88,8 +88,17 @@ namespace HgLib
 
         public void Dispose()
         {
-            updateTimer.Dispose();
-            directoryWatchers.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                updateTimer.Dispose();
+                directoryWatchers.Dispose();
+            }
         }
 
         protected override void AddRoot(string root)

@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace VisualHg
 {
     [Guid(Guids.Service)]
-    public partial class VisualHgService : IDisposable,
+    public sealed class VisualHgService : IDisposable,
         IVsSccProvider, IVsSccGlyphs, IVsSccManager2, IVsSccManagerTooltip,
         IVsSolutionEvents, IVsUpdateSolutionEvents, IVsQueryEditQuerySave2, IVsTrackProjectDocumentsEvents2
     {

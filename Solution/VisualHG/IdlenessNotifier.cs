@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
-    public class IdlenessNotifier : IOleComponent
+    public sealed class IdlenessNotifier : IOleComponent
     {
         private uint componentId;
 

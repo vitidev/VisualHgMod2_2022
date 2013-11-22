@@ -36,11 +36,7 @@ namespace VisualHg
                 {
                     subKey.SetValue("", PackageName);
                     subKey.SetValue("Package", PackageGuid.ToString("B"));
-
-                    subKey.Close();
                 }
-
-                key.Close();
             }
 		}
 

@@ -26,7 +26,6 @@ namespace VisualHg
             using (var key = context.CreateKey(GetKeyName()))
             {
                 key.SetValue(CommandUIGuid.ToString("B"), 1);
-                key.Close();
             }
 		}
 

@@ -8,7 +8,7 @@ using VisualHg.Controls;
 namespace VisualHg
 {
     [Guid(Guids.ToolWindow)]
-    public class PendingChangesToolWindow : ToolWindowPane
+    public sealed class PendingChangesToolWindow : ToolWindowPane
     {
         private PendingChangesView pendingChangesControl;
 
