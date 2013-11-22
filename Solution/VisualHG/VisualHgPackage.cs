@@ -31,6 +31,34 @@ namespace VisualHg
         private PendingChangesToolWindow _pendingChangesToolWindow;
 
 
+        protected override void Initialize()
+        {
+            base.Initialize();
+
+            InitializeMenuCommands();
+
+            ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
+
+            visualHgService = new VisualHgService();
+            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
+
+            RegisterSourceControlProvider();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            visualHgService.Dispose();
+            base.Dispose(disposing);
+        }
+
+
+        public static void RegisterSourceControlProvider()
+        {
+            var rscp = Package.GetGlobalService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
+            rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
+        }
+
+
         public void UpdatePendingChangesToolWindow()
         {
             if (_pendingChangesToolWindow == null)
@@ -41,31 +69,10 @@ namespace VisualHg
             _pendingChangesToolWindow.SetFiles(visualHgService.PendingFiles);
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            visualHgService.Dispose();
-            base.Dispose(disposing);
-        }
-
 
         private void NotifySolutionIsNotUnderVersionControl()
         {
             MessageBox.Show("Solution is not under Mercurial version contol\n\n" + VisualHgSolution.SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
-
-            visualHgService = new VisualHgService();
-            ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
-
-            InitializeMenuCommands();
-
-            var rscp = GetService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
-            rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
         }
 
         private void InitializeMenuCommands()

@@ -351,16 +351,11 @@ namespace VisualHg
 
         private void OnAfterOpenSolution()
         {
-            if (!Active && VisualHgOptions.Global.AutoActivatePlugin)
+            if (!Active && 
+                VisualHgOptions.Global.AutoActivatePlugin && 
+                VisualHgSolution.IsUnderSourceControl)
             {
-                var root = VisualHgSolution.SolutionRootDirectory;
-                
-                if (!String.IsNullOrEmpty(root))
-                {
-                    var rscp = Package.GetGlobalService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
-                    
-                    rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
-                }
+                VisualHgPackage.RegisterSourceControlProvider();
             }
         }
 
