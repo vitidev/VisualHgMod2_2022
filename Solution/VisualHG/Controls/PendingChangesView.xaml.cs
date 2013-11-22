@@ -111,7 +111,15 @@ namespace VisualHg.Controls
 
         private void UpdateMenuItemsVisibility()
         {
+            if (listView.SelectedItems.Count == 0)
+            {
+                listView.ContextMenu = null;
+                return;
+            }
+
             var status = GetAggregateSelectedItemsStatus();
+
+            listView.ContextMenu = contextMenu;
 
             openMenuItem.Visibility = BoolToVisibility(!VisualHgFileStatus.Matches(status, HgFileStatus.Deleted));
             commitMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending));

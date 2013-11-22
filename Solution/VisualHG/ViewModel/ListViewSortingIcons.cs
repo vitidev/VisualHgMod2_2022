@@ -7,8 +7,8 @@ namespace VisualHg.ViewModel
 {
     public class ListViewSortingIcons : Adorner
     {
-        private static Geometry ascGeometry = Geometry.Parse("M 0 4 L 3.5 0 L 7 4 Z");
-        private static Geometry descGeometry = Geometry.Parse("M 0 0 L 3.5 4 L 7 0 Z");
+        private static Geometry ascGeometry = Geometry.Parse("M 0 5 L 4.5 0 L 9 5 Z");
+        private static Geometry descGeometry = Geometry.Parse("M 0 0 L 4.5 5 L 9 0 Z");
 
         public ListSortDirection Direction { get; private set; }
 
@@ -40,7 +40,7 @@ namespace VisualHg.ViewModel
                 geometry = descGeometry;
             }
 
-            drawingContext.DrawGeometry(Brushes.Black, null, geometry);
+            drawingContext.DrawGeometry(Brushes.Gray, null, geometry);
             drawingContext.Pop();
         }
     }
