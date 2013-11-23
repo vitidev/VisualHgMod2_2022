@@ -12,11 +12,68 @@
     <UserControl.Resources>
         <v:StatusImageConverter x:Key="StatusImageConverter" />
 
+        <Style x:Key="FocusStyle">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="0,0,0,-1" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Type MenuItem}" TargetType="MenuItem">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border Name="Border" Height="22" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
+                                    <ColumnDefinition Width="*" MinWidth="150" />
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter ContentSource="Icon"
+                                                  Margin="5,0,14,0"
+                                                  Width="16" Height="Auto"
+                                                  VerticalAlignment="Center" 
+                                                  SnapsToDevicePixels="True" />
+                                <TextBlock Grid.Column="1" 
+                                           Text="{TemplateBinding Header}" 
+                                           Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"
+                                           VerticalAlignment="Center" 
+                                           SnapsToDevicePixels="True"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#f8f9fa"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="{x:Type ContextMenu}" TargetType="ContextMenu">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border BorderThickness="1" BorderBrush="#cccedb" Background="#e7e8ec" Padding="2">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="{x:Type ListView}">
             <Setter Property="BorderThickness" Value="0" />
             <EventSetter Event="SelectionChanged" Handler="OnListViewSelectionChanged" />
             <EventSetter Event="KeyDown" Handler="OnListViewKeyDown" />
         </Style>
+
         <Style x:Key="GridViewColumnHeaderGripper" TargetType="Thumb">
             <Setter Property="Template">
                 <Setter.Value>
@@ -26,6 +83,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
         <Style TargetType="{x:Type GridViewColumnHeader}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -67,7 +125,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
                                 <Setter TargetName="SortingIcon" Property="Fill" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
                             </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
+                            <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -76,7 +134,7 @@
             </Setter>
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
-        
+
         <Style TargetType="{x:Type ListViewItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -109,6 +167,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusStyle}" />
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
             <EventSetter Event="MouseDoubleClick" Handler="OpenSelectedFiles"/>
         </Style>
