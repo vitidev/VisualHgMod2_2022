@@ -14,9 +14,7 @@ namespace VisualHg.Controls
 {
     public partial class PendingChangesView : UserControl
     {
-        private ListViewSortingIcons sortingIcons;
-        private PendingChangeComparer sorter;
-
+        private PendingChangeSorter sorter;
 
         public PendingChangesView()
         {
@@ -29,7 +27,7 @@ namespace VisualHg.Controls
 
         private void InitializeSorter()
         {
-            sorter = new PendingChangeComparer(listView);
+            sorter = new PendingChangeSorter(listView);
         }
 
         public void SetFiles(HgFileInfo[] files)
@@ -105,7 +103,7 @@ namespace VisualHg.Controls
 
         private void OnListViewColumnHeaderClick(object sender, RoutedEventArgs e)
         {
-            sorter.SortBy(sender as GridViewColumnHeader);
+            sorter.SortBy(e.OriginalSource as GridViewColumnHeader);
         }
 
 
@@ -136,7 +134,7 @@ namespace VisualHg.Controls
 
         private string[] GetSelectedFiles()
         {
-            return listView.SelectedItems.Cast<PendingChange>().Select(x => x.FullName).ToArray();
+            return listView.SelectedItems.Cast<PendingChange>().Select(x => (string)x.FullName).ToArray();
         }
 
         private HgFileStatus GetAggregateSelectedItemsStatus()
@@ -146,7 +144,7 @@ namespace VisualHg.Controls
                 return HgFileStatus.None;
             }
 
-            return listView.SelectedItems.Cast<PendingChange>().Select(x => x.Status).Aggregate((x, y) => x | y);
+            return listView.SelectedItems.Cast<PendingChange>().Select(x => (HgFileStatus)x.Status).Aggregate((x, y) => x | y);
         }
 
         private static Visibility BoolToVisibility(bool value)

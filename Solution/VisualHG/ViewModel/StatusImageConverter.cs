@@ -17,8 +17,8 @@ namespace VisualHg.ViewModel
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var status = (HgFileStatus)value;
-            var iconIndex = ImageMapper.GetStatusIconIndex(status);
+            var status = (ComparableStatus)value;
+            var iconIndex = ImageMapper.GetStatusIconIndex((HgFileStatus)status);
 
             return images[iconIndex];
         }

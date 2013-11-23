@@ -31,18 +31,17 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
                         <Grid>
-                            <Border Name="HeaderBorder"
-                                Height="24"
-                                Margin="-2,0,0,0"
-                                Padding="10,0,0,0"
-                                BorderThickness="0,0,1,1" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                Background="{TemplateBinding Background}">
-                                <ContentPresenter Name="HeaderContent"
-                                              RecognizesAccessKey="True"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            <Border Height="24" Margin="-2,0,0,0" Padding="10,0,0,0" BorderThickness="0,0,1,1" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    Background="{TemplateBinding Background}">
+                                <DockPanel>
+                                    <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    <Path Name="SortingIcon" Fill="Gray" Margin="10,0,0,0" 
+                                          SnapsToDevicePixels="True"
+                                          HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                </DockPanel>
                             </Border>
                             <Thumb x:Name="PART_HeaderGripper"
                                    HorizontalAlignment="Right"
@@ -50,12 +49,23 @@
                                    Style="{StaticResource GridViewColumnHeaderGripper}"/>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="v:AttachedProperty.SortDirection" Value="{x:Null}">
+                                <Setter TargetName="SortingIcon" Property="Data" Value=""/>
+                            </Trigger>
+                            <Trigger Property="v:AttachedProperty.SortDirection" Value="Ascending">
+                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 5 L 4.5 0 L 9 5 Z"/>
+                            </Trigger>
+                            <Trigger Property="v:AttachedProperty.SortDirection" Value="Descending">
+                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 0 L 4.5 5 L 9 0 Z"/>
+                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
@@ -112,7 +122,7 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <ListView Name="listView" ItemsSource="{Binding}">
+        <ListView Name="listView" ItemsSource="{Binding}" GridViewColumnHeader.Click="OnListViewColumnHeaderClick">
             <ListView.ContextMenu>
                 <ContextMenu Name="contextMenu">
                     <MenuItem Name="openMenuItem" Header="Open" Click="OpenSelectedFiles" />
@@ -124,26 +134,10 @@
             </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="150" CellTemplate="{StaticResource FileNameTemplate}">
-                        <GridViewColumn.Header>
-                            <GridViewColumnHeader Tag="ShortName" Click="OnListViewColumnHeaderClick">File Name</GridViewColumnHeader>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="100" DisplayMemberBinding="{Binding Status}">
-                        <GridViewColumn.Header>
-                            <GridViewColumnHeader Tag="Status" Click="OnListViewColumnHeaderClick">Status</GridViewColumnHeader>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="100" DisplayMemberBinding="{Binding RootName}">
-                        <GridViewColumn.Header>
-                            <GridViewColumnHeader Tag="RootName" Click="OnListViewColumnHeaderClick">Root</GridViewColumnHeader>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
-                    <GridViewColumn Width="250" DisplayMemberBinding="{Binding Name}">
-                        <GridViewColumn.Header>
-                            <GridViewColumnHeader Tag="Name" Click="OnListViewColumnHeaderClick">Path</GridViewColumnHeader>
-                        </GridViewColumn.Header>
-                    </GridViewColumn>
+                    <GridViewColumn Width="150" Header="File Name" CellTemplate="{StaticResource FileNameTemplate}" />
+                    <GridViewColumn Width="100" Header="Status" DisplayMemberBinding="{Binding Status}" />
+                    <GridViewColumn Width="100" Header="Root" DisplayMemberBinding="{Binding RootName}" />
+                    <GridViewColumn Width="250" Header="Path" DisplayMemberBinding="{Binding Name}" />
                 </GridView>
             </ListView.View>
         </ListView>
