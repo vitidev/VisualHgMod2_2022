@@ -264,6 +264,7 @@ namespace VisualHg
 
             if (!String.IsNullOrEmpty(root))
             {
+                SaveAllProjectFiles();
                 showWindow(root);
             }
             else
@@ -279,27 +280,32 @@ namespace VisualHg
 
             if (filesToAdd.Length > 0)
             {
+                SaveAllProjectFiles();
                 TortoiseHg.ShowAddWindow(filesToAdd);
             }
         }
 
         private void ShowCommitSelectedWindow(object sender, EventArgs e)
         {
+            SaveAllProjectFiles();
             VisualHgDialogs.ShowCommitWindow(GetSelectedFiles());
         }
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
+            SaveAllProjectFiles();
             VisualHgDialogs.ShowDiffWindow(VisualHgSolution.SelectedFile);
         }
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
+            SaveAllProjectFiles();
             VisualHgDialogs.ShowRevertWindow(GetSelectedFiles());
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
+            SaveAllProjectFiles();
             VisualHgDialogs.ShowHistoryWindow(VisualHgSolution.SelectedFile);
         }
 
@@ -307,6 +313,23 @@ namespace VisualHg
         private string[] GetSelectedFiles()
         {
             return VisualHgSolution.GetSelectedFiles(VisualHgOptions.Global.ProjectStatusIncludesChildren);
+        }
+
+
+        private void SaveAllProjectFiles()
+        {
+            foreach (var project in VisualHgSolution.LoadedProjects)
+            {
+                SaveProject(project);
+            }
+        }
+
+        private void SaveProject(IVsHierarchy project)
+        {
+            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
+            var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
+
+            solution.SaveSolutionElement(options, project, 0);
         }
     }
 }

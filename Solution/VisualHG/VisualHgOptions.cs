@@ -11,6 +11,8 @@ namespace VisualHg
 
         public bool AutoAddNewFiles { get; set; }
 
+        public bool AutoSaveProjectFiles { get; set; }
+
         public bool ProjectStatusIncludesChildren { get; set; }
 
         public string DiffToolPath { get; set; }
@@ -24,6 +26,7 @@ namespace VisualHg
         {
             AutoActivatePlugin = true;
             AutoAddNewFiles = true;
+            AutoSaveProjectFiles = true;
             ProjectStatusIncludesChildren = true;
         }
 
@@ -56,6 +59,5 @@ namespace VisualHg
 
             Serializer.Serialize(optionsPath, options);
         }
-
     }
 }

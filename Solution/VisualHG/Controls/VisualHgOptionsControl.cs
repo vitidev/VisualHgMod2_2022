@@ -20,6 +20,7 @@ namespace VisualHg.Controls
         private TextBox statusImageFileNameTextBox;
         private Button selectStatusImageFileButton;
         private OpenFileDialog selectStatusImageFileDialog;
+        private CheckBox autoSaveProjectFilesCheckBox;
         private CheckBox projectStatusIncludesChildrenCheckBox;
 
         public VisualHgOptions Configuration
@@ -30,6 +31,7 @@ namespace VisualHg.Controls
                     AutoActivatePlugin = autoActivateCheckBox.Checked,
                     AddFilesOnLoad = addFilesOnLoadCheckBox.Checked,
                     AutoAddNewFiles = autoAddNewFilesCheckBox.Checked,
+                    AutoSaveProjectFiles = autoSaveProjectFilesCheckBox.Checked,
                     ProjectStatusIncludesChildren = projectStatusIncludesChildrenCheckBox.Checked,
                     DiffToolPath = diffToolPathTextBox.Text,
                     DiffToolArguments = diffToolArgumentsTextBox.Text,
@@ -41,6 +43,7 @@ namespace VisualHg.Controls
                 autoActivateCheckBox.Checked = value.AutoActivatePlugin;
                 addFilesOnLoadCheckBox.Checked = value.AddFilesOnLoad;
                 autoAddNewFilesCheckBox.Checked = value.AutoAddNewFiles;
+                autoSaveProjectFilesCheckBox.Checked = value.AutoSaveProjectFiles;
                 projectStatusIncludesChildrenCheckBox.Checked = value.ProjectStatusIncludesChildren;
                 diffToolPathTextBox.Text = value.DiffToolPath;
                 diffToolArgumentsTextBox.Text = value.DiffToolArguments;
@@ -105,6 +108,7 @@ namespace VisualHg.Controls
             this.selectStatusImageFileButton = new System.Windows.Forms.Button();
             this.selectDiffToolDialog = new System.Windows.Forms.OpenFileDialog();
             this.selectStatusImageFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.autoSaveProjectFilesCheckBox = new System.Windows.Forms.CheckBox();
             diffToolPathLabel = new System.Windows.Forms.Label();
             tortoiseHgVersionLabel = new System.Windows.Forms.Label();
             noteLabel = new System.Windows.Forms.Label();
@@ -118,11 +122,11 @@ namespace VisualHg.Controls
             diffToolPathLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             diffToolPathLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(diffToolPathLabel, 3);
-            diffToolPathLabel.Location = new System.Drawing.Point(0, 109);
+            diffToolPathLabel.Location = new System.Drawing.Point(0, 130);
             diffToolPathLabel.Margin = new System.Windows.Forms.Padding(0);
             diffToolPathLabel.Name = "diffToolPathLabel";
             diffToolPathLabel.Size = new System.Drawing.Size(207, 13);
-            diffToolPathLabel.TabIndex = 5;
+            diffToolPathLabel.TabIndex = 6;
             diffToolPathLabel.Text = "Custom diff tool (leave blank to use kdiff3):";
             // 
             // tortoiseHgVersionLabel
@@ -130,11 +134,11 @@ namespace VisualHg.Controls
             tortoiseHgVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             tortoiseHgVersionLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(tortoiseHgVersionLabel, 3);
-            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 259);
+            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 280);
             tortoiseHgVersionLabel.Margin = new System.Windows.Forms.Padding(0);
             tortoiseHgVersionLabel.Name = "tortoiseHgVersionLabel";
             tortoiseHgVersionLabel.Size = new System.Drawing.Size(99, 13);
-            tortoiseHgVersionLabel.TabIndex = 13;
+            tortoiseHgVersionLabel.TabIndex = 14;
             tortoiseHgVersionLabel.Text = "TortoiseHg version:";
             // 
             // noteLabel
@@ -142,11 +146,11 @@ namespace VisualHg.Controls
             noteLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             noteLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(noteLabel, 3);
-            noteLabel.Location = new System.Drawing.Point(16, 85);
+            noteLabel.Location = new System.Drawing.Point(16, 106);
             noteLabel.Margin = new System.Windows.Forms.Padding(16, 0, 0, 0);
             noteLabel.Name = "noteLabel";
             noteLabel.Size = new System.Drawing.Size(212, 13);
-            noteLabel.TabIndex = 4;
+            noteLabel.TabIndex = 5;
             noteLabel.Text = "NOTE: This may be slow with large projects";
             // 
             // label1
@@ -154,11 +158,11 @@ namespace VisualHg.Controls
             label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
             label1.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(label1, 3);
-            label1.Location = new System.Drawing.Point(0, 159);
+            label1.Location = new System.Drawing.Point(0, 180);
             label1.Margin = new System.Windows.Forms.Padding(0);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(370, 13);
-            label1.TabIndex = 8;
+            label1.TabIndex = 9;
             label1.Text = "Diff arguments (use %PathA%, %NameA%, %PathB%, %NameB%, no quotes):";
             // 
             // statusImageFileNameLabel
@@ -166,11 +170,11 @@ namespace VisualHg.Controls
             statusImageFileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             statusImageFileNameLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(statusImageFileNameLabel, 3);
-            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 209);
+            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 230);
             statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0);
             statusImageFileNameLabel.Name = "statusImageFileNameLabel";
             statusImageFileNameLabel.Size = new System.Drawing.Size(165, 13);
-            statusImageFileNameLabel.TabIndex = 10;
+            statusImageFileNameLabel.TabIndex = 11;
             statusImageFileNameLabel.Text = "Status image file (requires restart):";
             // 
             // addFilesOnLoadCheckBox
@@ -202,33 +206,33 @@ namespace VisualHg.Controls
             // selectDiffToolButton
             // 
             this.selectDiffToolButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.selectDiffToolButton.Location = new System.Drawing.Point(430, 124);
+            this.selectDiffToolButton.Location = new System.Drawing.Point(430, 145);
             this.selectDiffToolButton.Margin = new System.Windows.Forms.Padding(0);
             this.selectDiffToolButton.Name = "selectDiffToolButton";
             this.selectDiffToolButton.Size = new System.Drawing.Size(30, 26);
-            this.selectDiffToolButton.TabIndex = 7;
+            this.selectDiffToolButton.TabIndex = 8;
             this.selectDiffToolButton.Text = "...";
             this.selectDiffToolButton.UseVisualStyleBackColor = true;
             // 
             // diffToolPathTextBox
             // 
             this.diffToolPathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.diffToolPathTextBox.Location = new System.Drawing.Point(0, 127);
+            this.diffToolPathTextBox.Location = new System.Drawing.Point(0, 148);
             this.diffToolPathTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolPathTextBox.Name = "diffToolPathTextBox";
             this.diffToolPathTextBox.Size = new System.Drawing.Size(423, 20);
-            this.diffToolPathTextBox.TabIndex = 6;
+            this.diffToolPathTextBox.TabIndex = 7;
             // 
             // projectStatusIncludesChildrenCheckBox
             // 
             this.projectStatusIncludesChildrenCheckBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.projectStatusIncludesChildrenCheckBox.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(this.projectStatusIncludesChildrenCheckBox, 3);
-            this.projectStatusIncludesChildrenCheckBox.Location = new System.Drawing.Point(0, 65);
+            this.projectStatusIncludesChildrenCheckBox.Location = new System.Drawing.Point(0, 86);
             this.projectStatusIncludesChildrenCheckBox.Margin = new System.Windows.Forms.Padding(0);
             this.projectStatusIncludesChildrenCheckBox.Name = "projectStatusIncludesChildrenCheckBox";
             this.projectStatusIncludesChildrenCheckBox.Size = new System.Drawing.Size(251, 17);
-            this.projectStatusIncludesChildrenCheckBox.TabIndex = 3;
+            this.projectStatusIncludesChildrenCheckBox.TabIndex = 4;
             this.projectStatusIncludesChildrenCheckBox.Text = "Include child items for determining project status";
             this.projectStatusIncludesChildrenCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -239,24 +243,26 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 7F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel.Controls.Add(this.autoActivateCheckBox, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.selectDiffToolButton, 2, 7);
-            this.tableLayoutPanel.Controls.Add(this.diffToolPathTextBox, 0, 7);
-            this.tableLayoutPanel.Controls.Add(diffToolPathLabel, 0, 6);
-            this.tableLayoutPanel.Controls.Add(this.projectStatusIncludesChildrenCheckBox, 0, 3);
+            this.tableLayoutPanel.Controls.Add(this.selectDiffToolButton, 2, 8);
+            this.tableLayoutPanel.Controls.Add(this.diffToolPathTextBox, 0, 8);
+            this.tableLayoutPanel.Controls.Add(diffToolPathLabel, 0, 7);
+            this.tableLayoutPanel.Controls.Add(this.projectStatusIncludesChildrenCheckBox, 0, 4);
             this.tableLayoutPanel.Controls.Add(this.addFilesOnLoadCheckBox, 0, 1);
-            this.tableLayoutPanel.Controls.Add(noteLabel, 0, 4);
-            this.tableLayoutPanel.Controls.Add(label1, 0, 9);
-            this.tableLayoutPanel.Controls.Add(this.diffToolArgumentsTextBox, 0, 10);
+            this.tableLayoutPanel.Controls.Add(noteLabel, 0, 5);
+            this.tableLayoutPanel.Controls.Add(label1, 0, 10);
+            this.tableLayoutPanel.Controls.Add(this.diffToolArgumentsTextBox, 0, 11);
             this.tableLayoutPanel.Controls.Add(this.autoAddNewFilesCheckBox, 0, 2);
-            this.tableLayoutPanel.Controls.Add(this.tortoiseHgVersionTextBox, 0, 16);
-            this.tableLayoutPanel.Controls.Add(tortoiseHgVersionLabel, 0, 15);
-            this.tableLayoutPanel.Controls.Add(statusImageFileNameLabel, 0, 12);
-            this.tableLayoutPanel.Controls.Add(this.statusImageFileNameTextBox, 0, 13);
-            this.tableLayoutPanel.Controls.Add(this.selectStatusImageFileButton, 2, 13);
+            this.tableLayoutPanel.Controls.Add(this.tortoiseHgVersionTextBox, 0, 17);
+            this.tableLayoutPanel.Controls.Add(tortoiseHgVersionLabel, 0, 16);
+            this.tableLayoutPanel.Controls.Add(statusImageFileNameLabel, 0, 13);
+            this.tableLayoutPanel.Controls.Add(this.statusImageFileNameTextBox, 0, 14);
+            this.tableLayoutPanel.Controls.Add(this.selectStatusImageFileButton, 2, 14);
+            this.tableLayoutPanel.Controls.Add(this.autoSaveProjectFilesCheckBox, 0, 3);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 18;
+            this.tableLayoutPanel.RowCount = 19;
+            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 21F));
@@ -282,11 +288,11 @@ namespace VisualHg.Controls
             // 
             this.diffToolArgumentsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.diffToolArgumentsTextBox, 3);
-            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 177);
+            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 198);
             this.diffToolArgumentsTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolArgumentsTextBox.Name = "diffToolArgumentsTextBox";
             this.diffToolArgumentsTextBox.Size = new System.Drawing.Size(460, 20);
-            this.diffToolArgumentsTextBox.TabIndex = 9;
+            this.diffToolArgumentsTextBox.TabIndex = 10;
             // 
             // autoAddNewFilesCheckBox
             // 
@@ -305,31 +311,31 @@ namespace VisualHg.Controls
             // 
             this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
-            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 277);
+            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 298);
             this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.tortoiseHgVersionTextBox.Name = "tortoiseHgVersionTextBox";
             this.tortoiseHgVersionTextBox.ReadOnly = true;
             this.tortoiseHgVersionTextBox.Size = new System.Drawing.Size(460, 20);
-            this.tortoiseHgVersionTextBox.TabIndex = 14;
+            this.tortoiseHgVersionTextBox.TabIndex = 15;
             this.tortoiseHgVersionTextBox.TabStop = false;
             // 
             // statusImageFileNameTextBox
             // 
             this.statusImageFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 227);
+            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 248);
             this.statusImageFileNameTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.statusImageFileNameTextBox.Name = "statusImageFileNameTextBox";
             this.statusImageFileNameTextBox.Size = new System.Drawing.Size(423, 20);
-            this.statusImageFileNameTextBox.TabIndex = 11;
+            this.statusImageFileNameTextBox.TabIndex = 12;
             // 
             // selectStatusImageFileButton
             // 
             this.selectStatusImageFileButton.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 224);
+            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 245);
             this.selectStatusImageFileButton.Margin = new System.Windows.Forms.Padding(0);
             this.selectStatusImageFileButton.Name = "selectStatusImageFileButton";
             this.selectStatusImageFileButton.Size = new System.Drawing.Size(30, 26);
-            this.selectStatusImageFileButton.TabIndex = 12;
+            this.selectStatusImageFileButton.TabIndex = 13;
             this.selectStatusImageFileButton.Text = "...";
             this.selectStatusImageFileButton.UseVisualStyleBackColor = true;
             // 
@@ -347,6 +353,18 @@ namespace VisualHg.Controls
             this.selectStatusImageFileDialog.Filter = "Image files|*.bmp;*.png;*.gif|All files|*.*";
             this.selectStatusImageFileDialog.ShowReadOnly = true;
             this.selectStatusImageFileDialog.Title = "Select status image file";
+            // 
+            // autoSaveProjectFilesCheckBox
+            // 
+            this.autoSaveProjectFilesCheckBox.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.autoSaveProjectFilesCheckBox.AutoSize = true;
+            this.autoSaveProjectFilesCheckBox.Location = new System.Drawing.Point(0, 65);
+            this.autoSaveProjectFilesCheckBox.Margin = new System.Windows.Forms.Padding(0);
+            this.autoSaveProjectFilesCheckBox.Name = "autoSaveProjectFilesCheckBox";
+            this.autoSaveProjectFilesCheckBox.Size = new System.Drawing.Size(272, 17);
+            this.autoSaveProjectFilesCheckBox.TabIndex = 3;
+            this.autoSaveProjectFilesCheckBox.Text = "Save project files before opening TortoiseHg dialogs";
+            this.autoSaveProjectFilesCheckBox.UseVisualStyleBackColor = true;
             // 
             // VisualHgOptionsControl
             // 
