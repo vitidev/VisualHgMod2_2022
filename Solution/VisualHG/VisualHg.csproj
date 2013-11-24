@@ -107,6 +107,7 @@
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
     <Compile Include="ViewModel\ComparablePath.cs" />
     <Compile Include="ViewModel\ComparableStatus.cs" />
+    <Compile Include="ViewModel\EnvironmentColors.cs" />
     <Compile Include="ViewModel\PendingChangeSorter.cs" />
     <Compile Include="ViewModel\AttachedProperty.cs" />
     <Compile Include="ViewModel\StatusImageConverter.cs" />

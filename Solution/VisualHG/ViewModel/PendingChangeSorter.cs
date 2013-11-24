@@ -36,6 +36,11 @@ namespace VisualHg.ViewModel
 
         public void SortBy(GridViewColumnHeader columnHeader)
         {
+            if (columnHeader.Column == null)
+            {
+                return;
+            }
+
             var propertyName = GetBindingPropertyName(columnHeader);
             
             if (sortingColumnHeader != null)

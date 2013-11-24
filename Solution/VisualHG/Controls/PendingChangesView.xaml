@@ -10,13 +10,30 @@
              UseLayoutRounding="True">
 
     <UserControl.Resources>
+        <SolidColorBrush x:Key="HeaderBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderBorderColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderMouseDownBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderMouseDownTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownTextColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderMouseOverBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseOverColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderTextColorKey}}"/>
+        <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightColorKey}}"/>
+        <SolidColorBrush x:Key="HighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightTextColorKey}}"/>
+        <SolidColorBrush x:Key="InactiveSelectionHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightColorKey}}"/>
+        <SolidColorBrush x:Key="InactiveSelectionHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightTextColorKey}}"/>
+        <SolidColorBrush x:Key="MenuBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuBorderColorKey}}"/>
+        <SolidColorBrush x:Key="MenuBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuColorKey}}"/>
+        <SolidColorBrush x:Key="MenuHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightColorKey}}"/>
+        <SolidColorBrush x:Key="MenuHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightTextColorKey}}"/>
+        <SolidColorBrush x:Key="WindowBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowColorKey}}"/>
+        <SolidColorBrush x:Key="WindowTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}"/>
+
         <v:StatusImageConverter x:Key="StatusImageConverter" />
 
         <Style x:Key="FocusStyle">
             <Setter Property="Control.Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Rectangle Margin="0,0,0,-1" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                        <Rectangle Margin="0,0,0,-1" StrokeThickness="1" Stroke="{StaticResource HighlightBrush}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -38,16 +55,17 @@
                                                   Width="16" Height="Auto"
                                                   VerticalAlignment="Center" 
                                                   SnapsToDevicePixels="True" />
-                                <TextBlock Grid.Column="1" 
+                                <TextBlock Name="Header" Grid.Column="1" 
                                            Text="{TemplateBinding Header}" 
-                                           Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"
+                                           Foreground="{StaticResource WindowTextBrush}"
                                            VerticalAlignment="Center" 
                                            SnapsToDevicePixels="True"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#f8f9fa"/>
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource MenuHighlightBrush}"/>
+                                <Setter TargetName="Header" Property="Foreground" Value="{StaticResource MenuHighlightTextBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -60,7 +78,9 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
-                        <Border BorderThickness="1" BorderBrush="#cccedb" Background="#e7e8ec" Padding="2">
+                        <Border BorderThickness="1" Padding="2"
+                                BorderBrush="{StaticResource MenuBorderBrush}" 
+                                Background="{StaticResource MenuBrush}">
                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                         </Border>
                     </ControlTemplate>
@@ -69,6 +89,8 @@
         </Style>
 
         <Style TargetType="{x:Type ListView}">
+            <Setter Property="Background" Value="{StaticResource WindowBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource WindowTextBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <EventSetter Event="SelectionChanged" Handler="OnListViewSelectionChanged" />
             <EventSetter Event="KeyDown" Handler="OnListViewKeyDown" />
@@ -90,7 +112,7 @@
                     <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
                         <Grid>
                             <Border Height="24" Margin="-2,0,0,0" Padding="10,0,0,0" BorderThickness="0,0,1,1" 
-                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderBrush="{StaticResource HeaderBorderBrush}" 
                                     Background="{TemplateBinding Background}">
                                 <DockPanel>
                                     <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -117,21 +139,20 @@
                                 <Setter TargetName="SortingIcon" Property="Data" Value="M 0 0 L 4.5 5 L 9 0 Z"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+                                <Setter Property="Background" Value="{StaticResource HeaderMouseOverBrush}"/>
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource WindowTextBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                <Setter Property="Background" Value="{StaticResource HeaderMouseDownBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource HeaderMouseDownTextBrush}"/>
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource HeaderMouseDownTextBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Background" Value="{StaticResource HeaderBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource HeaderTextBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
         </Style>
 
@@ -152,23 +173,23 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource HighlightTextBrush}" />
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsSelected" Value="True" />
                                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                                 </MultiTrigger.Conditions>
-                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}" />
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}}" />
+                                <Setter Property="Background" Value="{StaticResource InactiveSelectionHighlightBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource InactiveSelectionHighlightTextBrush}" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusStyle}" />
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+            <Setter Property="Foreground" Value="{StaticResource WindowTextBrush}"/>
             <EventSetter Event="MouseDoubleClick" Handler="OpenSelectedFiles"/>
         </Style>
 
