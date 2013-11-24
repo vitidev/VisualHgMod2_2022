@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +8,7 @@ using System.Windows.Documents;
 
 namespace VisualHg.ViewModel
 {
-    public class PendingChangeSorter : IComparer
+    public class PendingChangeSorter
     {
         private SortDescriptionCollection sortDescriptions;
 
@@ -18,21 +19,8 @@ namespace VisualHg.ViewModel
         public PendingChangeSorter(ListView listView)
         {
             sortDescriptions = listView.Items.SortDescriptions;
-            listView.DataContextChanged += OnListViewDataContextChanged;
         }
 
-
-        private void OnListViewDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            var listView = (ListView)sender;
-
-            var view = (ListCollectionView)CollectionViewSource.GetDefaultView(listView.ItemsSource);
-            
-            if (view != null)
-            {
-                view.CustomSort = this;
-            }
-        }
 
         public void SortBy(GridViewColumnHeader columnHeader)
         {
@@ -49,7 +37,7 @@ namespace VisualHg.ViewModel
                 AttachedProperty.SetSortDirection(sortingColumnHeader, null);
             }
 
-            if (sortingColumnHeader != columnHeader)
+            if (sortingColumnHeader != columnHeader && !String.IsNullOrEmpty(propertyName))
             {
                 direction = ListSortDirection.Ascending;
                 sortingColumnHeader = columnHeader;
@@ -70,25 +58,6 @@ namespace VisualHg.ViewModel
             }
         }
 
-
-        public int Compare(object x, object y)
-        {
-            return Compare((PendingChange)x, (PendingChange)y);
-        }
-
-        public int Compare(PendingChange x, PendingChange y)
-        {
-            var result = x.Status.CompareTo(y.Status);
-
-            if (result == 0)
-            {
-                result = x.Name.CompareTo(y.Name);
-            }
-
-            return result;
-        }
-
-        
         private static string GetBindingPropertyName(GridViewColumnHeader columnHeader)
         {
             if (columnHeader == null || columnHeader.Column == null)

@@ -15,14 +15,22 @@ namespace VisualHg.Controls
     public partial class PendingChangesView : UserControl
     {
         private PendingChangeSorter sorter;
+        private PendingChanges pendingChanges;
 
         public PendingChangesView()
         {
             InitializeComponent();
+            InitializePendingChanges();
             InitializeSorter();
 
             SetMenuItemImages();
             UpdateMenuItemsVisibility();
+        }
+
+        private void InitializePendingChanges()
+        {
+            pendingChanges = new PendingChanges();
+            listView.DataContext = pendingChanges;
         }
 
         private void InitializeSorter()
@@ -30,9 +38,9 @@ namespace VisualHg.Controls
             sorter = new PendingChangeSorter(listView);
         }
 
-        public void SetFiles(HgFileInfo[] files)
+        public void Synchronize(HgFileInfo[] files)
         {
-            DataContext = new PendingChanges(files);
+            pendingChanges.Synchronize(files);
         }
 
 

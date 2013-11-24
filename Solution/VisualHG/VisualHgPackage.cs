@@ -76,7 +76,7 @@ namespace VisualHg
                 _pendingChangesToolWindow = FindToolWindow(typeof(PendingChangesToolWindow), 0, true) as PendingChangesToolWindow;
             }
 
-            _pendingChangesToolWindow.SetFiles(visualHgService.PendingFiles);
+            _pendingChangesToolWindow.Synchronize(visualHgService.PendingFiles);
         }
 
 

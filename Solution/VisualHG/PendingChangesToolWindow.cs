@@ -20,9 +20,9 @@ namespace VisualHg
             Caption = Resources.ResourceManager.GetString("100");
         }
 
-        public void SetFiles(HgFileInfo[] files)
+        public void Synchronize(HgFileInfo[] files)
         {
-            pendingChangesControl.SetFiles(files);
+            pendingChangesControl.Synchronize(files);
         }
     }
 }
