@@ -12,6 +12,16 @@ namespace VisualHg
 
         public VisualHgFileSet SolutionFiles { get; private set; }
 
+        public override HgFileInfo[] PendingFiles
+        {
+            get
+            {
+                return base.PendingFiles
+                    .Where(x => SolutionFiles.Contains(x.FullName))
+                    .ToArray();
+            }
+        }
+
 
         public VisualHgRepository()
         {

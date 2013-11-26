@@ -359,19 +359,16 @@ namespace VisualHg
             }
         }
 
-        private void OnBeforeCloseProject(IVsHierarchy hierarchy)
+        private void OnBeforeCloseOrUnloadProject(IVsHierarchy hierarchy)
         {
             repository.SolutionFiles.Remove(hierarchy);
+            UpdatePendingChangesToolWindow();
         }
 
         private void OnBeforeCloseSolution()
         {
             repository.SolutionFiles.Clear();
-        }
-
-        private void OnBeforeUnloadProject(IVsHierarchy hierarchy)
-        {
-            repository.SolutionFiles.Remove(hierarchy);
+            UpdatePendingChangesToolWindow();
         }
 
 
@@ -552,7 +549,7 @@ namespace VisualHg
 
         int IVsSolutionEvents.OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
         {
-            OnBeforeCloseProject(pHierarchy);
+            OnBeforeCloseOrUnloadProject(pHierarchy);
             return VSConstants.S_OK;
         }
 
@@ -564,7 +561,7 @@ namespace VisualHg
 
         int IVsSolutionEvents.OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
         {
-            OnBeforeUnloadProject(pRealHierarchy);
+            OnBeforeCloseOrUnloadProject(pRealHierarchy);
             return VSConstants.S_OK;
         }
 

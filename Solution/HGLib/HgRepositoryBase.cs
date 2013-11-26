@@ -25,7 +25,7 @@ namespace HgLib
             get { return roots.Branches; }
         }
 
-        public HgFileInfo[] PendingFiles
+        public virtual HgFileInfo[] PendingFiles
         {
             get { return cache.PendingFiles; }
         }
