@@ -133,8 +133,8 @@ namespace VisualHg
                 lastUpdate = DateTime.Now;
 
                 UpdateStatusIcons();
-                UpdateMainWindowCaption();
                 UpdatePendingChangesToolWindow();
+                UpdateMainWindowCaption();
             }
         }
 
@@ -193,19 +193,28 @@ namespace VisualHg
             if (dte == null || dte.MainWindow == null)
             {
                 return;
-            }
+            } 
 
             var caption = dte.MainWindow.Caption;
             var additionalInfo = String.IsNullOrEmpty(text) ? "" : String.Concat(" (", text, ") ");
 
             var newCaption = Regex.Replace(caption, 
-                @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)$",
+                @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)?$",
                 String.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
 
             if (caption != newCaption)
             {
-                NativeMethods.SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
+                SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
             }
+        }
+
+        private static void SetWindowText(IntPtr handle, string text)
+        {
+            try
+            {
+                NativeMethods.SetWindowText(handle, text);
+            }
+            catch { }
         }
 
 
