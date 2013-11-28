@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Windows;
+using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg.ViewModel
 {
@@ -28,15 +29,39 @@ namespace VisualHg.ViewModel
 
         private static Type LoadEnvironmentColorsType()
         {
-            try
+            if (GetMajorVersionNumber() > 10)
             {
-                var assembly = Assembly.Load("Microsoft.VisualStudio.Shell.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL");
-                return assembly.GetType("Microsoft.VisualStudio.PlatformUI.EnvironmentColors");
+                try
+                {
+                    var assembly = Assembly.Load("Microsoft.VisualStudio.Shell.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL");
+                    return assembly.GetType("Microsoft.VisualStudio.PlatformUI.EnvironmentColors");
+                }
+                catch { }
             }
-            catch
+
+            return null;
+        }
+
+        private static int GetMajorVersionNumber()
+        {
+            var version = GetVersion();
+            var majorVersion = version.Substring(0, version.IndexOf('.'));
+            
+            int majorVersionNumber;
+
+            if (Int32.TryParse(version, out majorVersionNumber))
             {
-                return null;
+                return majorVersionNumber;
             }
+
+            return 10;
+        }
+
+        private static string GetVersion()
+        {
+            var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            
+            return dte.Version;
         }
 
 
