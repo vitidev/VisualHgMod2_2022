@@ -123,7 +123,7 @@ namespace VisualHg.Controls
             diffToolPathLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(diffToolPathLabel, 3);
             diffToolPathLabel.Location = new System.Drawing.Point(0, 129);
-            diffToolPathLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 1);
+            diffToolPathLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             diffToolPathLabel.Name = "diffToolPathLabel";
             diffToolPathLabel.Size = new System.Drawing.Size(207, 13);
             diffToolPathLabel.TabIndex = 6;
@@ -134,8 +134,8 @@ namespace VisualHg.Controls
             tortoiseHgVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             tortoiseHgVersionLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(tortoiseHgVersionLabel, 3);
-            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 275);
-            tortoiseHgVersionLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 1);
+            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 272);
+            tortoiseHgVersionLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             tortoiseHgVersionLabel.Name = "tortoiseHgVersionLabel";
             tortoiseHgVersionLabel.Size = new System.Drawing.Size(99, 13);
             tortoiseHgVersionLabel.TabIndex = 14;
@@ -159,8 +159,8 @@ namespace VisualHg.Controls
             label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
             label1.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(label1, 3);
-            label1.Location = new System.Drawing.Point(0, 180);
-            label1.Margin = new System.Windows.Forms.Padding(0, 2, 0, 1);
+            label1.Location = new System.Drawing.Point(0, 179);
+            label1.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(370, 13);
             label1.TabIndex = 9;
@@ -171,8 +171,8 @@ namespace VisualHg.Controls
             statusImageFileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             statusImageFileNameLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(statusImageFileNameLabel, 3);
-            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 224);
-            statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 1);
+            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 222);
+            statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             statusImageFileNameLabel.Name = "statusImageFileNameLabel";
             statusImageFileNameLabel.Size = new System.Drawing.Size(165, 13);
             statusImageFileNameLabel.TabIndex = 11;
@@ -211,7 +211,7 @@ namespace VisualHg.Controls
             this.selectDiffToolButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.selectDiffToolButton.AutoSize = true;
             this.selectDiffToolButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.selectDiffToolButton.Location = new System.Drawing.Point(430, 143);
+            this.selectDiffToolButton.Location = new System.Drawing.Point(430, 142);
             this.selectDiffToolButton.Margin = new System.Windows.Forms.Padding(0);
             this.selectDiffToolButton.Name = "selectDiffToolButton";
             this.selectDiffToolButton.Padding = new System.Windows.Forms.Padding(2);
@@ -223,7 +223,7 @@ namespace VisualHg.Controls
             // diffToolPathTextBox
             // 
             this.diffToolPathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.diffToolPathTextBox.Location = new System.Drawing.Point(0, 146);
+            this.diffToolPathTextBox.Location = new System.Drawing.Point(0, 145);
             this.diffToolPathTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolPathTextBox.Name = "diffToolPathTextBox";
             this.diffToolPathTextBox.Size = new System.Drawing.Size(423, 20);
@@ -295,7 +295,7 @@ namespace VisualHg.Controls
             // 
             this.diffToolArgumentsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.diffToolArgumentsTextBox, 3);
-            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 194);
+            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 192);
             this.diffToolArgumentsTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolArgumentsTextBox.Name = "diffToolArgumentsTextBox";
             this.diffToolArgumentsTextBox.Size = new System.Drawing.Size(460, 20);
@@ -319,7 +319,7 @@ namespace VisualHg.Controls
             // 
             this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
-            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 289);
+            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 285);
             this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.tortoiseHgVersionTextBox.Name = "tortoiseHgVersionTextBox";
             this.tortoiseHgVersionTextBox.ReadOnly = true;
@@ -330,7 +330,7 @@ namespace VisualHg.Controls
             // statusImageFileNameTextBox
             // 
             this.statusImageFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 241);
+            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 238);
             this.statusImageFileNameTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.statusImageFileNameTextBox.Name = "statusImageFileNameTextBox";
             this.statusImageFileNameTextBox.Size = new System.Drawing.Size(423, 20);
@@ -341,7 +341,7 @@ namespace VisualHg.Controls
             this.selectStatusImageFileButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.selectStatusImageFileButton.AutoSize = true;
             this.selectStatusImageFileButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 238);
+            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 235);
             this.selectStatusImageFileButton.Margin = new System.Windows.Forms.Padding(0);
             this.selectStatusImageFileButton.Name = "selectStatusImageFileButton";
             this.selectStatusImageFileButton.Padding = new System.Windows.Forms.Padding(2);
