@@ -166,8 +166,11 @@ namespace VisualHg
         private void UpdateProjectStatusIcons(IVsHierarchy hierarchy)
         {
             var project = hierarchy as IVsSccProject2;
-        
-            project.SccGlyphChanged(0, null, null, null);
+
+            if (project != null)
+            {
+                project.SccGlyphChanged(0, null, null, null);
+            }
         }
 
         
