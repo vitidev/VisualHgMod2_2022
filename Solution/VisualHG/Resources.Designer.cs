@@ -97,5 +97,23 @@ namespace VisualHg {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Solution is not under Mercurial version contol.
+        /// </summary>
+        internal static string NotUnderVersionControl {
+            get {
+                return ResourceManager.GetString("NotUnderVersionControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TortoiseHg was not found.
+        /// </summary>
+        internal static string TortoiseHgNotFound {
+            get {
+                return ResourceManager.GetString("TortoiseHgNotFound", resourceCulture);
+            }
+        }
     }
 }

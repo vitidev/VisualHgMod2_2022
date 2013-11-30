@@ -55,7 +55,7 @@ namespace VisualHg.Controls
         {
             InitializeComponent();
 
-            tortoiseHgVersionTextBox.Text = TortoiseHg.Version ?? "TortoiseHg was not found";
+            tortoiseHgVersionTextBox.Text = TortoiseHg.Version ?? Resources.TortoiseHgNotFound;
 
             selectDiffToolButton.Click += SelectDiffTool;
             selectDiffToolDialog.FileOk += (s, e) => diffToolPathTextBox.Text = selectDiffToolDialog.FileName;

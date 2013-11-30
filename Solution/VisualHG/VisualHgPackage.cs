@@ -82,8 +82,14 @@ namespace VisualHg
 
         private void NotifySolutionIsNotUnderVersionControl()
         {
-            MessageBox.Show("Solution is not under Mercurial version contol\n\n" + VisualHgSolution.SolutionFileName, "VisualHg", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show(Resources.NotUnderVersionControl + "\n\n" + VisualHgSolution.SolutionFileName, Resources._100, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
+
+        private void NotifyTortoiseHgNotFound()
+        {
+            MessageBox.Show(Resources.TortoiseHgNotFound, Resources._100, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
 
         private void InitializeMenuCommands()
         {
@@ -260,6 +266,12 @@ namespace VisualHg
 
         private void GetRootAnd(Action<string> showWindow)
         {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
             var root = VisualHgSolution.CurrentRootDirectory;
 
             if (!String.IsNullOrEmpty(root))
@@ -276,6 +288,12 @@ namespace VisualHg
 
         private void ShowAddSelectedWindow(object sender, EventArgs e)
         {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
             var filesToAdd = GetSelectedFiles().Where(VisualHgFileStatus.IsNotAdded).ToArray();
 
             if (filesToAdd.Length > 0)
@@ -287,6 +305,12 @@ namespace VisualHg
 
         private void ShowCommitSelectedWindow(object sender, EventArgs e)
         {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
             SaveAllProjectFiles();
             VisualHgDialogs.ShowCommitWindow(GetSelectedFiles());
         }
@@ -299,12 +323,24 @@ namespace VisualHg
 
         private void ShowRevertWindow(object sender, EventArgs e)
         {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
             SaveAllProjectFiles();
             VisualHgDialogs.ShowRevertWindow(GetSelectedFiles());
         }
 
         private void ShowHistoryWindow(object sender, EventArgs e)
         {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
             SaveAllProjectFiles();
             VisualHgDialogs.ShowHistoryWindow(VisualHgSolution.SelectedFile);
         }
