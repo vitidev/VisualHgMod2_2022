@@ -22,7 +22,6 @@ namespace VisualHg
         private ImageList statusImageList;
         
         private bool _active;
-        private bool hasRepositoryStatusChanged = true;
 
         private uint vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
         private uint trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
@@ -31,7 +30,7 @@ namespace VisualHg
         private DateTime lastUpdate;
 
         private VisualHgRepository repository;
-        private IdlenessNotifier idlenessNotifier;
+        private IdleWorker onIdleUpdate;
 
 
         public bool Active
@@ -58,9 +57,8 @@ namespace VisualHg
 
         public VisualHgService()
         {
-            idlenessNotifier = new IdlenessNotifier();
-            idlenessNotifier.Idle += OnIdle;
-            idlenessNotifier.Register();
+            onIdleUpdate = new IdleWorker();
+            onIdleUpdate.DoWork += (s, e) => Update();
 
             repository = new VisualHgRepository();
             repository.StatusChanged += OnRepositoryStatusChanged;
@@ -80,8 +78,7 @@ namespace VisualHg
 
         public void Dispose()
         {
-            idlenessNotifier.Idle -= OnIdle;
-            idlenessNotifier.Revoke();
+            onIdleUpdate.Dispose();
 
             repository.StatusChanged -= OnRepositoryStatusChanged;
             repository.Dispose();
@@ -118,30 +115,20 @@ namespace VisualHg
 
         private void OnRepositoryStatusChanged(object sender, EventArgs e)
         {
-            hasRepositoryStatusChanged = true;
-        }
-
-        private void OnIdle(object sender, EventArgs e)
-        {
-            Update();
+            onIdleUpdate.Active = (DateTime.Now - lastUpdate).Milliseconds > 100;
         }
 
         private void Update()
         {
-            if (hasRepositoryStatusChanged && (DateTime.Now - lastUpdate).Milliseconds > 100)
-            {
-                lastUpdate = DateTime.Now;
+            lastUpdate = DateTime.Now;
 
-                UpdateStatusIcons();
-                UpdatePendingChangesToolWindow();
-                UpdateMainWindowCaption();
-            }
+            UpdateStatusIcons();
+            UpdatePendingChangesToolWindow();
+            UpdateMainWindowCaption();
         }
 
         private void UpdateStatusIcons()
         {
-            hasRepositoryStatusChanged = false;
-
             UpdateSolutionStatusIcon();
             UpdateLoadedProjectsStatusIcons();
         }

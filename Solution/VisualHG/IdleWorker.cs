@@ -5,14 +5,50 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
-    public sealed class IdlenessNotifier : IOleComponent
+    public sealed class IdleWorker : IOleComponent, IDisposable
     {
         private uint componentId;
 
-        public event EventHandler Idle = (s, e) => { };
+        public event EventHandler DoWork;
 
 
-        public void Register()
+        public bool Active { get; set; }
+
+
+        public IdleWorker()
+        {
+            Register();
+        }
+
+        public void Dispose()
+        {
+            Active = false;
+            DoWork = null;
+            Revoke();
+        }
+
+
+        private void DoWorkIfActive()
+        {
+            if (Active)
+            {
+                Active = false;
+                OnDoWork();
+            }
+        }
+
+        private void OnDoWork()
+        {
+            var d = DoWork;
+
+            if (d != null)
+            {
+                d(this, EventArgs.Empty);
+            }
+        }
+        
+
+        private void Register()
         {
             var componentManager = GetComponentManager();
 
@@ -41,13 +77,14 @@ namespace VisualHg
             componentManager.FRegisterComponent(this, new[] { pcrinfo }, out componentId);
         }
 
-        public void Revoke()
+        private void Revoke()
         {
             var componentManager = GetComponentManager();
 
             if (componentId != 0 && componentManager != null)
             {
                 componentManager.FRevokeComponent(componentId);
+                componentId = 0;
             }
         }
 
@@ -65,8 +102,7 @@ namespace VisualHg
 
         int IOleComponent.FDoIdle(uint grfidlef)
         {
-            Idle(this, EventArgs.Empty);
-
+            DoWorkIfActive();
             return 0;
         }
 

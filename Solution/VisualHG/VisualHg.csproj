@@ -124,7 +124,7 @@
     <Compile Include="NativeMethods.cs" />
     <Compile Include="VisualHgFileSet.cs" />
     <Compile Include="DiffTool.cs" />
-    <Compile Include="IdlenessNotifier.cs" />
+    <Compile Include="IdleWorker.cs" />
     <Compile Include="ImageMapper.cs" />
     <Compile Include="VisualHgSolution.cs" />
     <Compile Include="VisualHgDialogs.cs" />
