@@ -40,13 +40,29 @@ namespace VisualHg
         {
             var root = HgPath.FindRepositoryRoot(fileName);
             var parent = GetOriginalFileName(fileName);
-            var temp = Hg.CreateParentRevisionTempFile(parent, root);
             
+            var temp = Hg.CreateParentRevisionTempFile(parent, root);
+            var revision = Hg.GetParentRevision(root) ?? "(parent revision)";
+            
+            var tempName = GetDisplayName(parent, revision, root);
+            var name = GetDisplayName(fileName, root);
+
+
             var diffTool = GetDiffTool();
 
             diffTool.Exited += (s, e) => DeleteFile(temp);
 
-            diffTool.Start(temp, fileName, root);
+            diffTool.Start(temp, fileName, tempName, name, root);
+        }
+
+        private static string GetDisplayName(string fileName, string revision, string root)
+        {
+            return GetDisplayName(String.Concat(fileName, '@', revision), root);
+        }
+
+        private static string GetDisplayName(string fileName, string root)
+        {
+            return HgPath.StripRoot(fileName, root);
         }
 
         private static void DeleteFile(string fileName)

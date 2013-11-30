@@ -122,5 +122,15 @@ namespace HgLib
 
             return parent != null ? parent.ToString() : "";
         }
+
+        public static string StripRoot(string fileName, string root)
+        {
+            return fileName.Substring(root.Length + 1);
+        }
+
+        public static string GetRandomTemporaryFileName()
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        }
     }
 }

@@ -21,16 +21,26 @@ namespace HgLib
 
         public static string CreateParentRevisionTempFile(string fileName, string root)
         {
-            var tempFileName = Path.Combine(Path.GetTempPath(), Path.GetFileName(fileName) + " (base)");
+            var tempFileName = HgPath.GetRandomTemporaryFileName();
 
-            File.Delete(tempFileName);
-
-            var command = String.Format("cat \"{0}\"  -o \"{1}\"", StripRoot(fileName, root), tempFileName);
+            var command = String.Format("cat \"{0}\"  -o \"{1}\"", HgPath.StripRoot(fileName, root), tempFileName);
             Run(command, root);
 
             Debug.Assert(File.Exists(tempFileName));
 
             return tempFileName;
+        }
+
+        public static string GetParentRevision(string root)
+        {
+            var summary = Run("summary", root).FirstOrDefault();
+
+            if (summary != null)
+            {
+                return summary.Split(' ').Skip(1).FirstOrDefault();
+            }
+            
+            return "";
         }
         
 
@@ -114,8 +124,8 @@ namespace HgLib
             {
                 var root = HgPath.FindRepositoryRoot(fileNames[i]);
 
-                var oldName = StripRoot(fileNames[i], root);
-                var newName = StripRoot(newFileNames[i], root);
+                var oldName = HgPath.StripRoot(fileNames[i], root);
+                var newName = HgPath.StripRoot(newFileNames[i], root);
 
                 var option = StringComparer.InvariantCultureIgnoreCase.Equals(oldName, newName) ? null : " -A";
                 
@@ -183,7 +193,7 @@ namespace HgLib
             var args = new List<string>();
             var sb = new StringBuilder();
 
-            foreach (var fileName in fileNames.Where(x => !HgPath.IsDirectory(x)).Select(x => StripRoot(x, root)))
+            foreach (var fileName in fileNames.Where(x => !HgPath.IsDirectory(x)).Select(x => HgPath.StripRoot(x, root)))
             {
                 if (sb.Length > ArgumentsLengthLimit - fileName.Length - 3)
                 {
@@ -276,11 +286,6 @@ namespace HgLib
                 .Where(x => x.StatusMatches(status))
                 .Select(x => x.FullName)
                 .ToArray();
-        }
-
-        private static string StripRoot(string fileName, string root)
-        {
-            return fileName.Substring(root.Length + 1);
         }
     }
 }

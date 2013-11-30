@@ -98,7 +98,7 @@ namespace HgLib
 
         private static void Start(string command, string root, IEnumerable<string> files)
         {
-            var listFile = GetRandomTemporaryFileName();
+            var listFile = HgPath.GetRandomTemporaryFileName();
             var listCommand = String.Format("{0} --listfile \"{1}\"", command, listFile);
 
             CreateListFile(listFile, files);
@@ -126,11 +126,6 @@ namespace HgLib
                 File.Delete(groupListFile);
             }
             catch { }
-        }
-
-        private static string GetRandomTemporaryFileName()
-        {
-            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         }
     }
 }

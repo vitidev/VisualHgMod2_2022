@@ -15,14 +15,14 @@ namespace VisualHg
         public event EventHandler Exited = (s, e) => { };
 
 
-        public void Start(string fileA, string fileB, string workingDirectory)
+        public void Start(string fileA, string fileB, string nameA, string nameB, string workingDirectory)
         {
             var process = new Process();
 
             process.Exited += (s, e) => OnExited();
 
             process.StartInfo.FileName = FileName;
-            process.StartInfo.Arguments = GetArguments(fileA, fileB);
+            process.StartInfo.Arguments = GetArguments(fileA, fileB, nameA, nameB);
             process.StartInfo.WorkingDirectory = workingDirectory;
 
             try
@@ -35,13 +35,13 @@ namespace VisualHg
             }
         }
 
-        private string GetArguments(string fileA, string fileB)
+        private string GetArguments(string fileA, string fileB, string nameA, string nameB)
         {
             return Arguments
                 .Replace("%PathA%", String.Concat('"', fileA, '"'))
                 .Replace("%PathB%", String.Concat('"', fileB, '"'))
-                .Replace("%NameA%", String.Concat('"', Path.GetFileName(fileA), '"'))
-                .Replace("%NameB%", String.Concat('"', Path.GetFileName(fileB), '"'));
+                .Replace("%NameA%", String.Concat('"', nameA, '"'))
+                .Replace("%NameB%", String.Concat('"', nameB, '"'));
         }
 
         private void OnExited()
