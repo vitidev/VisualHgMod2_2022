@@ -20,7 +20,7 @@ namespace VisualHg
     [ProvideToolWindowVisibility(typeof(PendingChangesToolWindow), Guids.Provider)]
     [ProvideSolutionPersistence("VisualHg", Guids.Package)]
     [ProvideSourceControlProvider("VisualHg", Guids.Provider, Guids.Service, Guids.Package)]
-    [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 106, 107, false)]
+    [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 102, 100, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [Guid(Guids.Package)]
     public sealed partial class VisualHgPackage : Package, IOleCommandTarget, IDisposable

@@ -123,6 +123,9 @@
   <data name="101" xml:space="preserve">
     <value>Provides integration with Mercurial and TortoiseHg.</value>
   </data>
+  <data name="102" xml:space="preserve">
+    <value>Source Control</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="400" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\Package.ico;System.Drawing.Icon, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

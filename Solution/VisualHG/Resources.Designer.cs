@@ -79,6 +79,15 @@ namespace VisualHg {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Source Control.
+        /// </summary>
+        internal static string _102 {
+            get {
+                return ResourceManager.GetString("102", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon _400 {
