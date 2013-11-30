@@ -103,7 +103,13 @@ namespace HgLib
 
             CreateListFile(listFile, files);
 
-            Start(listCommand, root).WaitForExit();
+            var process = Start(listCommand, root);
+
+            try
+            {
+                process.WaitForExit();
+            }
+            catch (InvalidOperationException) { }
 
             DeleteListFile(listFile);
         }

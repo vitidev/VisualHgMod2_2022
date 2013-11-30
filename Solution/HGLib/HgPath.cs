@@ -26,7 +26,7 @@ namespace HgLib
                     }
                 }
 
-                return _tortoiseHgDirectory;
+                return _tortoiseHgDirectory ?? "";
             }
         }
 
@@ -36,7 +36,7 @@ namespace HgLib
             {
                 if (String.IsNullOrEmpty(_tortoiseHgExecutablePath))
                 {
-                    var hgDir = HgPath.TortoiseHgDirectory;
+                    var hgDir = TortoiseHgDirectory;
 
                     var thg = Path.Combine(hgDir, "thg.exe");
                     var hgtk = Path.Combine(hgDir, "hgtk.exe");
