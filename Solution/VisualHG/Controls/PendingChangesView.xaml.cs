@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -16,6 +17,7 @@ namespace VisualHg.Controls
     {
         private PendingChangeSorter sorter;
         private PendingChanges pendingChanges;
+        private double MinumumColumnWidth = 9;
 
         public PendingChangesView()
         {
@@ -25,6 +27,8 @@ namespace VisualHg.Controls
 
             SetMenuItemImages();
             UpdateMenuItemsVisibility();
+
+            listView.AddHandler(Thumb.DragDeltaEvent, (DragDeltaEventHandler)OnColumnThumbDragDelta, true);
         }
 
         private void InitializePendingChanges()
@@ -51,7 +55,7 @@ namespace VisualHg.Controls
                 try
                 {
                     var serviceProvider = Package.GetGlobalService(typeof(IServiceProvider)) as IServiceProvider;
-                    
+
                     VsShellUtilities.OpenDocument(serviceProvider, fileName);
                 }
                 catch (Exception e)
@@ -114,6 +118,18 @@ namespace VisualHg.Controls
             sorter.SortBy(e.OriginalSource as GridViewColumnHeader);
         }
 
+        private void OnColumnThumbDragDelta(object sender, DragDeltaEventArgs e)
+        {
+            var thumb = e.OriginalSource as Thumb;
+            var header = thumb.TemplatedParent as GridViewColumnHeader;
+            var column = header != null ? header.Column : null;
+
+            if (column != null && column.ActualWidth < MinumumColumnWidth)
+            {
+                column.Width = MinumumColumnWidth;
+            }
+        }
+
 
         private void UpdateMenuItemsVisibility()
         {
@@ -134,7 +150,7 @@ namespace VisualHg.Controls
             historyMenuItem.Visibility = BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Tracked));
         }
 
-        
+
         private bool SingleItemSelected
         {
             get { return listView.SelectedItems.Count == 1; }
@@ -166,7 +182,7 @@ namespace VisualHg.Controls
             var images = ImageMapper.CreateMenuBitmapImages()
                 .Select(x => new Image { Source = x })
                 .ToArray();
-         
+
             commitMenuItem.Icon = images[0];
             historyMenuItem.Icon = images[1];
             diffMenuItem.Icon = images[4];

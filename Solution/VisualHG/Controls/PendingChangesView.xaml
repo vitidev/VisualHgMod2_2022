@@ -202,7 +202,7 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <ListView Name="listView" ItemsSource="{Binding}" GridViewColumnHeader.Click="OnListViewColumnHeaderClick">
+        <ListView Name="listView" ItemsSource="{Binding}" GridViewColumnHeader.Click="OnListViewColumnHeaderClick" Thumb.DragDelta="OnColumnThumbDragDelta">
             <ListView.ContextMenu>
                 <ContextMenu Name="contextMenu">
                     <MenuItem Name="openMenuItem" Header="Open" Click="OpenSelectedFiles" />
