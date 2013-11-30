@@ -52,7 +52,14 @@ namespace VisualHg
 
             diffTool.Exited += (s, e) => DeleteFile(temp);
 
-            diffTool.Start(temp, fileName, tempName, name, root);
+            try
+            {
+                diffTool.Start(temp, fileName, tempName, name, root);
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show(Resources.DiffToolNotFound + "\n\n" + diffTool.FileName, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private static string GetDisplayName(string fileName, string revision, string root)

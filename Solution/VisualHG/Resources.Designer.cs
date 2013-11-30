@@ -108,6 +108,24 @@ namespace VisualHg {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The command is not a valid executable.
+        /// </summary>
+        internal static string DiffToolNotFound {
+            get {
+                return ResourceManager.GetString("DiffToolNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Microsoft Visual Studio - VisualHg.
+        /// </summary>
+        internal static string MessageBoxCaption {
+            get {
+                return ResourceManager.GetString("MessageBoxCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Solution is not under Mercurial version contol.
         /// </summary>
         internal static string NotUnderVersionControl {

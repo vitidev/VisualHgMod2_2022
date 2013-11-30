@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 
 namespace VisualHg
 {
@@ -29,9 +28,11 @@ namespace VisualHg
             {
                 process.Start();
             }
-            catch (Win32Exception)
+            catch (Win32Exception e)
             {
                 OnExited();
+                
+                throw new InvalidOperationException("Diff tool start failed");
             }
         }
 

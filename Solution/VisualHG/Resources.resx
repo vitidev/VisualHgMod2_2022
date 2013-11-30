@@ -133,6 +133,12 @@
   <data name="500" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\MenuIcons.bmp;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="DiffToolNotFound" xml:space="preserve">
+    <value>The command is not a valid executable</value>
+  </data>
+  <data name="MessageBoxCaption" xml:space="preserve">
+    <value>Microsoft Visual Studio - VisualHg</value>
+  </data>
   <data name="NotUnderVersionControl" xml:space="preserve">
     <value>Solution is not under Mercurial version contol</value>
   </data>

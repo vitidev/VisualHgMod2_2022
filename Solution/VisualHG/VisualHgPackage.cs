@@ -82,12 +82,12 @@ namespace VisualHg
 
         private void NotifySolutionIsNotUnderVersionControl()
         {
-            MessageBox.Show(Resources.NotUnderVersionControl + "\n\n" + VisualHgSolution.SolutionFileName, Resources._100, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show(Resources.NotUnderVersionControl + "\n\n" + VisualHgSolution.SolutionFileName, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void NotifyTortoiseHgNotFound()
         {
-            MessageBox.Show(Resources.TortoiseHgNotFound, Resources._100, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(Resources.TortoiseHgNotFound, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
 

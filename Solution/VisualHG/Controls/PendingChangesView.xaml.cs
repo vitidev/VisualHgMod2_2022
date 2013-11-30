@@ -62,7 +62,7 @@ namespace VisualHg.Controls
                 {
                     if (SingleItemSelected)
                     {
-                        MessageBox.Show(e.Message, "Microsoft Visual Studio", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(e.Message, VisualHg.Resources.MessageBoxCaption, MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
