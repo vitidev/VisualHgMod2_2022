@@ -18,6 +18,8 @@ namespace VisualHg
         IVsSccProvider, IVsSccGlyphs, IVsSccManager2, IVsSccManagerTooltip,
         IVsSolutionEvents, IVsUpdateSolutionEvents, IVsQueryEditQuerySave2, IVsTrackProjectDocumentsEvents2
     {
+        private const int UpdateInterval = 100;
+        
         private uint iconBaseIndex;
         private ImageList statusImageList;
         
@@ -30,7 +32,7 @@ namespace VisualHg
         private DateTime lastUpdate;
 
         private VisualHgRepository repository;
-        private IdleWorker onIdleUpdate;
+        private IdleWorker worker;
 
 
         public bool Active
@@ -57,8 +59,8 @@ namespace VisualHg
 
         public VisualHgService()
         {
-            onIdleUpdate = new IdleWorker();
-            onIdleUpdate.DoWork += (s, e) => Update();
+            worker = new IdleWorker();
+            worker.DoWork += (s, e) => Update();
 
             repository = new VisualHgRepository();
             repository.StatusChanged += OnRepositoryStatusChanged;
@@ -78,7 +80,7 @@ namespace VisualHg
 
         public void Dispose()
         {
-            onIdleUpdate.Dispose();
+            worker.Dispose();
 
             repository.StatusChanged -= OnRepositoryStatusChanged;
             repository.Dispose();
@@ -115,7 +117,15 @@ namespace VisualHg
 
         private void OnRepositoryStatusChanged(object sender, EventArgs e)
         {
-            onIdleUpdate.Active = (DateTime.Now - lastUpdate).Milliseconds > 100;
+            if (EnoughTimePassedSinceLastUpdate())
+            {
+                worker.RequestDoWork();
+            }
+        }
+
+        private bool EnoughTimePassedSinceLastUpdate()
+        {
+            return (DateTime.Now - lastUpdate).Milliseconds > UpdateInterval;
         }
 
         private void Update()

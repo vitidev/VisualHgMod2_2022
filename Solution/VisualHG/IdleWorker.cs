@@ -7,13 +7,10 @@ namespace VisualHg
 {
     public sealed class IdleWorker : IOleComponent, IDisposable
     {
+        private bool active;
         private uint componentId;
 
         public event EventHandler DoWork;
-
-
-        public bool Active { get; set; }
-
 
         public IdleWorker()
         {
@@ -22,17 +19,21 @@ namespace VisualHg
 
         public void Dispose()
         {
-            Active = false;
+            active = false;
             DoWork = null;
             Revoke();
         }
 
+        public void RequestDoWork()
+        {
+            active = true;
+        }
 
         private void DoWorkIfActive()
         {
-            if (Active)
+            if (active)
             {
-                Active = false;
+                active = false;
                 OnDoWork();
             }
         }
