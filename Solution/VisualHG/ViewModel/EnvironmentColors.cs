@@ -49,7 +49,7 @@ namespace VisualHg.ViewModel
             
             int majorVersionNumber;
 
-            if (Int32.TryParse(version, out majorVersionNumber))
+            if (Int32.TryParse(majorVersion, out majorVersionNumber))
             {
                 return majorVersionNumber;
             }
