@@ -52,15 +52,40 @@ namespace VisualHg
             return image;
         }
 
-        
+
+        public static ImageList CreateMenuImageList()
+        {
+            return CreateImageList(16, "MenuIcons.bmp");
+        }
+
         public static ImageList CreateStatusImageList(string fileName)
         {
             return CreateImageList(7, "StatusIcons.bmp", fileName);
         }
 
-        public static ImageList CreateMenuImageList()
+        public static ImageList CreateStatusImageListLimited(string fileName)
         {
-            return CreateImageList(16, "MenuIcons.bmp");
+            using (var imageList = CreateStatusImageList(fileName))
+            {
+                var limitedImageList = new ImageList { ImageSize = imageList.ImageSize };
+
+                limitedImageList.Images.AddRange(new [] 
+                {
+                    GetImage(imageList, HgFileStatus.Modified),
+                    GetImage(imageList, HgFileStatus.Added),
+                    GetImage(imageList, HgFileStatus.Removed),
+                    GetImage(imageList, HgFileStatus.Clean),
+                });
+
+                return limitedImageList;
+            }
+        }
+
+        private static Image GetImage(ImageList imageList, HgFileStatus status)
+        {
+            var iconIndex = GetStatusIconIndex(status);
+
+            return imageList.Images[iconIndex];
         }
 
 
@@ -68,30 +93,35 @@ namespace VisualHg
         {
             using (var imageStream = GetImageStream(resourceName, fileName))
             {
-                if (imageStream == null)
-                {
-                    return null;
-                }
-
-                var image = Image.FromStream(imageStream, true, true);
-                var bitmap = (Bitmap)image;
-
-                var imageList = new ImageList();
-
-                imageList.ImageSize = new Size(imageWidth, bitmap.Height);
-                bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
-
-                try
-                {
-                    imageList.Images.AddStrip(bitmap);
-                }
-                catch (Exception e)
-                {
-                    Trace.WriteLine(e.ToString());
-                }
-
-                return imageList;
+                return GetImageList(imageStream, imageWidth);
             }
+        }
+
+        private static ImageList GetImageList(Stream imageStream, int imageWidth)
+        {
+            if (imageStream == null)
+            {
+                return null;
+            }
+
+            var image = Image.FromStream(imageStream, true, true);
+            var bitmap = (Bitmap)image;
+
+            var imageList = new ImageList();
+
+            imageList.ImageSize = new Size(imageWidth, bitmap.Height);
+            bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
+
+            try
+            {
+                imageList.Images.AddStrip(bitmap);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.ToString());
+            }
+
+            return imageList;
         }
 
         private static Stream GetImageStream(string resourceName, string fileName)
@@ -132,6 +162,25 @@ namespace VisualHg
                     return 9;
                 default:
                     return 0;
+            }
+        }
+
+        public static int GetStatusIconIndexLimited(HgFileStatus status)
+        {
+            switch (status)
+            {
+                case HgFileStatus.Modified:
+                    return 0;
+                case HgFileStatus.Added:
+                case HgFileStatus.Copied:
+                case HgFileStatus.Renamed:
+                    return 1;
+                case HgFileStatus.Removed:
+                    return 2;
+                case HgFileStatus.Clean:
+                    return 3;
+                default:
+                    return -1;
             }
         }
     }

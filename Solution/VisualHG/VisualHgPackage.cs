@@ -367,5 +367,34 @@ namespace VisualHg
 
             solution.SaveSolutionElement(options, project, 0);
         }
+
+
+        private static int _vsVersion;
+
+        public static int VsVersion
+        {
+            get
+            {
+                if (_vsVersion == 0)
+                {
+                    var version = GetVersion();
+                    var majorVersion = version.Substring(0, version.IndexOf('.'));
+
+                    if (!Int32.TryParse(majorVersion, out _vsVersion))
+                    {
+                         _vsVersion = 10;
+                    }
+                }
+
+                return _vsVersion;
+            }
+        }
+
+        private static string GetVersion()
+        {
+            var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+            
+            return dte.Version;
+        }
     }
 }

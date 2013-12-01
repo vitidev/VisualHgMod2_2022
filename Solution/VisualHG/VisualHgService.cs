@@ -19,6 +19,11 @@ namespace VisualHg
         IVsSolutionEvents, IVsUpdateSolutionEvents, IVsQueryEditQuerySave2, IVsTrackProjectDocumentsEvents2
     {
         private const int UpdateInterval = 100;
+
+        private static bool StatusIconsLimited
+        {
+            get { return VisualHgPackage.VsVersion < 11; }
+        }
         
         private uint iconBaseIndex;
         private ImageList statusImageList;
@@ -231,7 +236,16 @@ namespace VisualHg
 
             if (statusImageList == null)
             {
-                statusImageList = ImageMapper.CreateStatusImageList(VisualHgOptions.Global.StatusImageFileName);
+                var fileName = VisualHgOptions.Global.StatusImageFileName;
+
+                if (StatusIconsLimited)
+                {
+                    statusImageList = ImageMapper.CreateStatusImageListLimited(fileName);
+                }
+                else
+                {
+                    statusImageList = ImageMapper.CreateStatusImageList(fileName);
+                }
             }
         }
 
@@ -278,7 +292,26 @@ namespace VisualHg
 
         private VsStateIcon GetStatusIcon(HgFileStatus status)
         {
-            var iconIndex = ImageMapper.GetStatusIconIndex(status);
+            var iconIndex = 0;
+
+            if (StatusIconsLimited)
+            {
+                iconIndex = ImageMapper.GetStatusIconIndexLimited(status);
+            }
+            else
+            {
+                iconIndex = ImageMapper.GetStatusIconIndex(status);
+            }
+
+            return GetStatusIcon(iconIndex);
+        }
+
+        private VsStateIcon GetStatusIcon(int iconIndex)
+        {
+            if (iconIndex == -1)
+            {
+                return VsStateIcon.STATEICON_BLANK;
+            }
 
             return (VsStateIcon)(iconBaseIndex + iconIndex);
         }

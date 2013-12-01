@@ -29,7 +29,7 @@ namespace VisualHg.ViewModel
 
         private static Type LoadEnvironmentColorsType()
         {
-            if (GetMajorVersionNumber() > 10)
+            if (VisualHgPackage.VsVersion > 10)
             {
                 try
                 {
@@ -41,29 +41,6 @@ namespace VisualHg.ViewModel
 
             return null;
         }
-
-        private static int GetMajorVersionNumber()
-        {
-            var version = GetVersion();
-            var majorVersion = version.Substring(0, version.IndexOf('.'));
-            
-            int majorVersionNumber;
-
-            if (Int32.TryParse(majorVersion, out majorVersionNumber))
-            {
-                return majorVersionNumber;
-            }
-
-            return 10;
-        }
-
-        private static string GetVersion()
-        {
-            var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            
-            return dte.Version;
-        }
-
 
         private static object GetKey(string name, ResourceKey resourceKey)
         {
