@@ -34,17 +34,17 @@ namespace HgLib
         }
 
 
-        public void AddFiles(params string[] fileNames)
+        public virtual void AddFiles(params string[] fileNames)
         {
             Enqueue(new AddFilesHgCommand(fileNames));
         }
 
-        public void RemoveFiles(params string[] fileNames)
+        public virtual void RemoveFiles(params string[] fileNames)
         {
             Enqueue(new RemoveFilesHgCommand(fileNames));
         }
 
-        public void RenameFiles(string[] fileNames, string[] newFileNames)
+        public virtual void RenameFiles(string[] fileNames, string[] newFileNames)
         {
             Enqueue(new RenameFilesHgCommand(fileNames, newFileNames));
         }
