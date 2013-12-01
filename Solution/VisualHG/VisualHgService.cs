@@ -366,6 +366,8 @@ namespace VisualHg
             {
                 VisualHgPackage.RegisterSourceControlProvider();
             }
+
+            repository.SolutionFiles.Add(VisualHgSolution.SolutionFileName);
         }
 
         private void OnBeforeCloseOrUnloadProject(IVsHierarchy hierarchy)

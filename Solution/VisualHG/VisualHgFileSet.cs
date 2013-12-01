@@ -22,6 +22,13 @@ namespace VisualHg
         {
             var files = GetFiles(hierarchy);
 
+            Add(files);
+
+            return files;
+        }
+
+        public void Add(params string[] files)
+        {
             lock (SyncRoot)
             {
                 foreach (var fileName in files)
@@ -29,8 +36,6 @@ namespace VisualHg
                     items.Add(fileName);
                 }
             }
-
-            return files;
         }
 
         public void Clear()
