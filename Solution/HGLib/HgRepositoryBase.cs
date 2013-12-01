@@ -43,7 +43,7 @@ namespace HgLib
 
         protected void AddFilesProtected(string[] fileNames)
         {
-            Cache(Hg.AddFiles(fileNames, HgFileStatus.NotTracked));
+            Cache(Hg.AddFiles(fileNames, HgFileStatus.NotTracked | HgFileStatus.Removed));
         }
 
         protected void RemoveFilesProtected(string[] fileNames)
