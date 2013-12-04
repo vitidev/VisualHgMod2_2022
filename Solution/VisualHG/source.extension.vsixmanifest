@@ -3,7 +3,7 @@
   <Identifier Id="DADADA00-caaf-423f-b21d-2df00fa25ca3">
     <Name>VisualHg</Name>
     <Author>Dmitry Popov</Author>
-    <Version>2.0.0.6</Version>
+    <Version>2.0.0.7</Version>
     <Description xml:space="preserve">Provides integration with Mercurial and TortoiseHg</Description>
     <MoreInfoUrl>https://bitbucket.org/lmn/visualhg2</MoreInfoUrl>
     <License>License.txt</License>
