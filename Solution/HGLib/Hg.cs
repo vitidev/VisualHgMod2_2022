@@ -23,6 +23,8 @@ namespace HgLib
         {
             var tempFileName = HgPath.GetRandomTemporaryFileName();
 
+            tempFileName = Path.ChangeExtension(tempFileName, Path.GetExtension(fileName));
+
             var command = String.Format("cat \"{0}\"  -o \"{1}\"", HgPath.StripRoot(fileName, root), tempFileName);
             Run(command, root);
 
