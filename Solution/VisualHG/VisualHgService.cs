@@ -371,17 +371,14 @@ namespace VisualHg
         {
             var project = hierarchy as IVsSccProject2;
                         
-            var files = repository.SolutionFiles.Add(hierarchy);
+            var files = GetFiles(hierarchy);
 
             foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
                 repository.UpdateRootStatus(root);
             }
 
-            if (VisualHgOptions.Global.AddFilesOnLoad)
-            {
-                repository.AddFiles(files);
-            }
+            AddIf(VisualHgOptions.Global.AddFilesOnLoad, files);
 
             UpdateLastSeenProjectDirectory(hierarchy);
         }
@@ -405,14 +402,15 @@ namespace VisualHg
 
         private void OnBeforeCloseOrUnloadProject(IVsHierarchy hierarchy)
         {
-            repository.SolutionFiles.Remove(hierarchy);
+            var files = GetFiles(hierarchy);
+
+            repository.SolutionFiles.Remove(files);
             UpdatePendingChangesToolWindow();
         }
 
         private void OnBeforeCloseSolution()
         {
             repository.SolutionFiles.Clear();
-            UpdatePendingChangesToolWindow();
         }
 
 
@@ -437,20 +435,47 @@ namespace VisualHg
         
         private void OnAfterAddFiles(string[] fileNames)
         {
-            if (VisualHgOptions.Global.AutoAddNewFiles)
-            {
-                repository.AddFiles(fileNames);
-            }
+            AddIf(VisualHgOptions.Global.AutoAddNewFiles, fileNames);
         }
 
         private void OnAfterRemoveFiles(string[] fileNames)
         {
-            repository.RemoveFiles(fileNames);
+            var filesDeletedFromDisk = fileNames.Where(x => !File.Exists(x)).ToArray();
+
+            if (filesDeletedFromDisk.Length > 0)
+            {
+                repository.RemoveFiles(filesDeletedFromDisk);
+            }
+
+            repository.SolutionFiles.Remove(fileNames);
+
+            UpdatePendingChangesToolWindow();
         }
 
         private void OnAfterRenameFiles(string[] fileNames, string[] newFileNames)
         {
             repository.RenameFiles(fileNames, newFileNames);
+        }
+
+        
+
+        private void AddIf(bool condition, string[] files)
+        {
+            if (condition)
+            {
+                repository.AddFiles(files);
+            }
+            else
+            {
+                repository.SolutionFiles.Add(files);
+            }
+        }
+
+        private static string[] GetFiles(IVsHierarchy hierarchy)
+        {
+            var project = hierarchy as IVsSccProject2;
+            
+            return VisualHgSolution.GetProjectFiles(project);
         }
 
 

@@ -18,15 +18,6 @@ namespace VisualHg
         }
 
 
-        public string[] Add(IVsHierarchy hierarchy)
-        {
-            var files = GetFiles(hierarchy);
-
-            Add(files);
-
-            return files;
-        }
-
         public void Add(params string[] files)
         {
             lock (SyncRoot)
@@ -54,33 +45,15 @@ namespace VisualHg
             }
         }
 
-        public void Remove(IVsHierarchy hierarchy)
+        public void Remove(string[] fileNames)
         {
             lock (SyncRoot)
-            {
-                if (items.Count > 0)
-                {
-                    Remove(GetFiles(hierarchy));
-                }
-            }
-        }
-
-        private void Remove(string[] fileNames)
-        {
-            lock (items)
             {
                 foreach (var fileName in fileNames)
                 {
                     items.Remove(fileName);
                 }
             }
-        }
-
-        private static string[] GetFiles(IVsHierarchy hierarchy)
-        {
-            var project = hierarchy as IVsSccProject2;
-            
-            return VisualHgSolution.GetProjectFiles(project);
         }
     }
 }
