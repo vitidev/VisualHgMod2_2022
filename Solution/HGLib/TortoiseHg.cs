@@ -42,6 +42,21 @@ namespace HgLib
             Start("update", directory);
         }
 
+        public static void ShowCreateRepositoryWindow(string directory)
+        {
+            Start("init", directory);
+        }
+
+        public static void ShowSettingsWindow(string directory)
+        {
+            Start("repoconfig", directory);
+        }
+
+        public static void ShowShelveWindow(string directory)
+        {
+            Start("shelve", directory);
+        }
+
         public static void ShowAddWindow(string[] files)
         {
             StartForEachRoot("add ", files);

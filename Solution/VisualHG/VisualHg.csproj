@@ -164,7 +164,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\MenuIcons.bmp" />
     <EmbeddedResource Include="Resources\StatusIcons.bmp" />
     <None Include="Key.snk" />
     <None Include="source.extension.vsixmanifest" />
@@ -185,6 +184,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\MenuIcons.png" />
     <Content Include="Resources\Package.ico">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

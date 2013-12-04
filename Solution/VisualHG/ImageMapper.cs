@@ -55,7 +55,7 @@ namespace VisualHg
 
         public static ImageList CreateMenuImageList()
         {
-            return CreateImageList(16, "MenuIcons.bmp");
+            return CreateImageList(16, "MenuIcons.png");
         }
 
         public static ImageList CreateStatusImageList(string fileName)

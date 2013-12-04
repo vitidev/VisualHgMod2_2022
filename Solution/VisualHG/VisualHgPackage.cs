@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.Design;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -125,6 +126,18 @@ namespace VisualHg
 
             commandId = new CommandID(Guids.CommandSetGuid, CommandId.Update);
             command = new MenuCommand(ShowUpdateWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.CreateRepository);
+            command = new MenuCommand(ShowCreateRepositoryWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Settings);
+            command = new MenuCommand(ShowSettingsWindow, commandId);
+            menuCommandService.AddCommand(command);
+
+            commandId = new CommandID(Guids.CommandSetGuid, CommandId.Shelve);
+            command = new MenuCommand(ShowShelveWindow, commandId);
             menuCommandService.AddCommand(command);
 
             commandId = new CommandID(Guids.CommandSetGuid, CommandId.Add);
@@ -264,6 +277,16 @@ namespace VisualHg
             GetRootAnd(TortoiseHg.ShowUpdateWindow);
         }
 
+        private void ShowSettingsWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(TortoiseHg.ShowSettingsWindow);
+        }
+
+        private void ShowShelveWindow(object sender, EventArgs e)
+        {
+            GetRootAnd(TortoiseHg.ShowShelveWindow);
+        }
+
         private void GetRootAnd(Action<string> showWindow)
         {
             if (TortoiseHg.Version == null)
@@ -283,6 +306,15 @@ namespace VisualHg
             {
                 NotifySolutionIsNotUnderVersionControl();
             }
+        }
+
+        
+
+        private void ShowCreateRepositoryWindow(object sender, EventArgs e)
+        {
+            var directory = Path.GetDirectoryName(VisualHgSolution.SolutionFileName);
+
+            TortoiseHg.ShowCreateRepositoryWindow(directory);
         }
 
 

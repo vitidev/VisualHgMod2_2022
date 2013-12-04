@@ -35,6 +35,7 @@
     <Buttons>
       <Button guid="guidVisualHgCmdSet" id="cmdidPendingChanges" priority="0x0100" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="MainMenuViewGroup"/>
+        <Icon guid="guidVisualHgIcons" id="iconPendingChanges"/>
         <Strings>
           <ButtonText>VisualHgPendingChanges</ButtonText>
           <MenuText>&amp;VisualHg Pending Changes</MenuText>
@@ -83,6 +84,33 @@
           <ButtonText>VisualHgUpdate</ButtonText>
           <MenuText>Update</MenuText>
           <ToolTipText>Update</ToolTipText>
+        </Strings>
+      </Button>
+      <Button guid="guidVisualHgCmdSet" id="cmdidCreateRepository" priority="0x0015" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
+        <Icon guid="guidVisualHgIcons" id="iconCreateRepository"/>
+        <Strings>
+          <ButtonText>VisualHgCreateRepository</ButtonText>
+          <MenuText>Create Repository</MenuText>
+          <ToolTipText>Create Repository</ToolTipText>
+        </Strings>
+      </Button>
+      <Button guid="guidVisualHgCmdSet" id="cmdidSettings" priority="0x0017" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
+        <Icon guid="guidVisualHgIcons" id="iconSettings"/>
+        <Strings>
+          <ButtonText>VisualHgSettings</ButtonText>
+          <MenuText>Settings</MenuText>
+          <ToolTipText>Settings</ToolTipText>
+        </Strings>
+      </Button>
+      <Button guid="guidVisualHgCmdSet" id="cmdidShelve" priority="0x0018" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
+        <Icon guid="guidVisualHgIcons" id="iconShelve"/>
+        <Strings>
+          <ButtonText>VisualHgShelve</ButtonText>
+          <MenuText>Shelve</MenuText>
+          <ToolTipText>Shelve</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000" type="Button">
@@ -137,8 +165,8 @@
       </Button>
     </Buttons>
     <Bitmaps>
-      <Bitmap guid="guidVisualHgIcons" href="Resources\MenuIcons.bmp"
-              usedList="iconCommit, iconHistory, iconSynchronize, iconStatus, iconDiff, iconUpdate, iconWorkbench, iconRevert, iconOpen, iconAdd"/>
+      <Bitmap guid="guidVisualHgIcons" href="Resources\MenuIcons.png"
+              usedList="iconCommit, iconHistory, iconSynchronize, iconStatus, iconDiff, iconUpdate, iconWorkbench, iconRevert, iconOpen, iconAdd, iconPendingChanges, iconCreateRepository, iconSettings, iconShelve"/>
     </Bitmaps>
   </Commands>
   <CommandPlacements>
@@ -234,6 +262,9 @@
       <IDSymbol name="cmdidDiff" value="0x108"/>
       <IDSymbol name="cmdidRevert" value="0x109"/>
       <IDSymbol name="cmdidHistory" value="0x110"/>
+      <IDSymbol name="cmdidCreateRepository" value="0x111"/>
+      <IDSymbol name="cmdidSettings" value="0x112"/>
+      <IDSymbol name="cmdidShelve" value="0x113"/>
       <IDSymbol name="RootCommandsMenu" value="0x200"/>
       <IDSymbol name="RootCommandsGroup" value="0x300"/>
       <IDSymbol name="SelectionCommandsGroup" value="0x301"/>
@@ -252,6 +283,10 @@
       <IDSymbol name="iconRevert" value="8"/>
       <IDSymbol name="iconOpen" value="9"/>
       <IDSymbol name="iconAdd" value="10"/>
+      <IDSymbol name="iconPendingChanges" value="11"/>
+      <IDSymbol name="iconCreateRepository" value="12"/>
+      <IDSymbol name="iconSettings" value="13"/>
+      <IDSymbol name="iconShelve" value="14"/>
     </GuidSymbol>
   </Symbols>
 </CommandTable>

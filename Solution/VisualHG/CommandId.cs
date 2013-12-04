@@ -15,5 +15,9 @@ namespace VisualHg
         public const int Diff                = 0x108;
         public const int Revert              = 0x109;
         public const int History             = 0x110;
+
+        public const int CreateRepository    = 0x111;
+        public const int Settings            = 0x112;
+        public const int Shelve              = 0x113;
 	}
 }
