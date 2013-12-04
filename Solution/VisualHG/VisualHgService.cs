@@ -69,6 +69,7 @@ namespace VisualHg
 
             repository = new VisualHgRepository();
             repository.StatusChanged += OnRepositoryStatusChanged;
+            repository.SolutionFiles.Changed += (s, e) => UpdatePendingChangesToolWindow();
 
             var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             solution.AdviseSolutionEvents(this, out vsSolutionEventsCookie);
@@ -405,12 +406,6 @@ namespace VisualHg
             var files = GetFiles(hierarchy);
 
             repository.SolutionFiles.Remove(files);
-            UpdatePendingChangesToolWindow();
-        }
-
-        private void OnBeforeCloseSolution()
-        {
-            repository.SolutionFiles.Clear();
         }
 
 
@@ -448,8 +443,6 @@ namespace VisualHg
             }
 
             repository.SolutionFiles.Remove(fileNames);
-
-            UpdatePendingChangesToolWindow();
         }
 
         private void OnAfterRenameFiles(string[] fileNames, string[] newFileNames)
@@ -624,7 +617,6 @@ namespace VisualHg
 
         int IVsSolutionEvents.OnBeforeCloseSolution(object pUnkReserved)
         {
-            OnBeforeCloseSolution();
             return VSConstants.S_OK;
         }
 

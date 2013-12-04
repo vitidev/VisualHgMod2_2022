@@ -30,6 +30,14 @@ namespace VisualHg
             SolutionFiles = new VisualHgFileSet();
         }
 
+
+        public override void Clear()
+        {
+            SolutionFiles.Clear();
+            base.Clear();
+        }
+
+
         public override void AddFiles(params string[] fileNames)
         {
             lastAddition = fileNames;

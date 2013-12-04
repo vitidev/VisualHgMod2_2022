@@ -10,6 +10,8 @@ namespace VisualHg
 
         public object SyncRoot { get; private set; }
 
+        public event EventHandler Changed = (s, e) => { };
+
 
         public VisualHgFileSet()
         {
@@ -27,6 +29,8 @@ namespace VisualHg
                     items.Add(fileName);
                 }
             }
+
+            OnChanged();
         }
 
         public void Clear()
@@ -35,6 +39,8 @@ namespace VisualHg
             {
                 items.Clear();
             }
+
+            OnChanged();
         }
 
         public bool Contains(string fileName)
@@ -54,6 +60,14 @@ namespace VisualHg
                     items.Remove(fileName);
                 }
             }
+
+            OnChanged();
+        }
+
+
+        protected virtual void OnChanged()
+        {
+            Changed(this, EventArgs.Empty);
         }
     }
 }
