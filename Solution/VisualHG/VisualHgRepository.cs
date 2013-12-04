@@ -68,7 +68,7 @@ namespace VisualHg
 
         public void UpdateSolution(IVsSolution solution)
         {
-            foreach (var directory in GetProjectDirectories(solution))
+            foreach (var directory in GetRoots(solution))
             {
                 UpdateRootStatus(directory);
             }
@@ -80,11 +80,13 @@ namespace VisualHg
         }
 
 
-        private static string[] GetProjectDirectories(IVsSolution solution)
+        private static string[] GetRoots(IVsSolution solution)
         {
             return GetProjectFiles(solution)
                 .Where(x => !String.IsNullOrEmpty(x))
-                .Select(x => Path.GetDirectoryName(x) + '\\')
+                .Select(x => Path.GetDirectoryName(x))
+                .Select(x => HgPath.FindRepositoryRoot(x))
+                .Distinct()
                 .ToArray();
         }
 
