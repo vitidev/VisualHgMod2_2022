@@ -404,7 +404,6 @@ namespace VisualHg
 
             if (filesToAdd.Length > 0)
             {
-                SaveAllProjectFiles();
                 TortoiseHg.ShowAddWindow(filesToAdd);
             }
         }
@@ -423,7 +422,6 @@ namespace VisualHg
 
         private void ShowDiffWindow(object sender, EventArgs e)
         {
-            SaveAllProjectFiles();
             VisualHgDialogs.ShowDiffWindow(VisualHgSolution.SelectedFile);
         }
 
@@ -447,7 +445,6 @@ namespace VisualHg
                 return;
             }
 
-            SaveAllProjectFiles();
             VisualHgDialogs.ShowHistoryWindow(VisualHgSolution.SelectedFile);
         }
 
