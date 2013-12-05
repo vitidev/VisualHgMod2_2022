@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
 {
-    [InstalledProductRegistration("#100", "#101", "2.0.0.7", IconResourceID = 400)]
+    [InstalledProductRegistration("#100", "#101", "2.0.0.8", IconResourceID = 400)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideMenuResource(1000, 1)]
     [ProvideAutoLoad(Guids.Provider)]
