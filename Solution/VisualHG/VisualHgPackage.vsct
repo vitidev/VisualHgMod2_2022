@@ -121,6 +121,7 @@
         <Strings>
           <ButtonText>VisualHgAddSelected</ButtonText>
           <MenuText>Add Selected</MenuText>
+          <ToolTipText>Add Selected</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidCommitSelected" priority="0x0000" type="Button">
@@ -131,6 +132,7 @@
         <Strings>
           <ButtonText>VisualHgCommitSelected</ButtonText>
           <MenuText>Commit</MenuText>
+          <ToolTipText>Commit Selected</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidDiff" priority="0x0001" type="Button">
@@ -141,6 +143,7 @@
         <Strings>
           <ButtonText>VisualHgDiff</ButtonText>
           <MenuText>Diff</MenuText>
+          <ToolTipText>Diff</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidRevert" priority="0x0002" type="Button">
@@ -151,6 +154,7 @@
         <Strings>
           <ButtonText>VisualHgRevert</ButtonText>
           <MenuText>Revert</MenuText>
+          <ToolTipText>Revert</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidHistory" priority="0x0003" type="Button">
@@ -161,6 +165,7 @@
         <Strings>
           <ButtonText>VisualHgHistory</ButtonText>
           <MenuText>History</MenuText>
+          <ToolTipText>History</ToolTipText>
         </Strings>
       </Button>
     </Buttons>
@@ -187,6 +192,9 @@
     </CommandPlacement>
     <CommandPlacement guid="guidVisualHgCmdSet" id="RootCommandsMenu" priority="0x0000">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_SCC"/>
+    </CommandPlacement>
+    <CommandPlacement guid="guidVisualHgCmdSet" id="SelectionCommandsGroup" priority="0x0800">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
     </CommandPlacement>
     <CommandPlacement guid="guidVisualHgCmdSet" id="SelectionCommandsGroup" priority="0x0800">
       <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
