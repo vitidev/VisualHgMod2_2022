@@ -152,7 +152,7 @@ namespace VisualHg.Controls
             diffToolPathLabel.Name = "diffToolPathLabel";
             diffToolPathLabel.Size = new System.Drawing.Size(207, 13);
             diffToolPathLabel.TabIndex = 6;
-            diffToolPathLabel.Text = "Custom diff tool (leave blank to use kdiff3):";
+            diffToolPathLabel.Text = "Custom diff tool (leave blank to use KDiff3):";
             // 
             // tortoiseHgVersionLabel
             // 
