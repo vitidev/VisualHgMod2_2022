@@ -17,44 +17,44 @@ namespace HgLib
         }
 
 
-        public static void ShowCommitWindow(string directory)
+        public static Process ShowCommitWindow(string directory)
         {
-            Start("commit", directory);
+            return Start("commit", directory);
         }
 
-        public static void ShowWorkbenchWindow(string directory)
+        public static Process ShowWorkbenchWindow(string directory)
         {
-            Start("workbench", directory);
+            return Start("workbench", directory);
         }
 
-        public static void ShowStatusWindow(string directory)
+        public static Process ShowStatusWindow(string directory)
         {
-            Start("status", directory);
+            return Start("status", directory);
         }
 
-        public static void ShowSynchronizeWindow(string directory)
+        public static Process ShowSynchronizeWindow(string directory)
         {
-            Start("sync", directory);
+            return Start("sync", directory);
         }
 
-        public static void ShowUpdateWindow(string directory)
+        public static Process ShowUpdateWindow(string directory)
         {
-            Start("update", directory);
+            return Start("update", directory);
         }
 
-        public static void ShowCreateRepositoryWindow(string directory)
+        public static Process ShowCreateRepositoryWindow(string directory)
         {
-            Start("init", directory);
+            return Start("init", directory);
         }
 
-        public static void ShowSettingsWindow(string directory)
+        public static Process ShowSettingsWindow(string directory)
         {
-            Start("repoconfig", directory);
+            return Start("repoconfig", directory);
         }
 
-        public static void ShowShelveWindow(string directory)
+        public static Process ShowShelveWindow(string directory)
         {
-            Start("shelve", directory);
+            return Start("shelve", directory);
         }
 
         public static void ShowAddWindow(string[] files)

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using EnvDTE;
 using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -274,7 +275,14 @@ namespace VisualHg
 
         private void ShowUpdateWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowUpdateWindow);
+            if (VsVersion == 10)
+            {
+                GetRootAnd(TortoiseHg.ShowUpdateWindow, ReloadSolution);
+            }
+            else
+            {
+                GetRootAnd(TortoiseHg.ShowUpdateWindow);
+            }
         }
 
         private void ShowSettingsWindow(object sender, EventArgs e)
@@ -287,7 +295,7 @@ namespace VisualHg
             GetRootAnd(TortoiseHg.ShowShelveWindow);
         }
 
-        private void GetRootAnd(Action<string> showWindow)
+        private void GetRootAnd(Func<string, System.Diagnostics.Process> showWindow, Action afterWindowClosed = null)
         {
             if (TortoiseHg.Version == null)
             {
@@ -300,12 +308,56 @@ namespace VisualHg
             if (!String.IsNullOrEmpty(root))
             {
                 SaveAllProjectFiles();
-                showWindow(root);
+
+                var process = showWindow(root);
+
+                if (afterWindowClosed != null)
+                {
+                    AfterChildProcessExited(process, afterWindowClosed);
+                }
             }
             else
             {
                 NotifySolutionIsNotUnderVersionControl();
             }
+        }
+
+        private void AfterChildProcessExited(System.Diagnostics.Process process, Action action)
+        {
+            try
+            {
+                process.WaitForExit();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+
+            try
+            {
+                var child = ProcessInfo.GetChildProcesses(process).FirstOrDefault();
+
+                if (child != null)
+                {
+                    child.WaitForExit();
+                }
+            }
+            catch (InvalidOperationException)
+            {
+            }
+            finally
+            {
+                action();
+            }
+        }
+
+        private void ReloadSolution()
+        {
+            var dte = GetService(typeof(SDTE)) as DTE;
+
+            var solutionFileName = VisualHgSolution.SolutionFileName;
+
+            dte.Solution.Close();
+            dte.Solution.Open(solutionFileName);
         }
 
         
