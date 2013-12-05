@@ -1,13 +1,15 @@
 using System;
+using System.Linq;
 using System.ComponentModel;
 using System.Windows.Forms;
 using HgLib;
+using System.Drawing;
 
 namespace VisualHg.Controls
 {
     public class VisualHgOptionsControl : UserControl
     {
-        private Container components;
+        private IContainer components;
         private CheckBox addFilesOnLoadCheckBox;
         private CheckBox autoActivateCheckBox;
         private Button selectDiffToolButton;
@@ -21,6 +23,8 @@ namespace VisualHg.Controls
         private Button selectStatusImageFileButton;
         private OpenFileDialog selectStatusImageFileDialog;
         private CheckBox autoSaveProjectFilesCheckBox;
+        private Button diffToolPresetButton;
+        private ContextMenuStrip diffToolPresetMenu;
         private CheckBox projectStatusIncludesChildrenCheckBox;
 
         public VisualHgOptions Configuration
@@ -62,6 +66,24 @@ namespace VisualHg.Controls
 
             selectStatusImageFileButton.Click += SelectStatusImage;
             selectStatusImageFileDialog.FileOk += (s, e) => statusImageFileNameTextBox.Text = selectStatusImageFileDialog.FileName;
+
+            diffToolPresetButton.Click += (s, e) => ShowDiffToolPresetMenu();
+            diffToolPresetMenu.Items.AddRange(CreateDiffToolPresetMenuItems());
+        }
+
+        private ToolStripMenuItem[] CreateDiffToolPresetMenuItems()
+        {
+            return DiffToolPreset.Presets
+                .Select(x => new ToolStripMenuItem(x.Name, null, (s, e) => diffToolArgumentsTextBox.Text = x.Arguments))
+                .ToArray();
+        }
+
+        private void ShowDiffToolPresetMenu()
+        {
+            var relativeLocation = Point.Add(Point.Empty, new Size(0, diffToolPresetButton.Height));
+            var screenLocation = diffToolPresetButton.PointToScreen(relativeLocation);
+
+            diffToolPresetMenu.Show(screenLocation);
         }
 
         private void SelectDiffTool(object sender, EventArgs e)
@@ -90,6 +112,7 @@ namespace VisualHg.Controls
         #region Component Designer generated code
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.Label diffToolPathLabel;
             System.Windows.Forms.Label tortoiseHgVersionLabel;
             System.Windows.Forms.Label noteLabel;
@@ -109,6 +132,8 @@ namespace VisualHg.Controls
             this.autoSaveProjectFilesCheckBox = new System.Windows.Forms.CheckBox();
             this.selectDiffToolDialog = new System.Windows.Forms.OpenFileDialog();
             this.selectStatusImageFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.diffToolPresetButton = new System.Windows.Forms.Button();
+            this.diffToolPresetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             diffToolPathLabel = new System.Windows.Forms.Label();
             tortoiseHgVersionLabel = new System.Windows.Forms.Label();
             noteLabel = new System.Windows.Forms.Label();
@@ -134,11 +159,11 @@ namespace VisualHg.Controls
             tortoiseHgVersionLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             tortoiseHgVersionLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(tortoiseHgVersionLabel, 3);
-            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 272);
+            tortoiseHgVersionLabel.Location = new System.Drawing.Point(0, 277);
             tortoiseHgVersionLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             tortoiseHgVersionLabel.Name = "tortoiseHgVersionLabel";
             tortoiseHgVersionLabel.Size = new System.Drawing.Size(99, 13);
-            tortoiseHgVersionLabel.TabIndex = 14;
+            tortoiseHgVersionLabel.TabIndex = 15;
             tortoiseHgVersionLabel.Text = "TortoiseHg version:";
             // 
             // noteLabel
@@ -171,11 +196,11 @@ namespace VisualHg.Controls
             statusImageFileNameLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
             statusImageFileNameLabel.AutoSize = true;
             this.tableLayoutPanel.SetColumnSpan(statusImageFileNameLabel, 3);
-            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 222);
+            statusImageFileNameLabel.Location = new System.Drawing.Point(0, 227);
             statusImageFileNameLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
             statusImageFileNameLabel.Name = "statusImageFileNameLabel";
             statusImageFileNameLabel.Size = new System.Drawing.Size(165, 13);
-            statusImageFileNameLabel.TabIndex = 11;
+            statusImageFileNameLabel.TabIndex = 12;
             statusImageFileNameLabel.Text = "Status image file (requires restart):";
             // 
             // addFilesOnLoadCheckBox
@@ -265,6 +290,7 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.Controls.Add(this.statusImageFileNameTextBox, 0, 14);
             this.tableLayoutPanel.Controls.Add(this.selectStatusImageFileButton, 2, 14);
             this.tableLayoutPanel.Controls.Add(this.autoSaveProjectFilesCheckBox, 0, 3);
+            this.tableLayoutPanel.Controls.Add(this.diffToolPresetButton, 2, 11);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel.Name = "tableLayoutPanel";
@@ -294,11 +320,10 @@ namespace VisualHg.Controls
             // diffToolArgumentsTextBox
             // 
             this.diffToolArgumentsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel.SetColumnSpan(this.diffToolArgumentsTextBox, 3);
-            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 192);
+            this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 194);
             this.diffToolArgumentsTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolArgumentsTextBox.Name = "diffToolArgumentsTextBox";
-            this.diffToolArgumentsTextBox.Size = new System.Drawing.Size(460, 20);
+            this.diffToolArgumentsTextBox.Size = new System.Drawing.Size(423, 20);
             this.diffToolArgumentsTextBox.TabIndex = 10;
             // 
             // autoAddNewFilesCheckBox
@@ -319,34 +344,34 @@ namespace VisualHg.Controls
             // 
             this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
-            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 285);
+            this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 290);
             this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.tortoiseHgVersionTextBox.Name = "tortoiseHgVersionTextBox";
             this.tortoiseHgVersionTextBox.ReadOnly = true;
             this.tortoiseHgVersionTextBox.Size = new System.Drawing.Size(460, 20);
-            this.tortoiseHgVersionTextBox.TabIndex = 15;
+            this.tortoiseHgVersionTextBox.TabIndex = 16;
             this.tortoiseHgVersionTextBox.TabStop = false;
             // 
             // statusImageFileNameTextBox
             // 
             this.statusImageFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 238);
+            this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 243);
             this.statusImageFileNameTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.statusImageFileNameTextBox.Name = "statusImageFileNameTextBox";
             this.statusImageFileNameTextBox.Size = new System.Drawing.Size(423, 20);
-            this.statusImageFileNameTextBox.TabIndex = 12;
+            this.statusImageFileNameTextBox.TabIndex = 13;
             // 
             // selectStatusImageFileButton
             // 
             this.selectStatusImageFileButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.selectStatusImageFileButton.AutoSize = true;
             this.selectStatusImageFileButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 235);
+            this.selectStatusImageFileButton.Location = new System.Drawing.Point(430, 240);
             this.selectStatusImageFileButton.Margin = new System.Windows.Forms.Padding(0);
             this.selectStatusImageFileButton.Name = "selectStatusImageFileButton";
             this.selectStatusImageFileButton.Padding = new System.Windows.Forms.Padding(2);
             this.selectStatusImageFileButton.Size = new System.Drawing.Size(30, 27);
-            this.selectStatusImageFileButton.TabIndex = 13;
+            this.selectStatusImageFileButton.TabIndex = 14;
             this.selectStatusImageFileButton.Text = "...";
             this.selectStatusImageFileButton.UseVisualStyleBackColor = true;
             // 
@@ -377,6 +402,26 @@ namespace VisualHg.Controls
             this.selectStatusImageFileDialog.Filter = "Image files|*.bmp;*.png;*.gif|All files|*.*";
             this.selectStatusImageFileDialog.ShowReadOnly = true;
             this.selectStatusImageFileDialog.Title = "Select status image file";
+            // 
+            // diffToolPresetButton
+            // 
+            this.diffToolPresetButton.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.diffToolPresetButton.AutoSize = true;
+            this.diffToolPresetButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.diffToolPresetButton.Font = new System.Drawing.Font("Marlett", 8.25F);
+            this.diffToolPresetButton.Location = new System.Drawing.Point(430, 192);
+            this.diffToolPresetButton.Margin = new System.Windows.Forms.Padding(0);
+            this.diffToolPresetButton.Name = "diffToolPresetButton";
+            this.diffToolPresetButton.Padding = new System.Windows.Forms.Padding(2);
+            this.diffToolPresetButton.Size = new System.Drawing.Size(30, 25);
+            this.diffToolPresetButton.TabIndex = 11;
+            this.diffToolPresetButton.Text = "u";
+            this.diffToolPresetButton.UseVisualStyleBackColor = true;
+            // 
+            // diffToolPresetMenu
+            // 
+            this.diffToolPresetMenu.Name = "diffToolPresetMenu";
+            this.diffToolPresetMenu.Size = new System.Drawing.Size(153, 26);
             // 
             // VisualHgOptionsControl
             // 
