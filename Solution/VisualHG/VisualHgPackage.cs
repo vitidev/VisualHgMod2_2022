@@ -189,25 +189,32 @@ namespace VisualHg
 
         private bool IsCommandVisible(uint commandId)
         {
+            var solutionOpen = !String.IsNullOrEmpty(VisualHgSolution.SolutionFileName);
+
             switch (commandId)
             {
+                case CommandId.Settings:
+                case CommandId.Workbench:
+                case CommandId.CreateRepository:
+                    return true;
+
                 case CommandId.Add:
-                    return IsAddMenuItemVisible();
+                    return solutionOpen && IsAddMenuItemVisible();
 
                 case CommandId.CommitSelected:
-                    return IsCommitSelectedMenuItemVisible();
+                    return solutionOpen && IsCommitSelectedMenuItemVisible();
 
                 case CommandId.Diff:
-                    return IsDiffMenuItemVisible();
+                    return solutionOpen && IsDiffMenuItemVisible();
 
                 case CommandId.Revert:
-                    return IsRevertMenuItemVisible();
+                    return solutionOpen && IsRevertMenuItemVisible();
 
                 case CommandId.History:
-                    return IsHistoryMenuItemVisible();
+                    return solutionOpen && IsHistoryMenuItemVisible();
 
                 default:
-                    return true;
+                    return solutionOpen;
             }
         }
 
@@ -258,11 +265,6 @@ namespace VisualHg
             CheckAndShow(TortoiseHg.ShowCommitWindow);
         }
 
-        private void ShowWorkbenchWindow(object sender, EventArgs e)
-        {
-            CheckAndShow(TortoiseHg.ShowWorkbenchWindow);
-        }
-
         private void ShowStatusWindow(object sender, EventArgs e)
         {
             CheckAndShow(TortoiseHg.ShowStatusWindow);
@@ -271,11 +273,6 @@ namespace VisualHg
         private void ShowSynchronizeWindow(object sender, EventArgs e)
         {
             CheckAndShow(TortoiseHg.ShowSynchronizeWindow);
-        }
-
-        private void ShowSettingsWindow(object sender, EventArgs e)
-        {
-            CheckAndShow(TortoiseHg.ShowSettingsWindow);
         }
 
         private void ShowShelveWindow(object sender, EventArgs e)
@@ -383,10 +380,42 @@ namespace VisualHg
             return ProcessInfo.GetChildProcesses(process).FirstOrDefault();
         }
         
+        
+        private void ShowWorkbenchWindow(object sender, EventArgs e)
+        {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
+            TortoiseHg.ShowWorkbenchWindow(VisualHgSolution.CurrentRootDirectory ?? "");
+        }
+
+        private void ShowSettingsWindow(object sender, EventArgs e)
+        {
+            if (TortoiseHg.Version == null)
+            {
+                NotifyTortoiseHgNotFound();
+                return;
+            }
+
+            var root = VisualHgSolution.CurrentRootDirectory;
+
+            if (String.IsNullOrEmpty(root))
+            {
+                TortoiseHg.ShowUserSettingsWindow("");
+            }
+            else
+            {
+                TortoiseHg.ShowRepositorySettingsWindow(root);
+            }
+        }
 
         private void ShowCreateRepositoryWindow(object sender, EventArgs e)
         {
-            var directory = Path.GetDirectoryName(VisualHgSolution.SolutionFileName);
+            var directory = Path.GetDirectoryName(VisualHgSolution.SolutionFileName) ??
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             TortoiseHg.ShowCreateRepositoryWindow(directory);
         }

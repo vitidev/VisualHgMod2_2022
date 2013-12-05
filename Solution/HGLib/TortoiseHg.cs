@@ -47,9 +47,14 @@ namespace HgLib
             return Start("init", directory);
         }
 
-        public static Process ShowSettingsWindow(string directory)
+        public static Process ShowRepositorySettingsWindow(string directory)
         {
             return Start("repoconfig", directory);
+        }
+
+        public static Process ShowUserSettingsWindow(string directory)
+        {
+            return Start("userconfig", directory);
         }
 
         public static Process ShowShelveWindow(string directory)

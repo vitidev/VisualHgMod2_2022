@@ -59,13 +59,13 @@
           <ToolTipText>Status</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="guidVisualHgCmdSet" id="cmdidWorkbench" priority="0x0012" type="Button">
+      <Button guid="guidVisualHgCmdSet" id="cmdidUpdate" priority="0x0012" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
-        <Icon guid="guidVisualHgIcons" id="iconWorkbench"/>
+        <Icon guid="guidVisualHgIcons" id="iconUpdate"/>
         <Strings>
-          <ButtonText>VisualHgWorkbench</ButtonText>
-          <MenuText>Workbench</MenuText>
-          <ToolTipText>Workbench</ToolTipText>
+          <ButtonText>VisualHgUpdate</ButtonText>
+          <MenuText>Update</MenuText>
+          <ToolTipText>Update</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidSynchronize" priority="0x0013" type="Button">
@@ -77,13 +77,13 @@
           <ToolTipText>Synchronize</ToolTipText>
         </Strings>
       </Button>
-      <Button guid="guidVisualHgCmdSet" id="cmdidUpdate" priority="0x0014" type="Button">
+      <Button guid="guidVisualHgCmdSet" id="cmdidShelve" priority="0x0014" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
-        <Icon guid="guidVisualHgIcons" id="iconUpdate"/>
+        <Icon guid="guidVisualHgIcons" id="iconShelve"/>
         <Strings>
-          <ButtonText>VisualHgUpdate</ButtonText>
-          <MenuText>Update</MenuText>
-          <ToolTipText>Update</ToolTipText>
+          <ButtonText>VisualHgShelve</ButtonText>
+          <MenuText>Shelve</MenuText>
+          <ToolTipText>Shelve</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidCreateRepository" priority="0x0015" type="Button">
@@ -95,6 +95,15 @@
           <ToolTipText>Create Repository</ToolTipText>
         </Strings>
       </Button>
+      <Button guid="guidVisualHgCmdSet" id="cmdidWorkbench" priority="0x0016" type="Button">
+        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
+        <Icon guid="guidVisualHgIcons" id="iconWorkbench"/>
+        <Strings>
+          <ButtonText>VisualHgWorkbench</ButtonText>
+          <MenuText>Workbench</MenuText>
+          <ToolTipText>Workbench</ToolTipText>
+        </Strings>
+      </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidSettings" priority="0x0017" type="Button">
         <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
         <Icon guid="guidVisualHgIcons" id="iconSettings"/>
@@ -102,15 +111,6 @@
           <ButtonText>VisualHgSettings</ButtonText>
           <MenuText>Settings</MenuText>
           <ToolTipText>Settings</ToolTipText>
-        </Strings>
-      </Button>
-      <Button guid="guidVisualHgCmdSet" id="cmdidShelve" priority="0x0018" type="Button">
-        <Parent guid="guidVisualHgCmdSet" id="RootCommandsGroup"/>
-        <Icon guid="guidVisualHgIcons" id="iconShelve"/>
-        <Strings>
-          <ButtonText>VisualHgShelve</ButtonText>
-          <MenuText>Shelve</MenuText>
-          <ToolTipText>Shelve</ToolTipText>
         </Strings>
       </Button>
       <Button guid="guidVisualHgCmdSet" id="cmdidAdd" priority="0x0000" type="Button">
@@ -251,9 +251,11 @@
   <KeyBindings>
     <KeyBinding guid="guidVisualHgCmdSet" id="cmdidCommit" editor="guidVSStd97" key1="I" mod1="Alt Shift"/>
     <KeyBinding guid="guidVisualHgCmdSet" id="cmdidStatus" editor="guidVSStd97" key1="S" mod1="Alt Shift"/>
-    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidWorkbench" editor="guidVSStd97" key1="H" mod1="Alt Shift"/>
-    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidSynchronize" editor="guidVSStd97" key1="Y" mod1="Alt Shift"/>
     <KeyBinding guid="guidVisualHgCmdSet" id="cmdidUpdate" editor="guidVSStd97" key1="U" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidSynchronize" editor="guidVSStd97" key1="Y" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidShelve" editor="guidVSStd97" key1="L" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidWorkbench" editor="guidVSStd97" key1="H" mod1="Alt Shift"/>
+    <KeyBinding guid="guidVisualHgCmdSet" id="cmdidSettings" editor="guidVSStd97" key1="E" mod1="Alt Shift"/>
     <KeyBinding guid="guidVisualHgCmdSet" id="cmdidPendingChanges" editor="guidVSStd97" key1="W" mod1="Control" key2="V"/>
   </KeyBindings>
   <Symbols>
