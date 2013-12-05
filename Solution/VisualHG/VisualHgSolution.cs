@@ -458,6 +458,11 @@ namespace VisualHg
 
             if (TryGetItemProperty(hierarchy, itemId, __VSHPROPID.VSHPROPID_Expandable, out property))
             {
+                if (property.GetType() == typeof(bool))
+                {
+                    return (bool)property;
+                }
+                
                 return (int)property != 0;
             }
 
