@@ -255,111 +255,133 @@ namespace VisualHg
 
         private void ShowCommitWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowCommitWindow);
+            CheckAndShow(TortoiseHg.ShowCommitWindow);
         }
 
         private void ShowWorkbenchWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowWorkbenchWindow);
+            CheckAndShow(TortoiseHg.ShowWorkbenchWindow);
         }
 
         private void ShowStatusWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowStatusWindow);
+            CheckAndShow(TortoiseHg.ShowStatusWindow);
         }
 
         private void ShowSynchronizeWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowSynchronizeWindow);
-        }
-
-        private void ShowUpdateWindow(object sender, EventArgs e)
-        {
-            if (VsVersion == 10)
-            {
-                GetRootAnd(TortoiseHg.ShowUpdateWindow, ReloadSolution);
-            }
-            else
-            {
-                GetRootAnd(TortoiseHg.ShowUpdateWindow);
-            }
+            CheckAndShow(TortoiseHg.ShowSynchronizeWindow);
         }
 
         private void ShowSettingsWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowSettingsWindow);
+            CheckAndShow(TortoiseHg.ShowSettingsWindow);
         }
 
         private void ShowShelveWindow(object sender, EventArgs e)
         {
-            GetRootAnd(TortoiseHg.ShowShelveWindow);
+            CheckAndShow(TortoiseHg.ShowShelveWindow);
         }
 
-        private void GetRootAnd(Func<string, System.Diagnostics.Process> showWindow, Action afterWindowClosed = null)
+
+        private void CheckAndShow(Func<string, System.Diagnostics.Process> show)
+        {
+            var root = VisualHgSolution.CurrentRootDirectory;
+
+            if (CanRunTortoiseHg(root))
+            {
+                show(root);
+            }
+        }
+
+        private bool CanRunTortoiseHg(string root)
         {
             if (TortoiseHg.Version == null)
             {
                 NotifyTortoiseHgNotFound();
+                return false;
+            }
+
+            if (String.IsNullOrEmpty(root))
+            {
+                NotifySolutionIsNotUnderVersionControl();
+                return false;
+            }
+
+            SaveAllProjectFiles();
+            return true;
+        }
+
+        
+        private void ShowUpdateWindow(object sender, EventArgs e)
+        {
+            var root = VisualHgSolution.CurrentRootDirectory;
+
+            if (!CanRunTortoiseHg(root))
+            {
                 return;
             }
 
-            var root = VisualHgSolution.CurrentRootDirectory;
-
-            if (!String.IsNullOrEmpty(root))
+            if (IsReloadSolutionNeeded())
             {
-                SaveAllProjectFiles();
-
-                var process = showWindow(root);
-
-                if (afterWindowClosed != null)
-                {
-                    AfterChildProcessExited(process, afterWindowClosed);
-                }
+                ShowUpdateDialogAndReloadSolution(root);
             }
             else
             {
-                NotifySolutionIsNotUnderVersionControl();
+                TortoiseHg.ShowUpdateWindow(root);
             }
         }
 
-        private void AfterChildProcessExited(System.Diagnostics.Process process, Action action)
+        private bool IsReloadSolutionNeeded()
         {
-            try
+            if (VsVersion > 10)
             {
-                process.WaitForExit();
-            }
-            catch (InvalidOperationException)
-            {
+                return false;
             }
 
-            try
+            if (VisualHgSolution.LoadedProjects.Take(2).Count() < 2)
             {
-                var child = ProcessInfo.GetChildProcesses(process).FirstOrDefault();
+                return false;
+            }
 
-                if (child != null)
-                {
-                    child.WaitForExit();
-                }
-            }
-            catch (InvalidOperationException)
-            {
-            }
-            finally
-            {
-                action();
-            }
+            var result = MessageBox.Show(Resources.SolutionReloadQuery, Resources.MessageBoxCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            return result == DialogResult.Yes;
         }
 
-        private void ReloadSolution()
+        private void ShowUpdateDialogAndReloadSolution(string root)
         {
             var dte = GetService(typeof(SDTE)) as DTE;
 
             var solutionFileName = VisualHgSolution.SolutionFileName;
 
             dte.Solution.Close();
+
+            WaitForExit(TortoiseHg.ShowUpdateWindow(root));
+
             dte.Solution.Open(solutionFileName);
         }
 
+        private static void WaitForExit(System.Diagnostics.Process process)
+        {
+            if (process == null)
+            {
+                return;
+            }
+
+            try
+            {
+                process.WaitForExit();
+            }
+            catch (InvalidOperationException) { }
+
+            WaitForExit(GetChildProcess(process));
+        }
+
+        private static System.Diagnostics.Process GetChildProcess(System.Diagnostics.Process process)
+        {
+            return ProcessInfo.GetChildProcesses(process).FirstOrDefault();
+        }
         
 
         private void ShowCreateRepositoryWindow(object sender, EventArgs e)

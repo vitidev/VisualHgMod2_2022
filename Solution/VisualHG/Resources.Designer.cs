@@ -135,6 +135,15 @@ namespace VisualHg {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update may cause multiple Reload Project dialogs to appear. Would you like VisualHg to reload the solution instead?.
+        /// </summary>
+        internal static string SolutionReloadQuery {
+            get {
+                return ResourceManager.GetString("SolutionReloadQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TortoiseHg was not found.
         /// </summary>
         internal static string TortoiseHgNotFound {

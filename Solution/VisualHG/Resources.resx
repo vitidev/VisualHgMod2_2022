@@ -142,6 +142,9 @@
   <data name="NotUnderVersionControl" xml:space="preserve">
     <value>Solution is not under Mercurial version contol</value>
   </data>
+  <data name="SolutionReloadQuery" xml:space="preserve">
+    <value>Update may cause multiple Reload Project dialogs to appear. Would you like VisualHg to reload the solution instead?</value>
+  </data>
   <data name="TortoiseHgNotFound" xml:space="preserve">
     <value>TortoiseHg was not found</value>
   </data>
