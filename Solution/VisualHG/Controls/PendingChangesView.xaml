@@ -28,6 +28,7 @@
         <SolidColorBrush x:Key="WindowTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}"/>
 
         <v:StatusImageConverter x:Key="StatusImageConverter" />
+        <v:FileTypeImageConverter x:Key="FileTypeImageConverter" />
 
         <Style x:Key="FocusStyle">
             <Setter Property="Control.Template">
@@ -196,6 +197,7 @@
         <DataTemplate x:Key="FileNameTemplate">
             <DockPanel>
                 <Image Source="{Binding Status, Converter={StaticResource StatusImageConverter}}" Width="7" Height="16"/>
+                <Image Source="{Binding FullName, Converter={StaticResource FileTypeImageConverter}}" Width="16" Height="16"/>
                 <TextBlock Text="{Binding ShortName}" Margin="4,0,0,0"/>
             </DockPanel>
         </DataTemplate>
