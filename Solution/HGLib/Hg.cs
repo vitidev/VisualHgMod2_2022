@@ -103,9 +103,9 @@ namespace HgLib
         }
 
 
-        public static HgFileInfo[] AddFiles(string[] fileNames, HgFileStatus status = HgFileStatus.NotAdded)
+        public static HgFileInfo[] AddFiles(string[] fileNames, HgFileStatus filter)
         {
-            var filesToAdd = GetFilesToAdd(fileNames, status);
+            var filesToAdd = GetFilesToAdd(fileNames, filter);
 
             if (filesToAdd.Length == 0)
             {
@@ -280,12 +280,12 @@ namespace HgLib
         }
 
 
-        private static string[] GetFilesToAdd(string[] fileNames, HgFileStatus status)
+        private static string[] GetFilesToAdd(string[] fileNames, HgFileStatus filter)
         {
             var files = GetRawFileInfo(fileNames);
 
             return files
-                .Where(x => x.StatusMatches(status))
+                .Where(x => x.StatusMatches(filter))
                 .Select(x => x.FullName)
                 .ToArray();
         }
