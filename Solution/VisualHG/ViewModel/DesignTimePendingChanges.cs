@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using HgLib;
+﻿using HgLib;
 
 namespace VisualHg.ViewModel
 {

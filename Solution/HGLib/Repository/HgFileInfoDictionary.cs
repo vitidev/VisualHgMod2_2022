@@ -54,10 +54,10 @@ namespace HgLib.Repository
 
 
         public HgFileInfoDictionary()
-	    {
+        {
             SyncRoot = new object();
             items = new Dictionary<string, HgFileInfo>(StringComparer.InvariantCultureIgnoreCase);
-	    }
+        }
 
 
         public void Add(HgFileInfo[] files)

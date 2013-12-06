@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Collections.Generic;
-
-namespace HgLib.Repository.Commands
+﻿namespace HgLib.Repository.Commands
 {
     internal class AddFilesHgCommand : HgCommand
     {

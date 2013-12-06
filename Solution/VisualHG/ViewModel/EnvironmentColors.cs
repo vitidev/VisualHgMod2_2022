@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Windows;
-using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg.ViewModel
 {

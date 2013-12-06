@@ -30,7 +30,7 @@ namespace HgLib.Repository.Commands
             {
                 while (items.Count > 0)
                 {
-	                commands.Add(items.Dequeue());
+                    commands.Add(items.Dequeue());
                 }
             }
             

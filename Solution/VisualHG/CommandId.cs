@@ -1,7 +1,7 @@
 namespace VisualHg
 {
-	public static class CommandId
-	{
+    public static class CommandId
+    {
         public const int PendingChanges      = 0x100;
      
         public const int Commit              = 0x101;
@@ -19,5 +19,5 @@ namespace VisualHg
         public const int CreateRepository    = 0x111;
         public const int Settings            = 0x112;
         public const int Shelve              = 0x113;
-	}
+    }
 }

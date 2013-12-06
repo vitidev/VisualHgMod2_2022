@@ -32,7 +32,7 @@ namespace VisualHg
             {
                 OnExited();
                 
-                throw new InvalidOperationException("Diff tool start failed");
+                throw new InvalidOperationException("Diff tool start failed", e);
             }
         }
 
