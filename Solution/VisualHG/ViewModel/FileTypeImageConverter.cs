@@ -8,19 +8,46 @@ namespace VisualHg.ViewModel
 {
     public class FileTypeImageConverter : IValueConverter
     {
-        private IVsImageService imageService;
+        private object imageService;
 
         public FileTypeImageConverter()
         {
-            imageService = Package.GetGlobalService(typeof(SVsImageService)) as IVsImageService;
+            var serviceType = VisualStudioShell11.GetType("Microsoft.VisualStudio.Shell.Interop.SVsImageService");
+
+            if (serviceType != null)
+            {
+                imageService = Package.GetGlobalService(serviceType);
+            }
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var fileName = (string)(ComparablePath)value;
-            var icon = imageService.GetIconForFile(fileName, __VSUIDATAFORMAT.VSDF_WPF);
+            if (imageService == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var icon = GetIconForFile((string)(ComparablePath)value);
+                
+                return GetData(icon);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private IVsUIObject GetIconForFile(string fileName)
+        {
+            var type = imageService.GetType();
             
-            return GetData(icon);
+            var getIconMethod = type.GetMethod("GetIconForFile", new[] { typeof(string), typeof(__VSUIDATAFORMAT) });
+                
+            var icon = getIconMethod.Invoke(imageService, new object[] { fileName, __VSUIDATAFORMAT.VSDF_WPF });
+
+            return (IVsUIObject)icon;
         }
 
         private static object GetData(IVsUIObject icon)

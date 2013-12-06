@@ -108,6 +108,7 @@
     <Compile Include="Attributes\ProvideOptionsPageVisibilityAttribute.cs" />
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
+    <Compile Include="VisualStudioShell11.cs" />
     <Compile Include="ProcessInfo.cs" />
     <Compile Include="DiffToolPreset.cs" />
     <Compile Include="ViewModel\ComparablePath.cs" />

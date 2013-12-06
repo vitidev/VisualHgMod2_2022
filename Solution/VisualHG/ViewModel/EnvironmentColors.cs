@@ -6,7 +6,7 @@ namespace VisualHg.ViewModel
 {
     public static class EnvironmentColors
     {
-        private static readonly Type environmentColors = LoadEnvironmentColorsType();
+        private static readonly Type environmentColors = VisualStudioShell11.GetType("Microsoft.VisualStudio.PlatformUI.EnvironmentColors");
 
         public static readonly object HeaderBorderColorKey = GetKey("InactiveBorderColorKey", SystemColors.ControlColorKey);
         public static readonly object HeaderColorKey = GetKey("ToolWindowBackgroundColorKey", SystemColors.ControlLightColorKey);
@@ -25,21 +25,6 @@ namespace VisualHg.ViewModel
         public static readonly object WindowColorKey = GetKey("ToolWindowBackgroundColorKey", SystemColors.WindowColorKey);
         public static readonly object WindowTextColorKey = GetKey("ToolWindowTextColorKey", SystemColors.WindowTextColorKey);
 
-
-        private static Type LoadEnvironmentColorsType()
-        {
-            if (VisualHgPackage.VsVersion > 10)
-            {
-                try
-                {
-                    var assembly = Assembly.Load("Microsoft.VisualStudio.Shell.11.0, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL");
-                    return assembly.GetType("Microsoft.VisualStudio.PlatformUI.EnvironmentColors");
-                }
-                catch { }
-            }
-
-            return null;
-        }
 
         private static object GetKey(string name, ResourceKey resourceKey)
         {

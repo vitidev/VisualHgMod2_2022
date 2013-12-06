@@ -197,7 +197,7 @@
         <DataTemplate x:Key="FileNameTemplate">
             <DockPanel>
                 <Image Source="{Binding Status, Converter={StaticResource StatusImageConverter}}" Width="7" Height="16"/>
-                <Image Source="{Binding FullName, Converter={StaticResource FileTypeImageConverter}}" Width="16" Height="16"/>
+                <Image Source="{Binding FullName, Converter={StaticResource FileTypeImageConverter}}" Width="auto" Height="16"/>
                 <TextBlock Text="{Binding ShortName}" Margin="4,0,0,0"/>
             </DockPanel>
         </DataTemplate>
