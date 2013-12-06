@@ -196,6 +196,7 @@ namespace VisualHg
                 case CommandId.Settings:
                 case CommandId.Workbench:
                 case CommandId.CreateRepository:
+                case CommandId.PendingChanges:
                     return true;
 
                 case CommandId.Add:
