@@ -10,6 +10,8 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using OleInteropConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
+using Process = System.Diagnostics.Process;
 
 namespace VisualHg
 {
@@ -27,7 +29,7 @@ namespace VisualHg
     [Guid(Guids.Package)]
     public sealed partial class VisualHgPackage : Package, IOleCommandTarget, IDisposable
     {
-        private const int OLECMDERR_E_NOTSUPPORTED = (int)Microsoft.VisualStudio.OLE.Interop.Constants.OLECMDERR_E_NOTSUPPORTED;
+        private const int OLECMDERR_E_NOTSUPPORTED = (int)OleInteropConstants.OLECMDERR_E_NOTSUPPORTED;
 
         private VisualHgService visualHgService;
         private PendingChangesToolWindow _pendingChangesToolWindow;
@@ -360,7 +362,7 @@ namespace VisualHg
             dte.Solution.Open(solutionFileName);
         }
 
-        private static void WaitForExit(System.Diagnostics.Process process)
+        private static void WaitForExit(Process process)
         {
             if (process == null)
             {
@@ -376,7 +378,7 @@ namespace VisualHg
             WaitForExit(GetChildProcess(process));
         }
 
-        private static System.Diagnostics.Process GetChildProcess(System.Diagnostics.Process process)
+        private static Process GetChildProcess(Process process)
         {
             return ProcessInfo.GetChildProcesses(process).FirstOrDefault();
         }
