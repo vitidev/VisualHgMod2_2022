@@ -108,6 +108,9 @@
     <Compile Include="Attributes\ProvideOptionsPageVisibilityAttribute.cs" />
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
+    <Compile Include="Images\ImageConstants.cs" />
+    <Compile Include="Images\ImageLoader.cs" />
+    <Compile Include="Images\WpfImageLoader.cs" />
     <Compile Include="VisualStudioShell11.cs" />
     <Compile Include="ProcessInfo.cs" />
     <Compile Include="DiffToolPreset.cs" />
@@ -130,7 +133,7 @@
     <Compile Include="VisualHgFileSet.cs" />
     <Compile Include="DiffTool.cs" />
     <Compile Include="IdleWorker.cs" />
-    <Compile Include="ImageMapper.cs" />
+    <Compile Include="Images\StatusImages.cs" />
     <Compile Include="VisualHgSolution.cs" />
     <Compile Include="VisualHgDialogs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

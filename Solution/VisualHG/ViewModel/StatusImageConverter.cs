@@ -3,22 +3,18 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 using HgLib;
+using VisualHg.Images;
 
 namespace VisualHg.ViewModel
 {
     public class StatusImageConverter : IValueConverter
     {
-        private BitmapImage[] images;
-
-        public StatusImageConverter()
-        {
-            images = ImageMapper.CreateStatusBitmapImages(VisualHgOptions.Global.StatusImageFileName);
-        }
+        private static readonly BitmapSource[] images = WpfImageLoader.GetStatusIcons(VisualHgOptions.Global.StatusImageFileName);
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var status = (ComparableStatus)value;
-            var iconIndex = ImageMapper.GetStatusIconIndex((HgFileStatus)status);
+            var iconIndex = StatusImages.GetIndex((HgFileStatus)status);
 
             return images[iconIndex];
         }

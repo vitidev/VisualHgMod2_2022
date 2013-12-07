@@ -9,6 +9,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using HgLib;
 using Microsoft.VisualStudio.Shell;
+using VisualHg.Images;
 using VisualHg.ViewModel;
 
 namespace VisualHg.Controls
@@ -179,7 +180,7 @@ namespace VisualHg.Controls
 
         private void SetMenuItemImages()
         {
-            var images = ImageMapper.CreateMenuBitmapImages()
+            var images = WpfImageLoader.GetMenuIcons()
                 .Select(x => new Image { Source = x })
                 .ToArray();
 

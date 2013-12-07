@@ -10,6 +10,7 @@ using HgLib;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using VisualHg.Images;
 
 namespace VisualHg
 {
@@ -241,11 +242,11 @@ namespace VisualHg
 
                 if (StatusIconsLimited)
                 {
-                    statusImageList = ImageMapper.CreateStatusImageListLimited(fileName);
+                    statusImageList = StatusImages.CreateLimited(fileName);
                 }
                 else
                 {
-                    statusImageList = ImageMapper.CreateStatusImageList(fileName);
+                    statusImageList = StatusImages.Create(fileName);
                 }
             }
         }
@@ -297,11 +298,11 @@ namespace VisualHg
 
             if (StatusIconsLimited)
             {
-                iconIndex = ImageMapper.GetStatusIconIndexLimited(status);
+                iconIndex = StatusImages.GetIndexLimited(status);
             }
             else
             {
-                iconIndex = ImageMapper.GetStatusIconIndex(status);
+                iconIndex = StatusImages.GetIndex(status);
             }
 
             return GetStatusIcon(iconIndex);
