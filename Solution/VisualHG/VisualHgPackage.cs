@@ -178,21 +178,32 @@ namespace VisualHg
             }
 
             var visible = visualHgService.Active ? IsCommandVisible(commands[0].cmdID) : false;
+            var enabled = visualHgService.Active ? IsCommandEnabled(commands[0].cmdID) : false;
 
-            commands[0].cmdf = (uint)VisibleToOleCmdf(visible);
-
+            commands[0].cmdf = (uint)ToOleCmdf(visible, enabled);
+            
             return VSConstants.S_OK;
         }
 
-        private OLECMDF VisibleToOleCmdf(bool visible)
+        private OLECMDF ToOleCmdf(bool visible, bool enabled)
         {
-            return OLECMDF.OLECMDF_SUPPORTED | (visible ? OLECMDF.OLECMDF_ENABLED : OLECMDF.OLECMDF_INVISIBLE);
+            var cmdf = OLECMDF.OLECMDF_SUPPORTED;
+
+            if (enabled)
+            {
+                cmdf |= OLECMDF.OLECMDF_ENABLED;
+            }
+
+            if (!visible)
+            {
+                cmdf |= OLECMDF.OLECMDF_INVISIBLE;
+            }
+
+            return cmdf;
         }
 
-        private bool IsCommandVisible(uint commandId)
+        private bool IsCommandEnabled(uint commandId)
         {
-            var solutionOpen = !String.IsNullOrEmpty(VisualHgSolution.SolutionFileName);
-
             switch (commandId)
             {
                 case CommandId.Settings:
@@ -201,23 +212,32 @@ namespace VisualHg
                 case CommandId.PendingChanges:
                     return true;
 
+                default:
+                    return !String.IsNullOrEmpty(VisualHgSolution.SolutionFileName);
+            }
+        }
+
+        private bool IsCommandVisible(uint commandId)
+        {
+            switch (commandId)
+            {
                 case CommandId.Add:
-                    return solutionOpen && IsAddMenuItemVisible();
+                    return IsAddMenuItemVisible();
 
                 case CommandId.CommitSelected:
-                    return solutionOpen && IsCommitSelectedMenuItemVisible();
+                    return IsCommitSelectedMenuItemVisible();
 
                 case CommandId.Diff:
-                    return solutionOpen && IsDiffMenuItemVisible();
+                    return IsDiffMenuItemVisible();
 
                 case CommandId.Revert:
-                    return solutionOpen && IsRevertMenuItemVisible();
+                    return IsRevertMenuItemVisible();
 
                 case CommandId.History:
-                    return solutionOpen && IsHistoryMenuItemVisible();
+                    return IsHistoryMenuItemVisible();
 
                 default:
-                    return solutionOpen;
+                    return true;
             }
         }
 
