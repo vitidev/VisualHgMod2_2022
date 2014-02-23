@@ -36,7 +36,7 @@ namespace VisualHg
             nameA = GetFileName(nameA);
             nameB = GetFileName(nameB);
 
-            var windowFrame = OpenComparisonWindow2(fileA, fileB, "Diff - {1}", null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
+            var windowFrame = OpenComparisonWindow2(fileA, fileB, String.Format("Diff - {0}", nameB), null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
             
             if (windowFrame != null)
             {
