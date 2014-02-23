@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -32,6 +33,9 @@ namespace VisualHg
 
         public override void Start(string fileA, string fileB, string nameA, string nameB, string workingDirectory)
         {
+            nameA = GetFileName(nameA);
+            nameB = GetFileName(nameB);
+
             var windowFrame = OpenComparisonWindow2(fileA, fileB, "Diff - {1}", null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
             
             if (windowFrame != null)
@@ -39,6 +43,11 @@ namespace VisualHg
                 uint cookie;
                 windowFrame.Advise(new NotifyOnClose(this), out cookie);
             }
+        }
+
+        private static string GetFileName(string name)
+        {
+            return Regex.Replace(name, @".+\\([^\\]+)", "$1");
         }
 
         private static IVsWindowFrame OpenComparisonWindow2(string leftFileMoniker, string rightFileMoniker, string caption, string Tooltip, string leftLabel, string rightLabel, string inlineLabel, string roles, uint grfDiffOptions)
