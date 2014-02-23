@@ -75,12 +75,12 @@ namespace VisualHg
 
         public void UpdatePendingChangesToolWindow()
         {
-            if (_pendingChangesToolWindow == null)
-            {
-                _pendingChangesToolWindow = FindToolWindow(typeof(PendingChangesToolWindow), 0, true) as PendingChangesToolWindow;
-            }
+            _pendingChangesToolWindow = FindPendingChangesToolWindow(false);
 
-            _pendingChangesToolWindow.Synchronize(visualHgService.PendingFiles);
+            if (_pendingChangesToolWindow != null)
+            {
+                _pendingChangesToolWindow.Synchronize(visualHgService.PendingFiles);
+            }
         }
 
 
@@ -269,17 +269,29 @@ namespace VisualHg
 
         private void ShowPendingChangesToolWindow(object sender, EventArgs e)
         {
-            if (_pendingChangesToolWindow == null)
-            {
-                UpdatePendingChangesToolWindow();
-            }
-
+            InitializePendingChangesToolWindow();
+            
             var windowFrame = _pendingChangesToolWindow.Frame as IVsWindowFrame;
 
             if (windowFrame != null)
             {
                 ErrorHandler.ThrowOnFailure(windowFrame.Show());
             }
+        }
+
+        private void InitializePendingChangesToolWindow()
+        {
+            if (_pendingChangesToolWindow == null)
+            {
+                _pendingChangesToolWindow = FindPendingChangesToolWindow(true);
+            }
+
+            UpdatePendingChangesToolWindow();
+        }
+
+        private PendingChangesToolWindow FindPendingChangesToolWindow(bool create)
+        {
+            return FindToolWindow(typeof(PendingChangesToolWindow), 0, create) as PendingChangesToolWindow;
         }
 
 
