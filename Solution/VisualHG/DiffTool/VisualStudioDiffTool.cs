@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -31,7 +32,13 @@ namespace VisualHg
 
         public override void Start(string fileA, string fileB, string nameA, string nameB, string workingDirectory)
         {
-            OpenComparisonWindow2(fileA, fileB, "Diff - {1}", null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0);
+            var windowFrame = OpenComparisonWindow2(fileA, fileB, "Diff - {1}", null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
+            
+            if (windowFrame != null)
+            {
+                uint cookie;
+                windowFrame.Advise(new NotifyOnClose(this), out cookie);
+            }
         }
 
         private static IVsWindowFrame OpenComparisonWindow2(string leftFileMoniker, string rightFileMoniker, string caption, string Tooltip, string leftLabel, string rightLabel, string inlineLabel, string roles, uint grfDiffOptions)
@@ -55,6 +62,44 @@ namespace VisualHg
             }
 
             return Package.GetGlobalService(serviceType);
+        }
+
+
+        private class NotifyOnClose : IVsWindowFrameNotify, IVsWindowFrameNotify2
+        {
+            private VsDiffTool _parent;
+            
+            public NotifyOnClose(VsDiffTool parent)
+            {
+                _parent = parent;
+            }
+
+            int IVsWindowFrameNotify.OnDockableChange(int fDockable)
+            {
+                return VSConstants.S_OK;
+            }
+
+            int IVsWindowFrameNotify.OnMove()
+            {
+                return VSConstants.S_OK;
+            }
+
+            int IVsWindowFrameNotify.OnShow(int fShow)
+            {
+                return VSConstants.S_OK;
+            }
+
+            int IVsWindowFrameNotify.OnSize()
+            {
+                return VSConstants.S_OK;
+            }
+
+            public int OnClose(ref uint pgrfSaveOptions)
+            {
+                _parent.OnExited();
+
+                return VSConstants.S_OK;
+            }
         }
     }
 }

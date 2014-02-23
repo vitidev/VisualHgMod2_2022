@@ -45,7 +45,7 @@ namespace VisualHg
                 .Replace("%NameB%", String.Concat('"', nameB, '"'));
         }
 
-        private void OnExited()
+        protected void OnExited()
         {
             Exited(this, EventArgs.Empty);
         }
