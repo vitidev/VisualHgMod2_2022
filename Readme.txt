@@ -3,8 +3,8 @@ VisualHg 2
 Source control plug-in for Visual Studio 2010, 2012 and 2013
 
 -------------------------------------------------------------------------------
-Author    Bernd Schrader (2008-2012), Dmitry Popov (2013) and others
-Version   2.0.0.9
+Author    Bernd Schrader (2008-2012), Dmitry Popov (2013-2014) and others
+Version   2.0.0.10
 State     stable
 Licence   GNU General Public License (GPL) (v2.0)
 -------------------------------------------------------------------------------

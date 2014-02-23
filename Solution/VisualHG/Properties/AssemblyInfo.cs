@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("VisualHg")]
-[assembly: AssemblyCopyright("Copyright © Bernd Schrader, Dmitry Popov and others 2008-2013")]
+[assembly: AssemblyCopyright("Copyright © Bernd Schrader, Dmitry Popov and others 2008-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]        
 
@@ -15,5 +15,5 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("8a8076ee-608c-48f1-ad3c-610ceec5585a")]
 
-[assembly: AssemblyVersion("2.0.0.9")]
-[assembly: AssemblyFileVersion("2.0.0.9")]
+[assembly: AssemblyVersion("2.0.0.10")]
+[assembly: AssemblyFileVersion("2.0.0.10")]

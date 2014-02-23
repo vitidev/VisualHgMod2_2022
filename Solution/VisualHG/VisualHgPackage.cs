@@ -15,7 +15,7 @@ using Process = System.Diagnostics.Process;
 
 namespace VisualHg
 {
-    [InstalledProductRegistration("#100", "#101", "2.0.0.9", IconResourceID = 400)]
+    [InstalledProductRegistration("#100", "#101", "2.0.0.10", IconResourceID = 400)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [ProvideMenuResource(1000, 1)]
     [ProvideAutoLoad(Guids.Provider)]
