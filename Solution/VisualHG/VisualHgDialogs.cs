@@ -47,7 +47,6 @@ namespace VisualHg
             var tempName = GetDisplayName(parent, revision, root);
             var name = GetDisplayName(fileName, root);
 
-
             var diffTool = GetDiffTool();
 
             diffTool.Exited += (s, e) => DeleteFile(temp);
@@ -85,7 +84,7 @@ namespace VisualHg
         {
             if (String.IsNullOrEmpty(VisualHgOptions.Global.DiffToolPath))
             {
-                return GetKDiff();
+                return GetDefaultDiffTool();
             }
          
             return new DiffTool
@@ -93,6 +92,11 @@ namespace VisualHg
                 FileName = VisualHgOptions.Global.DiffToolPath,
                 Arguments = VisualHgOptions.Global.DiffToolArguments,
             };
+        }
+
+        private static DiffTool GetDefaultDiffTool()
+        {
+            return VsDiffTool.IsAvailable ? new VsDiffTool() : GetKDiff();
         }
 
         private static DiffTool GetKDiff()

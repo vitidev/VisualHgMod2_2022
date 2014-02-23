@@ -25,6 +25,7 @@ namespace VisualHg.Controls
         private CheckBox autoSaveProjectFilesCheckBox;
         private Button diffToolPresetButton;
         private ContextMenuStrip diffToolPresetMenu;
+        private Label diffToolPathLabel;
         private CheckBox projectStatusIncludesChildrenCheckBox;
 
         public VisualHgOptions Configuration
@@ -59,6 +60,8 @@ namespace VisualHg.Controls
         {
             InitializeComponent();
 
+            diffToolPathLabel.Text = String.Format("Custom diff tool (leave blank to use {0}):", VsDiffTool.IsAvailable ? "Visual Studio diff" : "KDiff3");
+            
             tortoiseHgVersionTextBox.Text = TortoiseHg.Version ?? Resources.TortoiseHgNotFound;
 
             selectDiffToolButton.Click += SelectDiffTool;
@@ -113,11 +116,11 @@ namespace VisualHg.Controls
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.Label diffToolPathLabel;
             System.Windows.Forms.Label tortoiseHgVersionLabel;
             System.Windows.Forms.Label noteLabel;
             System.Windows.Forms.Label label1;
             System.Windows.Forms.Label statusImageFileNameLabel;
+            this.diffToolPathLabel = new System.Windows.Forms.Label();
             this.addFilesOnLoadCheckBox = new System.Windows.Forms.CheckBox();
             this.autoActivateCheckBox = new System.Windows.Forms.CheckBox();
             this.selectDiffToolButton = new System.Windows.Forms.Button();
@@ -130,11 +133,10 @@ namespace VisualHg.Controls
             this.statusImageFileNameTextBox = new System.Windows.Forms.TextBox();
             this.selectStatusImageFileButton = new System.Windows.Forms.Button();
             this.autoSaveProjectFilesCheckBox = new System.Windows.Forms.CheckBox();
+            this.diffToolPresetButton = new System.Windows.Forms.Button();
             this.selectDiffToolDialog = new System.Windows.Forms.OpenFileDialog();
             this.selectStatusImageFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.diffToolPresetButton = new System.Windows.Forms.Button();
             this.diffToolPresetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            diffToolPathLabel = new System.Windows.Forms.Label();
             tortoiseHgVersionLabel = new System.Windows.Forms.Label();
             noteLabel = new System.Windows.Forms.Label();
             label1 = new System.Windows.Forms.Label();
@@ -144,15 +146,15 @@ namespace VisualHg.Controls
             // 
             // diffToolPathLabel
             // 
-            diffToolPathLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            diffToolPathLabel.AutoSize = true;
-            this.tableLayoutPanel.SetColumnSpan(diffToolPathLabel, 3);
-            diffToolPathLabel.Location = new System.Drawing.Point(0, 129);
-            diffToolPathLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
-            diffToolPathLabel.Name = "diffToolPathLabel";
-            diffToolPathLabel.Size = new System.Drawing.Size(207, 13);
-            diffToolPathLabel.TabIndex = 6;
-            diffToolPathLabel.Text = "Custom diff tool (leave blank to use KDiff3):";
+            this.diffToolPathLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.diffToolPathLabel.AutoSize = true;
+            this.tableLayoutPanel.SetColumnSpan(this.diffToolPathLabel, 3);
+            this.diffToolPathLabel.Location = new System.Drawing.Point(0, 129);
+            this.diffToolPathLabel.Margin = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.diffToolPathLabel.Name = "diffToolPathLabel";
+            this.diffToolPathLabel.Size = new System.Drawing.Size(210, 13);
+            this.diffToolPathLabel.TabIndex = 6;
+            this.diffToolPathLabel.Text = "Custom diff tool (leave blank to use KDiff3):";
             // 
             // tortoiseHgVersionLabel
             // 
@@ -277,7 +279,7 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.Controls.Add(this.autoActivateCheckBox, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.selectDiffToolButton, 2, 8);
             this.tableLayoutPanel.Controls.Add(this.diffToolPathTextBox, 0, 8);
-            this.tableLayoutPanel.Controls.Add(diffToolPathLabel, 0, 7);
+            this.tableLayoutPanel.Controls.Add(this.diffToolPathLabel, 0, 7);
             this.tableLayoutPanel.Controls.Add(this.projectStatusIncludesChildrenCheckBox, 0, 4);
             this.tableLayoutPanel.Controls.Add(this.addFilesOnLoadCheckBox, 0, 1);
             this.tableLayoutPanel.Controls.Add(noteLabel, 0, 5);
@@ -388,21 +390,6 @@ namespace VisualHg.Controls
             this.autoSaveProjectFilesCheckBox.Text = "Save project files before opening TortoiseHg dialogs";
             this.autoSaveProjectFilesCheckBox.UseVisualStyleBackColor = true;
             // 
-            // selectDiffToolDialog
-            // 
-            this.selectDiffToolDialog.AddExtension = false;
-            this.selectDiffToolDialog.DefaultExt = "exe";
-            this.selectDiffToolDialog.Filter = "Executable files|*.exe|All files|*.*";
-            this.selectDiffToolDialog.ShowReadOnly = true;
-            this.selectDiffToolDialog.Title = "Select diff tool";
-            // 
-            // selectStatusImageFileDialog
-            // 
-            this.selectStatusImageFileDialog.AddExtension = false;
-            this.selectStatusImageFileDialog.Filter = "Image files|*.bmp;*.png;*.gif|All files|*.*";
-            this.selectStatusImageFileDialog.ShowReadOnly = true;
-            this.selectStatusImageFileDialog.Title = "Select status image file";
-            // 
             // diffToolPresetButton
             // 
             this.diffToolPresetButton.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -418,10 +405,25 @@ namespace VisualHg.Controls
             this.diffToolPresetButton.Text = "u";
             this.diffToolPresetButton.UseVisualStyleBackColor = true;
             // 
+            // selectDiffToolDialog
+            // 
+            this.selectDiffToolDialog.AddExtension = false;
+            this.selectDiffToolDialog.DefaultExt = "exe";
+            this.selectDiffToolDialog.Filter = "Executable files|*.exe|All files|*.*";
+            this.selectDiffToolDialog.ShowReadOnly = true;
+            this.selectDiffToolDialog.Title = "Select diff tool";
+            // 
+            // selectStatusImageFileDialog
+            // 
+            this.selectStatusImageFileDialog.AddExtension = false;
+            this.selectStatusImageFileDialog.Filter = "Image files|*.bmp;*.png;*.gif|All files|*.*";
+            this.selectStatusImageFileDialog.ShowReadOnly = true;
+            this.selectStatusImageFileDialog.Title = "Select status image file";
+            // 
             // diffToolPresetMenu
             // 
             this.diffToolPresetMenu.Name = "diffToolPresetMenu";
-            this.diffToolPresetMenu.Size = new System.Drawing.Size(153, 26);
+            this.diffToolPresetMenu.Size = new System.Drawing.Size(61, 4);
             // 
             // VisualHgOptionsControl
             // 

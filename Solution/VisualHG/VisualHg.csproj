@@ -108,12 +108,13 @@
     <Compile Include="Attributes\ProvideOptionsPageVisibilityAttribute.cs" />
     <Compile Include="Attributes\ProvideSolutionPersistenceAttribute.cs" />
     <Compile Include="Attributes\ProvideSourceControlProviderAttribute.cs" />
+    <Compile Include="DiffTool\VisualStudioDiffTool.cs" />
     <Compile Include="Images\ImageConstants.cs" />
     <Compile Include="Images\ImageLoader.cs" />
     <Compile Include="Images\WpfImageLoader.cs" />
     <Compile Include="VisualStudioShell11.cs" />
     <Compile Include="ProcessInfo.cs" />
-    <Compile Include="DiffToolPreset.cs" />
+    <Compile Include="DiffTool\DiffToolPreset.cs" />
     <Compile Include="ViewModel\ComparablePath.cs" />
     <Compile Include="ViewModel\ComparableStatus.cs" />
     <Compile Include="ViewModel\FileTypeImageConverter.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="VisualHgFileStatus.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="VisualHgFileSet.cs" />
-    <Compile Include="DiffTool.cs" />
+    <Compile Include="DiffTool\DiffTool.cs" />
     <Compile Include="IdleWorker.cs" />
     <Compile Include="Images\StatusImages.cs" />
     <Compile Include="VisualHgSolution.cs" />

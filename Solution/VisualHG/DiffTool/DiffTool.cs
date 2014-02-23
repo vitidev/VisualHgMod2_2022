@@ -14,7 +14,7 @@ namespace VisualHg
         public event EventHandler Exited = (s, e) => { };
 
 
-        public void Start(string fileA, string fileB, string nameA, string nameB, string workingDirectory)
+        public virtual void Start(string fileA, string fileB, string nameA, string nameB, string workingDirectory)
         {
             var process = new Process();
 
