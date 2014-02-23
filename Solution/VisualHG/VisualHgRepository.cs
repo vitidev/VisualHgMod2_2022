@@ -76,10 +76,21 @@ namespace VisualHg
 
         public void UpdateSolution(IVsSolution solution)
         {
+            SolutionFiles.Clear();
+            SolutionFiles.Add(GetSolutionFiles());
+
             foreach (var directory in GetRoots(solution))
             {
                 UpdateRootStatus(directory);
             }
+        }
+
+        private static string[] GetSolutionFiles()
+        {
+            return VisualHgSolution.LoadedProjects
+                .SelectMany(x => VisualHgSolution.GetProjectFiles(x))
+                .Concat(new[] { VisualHgSolution.SolutionFileName })
+                .ToArray();
         }
 
         public void UpdateProject(IVsSccProject2 project)

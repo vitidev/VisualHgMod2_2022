@@ -366,6 +366,18 @@ namespace VisualHg
         }
 
 
+        public static string[] GetProjectFiles(IVsHierarchy hierarchy)
+        {
+            var project = hierarchy as IVsSccProject2;
+
+            if (project == null)
+            {
+                return new string[0];
+            }
+
+            return VisualHgSolution.GetProjectFiles(project);
+        }
+
         public static string[] GetProjectFiles(IVsSccProject2 project)
         {
             return GetProjectFiles(project, VSConstants.VSITEMID_ROOT);

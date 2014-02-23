@@ -371,9 +371,7 @@ namespace VisualHg
 
         private void OnAfterOpenProject(IVsHierarchy hierarchy)
         {
-            var project = hierarchy as IVsSccProject2;
-                        
-            var files = GetFiles(hierarchy);
+            var files = VisualHgSolution.GetProjectFiles(hierarchy);
 
             foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
             {
@@ -404,7 +402,7 @@ namespace VisualHg
 
         private void OnBeforeCloseOrUnloadProject(IVsHierarchy hierarchy)
         {
-            var files = GetFiles(hierarchy);
+            var files = VisualHgSolution.GetProjectFiles(hierarchy);
 
             repository.SolutionFiles.Remove(files);
         }
@@ -463,13 +461,6 @@ namespace VisualHg
             {
                 repository.SolutionFiles.Add(files);
             }
-        }
-
-        private static string[] GetFiles(IVsHierarchy hierarchy)
-        {
-            var project = hierarchy as IVsSccProject2;
-            
-            return VisualHgSolution.GetProjectFiles(project);
         }
 
 
