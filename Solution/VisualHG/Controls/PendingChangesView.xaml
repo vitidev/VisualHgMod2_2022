@@ -212,6 +212,7 @@
                     <MenuItem Name="diffMenuItem" Header="Diff" Click="ShowDiffWindow" />
                     <MenuItem Name="revertMenuItem" Header="Revert" Click="ShowRevertWindow" />
                     <MenuItem Name="historyMenuItem" Header="History" Click="ShowHistoryWindow" />
+                    <MenuItem Name="refreshMenuItem" Header="Refresh window" Click="RefreshWindow" />
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>
