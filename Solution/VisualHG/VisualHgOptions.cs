@@ -21,6 +21,7 @@ namespace VisualHg
 
         public string StatusImageFileName { get; set; }
 
+        public bool TrackChangesNotInSolution { get; set; }
 
         public VisualHgOptions()
         {
@@ -28,6 +29,7 @@ namespace VisualHg
             AutoAddNewFiles = true;
             AutoSaveProjectFiles = true;
             ProjectStatusIncludesChildren = true;
+            TrackChangesNotInSolution = false;
         }
 
         

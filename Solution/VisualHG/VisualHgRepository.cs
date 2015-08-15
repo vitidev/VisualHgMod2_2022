@@ -131,7 +131,9 @@ namespace VisualHg
 
         protected override bool FileChangeIsOfInterest(string fileName)
         {
-            return SolutionFiles.Contains(fileName) && base.FileChangeIsOfInterest(fileName);
+            return VisualHgOptions.Global.TrackChangesNotInSolution
+                ? base.FileChangeIsOfInterest(fileName)
+                : SolutionFiles.Contains(fileName) && base.FileChangeIsOfInterest(fileName);
         }
 
 
