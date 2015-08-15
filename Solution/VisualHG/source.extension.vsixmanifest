@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
   <Identifier Id="DADADA00-caaf-423f-b21d-2df00fa25ca3">
-    <Name>VisualHg</Name>
-    <Author>Dmitry Popov</Author>
-    <Version>2.0.0.10</Version>
+    <Name>VisualHg 2015</Name>
+    <Author>Jan-Patrick Ahnen</Author>
+    <Version>3.0.0.0</Version>
     <Description xml:space="preserve">Provides integration with Mercurial and TortoiseHg</Description>
     <MoreInfoUrl>https://bitbucket.org/lmn/visualhg2</MoreInfoUrl>
     <License>License.txt</License>
