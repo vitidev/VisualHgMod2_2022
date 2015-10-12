@@ -4,7 +4,7 @@ Source control plug-in for Visual Studio 2015
 
 -------------------------------------------------------------------------------
 Author    Bernd Schrader (2008-2012), Dmitry Popov (2013-2014), Jan-Patrick Ahnen (2015-) and others
-Version   3.0.0.0
+Version   3.0.1.0
 State     stable
 Licence   GNU General Public License (GPL) (v2.0)
 -------------------------------------------------------------------------------
