@@ -19,7 +19,7 @@ namespace VisualHg
             get
             {
                 return base.PendingFiles
-                    .Where(x => SolutionFiles.Contains(x.FullName))
+                    .Where(x => (VisualHgOptions.Global.TrackChangesNotInSolution || SolutionFiles.Contains(x.FullName)))
                     .ToArray();
             }
         }
