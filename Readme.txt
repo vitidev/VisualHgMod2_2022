@@ -1,6 +1,6 @@
 
 VisualHg 2015
-Source control plug-in for Visual Studio 2015
+Source control plug-in for Visual Studio 2017
 
 -------------------------------------------------------------------------------
 Author    Bernd Schrader (2008-2012), Dmitry Popov (2013-2014), Jan-Patrick Ahnen (2015-) and others
