@@ -88,7 +88,7 @@ namespace VisualHg.Images
 
         private class BitmapList : IEnumerable<Bitmap>, IDisposable
         {
-            private IList<Bitmap> _items;
+            private readonly IList<Bitmap> _items;
 
             public BitmapList(Bitmap[] items)
             {

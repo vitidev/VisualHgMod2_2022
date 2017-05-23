@@ -21,7 +21,6 @@ namespace VisualHg
 
         public string StatusImageFileName { get; set; }
 
-        public bool TrackChangesNotInSolution { get; set; }
 
         public VisualHgOptions()
         {
@@ -29,7 +28,6 @@ namespace VisualHg
             AutoAddNewFiles = true;
             AutoSaveProjectFiles = true;
             ProjectStatusIncludesChildren = true;
-            TrackChangesNotInSolution = false;
         }
 
         
@@ -37,7 +35,7 @@ namespace VisualHg
 
         public static VisualHgOptions Global
         {
-            get { return _global ?? (_global = Load()); }
+            get => _global ?? (_global = Load());
             set
             {
                 _global = value;
@@ -46,7 +44,7 @@ namespace VisualHg
         }
 
 
-        private static string optionsPath = Path.Combine
+        private static readonly string optionsPath = Path.Combine
                (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 @"VisualHg\Options.xml");
 

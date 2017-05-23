@@ -18,7 +18,7 @@ namespace VisualHg.Controls
     {
         private PendingChangeSorter sorter;
         private PendingChanges pendingChanges;
-        private double MinumumColumnWidth = 9;
+        private readonly double MinumumColumnWidth = 9;
 
         public PendingChangesView()
         {
@@ -31,8 +31,6 @@ namespace VisualHg.Controls
 
             listView.AddHandler(Thumb.DragDeltaEvent, (DragDeltaEventHandler)OnColumnThumbDragDelta, true);
         }
-
-        public event EventHandler<EventArgs> NeedsRefresh;
 
         private void InitializePendingChanges()
         {
@@ -136,24 +134,25 @@ namespace VisualHg.Controls
 
         private void UpdateMenuItemsVisibility()
         {
-            bool anythingSelected = listView.SelectedItems.Count > 0;
+            if (listView.SelectedItems.Count == 0)
+            {
+                listView.ContextMenu = null;
+                return;
+            }
 
             var status = GetAggregateSelectedItemsStatus();
 
             listView.ContextMenu = contextMenu;
 
-            openMenuItem.Visibility = BoolToVisibility(!VisualHgFileStatus.Matches(status, HgFileStatus.Deleted) && anythingSelected);
-            commitMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending) && anythingSelected);
-            revertMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending) && anythingSelected);
+            openMenuItem.Visibility = BoolToVisibility(!VisualHgFileStatus.Matches(status, HgFileStatus.Deleted));
+            commitMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending));
+            revertMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending));
             diffMenuItem.Visibility = BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Comparable));
             historyMenuItem.Visibility = BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Tracked));
         }
 
 
-        private bool SingleItemSelected
-        {
-            get { return listView.SelectedItems.Count == 1; }
-        }
+        private bool SingleItemSelected => listView.SelectedItems.Count == 1;
 
         private string[] GetSelectedFiles()
         {
@@ -187,12 +186,6 @@ namespace VisualHg.Controls
             diffMenuItem.Icon = images[4];
             revertMenuItem.Icon = images[7];
             openMenuItem.Icon = images[8];
-            refreshMenuItem.Icon = images[2];
-        }
-
-        private void RefreshWindow(object sender, RoutedEventArgs e)
-        {
-            NeedsRefresh?.Invoke(this, EventArgs.Empty);
         }
     }
 }

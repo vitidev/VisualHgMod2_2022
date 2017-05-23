@@ -5,7 +5,7 @@ namespace VisualHg
 {
     public class VisualHgFileSet
     {
-        private HashSet<string> items;
+        private readonly HashSet<string> items;
 
         public object SyncRoot { get; private set; }
 

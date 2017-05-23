@@ -8,7 +8,7 @@ namespace VisualHg.ViewModel
 {
     public class FileTypeImageConverter : IValueConverter
     {
-        private object imageService;
+        private readonly object imageService;
 
         public FileTypeImageConverter()
         {

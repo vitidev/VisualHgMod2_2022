@@ -13,10 +13,7 @@ namespace VisualHg
         private static readonly Type serviceType;
         private static readonly MethodInfo diffMethod;
 
-        public static bool IsAvailable
-        {
-            get { return serviceType != null && diffMethod != null; }
-        }
+        public static bool IsAvailable => serviceType != null && diffMethod != null;
 
         static VsDiffTool()
         {
@@ -76,7 +73,7 @@ namespace VisualHg
 
         private class NotifyOnClose : IVsWindowFrameNotify, IVsWindowFrameNotify2
         {
-            private VsDiffTool _parent;
+            private readonly VsDiffTool _parent;
             
             public NotifyOnClose(VsDiffTool parent)
             {

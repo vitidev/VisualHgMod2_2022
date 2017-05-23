@@ -284,10 +284,6 @@ namespace VisualHg
             if (_pendingChangesToolWindow == null)
             {
                 _pendingChangesToolWindow = FindPendingChangesToolWindow(true);
-                if (_pendingChangesToolWindow != null)
-                {
-                    _pendingChangesToolWindow.NeedsRefresh += (sender, args) => UpdatePendingChangesToolWindow();
-                }
             }
 
             UpdatePendingChangesToolWindow();

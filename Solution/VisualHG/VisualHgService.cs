@@ -21,11 +21,8 @@ namespace VisualHg
     {
         private const int UpdateInterval = 100;
 
-        private static bool StatusIconsLimited
-        {
-            get { return VisualHgPackage.VsVersion < 11; }
-        }
-        
+        private static bool StatusIconsLimited => VisualHgPackage.VsVersion < 11;
+
         private uint iconBaseIndex;
         private ImageList statusImageList;
         
@@ -33,17 +30,17 @@ namespace VisualHg
 
         private uint vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
         private uint trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
-        private uint buildManagerCookie = VSConstants.VSCOOKIE_NIL;
+        private readonly uint buildManagerCookie = VSConstants.VSCOOKIE_NIL;
 
         private DateTime lastUpdate;
 
-        private VisualHgRepository repository;
-        private IdleWorker worker;
+        private readonly VisualHgRepository repository;
+        private readonly IdleWorker worker;
 
 
         public bool Active
         {
-            get { return _active; }
+            get => _active;
             set
             {
                 if (value && !_active)
@@ -57,10 +54,7 @@ namespace VisualHg
             }
         }
 
-        public HgFileInfo[] PendingFiles
-        {
-            get { return repository.PendingFiles; }
-        }
+        public HgFileInfo[] PendingFiles => repository.PendingFiles;
 
 
         public VisualHgService()
@@ -226,10 +220,7 @@ namespace VisualHg
 
 
 
-        private bool AnyItemsUnderSourceControl
-        {
-            get { return Active && !repository.IsEmpty; }
-        }
+        private bool AnyItemsUnderSourceControl => Active && !repository.IsEmpty;
 
 
         private void InitializeStatusImageList(uint baseIndex)

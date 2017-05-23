@@ -7,7 +7,7 @@ namespace VisualHg.ViewModel
 {
     public class PendingChangeSorter
     {
-        private SortDescriptionCollection sortDescriptions;
+        private readonly SortDescriptionCollection sortDescriptions;
 
         private GridViewColumnHeader sortingColumnHeader;
         private ListSortDirection direction;

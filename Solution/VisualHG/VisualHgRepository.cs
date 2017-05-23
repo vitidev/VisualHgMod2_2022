@@ -19,7 +19,7 @@ namespace VisualHg
             get
             {
                 return base.PendingFiles
-                    .Where(x => (VisualHgOptions.Global.TrackChangesNotInSolution || SolutionFiles.Contains(x.FullName)))
+                    .Where(x => SolutionFiles.Contains(x.FullName))
                     .ToArray();
             }
         }
@@ -131,9 +131,7 @@ namespace VisualHg
 
         protected override bool FileChangeIsOfInterest(string fileName)
         {
-            return VisualHgOptions.Global.TrackChangesNotInSolution
-                ? base.FileChangeIsOfInterest(fileName)
-                : SolutionFiles.Contains(fileName) && base.FileChangeIsOfInterest(fileName);
+            return SolutionFiles.Contains(fileName) && base.FileChangeIsOfInterest(fileName);
         }
 
 

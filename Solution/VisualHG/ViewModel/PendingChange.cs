@@ -19,7 +19,7 @@ namespace VisualHg.ViewModel
 
         public ComparableStatus Status
         {
-            get { return _status; }
+            get => _status;
             set
             {
                 if (value == null)

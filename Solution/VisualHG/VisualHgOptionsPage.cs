@@ -10,12 +10,9 @@ namespace VisualHg
     [Guid(Guids.OptionsPage)]
     public class VisualHgOptionsPage : DialogPage
     {
-        private VisualHgOptionsControl control;
+        private readonly VisualHgOptionsControl control;
 
-        protected override IWin32Window Window
-        {
-            get { return control; }
-        }
+        protected override IWin32Window Window => control;
 
         public VisualHgOptionsPage()
         {

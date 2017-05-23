@@ -16,10 +16,7 @@ namespace VisualHg
     {
         public static string LastSeenProjectDirectory { get; set; }
 
-        public static bool IsUnderSourceControl
-        {
-            get { return !String.IsNullOrEmpty(SolutionRootDirectory); }
-        }
+        public static bool IsUnderSourceControl => !String.IsNullOrEmpty(SolutionRootDirectory);
 
         public static string CurrentRootDirectory
         {
