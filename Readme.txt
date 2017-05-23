@@ -15,4 +15,4 @@ Repository URLs:
   https://bitbucket.org/lmn/visualhg2/hg
   https://hg.codeplex.com/forks/lmn/visualhg2
 
-Use Visual Studio 2015 with SDK to build the solution.
+Use Visual Studio 2017 with SDK to build the solution.
