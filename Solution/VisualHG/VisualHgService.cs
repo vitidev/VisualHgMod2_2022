@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace VisualHg
 
         private uint iconBaseIndex;
         private ImageList statusImageList;
-        
+
         private bool _active;
 
         private uint vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
@@ -109,7 +110,7 @@ namespace VisualHg
             }
         }
 
-        
+
         public HgFileStatus GetFileStatus(string filename)
         {
             return repository.GetFileStatus(filename);
@@ -164,14 +165,55 @@ namespace VisualHg
         private void UpdateProjectStatusIcons(IVsHierarchy hierarchy)
         {
             var project = hierarchy as IVsSccProject2;
+            if (project == null)
+                return;
 
-            if (project != null)
+            project.SccGlyphChanged(0, null, null, null);
+
+            if (VisualHgOptions.Global.ProjectStatusIncludesChildren)
             {
-                project.SccGlyphChanged(0, null, null, null);
+                var projectStatus = HgFileStatus.None;
+                var projectUnderControl = false;
+
+                foreach (var file in VisualHgSolution.GetProjectFiles(project).Where(f => f[f.Length - 1] != '\\'))
+                {
+                    if (projectStatus == HgFileStatus.Modified)
+                        break;
+
+                    var fileStatus = repository.GetFileStatus(file);
+                    if (!projectUnderControl && fileStatus != HgFileStatus.NotTracked)
+                        projectUnderControl = true;
+
+                    if (fileStatus == HgFileStatus.Added)
+                    {
+                        projectStatus = HgFileStatus.Added;
+                        continue;
+                    }
+
+                    if (fileStatus == HgFileStatus.Renamed || (fileStatus == HgFileStatus.Copied || fileStatus == HgFileStatus.Modified))
+                    {
+                        projectStatus = HgFileStatus.Modified;
+                        continue;
+                    }
+
+                    if (fileStatus == HgFileStatus.None)
+                    {
+                        if (fileStatus == HgFileStatus.Clean)
+                            projectStatus = HgFileStatus.Clean;
+                    }
+                }
+
+                if (projectStatus == HgFileStatus.None && projectUnderControl)
+                    projectStatus = HgFileStatus.Clean;
+
+                var rgsiGlyphs = new[] { GetStatusIcon(projectStatus) };
+                var rgdwSccStatus = new[] { (uint)projectStatus };
+                var rguiAffectedNodes = new[] { VSConstants.VSITEMID_ROOT };
+                project.SccGlyphChanged(1, rguiAffectedNodes, rgsiGlyphs, rgdwSccStatus);
             }
         }
 
-        
+
         private void UpdatePendingChangesToolWindow()
         {
             var visualHg = Package.GetGlobalService(typeof(IServiceProvider)) as VisualHgPackage;
@@ -194,12 +236,12 @@ namespace VisualHg
             if (dte == null || dte.MainWindow == null)
             {
                 return;
-            } 
+            }
 
             var caption = dte.MainWindow.Caption;
             var additionalInfo = String.IsNullOrEmpty(text) ? "" : String.Concat(" (", text, ") ");
 
-            var newCaption = Regex.Replace(caption, 
+            var newCaption = Regex.Replace(caption,
                 @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)?$",
                 String.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
 
@@ -245,42 +287,7 @@ namespace VisualHg
         private VsStateIcon GetStatusIcon(string fileName)
         {
             var status = repository.GetFileStatus(fileName);
-
-            if (OverrideStatus(fileName, status))
-            {
-                status = HgFileStatus.Modified;
-            }
-            
             return GetStatusIcon(status);
-        }
-
-        private bool OverrideStatus(string fileName, HgFileStatus status)
-        {
-            if (NeedToSearchChildren(fileName, status))
-            {
-                var project = VisualHgSolution.FindProject(fileName);
-
-                return HasPendingChildren(project);
-            }
-
-            return false;
-        }
-
-        private bool NeedToSearchChildren(string fileName, HgFileStatus status)
-        {
-            return VisualHgOptions.Global.ProjectStatusIncludesChildren &&
-                IsProject(fileName) &&
-                !VisualHgFileStatus.Matches(status, HgFileStatus.Pending);
-        }
-
-        private bool IsProject(string fileName)
-        {
-            return !String.IsNullOrEmpty(fileName) && Path.GetExtension(fileName).EndsWith("proj");
-        }
-
-        private static bool HasPendingChildren(IVsHierarchy hierarchy)
-        {
-            return VisualHgSolution.GetChildrenFiles(hierarchy).Any(x => VisualHgFileStatus.IsPending(x));
         }
 
         private VsStateIcon GetStatusIcon(HgFileStatus status)
@@ -320,14 +327,14 @@ namespace VisualHg
         private string GetToolTipText(IVsHierarchy hierarchy, uint itemId)
         {
             var files = VisualHgSolution.GetItemFiles(hierarchy, itemId);
-            
+
             if (files.Length == 0)
             {
                 return "";
             }
 
             var fileName = files[0];
-            
+
             var text = repository.GetFileStatus(fileName).ToString();
             var branch = repository.GetBranch(fileName);
 
@@ -381,8 +388,8 @@ namespace VisualHg
 
         private void OnAfterOpenSolution()
         {
-            if (!Active && 
-                VisualHgOptions.Global.AutoActivatePlugin && 
+            if (!Active &&
+                VisualHgOptions.Global.AutoActivatePlugin &&
                 VisualHgSolution.IsUnderSourceControl)
             {
                 VisualHgPackage.RegisterSourceControlProvider();
@@ -417,7 +424,7 @@ namespace VisualHg
             }
         }
 
-        
+
         private void OnAfterAddFiles(string[] fileNames)
         {
             AddIf(VisualHgOptions.Global.AutoAddNewFiles, fileNames);
@@ -440,7 +447,7 @@ namespace VisualHg
             repository.RenameFiles(fileNames, newFileNames);
         }
 
-        
+
 
         private void AddIf(bool condition, string[] files)
         {
@@ -475,17 +482,17 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        
+
         int IVsSccGlyphs.GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
         {
             InitializeStatusImageList(BaseIndex);
-            
+
             pdwImageListHandle = unchecked((uint)statusImageList.Handle);
 
             return VSConstants.S_OK;
         }
 
-        
+
         int IVsSccManager2.BrowseForProject(out string pbstrDirectory, out int pfOK)
         {
             pbstrDirectory = null;
@@ -505,7 +512,34 @@ namespace VisualHg
                 return VSConstants.S_OK;
             }
 
-            rgsiGlyphs[0] = GetStatusIcon(rgpszFullPaths[0]);
+            if (rgdwSccStatus.Length == 1)
+            {
+                rgsiGlyphs[0] = GetStatusIcon(rgpszFullPaths[0]);
+            }
+            else
+            {
+                var entries = new List<FileOrDirEntry>();
+                for (int i = 0; i < rgpszFullPaths.Length; i++)
+                {
+                    var fullPath = rgpszFullPaths[i];
+                    var status = repository.GetFileStatus(fullPath);
+                    var entry = new FileOrDirEntry(fullPath, status, i);
+
+                    foreach (var dirEntry in entries.Where(e => e.IsDirectory))
+                    {
+                        if (dirEntry.Contains(entry))
+                            dirEntry.UpdateStatus(entry.Status);
+                    }
+
+                    entries.Add(entry);
+                }
+
+                foreach (var entry in entries)
+                {
+                    rgdwSccStatus[entry.Index] = (uint)entry.Status;
+                    rgsiGlyphs[entry.Index] = GetStatusIcon(entry.Status);
+                }
+            }
 
             return VSConstants.S_OK;
         }
@@ -566,7 +600,7 @@ namespace VisualHg
             pbstrTooltipText = GetToolTipText(phierHierarchy, itemidNode);
             return VSConstants.S_OK;
         }
-        
+
 
         int IVsSolutionEvents.OnAfterCloseSolution(object pUnkReserved)
         {
@@ -753,5 +787,47 @@ namespace VisualHg
         }
 
         #endregion
+
+        private class FileOrDirEntry
+        {
+            public string Path { get; }
+            public HgFileStatus Status { get; private set; }
+            public int Index { get; }
+            public bool IsDirectory { get; }
+
+            public FileOrDirEntry(string path, HgFileStatus status, int index)
+            {
+                Path = path;
+                Status = status;
+                Index = index;
+                IsDirectory = path[path.Length - 1] == '\\';
+            }
+
+            public void UpdateStatus(HgFileStatus status)
+            {
+                if (Status == HgFileStatus.Modified)
+                    return;
+
+                if (status == HgFileStatus.Added)
+                {
+                    Status = HgFileStatus.Added;
+                    return;
+                }
+
+                if (status == HgFileStatus.Renamed || status == HgFileStatus.Copied || status == HgFileStatus.Modified)
+                {
+                    Status = HgFileStatus.Modified;
+                    return;
+                }
+
+                if (Status == HgFileStatus.NotTracked)
+                {
+                    if (status == HgFileStatus.Clean)
+                        Status = HgFileStatus.Clean;
+                }
+            }
+
+            public bool Contains(FileOrDirEntry fileOrDirEntry) => fileOrDirEntry.Path.StartsWith(Path);
+        }
     }
 }

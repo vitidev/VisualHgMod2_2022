@@ -1,31 +1,34 @@
-﻿<UserControl x:Class="VisualHg.Controls.PendingChangesView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:v="clr-namespace:VisualHg.ViewModel"
-             mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="610"
-             d:DataContext="{d:DesignInstance Type=v:DesignTimePendingChangesViewMode, IsDesignTimeCreatable=True}"
-             UseLayoutRounding="True">
+﻿<UserControl
+    x:Class="VisualHg.Controls.PendingChangesView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:v="clr-namespace:VisualHg.ViewModel"
+    d:DataContext="{d:DesignInstance Type=v:DesignTimePendingChangesViewMode,
+                                     IsDesignTimeCreatable=True}"
+    d:DesignHeight="100"
+    d:DesignWidth="610"
+    UseLayoutRounding="True"
+    mc:Ignorable="d">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="HeaderBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderBorderColorKey}}"/>
-        <SolidColorBrush x:Key="HeaderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderColorKey}}"/>
-        <SolidColorBrush x:Key="HeaderMouseDownBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownColorKey}}"/>
-        <SolidColorBrush x:Key="HeaderMouseDownTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownTextColorKey}}"/>
-        <SolidColorBrush x:Key="HeaderMouseOverBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseOverColorKey}}"/>
-        <SolidColorBrush x:Key="HeaderTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderTextColorKey}}"/>
-        <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightColorKey}}"/>
-        <SolidColorBrush x:Key="HighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightTextColorKey}}"/>
-        <SolidColorBrush x:Key="InactiveSelectionHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightColorKey}}"/>
-        <SolidColorBrush x:Key="InactiveSelectionHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightTextColorKey}}"/>
-        <SolidColorBrush x:Key="MenuBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuBorderColorKey}}"/>
-        <SolidColorBrush x:Key="MenuBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuColorKey}}"/>
-        <SolidColorBrush x:Key="MenuHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightColorKey}}"/>
-        <SolidColorBrush x:Key="MenuHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightTextColorKey}}"/>
-        <SolidColorBrush x:Key="WindowBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowColorKey}}"/>
-        <SolidColorBrush x:Key="WindowTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}"/>
+        <SolidColorBrush x:Key="HeaderBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderBorderColorKey}}" />
+        <SolidColorBrush x:Key="HeaderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseDownBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseDownTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownTextColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseOverBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseOverColorKey}}" />
+        <SolidColorBrush x:Key="HeaderTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderTextColorKey}}" />
+        <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightColorKey}}" />
+        <SolidColorBrush x:Key="HighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="InactiveSelectionHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightColorKey}}" />
+        <SolidColorBrush x:Key="InactiveSelectionHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="MenuBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuBorderColorKey}}" />
+        <SolidColorBrush x:Key="MenuBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuColorKey}}" />
+        <SolidColorBrush x:Key="MenuHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightColorKey}}" />
+        <SolidColorBrush x:Key="MenuHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="WindowBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowColorKey}}" />
+        <SolidColorBrush x:Key="WindowTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}" />
 
         <v:StatusImageConverter x:Key="StatusImageConverter" />
         <v:FileTypeImageConverter x:Key="FileTypeImageConverter" />
@@ -34,39 +37,49 @@
             <Setter Property="Control.Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Rectangle Margin="0,0,0,-1" StrokeThickness="1" Stroke="{StaticResource HighlightBrush}"/>
+                        <Rectangle
+                            Margin="0,0,0,-1"
+                            Stroke="{StaticResource HighlightBrush}"
+                            StrokeThickness="1" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
         <Style x:Key="{x:Type MenuItem}" TargetType="MenuItem">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="MenuItem">
-                        <Border Name="Border" Height="22" SnapsToDevicePixels="True">
+                        <Border
+                            Name="Border"
+                            Height="22"
+                            SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Icon"/>
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
                                     <ColumnDefinition Width="*" MinWidth="150" />
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter ContentSource="Icon"
-                                                  Margin="5,0,14,0"
-                                                  Width="16" Height="Auto"
-                                                  VerticalAlignment="Center" 
-                                                  SnapsToDevicePixels="True" />
-                                <TextBlock Name="Header" Grid.Column="1" 
-                                           Text="{TemplateBinding Header}" 
-                                           Foreground="{StaticResource WindowTextBrush}"
-                                           VerticalAlignment="Center" 
-                                           SnapsToDevicePixels="True"/>
+                                <ContentPresenter
+                                    Width="16"
+                                    Height="Auto"
+                                    Margin="5,0,14,0"
+                                    VerticalAlignment="Center"
+                                    ContentSource="Icon"
+                                    SnapsToDevicePixels="True" />
+                                <TextBlock
+                                    Name="Header"
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Foreground="{StaticResource WindowTextBrush}"
+                                    SnapsToDevicePixels="True"
+                                    Text="{TemplateBinding Header}" />
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource MenuHighlightBrush}"/>
-                                <Setter TargetName="Header" Property="Foreground" Value="{StaticResource MenuHighlightTextBrush}"/>
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource MenuHighlightBrush}" />
+                                <Setter TargetName="Header" Property="Foreground" Value="{StaticResource MenuHighlightTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -75,14 +88,16 @@
         </Style>
 
         <Style x:Key="{x:Type ContextMenu}" TargetType="ContextMenu">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
-                        <Border BorderThickness="1" Padding="2"
-                                BorderBrush="{StaticResource MenuBorderBrush}" 
-                                Background="{StaticResource MenuBrush}">
-                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        <Border
+                            Padding="2"
+                            Background="{StaticResource MenuBrush}"
+                            BorderBrush="{StaticResource MenuBorderBrush}"
+                            BorderThickness="1">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -112,41 +127,51 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
                         <Grid>
-                            <Border Height="24" Margin="-2,0,0,0" Padding="10,0,0,0" BorderThickness="0,0,1,1" 
-                                    BorderBrush="{StaticResource HeaderBorderBrush}" 
-                                    Background="{TemplateBinding Background}">
+                            <Border
+                                Height="24"
+                                Margin="-2,0,0,0"
+                                Padding="10,0,0,0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{StaticResource HeaderBorderBrush}"
+                                BorderThickness="0,0,1,1">
                                 <DockPanel>
-                                    <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                    <Path Name="SortingIcon" Fill="Gray" Margin="10,0,0,0" 
-                                          SnapsToDevicePixels="True"
-                                          HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                    <ContentPresenter
+                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    <Path
+                                        Name="SortingIcon"
+                                        Margin="10,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Fill="Gray"
+                                        SnapsToDevicePixels="True" />
                                 </DockPanel>
                             </Border>
-                            <Thumb x:Name="PART_HeaderGripper"
-                                   HorizontalAlignment="Right"
-                                   Margin="0,0,-6,0"
-                                   Style="{StaticResource GridViewColumnHeaderGripper}"/>
+                            <Thumb
+                                x:Name="PART_HeaderGripper"
+                                Margin="0,0,-6,0"
+                                HorizontalAlignment="Right"
+                                Style="{StaticResource GridViewColumnHeaderGripper}" />
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="v:AttachedProperty.SortDirection" Value="{x:Null}">
-                                <Setter TargetName="SortingIcon" Property="Data" Value=""/>
+                                <Setter TargetName="SortingIcon" Property="Data" Value="" />
                             </Trigger>
                             <Trigger Property="v:AttachedProperty.SortDirection" Value="Ascending">
-                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 5 L 4.5 0 L 9 5 Z"/>
+                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 5 L 4.5 0 L 9 5 Z" />
                             </Trigger>
                             <Trigger Property="v:AttachedProperty.SortDirection" Value="Descending">
-                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 0 L 4.5 5 L 9 0 Z"/>
+                                <Setter TargetName="SortingIcon" Property="Data" Value="M 0 0 L 4.5 5 L 9 0 Z" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource HeaderMouseOverBrush}"/>
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource WindowTextBrush}"/>
+                                <Setter Property="Background" Value="{StaticResource HeaderMouseOverBrush}" />
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource WindowTextBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="{StaticResource HeaderMouseDownBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource HeaderMouseDownTextBrush}"/>
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource HeaderMouseDownTextBrush}"/>
+                                <Setter Property="Background" Value="{StaticResource HeaderMouseDownBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource HeaderMouseDownTextBrush}" />
+                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource HeaderMouseDownTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -161,10 +186,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListViewItem}">
-                        <Border Margin="0,0,0,-1"
-                                Padding="4,0,0,1"
-                                BorderThickness="0"
-                                Background="{TemplateBinding Background}">
+                        <Border
+                            Margin="0,0,0,-1"
+                            Padding="4,0,0,1"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="17" />
@@ -190,36 +216,73 @@
                 </Setter.Value>
             </Setter>
             <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusStyle}" />
-            <Setter Property="Foreground" Value="{StaticResource WindowTextBrush}"/>
-            <EventSetter Event="MouseDoubleClick" Handler="OpenSelectedFiles"/>
+            <Setter Property="Foreground" Value="{StaticResource WindowTextBrush}" />
+            <EventSetter Event="MouseDoubleClick" Handler="OpenSelectedFiles" />
         </Style>
 
         <DataTemplate x:Key="FileNameTemplate">
             <DockPanel>
-                <Image Source="{Binding Status, Converter={StaticResource StatusImageConverter}}" Width="7" Height="16"/>
-                <Image Source="{Binding FullName, Converter={StaticResource FileTypeImageConverter}}" Width="auto" Height="16"/>
-                <TextBlock Text="{Binding ShortName}" Margin="4,0,0,0"/>
+                <Image
+                    Width="7"
+                    Height="16"
+                    Source="{Binding Status, Converter={StaticResource StatusImageConverter}}" />
+                <Image
+                    Width="auto"
+                    Height="16"
+                    Source="{Binding FullName, Converter={StaticResource FileTypeImageConverter}}" />
+                <TextBlock Margin="4,0,0,0" Text="{Binding ShortName}" />
             </DockPanel>
         </DataTemplate>
     </UserControl.Resources>
 
     <DockPanel>
-        <ListView Name="listView" ItemsSource="{Binding}" GridViewColumnHeader.Click="OnListViewColumnHeaderClick" Thumb.DragDelta="OnColumnThumbDragDelta">
+        <ListView
+            Name="listView"
+            GridViewColumnHeader.Click="OnListViewColumnHeaderClick"
+            ItemsSource="{Binding}"
+            Thumb.DragDelta="OnColumnThumbDragDelta">
             <ListView.ContextMenu>
                 <ContextMenu Name="contextMenu">
-                    <MenuItem Name="openMenuItem" Header="Open" Click="OpenSelectedFiles" />
-                    <MenuItem Name="commitMenuItem" Header="Commit" Click="ShowCommitWindow" />
-                    <MenuItem Name="diffMenuItem" Header="Diff" Click="ShowDiffWindow" />
-                    <MenuItem Name="revertMenuItem" Header="Revert" Click="ShowRevertWindow" />
-                    <MenuItem Name="historyMenuItem" Header="History" Click="ShowHistoryWindow" />
+                    <MenuItem
+                        Name="openMenuItem"
+                        Click="OpenSelectedFiles"
+                        Header="Open" />
+                    <MenuItem
+                        Name="commitMenuItem"
+                        Click="ShowCommitWindow"
+                        Header="Commit" />
+                    <MenuItem
+                        Name="diffMenuItem"
+                        Click="ShowDiffWindow"
+                        Header="Diff" />
+                    <MenuItem
+                        Name="revertMenuItem"
+                        Click="ShowRevertWindow"
+                        Header="Revert" />
+                    <MenuItem
+                        Name="historyMenuItem"
+                        Click="ShowHistoryWindow"
+                        Header="History" />
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="150" Header="File Name" CellTemplate="{StaticResource FileNameTemplate}" />
-                    <GridViewColumn Width="100" Header="Status" DisplayMemberBinding="{Binding Status}" />
-                    <GridViewColumn Width="100" Header="Root" DisplayMemberBinding="{Binding RootName}" />
-                    <GridViewColumn Width="250" Header="Path" DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn
+                        Width="150"
+                        CellTemplate="{StaticResource FileNameTemplate}"
+                        Header="File Name" />
+                    <GridViewColumn
+                        Width="100"
+                        DisplayMemberBinding="{Binding Status}"
+                        Header="Status" />
+                    <GridViewColumn
+                        Width="100"
+                        DisplayMemberBinding="{Binding RootName}"
+                        Header="Root" />
+                    <GridViewColumn
+                        Width="250"
+                        DisplayMemberBinding="{Binding Name}"
+                        Header="Path" />
                 </GridView>
             </ListView.View>
         </ListView>
