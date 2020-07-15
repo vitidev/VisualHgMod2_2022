@@ -7,7 +7,7 @@ namespace VisualHg.ViewModel
 {
     public class PendingChanges : ObservableCollection<PendingChange>
     {
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
 
         public PendingChanges()
@@ -19,7 +19,7 @@ namespace VisualHg.ViewModel
         public void Synchronize(HgFileInfo[] files)
         {
             var collectionChanged = false;
-            
+
             lock (SyncRoot)
             {
                 collectionChanged |= RemoveOutdated(files);

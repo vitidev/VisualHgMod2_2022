@@ -13,22 +13,35 @@
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="HeaderBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderBorderColorKey}}" />
+        <SolidColorBrush x:Key="HeaderBorderBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderBorderColorKey}}" />
         <SolidColorBrush x:Key="HeaderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderColorKey}}" />
-        <SolidColorBrush x:Key="HeaderMouseDownBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownColorKey}}" />
-        <SolidColorBrush x:Key="HeaderMouseDownTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownTextColorKey}}" />
-        <SolidColorBrush x:Key="HeaderMouseOverBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseOverColorKey}}" />
-        <SolidColorBrush x:Key="HeaderTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderTextColorKey}}" />
-        <SolidColorBrush x:Key="HighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightColorKey}}" />
-        <SolidColorBrush x:Key="HighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightTextColorKey}}" />
-        <SolidColorBrush x:Key="InactiveSelectionHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightColorKey}}" />
-        <SolidColorBrush x:Key="InactiveSelectionHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightTextColorKey}}" />
-        <SolidColorBrush x:Key="MenuBorderBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuBorderColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseDownBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseDownTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseDownTextColorKey}}" />
+        <SolidColorBrush x:Key="HeaderMouseOverBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderMouseOverColorKey}}" />
+        <SolidColorBrush x:Key="HeaderTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HeaderTextColorKey}}" />
+        <SolidColorBrush x:Key="HighlightBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightColorKey}}" />
+        <SolidColorBrush x:Key="HighlightTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.HighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="InactiveSelectionHighlightBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightColorKey}}" />
+        <SolidColorBrush x:Key="InactiveSelectionHighlightTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.InactiveSelectionHighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="MenuBorderBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.MenuBorderColorKey}}" />
         <SolidColorBrush x:Key="MenuBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuColorKey}}" />
-        <SolidColorBrush x:Key="MenuHighlightBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightColorKey}}" />
-        <SolidColorBrush x:Key="MenuHighlightTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightTextColorKey}}" />
+        <SolidColorBrush x:Key="MenuHighlightBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightColorKey}}" />
+        <SolidColorBrush x:Key="MenuHighlightTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.MenuHighlightTextColorKey}}" />
         <SolidColorBrush x:Key="WindowBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowColorKey}}" />
-        <SolidColorBrush x:Key="WindowTextBrush" Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}" />
+        <SolidColorBrush x:Key="WindowTextBrush"
+                         Color="{DynamicResource {x:Static v:EnvironmentColors.WindowTextColorKey}}" />
 
         <v:StatusImageConverter x:Key="StatusImageConverter" />
         <v:FileTypeImageConverter x:Key="FileTypeImageConverter" />
@@ -78,8 +91,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource MenuHighlightBrush}" />
-                                <Setter TargetName="Header" Property="Foreground" Value="{StaticResource MenuHighlightTextBrush}" />
+                                <Setter TargetName="Border" Property="Background"
+                                        Value="{StaticResource MenuHighlightBrush}" />
+                                <Setter TargetName="Header" Property="Foreground"
+                                        Value="{StaticResource MenuHighlightTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -166,12 +181,14 @@
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{StaticResource HeaderMouseOverBrush}" />
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource WindowTextBrush}" />
+                                <Setter TargetName="SortingIcon" Property="Fill"
+                                        Value="{StaticResource WindowTextBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="{StaticResource HeaderMouseDownBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource HeaderMouseDownTextBrush}" />
-                                <Setter TargetName="SortingIcon" Property="Fill" Value="{StaticResource HeaderMouseDownTextBrush}" />
+                                <Setter TargetName="SortingIcon" Property="Fill"
+                                        Value="{StaticResource HeaderMouseDownTextBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -209,7 +226,8 @@
                                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                                 </MultiTrigger.Conditions>
                                 <Setter Property="Background" Value="{StaticResource InactiveSelectionHighlightBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource InactiveSelectionHighlightTextBrush}" />
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource InactiveSelectionHighlightTextBrush}" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

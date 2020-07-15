@@ -7,19 +7,19 @@ namespace VisualHg.ViewModel
     public static class AttachedProperty
     {
         public static readonly DependencyProperty SortDirectionProperty = DependencyProperty.RegisterAttached
-           ("SortDirection",
-            typeof(ListSortDirection?), 
-            typeof(AttachedProperty), 
+        ("SortDirection",
+            typeof(ListSortDirection?),
+            typeof(AttachedProperty),
             new FrameworkPropertyMetadata(null));
 
-        
+
         public static ListSortDirection? GetSortDirection(UIElement element)
         {
             if (element == null)
             {
                 throw new ArgumentNullException("element");
             }
-         
+
             return (ListSortDirection?)element.GetValue(SortDirectionProperty);
         }
 

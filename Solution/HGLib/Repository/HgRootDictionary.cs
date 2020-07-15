@@ -6,10 +6,10 @@ namespace HgLib.Repository
 {
     internal class HgRootDictionary
     {
-        private Dictionary<string, string> items;
+        private readonly Dictionary<string, string> items;
 
 
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
         public int Count
         {
@@ -54,7 +54,7 @@ namespace HgLib.Repository
 
         public void Update(string root)
         {
-            if (String.IsNullOrEmpty(root))
+            if (string.IsNullOrEmpty(root))
             {
                 return;
             }

@@ -3,12 +3,12 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VisualHg
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class ProvideSolutionPersistenceAttribute : RegistrationAttribute
     {
-        public string PackageName { get; private set; }
+        public string PackageName { get; }
 
-        public Guid PackageGuid { get; private set; }
+        public Guid PackageGuid { get; }
 
 
         public ProvideSolutionPersistenceAttribute(string packageName, string packageGuid)
@@ -32,7 +32,7 @@ namespace VisualHg
 
         private string GetKeyName()
         {
-            return String.Format(@"{0}\{1}", "SolutionPersistence", PackageName);
+            return string.Format(@"{0}\{1}", "SolutionPersistence", PackageName);
         }
     }
 }

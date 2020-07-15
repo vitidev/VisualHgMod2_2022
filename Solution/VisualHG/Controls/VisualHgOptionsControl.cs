@@ -1,9 +1,9 @@
 using System;
-using System.Linq;
 using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using HgLib;
-using System.Drawing;
 
 namespace VisualHg.Controls
 {
@@ -30,7 +30,8 @@ namespace VisualHg.Controls
 
         public VisualHgOptions Configuration
         {
-            get => new VisualHgOptions {
+            get => new VisualHgOptions
+            {
                 AutoActivatePlugin = autoActivateCheckBox.Checked,
                 AddFilesOnLoad = addFilesOnLoadCheckBox.Checked,
                 AutoAddNewFiles = autoAddNewFilesCheckBox.Checked,
@@ -57,15 +58,17 @@ namespace VisualHg.Controls
         {
             InitializeComponent();
 
-            diffToolPathLabel.Text = String.Format("Custom diff tool (leave blank to use {0}):", VsDiffTool.IsAvailable ? "Visual Studio diff" : "KDiff3");
-            
+            diffToolPathLabel.Text = string.Format("Custom diff tool (leave blank to use {0}):",
+                VsDiffTool.IsAvailable ? "Visual Studio diff" : "KDiff3");
+
             tortoiseHgVersionTextBox.Text = TortoiseHg.Version ?? Resources.TortoiseHgNotFound;
 
             selectDiffToolButton.Click += SelectDiffTool;
             selectDiffToolDialog.FileOk += (s, e) => diffToolPathTextBox.Text = selectDiffToolDialog.FileName;
 
             selectStatusImageFileButton.Click += SelectStatusImage;
-            selectStatusImageFileDialog.FileOk += (s, e) => statusImageFileNameTextBox.Text = selectStatusImageFileDialog.FileName;
+            selectStatusImageFileDialog.FileOk += (s, e) =>
+                statusImageFileNameTextBox.Text = selectStatusImageFileDialog.FileName;
 
             diffToolPresetButton.Click += (s, e) => ShowDiffToolPresetMenu();
             diffToolPresetMenu.Items.AddRange(CreateDiffToolPresetMenuItems());
@@ -101,7 +104,7 @@ namespace VisualHg.Controls
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && components != null)
             {
                 components.Dispose();
             }
@@ -110,6 +113,7 @@ namespace VisualHg.Controls
         }
 
         #region Component Designer generated code
+
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
@@ -246,7 +250,9 @@ namespace VisualHg.Controls
             // 
             // diffToolPathTextBox
             // 
-            this.diffToolPathTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.diffToolPathTextBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left |
+                                                      System.Windows.Forms.AnchorStyles.Right)));
             this.diffToolPathTextBox.Location = new System.Drawing.Point(0, 145);
             this.diffToolPathTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolPathTextBox.Name = "diffToolPathTextBox";
@@ -270,8 +276,10 @@ namespace VisualHg.Controls
             // tableLayoutPanel
             // 
             this.tableLayoutPanel.ColumnCount = 3;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 7F));
+            this.tableLayoutPanel.ColumnStyles.Add(
+                new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel.ColumnStyles.Add(
+                new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 7F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel.Controls.Add(this.autoActivateCheckBox, 0, 0);
             this.tableLayoutPanel.Controls.Add(this.selectDiffToolButton, 2, 8);
@@ -300,25 +308,32 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.tableLayoutPanel.RowStyles.Add(
+                new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.tableLayoutPanel.RowStyles.Add(
+                new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.tableLayoutPanel.RowStyles.Add(
+                new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
+            this.tableLayoutPanel.RowStyles.Add(
+                new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel.RowStyles.Add(
+                new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(460, 334);
             this.tableLayoutPanel.TabIndex = 0;
             // 
             // diffToolArgumentsTextBox
             // 
-            this.diffToolArgumentsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.diffToolArgumentsTextBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left |
+                                                      System.Windows.Forms.AnchorStyles.Right)));
             this.diffToolArgumentsTextBox.Location = new System.Drawing.Point(0, 194);
             this.diffToolArgumentsTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.diffToolArgumentsTextBox.Name = "diffToolArgumentsTextBox";
@@ -341,7 +356,9 @@ namespace VisualHg.Controls
             // 
             // tortoiseHgVersionTextBox
             // 
-            this.tortoiseHgVersionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tortoiseHgVersionTextBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left |
+                                                      System.Windows.Forms.AnchorStyles.Right)));
             this.tableLayoutPanel.SetColumnSpan(this.tortoiseHgVersionTextBox, 3);
             this.tortoiseHgVersionTextBox.Location = new System.Drawing.Point(0, 290);
             this.tortoiseHgVersionTextBox.Margin = new System.Windows.Forms.Padding(0);
@@ -353,7 +370,9 @@ namespace VisualHg.Controls
             // 
             // statusImageFileNameTextBox
             // 
-            this.statusImageFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.statusImageFileNameTextBox.Anchor =
+                ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left |
+                                                      System.Windows.Forms.AnchorStyles.Right)));
             this.statusImageFileNameTextBox.Location = new System.Drawing.Point(0, 243);
             this.statusImageFileNameTextBox.Margin = new System.Windows.Forms.Padding(0);
             this.statusImageFileNameTextBox.Name = "statusImageFileNameTextBox";
@@ -434,8 +453,8 @@ namespace VisualHg.Controls
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
-
         }
+
         #endregion
     }
 }

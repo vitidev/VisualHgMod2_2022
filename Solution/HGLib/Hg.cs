@@ -11,7 +11,7 @@ namespace HgLib
     {
         private const int ArgumentsLengthLimit = 20000; // Maximum command length including executable path is 32767
 
-        public static string Version { get; private set; }
+        public static string Version { get; }
 
         static Hg()
         {
@@ -25,7 +25,7 @@ namespace HgLib
 
             tempFileName = Path.ChangeExtension(tempFileName, Path.GetExtension(fileName));
 
-            var command = String.Format("cat \"{0}\"  -o \"{1}\"", HgPath.StripRoot(fileName, root), tempFileName);
+            var command = $"cat \"{HgPath.StripRoot(fileName, root)}\"  -o \"{tempFileName}\"";
             Run(command, root);
 
             Debug.Assert(File.Exists(tempFileName));
@@ -41,10 +41,10 @@ namespace HgLib
             {
                 return summary.Split(' ').Skip(1).FirstOrDefault();
             }
-            
+
             return "";
         }
-        
+
 
         public static HgFileStatus ConvertToStatus(char status)
         {
@@ -79,23 +79,19 @@ namespace HgLib
 
         public static string GetRenamedFileOriginalName(string newFileName)
         {
-            var originalName = "";
-
             var fileInfo = GetRawFileInfo(newFileName);
             var renames = GetRenames(fileInfo);
 
-            renames.TryGetValue(newFileName, out originalName);
+            renames.TryGetValue(newFileName, out var originalName);
 
             return originalName;
         }
 
-        
+
         public static HgFileInfo[] GetRootStatus(string directory)
         {
-            if (String.IsNullOrEmpty(directory))
-            {
+            if (string.IsNullOrEmpty(directory))
                 return new HgFileInfo[0];
-            }
 
             var output = Run("status -m -a -r -d -c -C", directory);
 
@@ -108,9 +104,7 @@ namespace HgLib
             var filesToAdd = GetFilesToAdd(fileNames, filter);
 
             if (filesToAdd.Length == 0)
-            {
                 return new HgFileInfo[0];
-            }
 
             return ProcessFilesAndGetStatus("add", filesToAdd);
         }
@@ -122,7 +116,7 @@ namespace HgLib
 
         public static HgFileInfo[] RenameFiles(string[] fileNames, string[] newFileNames)
         {
-            for (int i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); i++)
+            for (var i = 0; i < Math.Min(fileNames.Length, newFileNames.Length); i++)
             {
                 var root = HgPath.FindRepositoryRoot(fileNames[i]);
 
@@ -130,8 +124,8 @@ namespace HgLib
                 var newName = HgPath.StripRoot(newFileNames[i], root);
 
                 var option = StringComparer.InvariantCultureIgnoreCase.Equals(oldName, newName) ? null : " -A";
-                
-                Run(String.Format("rename {0} \"{1}\" \"{2}\"", option, oldName, newName), root);
+
+                Run($"rename {option} \"{oldName}\" \"{newName}\"", root);
             }
 
             return GetFileInfo(fileNames.Concat(newFileNames).ToArray());
@@ -145,7 +139,7 @@ namespace HgLib
             return DetectRenames(rawFileInfo);
         }
 
-        
+
         private static HgFileInfo[] GetRawFileInfo(params string[] fileNames)
         {
             var files = new List<HgFileInfo>();
@@ -164,10 +158,10 @@ namespace HgLib
         private static HgFileInfo[] ProcessFilesAndGetStatus(string command, string[] fileNames)
         {
             ProcessFiles(command, fileNames);
-         
+
             return GetFileInfo(fileNames);
         }
-        
+
         private static Dictionary<string, string[]> ProcessFiles(string command, string[] fileNames)
         {
             var rootOutput = new Dictionary<string, string[]>();
@@ -179,7 +173,7 @@ namespace HgLib
 
                 foreach (var fileArgs in GetFileArguments(root, rootGroup))
                 {
-                    var commandOutput = Run(String.Concat(command, fileArgs), root);
+                    var commandOutput = Run(string.Concat(command, fileArgs), root);
 
                     output.AddRange(commandOutput);
                 }
@@ -195,14 +189,15 @@ namespace HgLib
             var args = new List<string>();
             var sb = new StringBuilder();
 
-            foreach (var fileName in fileNames.Where(x => !HgPath.IsDirectory(x)).Select(x => HgPath.StripRoot(x, root)))
+            foreach (var fileName in fileNames.Where(x => !HgPath.IsDirectory(x))
+                .Select(x => HgPath.StripRoot(x, root)))
             {
                 if (sb.Length > ArgumentsLengthLimit - fileName.Length - 3)
                 {
                     args.Add(sb.ToString());
                     sb.Length = 0;
                 }
-                
+
                 sb.Append(' ').Append('"').Append(fileName).Append('"');
             }
 
@@ -217,7 +212,7 @@ namespace HgLib
             return ProcessLauncher.RunHg(args, workingDirectory);
         }
 
-                
+
         private static HgFileInfo[] ParseStatusOutput(string root, string[] output)
         {
             return output.Select(x => HgFileInfo.FromHgOutput(root, x)).ToArray();
@@ -226,7 +221,7 @@ namespace HgLib
         private static HgFileInfo[] DetectRenames(HgFileInfo[] files)
         {
             var filteredFiles = files.Where(x => x.Status != HgFileStatus.None).ToArray();
-            
+
             foreach (var item in GetRenames(files))
             {
                 var fileName = item.Value;
@@ -236,7 +231,7 @@ namespace HgLib
 
                 if (file != null)
                 {
-                    file.OriginalFile = 
+                    file.OriginalFile =
                         filteredFiles.FirstOrDefault(x => x.FullName == fileName) ??
                         GetRawFileInfo(fileName).FirstOrDefault();
                 }
@@ -251,7 +246,8 @@ namespace HgLib
 
             foreach (var file in files)
             {
-                if (!dictionary.ContainsKey(file.FullName) || dictionary[file.FullName].Status != HgFileStatus.Renamed || file.Status != HgFileStatus.Removed)
+                if (!dictionary.ContainsKey(file.FullName) ||
+                    dictionary[file.FullName].Status != HgFileStatus.Renamed || file.Status != HgFileStatus.Removed)
                 {
                     dictionary[file.FullName] = file;
                 }
@@ -263,12 +259,12 @@ namespace HgLib
         private static Dictionary<string, string> GetRenames(HgFileInfo[] files)
         {
             var renames = new Dictionary<string, string>();
-      
+
             var newFile = files.FirstOrDefault();
 
             foreach (var file in files)
             {
-                if (newFile.Status == HgFileStatus.Added && file.Status == HgFileStatus.None)
+                if (newFile!.Status == HgFileStatus.Added && file.Status == HgFileStatus.None)
                 {
                     renames.Add(newFile.FullName, file.FullName);
                 }

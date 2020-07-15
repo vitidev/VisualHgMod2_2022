@@ -10,6 +10,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using IServiceProvider = System.IServiceProvider;
 using OleInteropConstants = Microsoft.VisualStudio.OLE.Interop.Constants;
 using Process = System.Diagnostics.Process;
 
@@ -27,9 +28,9 @@ namespace VisualHg
     [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 102, 100, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [Guid(Guids.Package)]
-    public sealed partial class VisualHgPackage : Package, IOleCommandTarget, IDisposable
+    public sealed class VisualHgPackage : Package, IOleCommandTarget, IDisposable
     {
-        private const int OLECMDERR_E_NOTSUPPORTED = (int)OleInteropConstants.OLECMDERR_E_NOTSUPPORTED;
+        private const int OlecmderrENotsupported = (int)OleInteropConstants.OLECMDERR_E_NOTSUPPORTED;
 
         private VisualHgService visualHgService;
         private PendingChangesToolWindow _pendingChangesToolWindow;
@@ -41,7 +42,7 @@ namespace VisualHg
 
             InitializeMenuCommands();
 
-            ((IServiceContainer)this).AddService(typeof(System.IServiceProvider), this, true);
+            ((IServiceContainer)this).AddService(typeof(IServiceProvider), this, true);
 
             visualHgService = new VisualHgService();
             ((IServiceContainer)this).AddService(typeof(VisualHgService), visualHgService, true);
@@ -57,10 +58,7 @@ namespace VisualHg
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                visualHgService.Dispose();
-            }
+            if (disposing) visualHgService.Dispose();
 
             base.Dispose(disposing);
         }
@@ -68,7 +66,9 @@ namespace VisualHg
 
         public static void RegisterSourceControlProvider()
         {
-            var rscp = Package.GetGlobalService(typeof(IVsRegisterScciProvider)) as IVsRegisterScciProvider;
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var rscp = (IVsRegisterScciProvider)GetGlobalService(typeof(IVsRegisterScciProvider));
             rscp.RegisterSourceControlProvider(Guids.ProviderGuid);
         }
 
@@ -77,29 +77,28 @@ namespace VisualHg
         {
             _pendingChangesToolWindow = FindPendingChangesToolWindow(false);
 
-            if (_pendingChangesToolWindow != null)
-            {
-                _pendingChangesToolWindow.Synchronize(visualHgService.PendingFiles);
-            }
+            _pendingChangesToolWindow?.Synchronize(visualHgService.PendingFiles);
         }
 
 
         private void NotifySolutionIsNotUnderVersionControl()
         {
-            MessageBox.Show(Resources.NotUnderVersionControl + "\n\n" + VisualHgSolution.SolutionFileName, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            // ReSharper disable once LocalizableElement
+            MessageBox.Show(Resources.NotUnderVersionControl + "\n\n" + VisualHgSolution.SolutionFileName,
+                Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void NotifyTortoiseHgNotFound()
         {
-            MessageBox.Show(Resources.TortoiseHgNotFound, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(Resources.TortoiseHgNotFound, Resources.MessageBoxCaption, MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
         }
 
 
         private void InitializeMenuCommands()
         {
-            var menuCommandService = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-
-            if (menuCommandService != null)
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (GetService(typeof(IMenuCommandService)) is OleMenuCommandService menuCommandService)
             {
                 AddMenuCommands(menuCommandService);
             }
@@ -174,14 +173,14 @@ namespace VisualHg
 
             if (commandSetGuid != Guids.CommandSetGuid)
             {
-                return OLECMDERR_E_NOTSUPPORTED;
+                return OlecmderrENotsupported;
             }
 
-            var visible = visualHgService.Active ? IsCommandVisible(commands[0].cmdID) : false;
-            var enabled = visualHgService.Active ? IsCommandEnabled(commands[0].cmdID) : false;
+            var visible = visualHgService.Active && IsCommandVisible(commands[0].cmdID);
+            var enabled = visualHgService.Active && IsCommandEnabled(commands[0].cmdID);
 
             commands[0].cmdf = (uint)ToOleCmdf(visible, enabled);
-            
+
             return VSConstants.S_OK;
         }
 
@@ -213,7 +212,7 @@ namespace VisualHg
                     return true;
 
                 default:
-                    return !String.IsNullOrEmpty(VisualHgSolution.SolutionFileName);
+                    return !string.IsNullOrEmpty(VisualHgSolution.SolutionFileName);
             }
         }
 
@@ -270,21 +269,17 @@ namespace VisualHg
         private void ShowPendingChangesToolWindow(object sender, EventArgs e)
         {
             InitializePendingChangesToolWindow();
-            
-            var windowFrame = _pendingChangesToolWindow.Frame as IVsWindowFrame;
 
-            if (windowFrame != null)
+            if (_pendingChangesToolWindow.Frame is IVsWindowFrame windowFrame)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 ErrorHandler.ThrowOnFailure(windowFrame.Show());
             }
         }
 
         private void InitializePendingChangesToolWindow()
         {
-            if (_pendingChangesToolWindow == null)
-            {
-                _pendingChangesToolWindow = FindPendingChangesToolWindow(true);
-            }
+            _pendingChangesToolWindow ??= FindPendingChangesToolWindow(true);
 
             UpdatePendingChangesToolWindow();
         }
@@ -316,14 +311,11 @@ namespace VisualHg
         }
 
 
-        private void CheckAndShow(Func<string, System.Diagnostics.Process> show)
+        private void CheckAndShow(Func<string, Process> show)
         {
             var root = VisualHgSolution.CurrentRootDirectory;
 
-            if (CanRunTortoiseHg(root))
-            {
-                show(root);
-            }
+            if (CanRunTortoiseHg(root)) show(root);
         }
 
         private bool CanRunTortoiseHg(string root)
@@ -334,7 +326,7 @@ namespace VisualHg
                 return false;
             }
 
-            if (String.IsNullOrEmpty(root))
+            if (string.IsNullOrEmpty(root))
             {
                 NotifySolutionIsNotUnderVersionControl();
                 return false;
@@ -344,39 +336,30 @@ namespace VisualHg
             return true;
         }
 
-        
+
         private void ShowUpdateWindow(object sender, EventArgs e)
         {
             var root = VisualHgSolution.CurrentRootDirectory;
 
             if (!CanRunTortoiseHg(root))
-            {
                 return;
-            }
 
             if (IsReloadSolutionNeeded())
-            {
                 ShowUpdateDialogAndReloadSolution(root);
-            }
             else
-            {
                 TortoiseHg.ShowUpdateWindow(root);
-            }
         }
 
         private bool IsReloadSolutionNeeded()
         {
             if (VsVersion > 10)
-            {
                 return false;
-            }
 
             if (VisualHgSolution.LoadedProjects.Take(2).Count() < 2)
-            {
                 return false;
-            }
 
-            var result = MessageBox.Show(Resources.SolutionReloadQuery, Resources.MessageBoxCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show(Resources.SolutionReloadQuery, Resources.MessageBoxCaption,
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             return result == DialogResult.Yes;
         }
@@ -397,15 +380,15 @@ namespace VisualHg
         private static void WaitForExit(Process process)
         {
             if (process == null)
-            {
                 return;
-            }
 
             try
             {
                 process.WaitForExit();
             }
-            catch (InvalidOperationException) { }
+            catch (InvalidOperationException)
+            {
+            }
 
             WaitForExit(GetChildProcess(process));
         }
@@ -414,8 +397,8 @@ namespace VisualHg
         {
             return ProcessInfo.GetChildProcesses(process).FirstOrDefault();
         }
-        
-        
+
+
         private void ShowWorkbenchWindow(object sender, EventArgs e)
         {
             if (TortoiseHg.Version == null)
@@ -437,7 +420,7 @@ namespace VisualHg
 
             var root = VisualHgSolution.CurrentRootDirectory;
 
-            if (String.IsNullOrEmpty(root))
+            if (string.IsNullOrEmpty(root))
             {
                 TortoiseHg.ShowUserSettingsWindow("");
             }
@@ -450,7 +433,7 @@ namespace VisualHg
         private void ShowCreateRepositoryWindow(object sender, EventArgs e)
         {
             var directory = Path.GetDirectoryName(VisualHgSolution.SolutionFileName) ??
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             TortoiseHg.ShowCreateRepositoryWindow(directory);
         }
@@ -529,7 +512,7 @@ namespace VisualHg
 
         private void SaveProject(IVsHierarchy project)
         {
-            var solution = Package.GetGlobalService(typeof(IVsSolution)) as IVsSolution;
+            var solution = GetGlobalService(typeof(IVsSolution)) as IVsSolution;
             var options = (uint)__VSSLNSAVEOPTIONS.SLNSAVEOPT_SaveIfDirty;
 
             solution.SaveSolutionElement(options, project, 0);
@@ -547,9 +530,9 @@ namespace VisualHg
                     var version = GetVersion();
                     var majorVersion = version.Substring(0, version.IndexOf('.'));
 
-                    if (!Int32.TryParse(majorVersion, out _vsVersion))
+                    if (!int.TryParse(majorVersion, out _vsVersion))
                     {
-                         _vsVersion = 10;
+                        _vsVersion = 10;
                     }
                 }
 
@@ -559,8 +542,8 @@ namespace VisualHg
 
         private static string GetVersion()
         {
-            var dte = Package.GetGlobalService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            
+            var dte = GetGlobalService(typeof(DTE)) as DTE;
+
             return dte.Version;
         }
     }

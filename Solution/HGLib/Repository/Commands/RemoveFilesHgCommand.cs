@@ -2,7 +2,7 @@
 {
     public class RemoveFilesHgCommand : HgCommand
     {
-        private string[] _fileNames;
+        private readonly string[] _fileNames;
         
         public RemoveFilesHgCommand(string[] fileNames)
         {

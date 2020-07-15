@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -9,7 +8,7 @@ namespace VisualHg
     {
         public static bool Serialize<T>(string path, T instance) where T : class
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 return false;
             }
@@ -21,7 +20,8 @@ namespace VisualHg
 
             try
             {
-                var settings = new XmlWriterSettings {
+                var settings = new XmlWriterSettings
+                {
                     Indent = true,
                     NewLineHandling = NewLineHandling.Entitize,
                 };
@@ -42,21 +42,21 @@ namespace VisualHg
 
         public static T Deserialize<T>(string path) where T : class
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
-                return default(T);
+                return default;
             }
 
             if (!File.Exists(path))
             {
-                return default(T);
+                return default;
             }
 
             try
             {
                 using (var textReader = new StreamReader(path))
                 {
-                    var settings = new XmlReaderSettings { IgnoreWhitespace = true };
+                    var settings = new XmlReaderSettings {IgnoreWhitespace = true};
                     var reader = XmlReader.Create(textReader, settings);
                     var xmlSerializer = new XmlSerializer(typeof(T));
 
@@ -68,11 +68,10 @@ namespace VisualHg
             }
             catch
             {
-                return default(T);
+                return default;
             }
 
-            return default(T);
+            return default;
         }
-        
     }
 }

@@ -11,7 +11,7 @@ namespace HgLib
         {
             return ReadOutputFrom(StartHg(args, workingDirectory));
         }
-        
+
         internal static string[] RunTortoiseHg(string args, string workingDirectory)
         {
             return ReadOutputFrom(StartTortoiseHg(args, workingDirectory));
@@ -31,21 +31,28 @@ namespace HgLib
 
         internal static Process Start(string executable, string args, string workingDirectory)
         {
-            var process = new Process();
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    Arguments = args,
+                    CreateNoWindow = true,
+                    FileName = executable,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    WorkingDirectory = workingDirectory
+                }
+            };
 
-            process.StartInfo.Arguments = args;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = executable;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.WorkingDirectory = workingDirectory;
 
             try
             {
                 process.Start();
             }
-            catch (Win32Exception) { }
+            catch (Win32Exception)
+            {
+            }
 
             return process;
         }
@@ -62,7 +69,9 @@ namespace HgLib
                     outputLines.Add(process.StandardOutput.ReadLine());
                 }
             }
-            catch (InvalidOperationException) { }
+            catch (InvalidOperationException)
+            {
+            }
 
             return outputLines.ToArray();
         }

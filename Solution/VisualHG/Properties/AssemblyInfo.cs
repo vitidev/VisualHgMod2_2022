@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("VisualHg")]
@@ -9,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("VisualHg")]
 [assembly: AssemblyCopyright("Copyright © Bernd Schrader, Dmitry Popov and others 2008-2014")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]        
+[assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 

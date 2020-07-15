@@ -8,7 +8,7 @@ namespace HgLib
 {
     public static class TortoiseHg
     {
-        public static string Version { get; private set; }
+        public static string Version { get; }
 
 
         static TortoiseHg()
@@ -81,11 +81,11 @@ namespace HgLib
         {
             var root = HgPath.FindRepositoryRoot(fileName);
 
-            if (!String.IsNullOrEmpty(root))
+            if (!string.IsNullOrEmpty(root))
             {
                 fileName = fileName.Substring(root.Length + 1);
 
-                Start(String.Format("history \"{0}\"", fileName), root);
+                Start($"history \"{fileName}\"", root);
             }
         }
 
@@ -103,14 +103,12 @@ namespace HgLib
 
         private static void StartForEachRoot(string command, string[] files)
         {
-            var commandWithOptions = String.Concat("--nofork ", command);
+            var commandWithOptions = string.Concat("--nofork ", command);
 
-            foreach (var group in files.GroupBy(x => HgPath.FindRepositoryRoot(x)))
+            foreach (var group in files.GroupBy(HgPath.FindRepositoryRoot))
             {
-                if (String.IsNullOrEmpty(group.Key))
-                {
+                if (string.IsNullOrEmpty(group.Key))
                     continue;
-                }
 
                 Start(commandWithOptions, group.Key, group);
             }
@@ -119,7 +117,7 @@ namespace HgLib
         private static void Start(string command, string root, IEnumerable<string> files)
         {
             var listFile = HgPath.GetRandomTemporaryFileName();
-            var listCommand = String.Format("{0} --listfile \"{1}\"", command, listFile);
+            var listCommand = $"{command} --listfile \"{listFile}\"";
 
             CreateListFile(listFile, files);
 
@@ -129,7 +127,9 @@ namespace HgLib
             {
                 process.WaitForExit();
             }
-            catch (InvalidOperationException) { }
+            catch (InvalidOperationException)
+            {
+            }
 
             DeleteListFile(listFile);
         }
@@ -138,10 +138,8 @@ namespace HgLib
         {
             using (var writer = File.CreateText(listFileName))
             {
-                foreach (var fileName in files)
-                {
+                foreach (var fileName in files) 
                     writer.WriteLine(fileName);
-                }
             }
         }
 
@@ -151,7 +149,10 @@ namespace HgLib
             {
                 File.Delete(groupListFile);
             }
-            catch { }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
+            {
+            }
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.InteropServices;
 using HgLib;
 using Microsoft.VisualStudio.Shell;

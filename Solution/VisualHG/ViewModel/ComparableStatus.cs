@@ -7,14 +7,16 @@ namespace VisualHg.ViewModel
     {
         public HgFileStatus Value { get; set; }
 
-        
-        public ComparableStatus() { }
+
+        public ComparableStatus()
+        {
+        }
 
         public ComparableStatus(HgFileStatus value)
         {
             Value = value;
         }
-        
+
 
         public override string ToString()
         {

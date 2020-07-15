@@ -63,9 +63,9 @@ namespace VisualHg.Images
         {
             using (var imageList = Create(fileName))
             {
-                var limitedImageList = new ImageList { ImageSize = imageList.ImageSize };
+                var limitedImageList = new ImageList {ImageSize = imageList.ImageSize};
 
-                limitedImageList.Images.AddRange(new [] 
+                limitedImageList.Images.AddRange(new[]
                 {
                     GetImage(imageList, HgFileStatus.Modified),
                     GetImage(imageList, HgFileStatus.Added),

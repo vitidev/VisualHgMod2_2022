@@ -7,7 +7,7 @@ namespace VisualHg
     {
         private readonly HashSet<string> items;
 
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
         public event EventHandler Changed = (s, e) => { };
 
@@ -24,9 +24,7 @@ namespace VisualHg
             lock (SyncRoot)
             {
                 foreach (var fileName in files)
-                {
                     items.Add(fileName);
-                }
             }
 
             OnChanged();
@@ -55,9 +53,7 @@ namespace VisualHg
             lock (SyncRoot)
             {
                 foreach (var fileName in fileNames)
-                {
                     items.Remove(fileName);
-                }
             }
 
             OnChanged();

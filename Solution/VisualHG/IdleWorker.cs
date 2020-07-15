@@ -42,31 +42,27 @@ namespace VisualHg
         {
             var d = DoWork;
 
-            if (d != null)
-            {
-                d(this, EventArgs.Empty);
-            }
+            d?.Invoke(this, EventArgs.Empty);
         }
-        
+
 
         private void Register()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var componentManager = GetComponentManager();
 
-            if (componentManager != null)
-            {
-                Register(componentManager);
-            }
+            if (componentManager != null) Register(componentManager);
         }
 
         private void Register(IOleComponentManager componentManager)
         {
             var pcrinfo = new OLECRINFO
             {
-                cbSize   = (uint)Marshal.SizeOf(typeof(OLECRINFO)),
+                cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO)),
 
-                grfcrf   = (uint)(_OLECRF.olecrfNeedIdleTime |
-                                  _OLECRF.olecrfNeedPeriodicIdleTime),
+                grfcrf = (uint)(_OLECRF.olecrfNeedIdleTime |
+                                _OLECRF.olecrfNeedPeriodicIdleTime),
 
                 grfcadvf = (uint)(_OLECADVF.olecadvfModal |
                                   _OLECADVF.olecadvfRedrawOff |
@@ -75,7 +71,8 @@ namespace VisualHg
                 uIdleTimeInterval = 100,
             };
 
-            componentManager.FRegisterComponent(this, new[] { pcrinfo }, out componentId);
+            ThreadHelper.ThrowIfNotOnUIThread();
+            componentManager.FRegisterComponent(this, new[] {pcrinfo}, out componentId);
         }
 
         private void Revoke()
@@ -103,38 +100,51 @@ namespace VisualHg
 
         int IOleComponent.FDoIdle(uint grfidlef)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             DoWorkIfActive();
             return 0;
         }
 
         int IOleComponent.FPreTranslateMessage(MSG[] pMsg)
         {
-            return 0; 
+            return 0;
         }
 
         int IOleComponent.FQueryTerminate(int fPromptUser)
-        { 
+        {
             return 1;
         }
-        
+
         int IOleComponent.FReserved1(uint dwReserved, uint message, IntPtr wParam, IntPtr lParam)
-        { 
+        {
             return 0;
         }
-        
+
         IntPtr IOleComponent.HwndGetWindow(uint dwWhich, uint dwReserved)
-        { 
+        {
             return IntPtr.Zero;
         }
 
-        void IOleComponent.OnActivationChange(IOleComponent pic, int fSameComponent, OLECRINFO[] pcrinfo, int fHostIsActivating, OLECHOSTINFO[] pchostinfo, uint dwReserved) { }
-        
-        void IOleComponent.OnAppActivate(int fActive, uint dwOtherThreadID) { }
-        
-        void IOleComponent.OnEnterState(uint uStateID, int fEnter) { }
-        
-        void IOleComponent.OnLoseActivation() { }
-        
-        void IOleComponent.Terminate() { }
+        void IOleComponent.OnActivationChange(IOleComponent pic, int fSameComponent, OLECRINFO[] pcrinfo,
+            int fHostIsActivating, OLECHOSTINFO[] pchostinfo, uint dwReserved)
+        {
+        }
+
+        void IOleComponent.OnAppActivate(int fActive, uint dwOtherThreadId)
+        {
+        }
+
+        void IOleComponent.OnEnterState(uint uStateId, int fEnter)
+        {
+        }
+
+        void IOleComponent.OnLoseActivation()
+        {
+        }
+
+        void IOleComponent.Terminate()
+        {
+        }
     }
 }

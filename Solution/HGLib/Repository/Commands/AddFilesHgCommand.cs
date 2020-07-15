@@ -2,7 +2,7 @@
 {
     internal class AddFilesHgCommand : HgCommand
     {
-        private string[] _fileNames;
+        private readonly string[] _fileNames;
 
         public AddFilesHgCommand(string[] fileNames)
         {

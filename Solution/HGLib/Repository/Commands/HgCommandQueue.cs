@@ -4,9 +4,9 @@ namespace HgLib.Repository.Commands
 {
     public class HgCommandQueue
     {
-        private Queue<HgCommand> items;
+        private readonly Queue<HgCommand> items;
 
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
         public HgCommandQueue()
         {
@@ -16,10 +16,8 @@ namespace HgLib.Repository.Commands
 
         public void Enqueue(HgCommand command)
         {
-            lock (SyncRoot)
-            {
+            lock (SyncRoot) 
                 items.Enqueue(command);
-            }
         }
 
         public HgCommand[] Dump()
@@ -28,10 +26,8 @@ namespace HgLib.Repository.Commands
 
             lock (SyncRoot)
             {
-                while (items.Count > 0)
-                {
+                while (items.Count > 0) 
                     commands.Add(items.Dequeue());
-                }
             }
             
             return commands.ToArray();

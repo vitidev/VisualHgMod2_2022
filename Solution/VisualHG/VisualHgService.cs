@@ -29,9 +29,11 @@ namespace VisualHg
 
         private bool _active;
 
+        // ReSharper disable MemberInitializerValueIgnored
         private uint vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
         private uint trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
         private readonly uint buildManagerCookie = VSConstants.VSCOOKIE_NIL;
+        // ReSharper restore MemberInitializerValueIgnored
 
         private DateTime lastUpdate;
 
@@ -44,9 +46,10 @@ namespace VisualHg
             get => _active;
             set
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (value && !_active)
                 {
-                    var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+                    var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
 
                     repository.UpdateSolution(solution);
                 }
@@ -60,6 +63,8 @@ namespace VisualHg
 
         public VisualHgService()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             worker = new IdleWorker();
             worker.DoWork += (s, e) => Update();
 
@@ -67,15 +72,16 @@ namespace VisualHg
             repository.StatusChanged += OnRepositoryStatusChanged;
             repository.SolutionFiles.Changed += (s, e) => UpdatePendingChangesToolWindow();
 
-            var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+            var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
             solution.AdviseSolutionEvents(this, out vsSolutionEventsCookie);
             Debug.Assert(vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL);
 
-            var trackProjectDocuments = Package.GetGlobalService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+            var trackProjectDocuments =
+                (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
             trackProjectDocuments.AdviseTrackProjectDocumentsEvents(this, out trackProjectDocumentsEventsCookie);
             Debug.Assert(trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL);
 
-            var buildManager = Package.GetGlobalService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+            var buildManager = (IVsSolutionBuildManager)Package.GetGlobalService(typeof(SVsSolutionBuildManager));
             buildManager.AdviseUpdateSolutionEvents(this, out buildManagerCookie);
             Debug.Assert(buildManagerCookie != VSConstants.VSCOOKIE_NIL);
         }
@@ -89,23 +95,26 @@ namespace VisualHg
 
             statusImageList.Dispose();
 
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (vsSolutionEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+                var solution = (IVsSolution)Package.GetGlobalService(typeof(SVsSolution));
                 solution.UnadviseSolutionEvents(vsSolutionEventsCookie);
                 vsSolutionEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
             if (trackProjectDocumentsEventsCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var trackProjectDocuments = Package.GetGlobalService(typeof(SVsTrackProjectDocuments)) as IVsTrackProjectDocuments2;
+                var trackProjectDocuments =
+                    (IVsTrackProjectDocuments2)Package.GetGlobalService(typeof(SVsTrackProjectDocuments));
                 trackProjectDocuments.UnadviseTrackProjectDocumentsEvents(trackProjectDocumentsEventsCookie);
                 trackProjectDocumentsEventsCookie = VSConstants.VSCOOKIE_NIL;
             }
 
             if (buildManagerCookie != VSConstants.VSCOOKIE_NIL)
             {
-                var buildManager = Package.GetGlobalService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager;
+                var buildManager = (IVsSolutionBuildManager)Package.GetGlobalService(typeof(SVsSolutionBuildManager));
                 buildManager.UnadviseUpdateSolutionEvents(buildManagerCookie);
             }
         }
@@ -119,10 +128,8 @@ namespace VisualHg
 
         private void OnRepositoryStatusChanged(object sender, EventArgs e)
         {
-            if (EnoughTimePassedSinceLastUpdate())
-            {
+            if (EnoughTimePassedSinceLastUpdate()) 
                 worker.RequestDoWork();
-            }
         }
 
         private bool EnoughTimePassedSinceLastUpdate()
@@ -134,6 +141,8 @@ namespace VisualHg
         {
             lastUpdate = DateTime.Now;
 
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             UpdateStatusIcons();
             UpdatePendingChangesToolWindow();
             UpdateMainWindowCaption();
@@ -141,13 +150,17 @@ namespace VisualHg
 
         private void UpdateStatusIcons()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             UpdateSolutionStatusIcon();
             UpdateLoadedProjectsStatusIcons();
         }
 
         private void UpdateSolutionStatusIcon()
         {
-            var hierarchy = Package.GetGlobalService(typeof(SVsSolution)) as IVsHierarchy;
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var hierarchy = (IVsHierarchy)Package.GetGlobalService(typeof(SVsSolution));
             var property = (int)__VSHPROPID.VSHPROPID_StateIconIndex;
             var icon = GetStatusIcon(VisualHgSolution.SolutionFileName);
 
@@ -156,17 +169,18 @@ namespace VisualHg
 
         private void UpdateLoadedProjectsStatusIcons()
         {
-            foreach (var project in VisualHgSolution.LoadedProjects)
-            {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            foreach (var project in VisualHgSolution.LoadedProjects) 
                 UpdateProjectStatusIcons(project);
-            }
         }
 
         private void UpdateProjectStatusIcons(IVsHierarchy hierarchy)
         {
-            var project = hierarchy as IVsSccProject2;
-            if (project == null)
+            if (!(hierarchy is IVsSccProject2 project))
                 return;
+
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             project.SccGlyphChanged(0, null, null, null);
 
@@ -190,7 +204,8 @@ namespace VisualHg
                         continue;
                     }
 
-                    if (fileStatus == HgFileStatus.Renamed || (fileStatus == HgFileStatus.Copied || fileStatus == HgFileStatus.Modified))
+                    if (fileStatus == HgFileStatus.Renamed || fileStatus == HgFileStatus.Copied ||
+                        fileStatus == HgFileStatus.Modified)
                     {
                         projectStatus = HgFileStatus.Modified;
                         continue;
@@ -206,9 +221,9 @@ namespace VisualHg
                 if (projectStatus == HgFileStatus.None && projectUnderControl)
                     projectStatus = HgFileStatus.Clean;
 
-                var rgsiGlyphs = new[] { GetStatusIcon(projectStatus) };
-                var rgdwSccStatus = new[] { (uint)projectStatus };
-                var rguiAffectedNodes = new[] { VSConstants.VSITEMID_ROOT };
+                var rgsiGlyphs = new[] {GetStatusIcon(projectStatus)};
+                var rgdwSccStatus = new[] {(uint)projectStatus};
+                var rguiAffectedNodes = new[] {VSConstants.VSITEMID_ROOT};
                 project.SccGlyphChanged(1, rguiAffectedNodes, rgsiGlyphs, rgdwSccStatus);
             }
         }
@@ -216,7 +231,7 @@ namespace VisualHg
 
         private void UpdatePendingChangesToolWindow()
         {
-            var visualHg = Package.GetGlobalService(typeof(IServiceProvider)) as VisualHgPackage;
+            var visualHg = (VisualHgPackage)Package.GetGlobalService(typeof(IServiceProvider));
 
             visualHg.UpdatePendingChangesToolWindow();
         }
@@ -224,31 +239,31 @@ namespace VisualHg
         private void UpdateMainWindowCaption()
         {
             var branches = repository.Branches;
-            var text = branches.Length > 0 ? branches.Distinct().Aggregate((x, y) => String.Concat(x, ", ", y)) : "";
+            var text = branches.Length > 0 
+                ? branches.Distinct().Aggregate((x, y) => string.Concat(x, ", ", y))
+                : "";
 
             UpdateMainWindowCaption(text);
         }
 
         private static void UpdateMainWindowCaption(string text)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var dte = Package.GetGlobalService(typeof(SDTE)) as _DTE;
 
-            if (dte == null || dte.MainWindow == null)
-            {
+            if (dte?.MainWindow == null)
                 return;
-            }
 
             var caption = dte.MainWindow.Caption;
-            var additionalInfo = String.IsNullOrEmpty(text) ? "" : String.Concat(" (", text, ") ");
+            var additionalInfo = string.IsNullOrEmpty(text) ? "" : string.Concat(" (", text, ") ");
 
             var newCaption = Regex.Replace(caption,
                 @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)?$",
-                String.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
+                string.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
 
-            if (caption != newCaption)
-            {
+            if (caption != newCaption) 
                 SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
-            }
         }
 
         private static void SetWindowText(IntPtr handle, string text)
@@ -257,9 +272,11 @@ namespace VisualHg
             {
                 NativeMethods.SetWindowText(handle, text);
             }
-            catch { }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
+            {
+            }
         }
-
 
 
         private bool AnyItemsUnderSourceControl => Active && !repository.IsEmpty;
@@ -292,16 +309,7 @@ namespace VisualHg
 
         private VsStateIcon GetStatusIcon(HgFileStatus status)
         {
-            var iconIndex = 0;
-
-            if (StatusIconsLimited)
-            {
-                iconIndex = StatusImages.GetIndexLimited(status);
-            }
-            else
-            {
-                iconIndex = StatusImages.GetIndex(status);
-            }
+            var iconIndex = StatusIconsLimited ? StatusImages.GetIndexLimited(status) : StatusImages.GetIndex(status);
 
             return GetStatusIcon(iconIndex);
         }
@@ -309,19 +317,15 @@ namespace VisualHg
         private VsStateIcon GetStatusIcon(int iconIndex)
         {
             if (iconIndex == -1)
-            {
                 return VsStateIcon.STATEICON_BLANK;
-            }
 
             return (VsStateIcon)(iconBaseIndex + iconIndex);
         }
 
         private void OnProjectRegister(IVsSccProject2 project)
         {
-            if (project != null)
-            {
+            if (project != null) 
                 repository.UpdateProject(project);
-            }
         }
 
         private string GetToolTipText(IVsHierarchy hierarchy, uint itemId)
@@ -338,7 +342,7 @@ namespace VisualHg
             var text = repository.GetFileStatus(fileName).ToString();
             var branch = repository.GetBranch(fileName);
 
-            if (!String.IsNullOrEmpty(branch))
+            if (!string.IsNullOrEmpty(branch))
             {
                 text += " (" + branch + ")";
             }
@@ -357,9 +361,9 @@ namespace VisualHg
 
         private void OnAfterLoadProject(IVsHierarchy hierarchy)
         {
-            var project = hierarchy as IVsSccProject2;
+            ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (project != null)
+            if (hierarchy is IVsSccProject2 project)
             {
                 repository.UpdateProject(project);
             }
@@ -371,7 +375,9 @@ namespace VisualHg
         {
             var files = VisualHgSolution.GetProjectFiles(hierarchy);
 
-            foreach (var root in files.Select(x => HgPath.FindRepositoryRoot(x)).Distinct())
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            foreach (var root in files.Select(HgPath.FindRepositoryRoot).Distinct())
             {
                 repository.UpdateRootStatus(root);
             }
@@ -383,11 +389,15 @@ namespace VisualHg
 
         private static void UpdateLastSeenProjectDirectory(IVsHierarchy hierarchy)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             VisualHgSolution.LastSeenProjectDirectory = VisualHgSolution.GetDirectoryName(hierarchy);
         }
 
         private void OnAfterOpenSolution()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (!Active &&
                 VisualHgOptions.Global.AutoActivatePlugin &&
                 VisualHgSolution.IsUnderSourceControl)
@@ -400,6 +410,8 @@ namespace VisualHg
 
         private void OnBeforeCloseOrUnloadProject(IVsHierarchy hierarchy)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var files = VisualHgSolution.GetProjectFiles(hierarchy);
 
             repository.SolutionFiles.Remove(files);
@@ -418,10 +430,8 @@ namespace VisualHg
 
         private void OnFileSave(params string[] fileNames)
         {
-            if (Active)
-            {
+            if (Active) 
                 repository.UpdateFileStatus(fileNames);
-            }
         }
 
 
@@ -448,17 +458,12 @@ namespace VisualHg
         }
 
 
-
         private void AddIf(bool condition, string[] files)
         {
             if (condition)
-            {
                 repository.AddFiles(files);
-            }
             else
-            {
                 repository.SolutionFiles.Add(files);
-            }
         }
 
 
@@ -487,7 +492,7 @@ namespace VisualHg
         {
             InitializeStatusImageList(BaseIndex);
 
-            pdwImageListHandle = unchecked((uint)statusImageList.Handle);
+            pdwImageListHandle = (uint)statusImageList.Handle;
 
             return VSConstants.S_OK;
         }
@@ -505,9 +510,10 @@ namespace VisualHg
             return VSConstants.E_NOTIMPL;
         }
 
-        int IVsSccManager2.GetSccGlyph(int cFiles, string[] rgpszFullPaths, VsStateIcon[] rgsiGlyphs, uint[] rgdwSccStatus)
+        int IVsSccManager2.GetSccGlyph(int cFiles, string[] rgpszFullPaths, VsStateIcon[] rgsiGlyphs,
+            uint[] rgdwSccStatus)
         {
-            if (cFiles == 0 || String.IsNullOrEmpty(rgpszFullPaths[0]))
+            if (cFiles == 0 || string.IsNullOrEmpty(rgpszFullPaths[0]))
             {
                 return VSConstants.S_OK;
             }
@@ -519,7 +525,7 @@ namespace VisualHg
             else
             {
                 var entries = new List<FileOrDirEntry>();
-                for (int i = 0; i < rgpszFullPaths.Length; i++)
+                for (var i = 0; i < rgpszFullPaths.Length; i++)
                 {
                     var fullPath = rgpszFullPaths[i];
                     var status = repository.GetFileStatus(fullPath);
@@ -555,7 +561,8 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        int IVsSccManager2.RegisterSccProject(IVsSccProject2 pscp2Project, string pszSccProjectName, string pszSccAuxPath, string pszSccLocalPath, string pszProvider)
+        int IVsSccManager2.RegisterSccProject(IVsSccProject2 pscp2Project, string pszSccProjectName,
+            string pszSccAuxPath, string pszSccLocalPath, string pszProvider)
         {
             OnProjectRegister(pscp2Project);
             return VSConstants.S_OK;
@@ -595,7 +602,8 @@ namespace VisualHg
         }
 
 
-        int IVsSccManagerTooltip.GetGlyphTipText(IVsHierarchy phierHierarchy, uint itemidNode, out string pbstrTooltipText)
+        int IVsSccManagerTooltip.GetGlyphTipText(IVsHierarchy phierHierarchy, uint itemidNode,
+            out string pbstrTooltipText)
         {
             pbstrTooltipText = GetToolTipText(phierHierarchy, itemidNode);
             return VSConstants.S_OK;
@@ -664,12 +672,14 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.DeclareReloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        int IVsQueryEditQuerySave2.DeclareReloadableFile(string pszMkDocument, uint rgf,
+            VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.DeclareUnreloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        int IVsQueryEditQuerySave2.DeclareUnreloadableFile(string pszMkDocument, uint rgf,
+            VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
@@ -686,26 +696,30 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.OnAfterSaveUnreloadableFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
+        int IVsQueryEditQuerySave2.OnAfterSaveUnreloadableFile(string pszMkDocument, uint rgf,
+            VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.QueryEditFiles(uint rgfQueryEdit, int cFiles, string[] rgpszMkDocuments, uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pfEditVerdict, out uint prgfMoreInfo)
+        int IVsQueryEditQuerySave2.QueryEditFiles(uint rgfQueryEdit, int cFiles, string[] rgpszMkDocuments,
+            uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pfEditVerdict, out uint prgfMoreInfo)
         {
             pfEditVerdict = (uint)tagVSQueryEditResult.QER_EditOK;
             prgfMoreInfo = 0;
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.QuerySaveFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo, out uint pdwQSResult)
+        int IVsQueryEditQuerySave2.QuerySaveFile(string pszMkDocument, uint rgf, VSQEQS_FILE_ATTRIBUTE_DATA[] pFileInfo,
+            out uint pdwQSResult)
         {
             OnFileSave(pszMkDocument);
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
             return VSConstants.S_OK;
         }
 
-        int IVsQueryEditQuerySave2.QuerySaveFiles(uint rgfQuerySave, int cFiles, string[] rgpszMkDocuments, uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
+        int IVsQueryEditQuerySave2.QuerySaveFiles(uint rgfQuerySave, int cFiles, string[] rgpszMkDocuments,
+            uint[] rgrgf, VSQEQS_FILE_ATTRIBUTE_DATA[] rgFileInfo, out uint pdwQSResult)
         {
             OnFileSave(rgpszMkDocuments);
             pdwQSResult = (uint)tagVSQuerySaveResult.QSR_SaveOK;
@@ -713,23 +727,27 @@ namespace VisualHg
         }
 
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterAddDirectoriesEx(int cProjects, int cDirectories, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterAddDirectoriesEx(int cProjects, int cDirectories,
+            IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDDIRECTORYFLAGS[] rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterAddFilesEx(int cProjects, int cFiles, IVsProject[] rgpProjects,
+            int[] rgFirstIndices, string[] rgpszMkDocuments, VSADDFILEFLAGS[] rgFlags)
         {
             OnAfterAddFiles(rgpszMkDocuments);
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveDirectories(int cProjects, int cDirectories, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveDirectories(int cProjects, int cDirectories,
+            IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEDIRECTORYFLAGS[] rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRemoveFiles(int cProjects, int cFiles, IVsProject[] rgpProjects,
+            int[] rgFirstIndices, string[] rgpszMkDocuments, VSREMOVEFILEFLAGS[] rgFlags)
         {
             if (rgpProjects == null || rgpszMkDocuments == null)
             {
@@ -740,48 +758,62 @@ namespace VisualHg
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRenameDirectories(int cProjects, int cDirs, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEDIRECTORYFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRenameDirectories(int cProjects, int cDirs, IVsProject[] rgpProjects,
+            int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEDIRECTORYFLAGS[] rgFlags)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)
+        int IVsTrackProjectDocumentsEvents2.OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects,
+            int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)
         {
             OnAfterRenameFiles(rgszMkOldNames, rgszMkNewNames);
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnAfterSccStatusChanged(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgpszMkDocuments, uint[] rgdwSccStatus)
+        int IVsTrackProjectDocumentsEvents2.OnAfterSccStatusChanged(int cProjects, int cFiles, IVsProject[] rgpProjects,
+            int[] rgFirstIndices, string[] rgpszMkDocuments, uint[] rgdwSccStatus)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryAddDirectories(IVsProject pProject, int cDirectories, string[] rgpszMkDocuments, VSQUERYADDDIRECTORYFLAGS[] rgFlags, VSQUERYADDDIRECTORYRESULTS[] pSummaryResult, VSQUERYADDDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryAddDirectories(IVsProject pProject, int cDirectories,
+            string[] rgpszMkDocuments, VSQUERYADDDIRECTORYFLAGS[] rgFlags, VSQUERYADDDIRECTORYRESULTS[] pSummaryResult,
+            VSQUERYADDDIRECTORYRESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryAddFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYADDFILEFLAGS[] rgFlags, VSQUERYADDFILERESULTS[] pSummaryResult, VSQUERYADDFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryAddFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments,
+            VSQUERYADDFILEFLAGS[] rgFlags, VSQUERYADDFILERESULTS[] pSummaryResult, VSQUERYADDFILERESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveDirectories(IVsProject pProject, int cDirectories, string[] rgpszMkDocuments, VSQUERYREMOVEDIRECTORYFLAGS[] rgFlags, VSQUERYREMOVEDIRECTORYRESULTS[] pSummaryResult, VSQUERYREMOVEDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveDirectories(IVsProject pProject, int cDirectories,
+            string[] rgpszMkDocuments, VSQUERYREMOVEDIRECTORYFLAGS[] rgFlags,
+            VSQUERYREMOVEDIRECTORYRESULTS[] pSummaryResult, VSQUERYREMOVEDIRECTORYRESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveFiles(IVsProject pProject, int cFiles, string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, VSQUERYREMOVEFILERESULTS[] pSummaryResult, VSQUERYREMOVEFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRemoveFiles(IVsProject pProject, int cFiles,
+            string[] rgpszMkDocuments, VSQUERYREMOVEFILEFLAGS[] rgFlags, VSQUERYREMOVEFILERESULTS[] pSummaryResult,
+            VSQUERYREMOVEFILERESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRenameDirectories(IVsProject pProject, int cDirs, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEDIRECTORYFLAGS[] rgFlags, VSQUERYRENAMEDIRECTORYRESULTS[] pSummaryResult, VSQUERYRENAMEDIRECTORYRESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRenameDirectories(IVsProject pProject, int cDirs,
+            string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEDIRECTORYFLAGS[] rgFlags,
+            VSQUERYRENAMEDIRECTORYRESULTS[] pSummaryResult, VSQUERYRENAMEDIRECTORYRESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }
 
-        int IVsTrackProjectDocumentsEvents2.OnQueryRenameFiles(IVsProject pProject, int cFiles, string[] rgszMkOldNames, string[] rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] rgFlags, VSQUERYRENAMEFILERESULTS[] pSummaryResult, VSQUERYRENAMEFILERESULTS[] rgResults)
+        int IVsTrackProjectDocumentsEvents2.OnQueryRenameFiles(IVsProject pProject, int cFiles, string[] rgszMkOldNames,
+            string[] rgszMkNewNames, VSQUERYRENAMEFILEFLAGS[] rgFlags, VSQUERYRENAMEFILERESULTS[] pSummaryResult,
+            VSQUERYRENAMEFILERESULTS[] rgResults)
         {
             return VSConstants.S_OK;
         }

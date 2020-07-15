@@ -6,38 +6,26 @@ namespace HgLib
 {
     public abstract class HgRepositoryBase
     {
-        private HgFileInfoDictionary cache;
-        private HgRootDictionary roots;
+        private readonly HgFileInfoDictionary _cache;
+        private readonly HgRootDictionary _roots;
 
 
-        public bool IsEmpty
-        {
-            get { return roots.Count == 0; }
-        }
+        public bool IsEmpty => _roots.Count == 0;
 
-        public string[] Roots
-        {
-            get { return roots.Roots; }
-        }
+        public string[] Roots => _roots.Roots;
 
-        public string[] Branches
-        {
-            get { return roots.Branches; }
-        }
+        public string[] Branches => _roots.Branches;
 
-        public virtual HgFileInfo[] PendingFiles
-        {
-            get { return cache.PendingFiles; }
-        }
+        public virtual HgFileInfo[] PendingFiles => _cache.PendingFiles;
 
 
         public event EventHandler StatusChanged = (s, e) => { };
 
 
-        public HgRepositoryBase()
+        protected HgRepositoryBase()
         {
-            cache = new HgFileInfoDictionary();
-            roots = new HgRootDictionary();
+            _cache = new HgFileInfoDictionary();
+            _roots = new HgRootDictionary();
         }
 
 
@@ -53,7 +41,7 @@ namespace HgLib
 
         protected void RenameFilesProtected(string[] fileNames, string[] newFileNames)
         {
-            cache.Remove(fileNames.Concat(newFileNames));
+            _cache.Remove(fileNames.Concat(newFileNames));
             Cache(Hg.RenameFiles(fileNames, newFileNames));
         }
 
@@ -66,55 +54,53 @@ namespace HgLib
         {
             var root = HgPath.FindRepositoryRoot(path);
 
-            if (String.IsNullOrEmpty(root))
-            {
+            if (string.IsNullOrEmpty(root))
                 return;
-            }
 
             AddRoot(root);
 
             Cache(Hg.GetRootStatus(root));
         }
 
-        
+
         public string GetBranch(string path)
         {
-            return roots.GetBranch(path);
+            return _roots.GetBranch(path);
         }
 
         public HgFileInfo GetFileInfo(string fileName)
         {
-            return cache[fileName];
+            return _cache[fileName];
         }
 
         public HgFileStatus GetFileStatus(string fileName)
         {
-            var fileInfo = cache[fileName];
+            var fileInfo = _cache[fileName];
 
-            return fileInfo != null ? fileInfo.Status : HgFileStatus.NotTracked;
+            return fileInfo?.Status ?? HgFileStatus.NotTracked;
         }
 
 
         public virtual void Clear()
         {
-            cache.Clear();
-            roots.Clear();
+            _cache.Clear();
+            _roots.Clear();
         }
 
 
         protected virtual void AddRoot(string root)
         {
-            roots.Update(root);
+            _roots.Update(root);
         }
 
         protected void Cache(HgFileInfo[] files)
         {
-            cache.Add(files);
+            _cache.Add(files);
         }
 
         protected void ClearCache()
         {
-            cache.Clear();
+            _cache.Clear();
         }
 
 

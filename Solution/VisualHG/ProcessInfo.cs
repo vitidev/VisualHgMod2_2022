@@ -8,7 +8,8 @@ namespace VisualHg
     {
         public static Process[] GetChildProcesses(Process process)
         {
-            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Process WHERE ParentProcessId=" + process.Id);
+            var searcher =
+                new ManagementObjectSearcher("SELECT * FROM Win32_Process WHERE ParentProcessId=" + process.Id);
 
             return searcher.Get()
                 .Cast<ManagementObject>()

@@ -10,10 +10,10 @@ namespace VisualHg
         public const string CommandSet = "dadada00-fc13-4db8-9d71-980021706649";
         public const string OptionsPage = "dadada00-09a5-4795-a3ca-c3b49448184d";
         public const string ToolWindow = "dadada00-d3b4-4d5c-a138-a87ca494f6c2";
-       
+
         public static readonly Guid PackageGuid = new Guid(Package);
         public static readonly Guid ProviderGuid = new Guid(Provider);
         public static readonly Guid ServiceGuid = new Guid(Service);
         public static readonly Guid CommandSetGuid = new Guid(CommandSet);
-    };
+    }
 }

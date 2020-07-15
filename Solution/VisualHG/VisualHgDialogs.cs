@@ -12,20 +12,14 @@ namespace VisualHg
         {
             var filesToCommit = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
-            if (filesToCommit.Length > 0)
-            {
-                TortoiseHg.ShowCommitWindow(filesToCommit);
-            }
+            if (filesToCommit.Length > 0) TortoiseHg.ShowCommitWindow(filesToCommit);
         }
 
         public static void ShowRevertWindow(string[] files)
         {
             var filesToRevert = files.Where(VisualHgFileStatus.IsPending).ToArray();
 
-            if (filesToRevert.Length > 0)
-            {
-                TortoiseHg.ShowRevertWindow(filesToRevert);
-            }
+            if (filesToRevert.Length > 0) TortoiseHg.ShowRevertWindow(filesToRevert);
         }
 
         public static void ShowHistoryWindow(string fileName)
@@ -40,10 +34,10 @@ namespace VisualHg
         {
             var root = HgPath.FindRepositoryRoot(fileName);
             var parent = GetOriginalFileName(fileName);
-            
+
             var temp = Hg.CreateParentRevisionTempFile(parent, root);
             var revision = Hg.GetParentRevision(root) ?? "(parent revision)";
-            
+
             var tempName = GetDisplayName(parent, revision, root);
             var name = GetDisplayName(fileName, root);
 
@@ -57,13 +51,15 @@ namespace VisualHg
             }
             catch (InvalidOperationException)
             {
-                MessageBox.Show(Resources.DiffToolNotFound + "\n\n" + diffTool.FileName, Resources.MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // ReSharper disable once LocalizableElement
+                MessageBox.Show(Resources.DiffToolNotFound + "\n\n" + diffTool.FileName, Resources.MessageBoxCaption,
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private static string GetDisplayName(string fileName, string revision, string root)
         {
-            return GetDisplayName(String.Concat(fileName, '@', revision), root);
+            return GetDisplayName(string.Concat(fileName, '@', revision), root);
         }
 
         private static string GetDisplayName(string fileName, string root)
@@ -77,16 +73,19 @@ namespace VisualHg
             {
                 File.Delete(fileName);
             }
-            catch { }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
+            {
+            }
         }
 
         private static DiffTool GetDiffTool()
         {
-            if (String.IsNullOrEmpty(VisualHgOptions.Global.DiffToolPath))
+            if (string.IsNullOrEmpty(VisualHgOptions.Global.DiffToolPath))
             {
                 return GetDefaultDiffTool();
             }
-         
+
             return new DiffTool
             {
                 FileName = VisualHgOptions.Global.DiffToolPath,
@@ -103,7 +102,7 @@ namespace VisualHg
         {
             var args = VisualHgOptions.Global.DiffToolArguments;
 
-            if (String.IsNullOrEmpty(args))
+            if (string.IsNullOrEmpty(args))
             {
                 args = "%PathA% --fname %NameA%  %PathB% --fname %NameB%";
             }
@@ -119,9 +118,7 @@ namespace VisualHg
         private static string GetOriginalFileName(string fileName)
         {
             if (VisualHgFileStatus.Matches(fileName, HgFileStatus.Renamed | HgFileStatus.Copied))
-            {
                 return Hg.GetRenamedFileOriginalName(fileName);
-            }
 
             return fileName;
         }

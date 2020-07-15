@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
@@ -10,7 +9,7 @@ namespace VisualHg.Images
     {
         public static Bitmap GetBitmap(string fileName, string resourceName)
         {
-            using (var stream = ImageLoader.GetImageStream(fileName, resourceName))
+            using (var stream = GetImageStream(fileName, resourceName))
             {
                 // The conversion is needed for image splitting 
                 // (Bitmap.Clone throws OutOfMemoryException otherwise)
@@ -24,7 +23,7 @@ namespace VisualHg.Images
             {
                 bitmap.MakeTransparent(bitmap.GetPixel(0, 0));
                 bitmap.Save(stream, ImageFormat.Png);
-         
+
                 return (Bitmap)Image.FromStream(stream);
             }
         }
@@ -54,7 +53,7 @@ namespace VisualHg.Images
         private static Stream GetResourceStream(string resourceName)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resource = String.Concat(typeof(VisualHgPackage).Namespace, ".Resources.", resourceName);
+            var resource = string.Concat(typeof(VisualHgPackage).Namespace, ".Resources.", resourceName);
 
             return assembly.GetManifestResourceStream(resource);
         }

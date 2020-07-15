@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio;
@@ -17,11 +16,17 @@ namespace VisualHg
 
         static VsDiffTool()
         {
-            var interfaceType = VisualStudioShell11.GetType("Microsoft.VisualStudio.Shell.Interop.IVsDifferenceService");
+            var interfaceType =
+                VisualStudioShell11.GetType("Microsoft.VisualStudio.Shell.Interop.IVsDifferenceService");
 
             if (interfaceType != null)
             {
-                diffMethod = interfaceType.GetMethod("OpenComparisonWindow2", new[] { typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(uint) });
+                diffMethod = interfaceType.GetMethod("OpenComparisonWindow2",
+                    new[]
+                    {
+                        typeof(string), typeof(string), typeof(string), typeof(string), typeof(string), typeof(string),
+                        typeof(string), typeof(string), typeof(uint)
+                    });
             }
 
             serviceType = VisualStudioShell11.GetType("Microsoft.VisualStudio.Shell.Interop.SVsDifferenceService");
@@ -33,8 +38,9 @@ namespace VisualHg
             nameA = GetFileName(nameA);
             nameB = GetFileName(nameB);
 
-            var windowFrame = OpenComparisonWindow2(fileA, fileB, String.Format("Diff - {0}", nameB), null, nameA, nameB, String.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
-            
+            var windowFrame = OpenComparisonWindow2(fileA, fileB, string.Format("Diff - {0}", nameB), null, nameA,
+                nameB, string.Format("{0} => {1}", nameA, nameB), null, 0) as IVsWindowFrame2;
+
             if (windowFrame != null)
             {
                 uint cookie;
@@ -47,14 +53,21 @@ namespace VisualHg
             return Regex.Replace(name, @".+\\([^\\]+)", "$1");
         }
 
-        private static IVsWindowFrame OpenComparisonWindow2(string leftFileMoniker, string rightFileMoniker, string caption, string Tooltip, string leftLabel, string rightLabel, string inlineLabel, string roles, uint grfDiffOptions)
+        private static IVsWindowFrame OpenComparisonWindow2(string leftFileMoniker, string rightFileMoniker,
+            string caption, string Tooltip, string leftLabel, string rightLabel, string inlineLabel, string roles,
+            uint grfDiffOptions)
         {
-            object diffService = GetDiffService();
+            var diffService = GetDiffService();
             object returnValue = null;
 
             if (diffService != null && diffMethod != null)
             {
-                returnValue = diffMethod.Invoke(diffService, new object[] { leftFileMoniker, rightFileMoniker, caption, Tooltip, leftLabel, rightLabel, inlineLabel, roles, grfDiffOptions });
+                returnValue = diffMethod.Invoke(diffService,
+                    new object[]
+                    {
+                        leftFileMoniker, rightFileMoniker, caption, Tooltip, leftLabel, rightLabel, inlineLabel, roles,
+                        grfDiffOptions
+                    });
             }
 
             return returnValue as IVsWindowFrame;
@@ -74,7 +87,7 @@ namespace VisualHg
         private class NotifyOnClose : IVsWindowFrameNotify, IVsWindowFrameNotify2
         {
             private readonly VsDiffTool _parent;
-            
+
             public NotifyOnClose(VsDiffTool parent)
             {
                 _parent = parent;

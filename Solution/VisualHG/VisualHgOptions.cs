@@ -30,12 +30,12 @@ namespace VisualHg
             ProjectStatusIncludesChildren = true;
         }
 
-        
+
         private static VisualHgOptions _global;
 
         public static VisualHgOptions Global
         {
-            get => _global ?? (_global = Load());
+            get => _global ??= Load();
             set
             {
                 _global = value;
@@ -44,20 +44,20 @@ namespace VisualHg
         }
 
 
-        private static readonly string optionsPath = Path.Combine
-               (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"VisualHg\Options.xml");
+        private static readonly string OptionsPath = Path.Combine
+        (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            @"VisualHg\Options.xml");
 
         private static VisualHgOptions Load()
         {
-            return Serializer.Deserialize<VisualHgOptions>(optionsPath) ?? new VisualHgOptions();
+            return Serializer.Deserialize<VisualHgOptions>(OptionsPath) ?? new VisualHgOptions();
         }
 
         private static void Save(VisualHgOptions options)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(optionsPath));
+            Directory.CreateDirectory(Path.GetDirectoryName(OptionsPath)!);
 
-            Serializer.Serialize(optionsPath, options);
+            Serializer.Serialize(OptionsPath, options);
         }
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using HgLib;
 using Microsoft.VisualStudio.Shell;
@@ -63,7 +60,8 @@ namespace VisualHg.Controls
                 {
                     if (SingleItemSelected)
                     {
-                        MessageBox.Show(e.Message, VisualHg.Resources.MessageBoxCaption, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(e.Message, VisualHg.Resources.MessageBoxCaption, MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
                 }
             }
@@ -147,8 +145,10 @@ namespace VisualHg.Controls
             openMenuItem.Visibility = BoolToVisibility(!VisualHgFileStatus.Matches(status, HgFileStatus.Deleted));
             commitMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending));
             revertMenuItem.Visibility = BoolToVisibility(VisualHgFileStatus.Matches(status, HgFileStatus.Pending));
-            diffMenuItem.Visibility = BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Comparable));
-            historyMenuItem.Visibility = BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Tracked));
+            diffMenuItem.Visibility =
+                BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Comparable));
+            historyMenuItem.Visibility =
+                BoolToVisibility(SingleItemSelected && VisualHgFileStatus.Matches(status, HgFileStatus.Tracked));
         }
 
 
@@ -166,7 +166,8 @@ namespace VisualHg.Controls
                 return HgFileStatus.None;
             }
 
-            return listView.SelectedItems.Cast<PendingChange>().Select(x => (HgFileStatus)x.Status).Aggregate((x, y) => x | y);
+            return listView.SelectedItems.Cast<PendingChange>().Select(x => (HgFileStatus)x.Status)
+                .Aggregate((x, y) => x | y);
         }
 
         private static Visibility BoolToVisibility(bool value)
@@ -178,7 +179,7 @@ namespace VisualHg.Controls
         private void SetMenuItemImages()
         {
             var images = WpfImageLoader.GetMenuIcons()
-                .Select(x => new Image { Source = x })
+                .Select(x => new Image {Source = x})
                 .ToArray();
 
             commitMenuItem.Icon = images[0];

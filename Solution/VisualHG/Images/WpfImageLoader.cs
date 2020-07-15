@@ -27,7 +27,7 @@ namespace VisualHg.Images
             }
         }
 
-        
+
         private static BitmapImage ToBitmapImage(Bitmap bitmap)
         {
             using (var stream = new MemoryStream())
@@ -69,7 +69,7 @@ namespace VisualHg.Images
                 return Split(bitmap, iconWidth);
             }
         }
-        
+
         private static Bitmap[] Split(Bitmap bitmap, int width)
         {
             try

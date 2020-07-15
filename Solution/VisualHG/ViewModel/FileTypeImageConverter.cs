@@ -30,7 +30,7 @@ namespace VisualHg.ViewModel
             try
             {
                 var icon = GetIconForFile((string)(ComparablePath)value);
-                
+
                 return GetData(icon);
             }
             catch
@@ -42,10 +42,10 @@ namespace VisualHg.ViewModel
         private IVsUIObject GetIconForFile(string fileName)
         {
             var type = imageService.GetType();
-            
-            var getIconMethod = type.GetMethod("GetIconForFile", new[] { typeof(string), typeof(__VSUIDATAFORMAT) });
-                
-            var icon = getIconMethod.Invoke(imageService, new object[] { fileName, __VSUIDATAFORMAT.VSDF_WPF });
+
+            var getIconMethod = type.GetMethod("GetIconForFile", new[] {typeof(string), typeof(__VSUIDATAFORMAT)});
+
+            var icon = getIconMethod.Invoke(imageService, new object[] {fileName, __VSUIDATAFORMAT.VSDF_WPF});
 
             return (IVsUIObject)icon;
         }
@@ -53,7 +53,7 @@ namespace VisualHg.ViewModel
         private static object GetData(IVsUIObject icon)
         {
             object data;
-            
+
             icon.get_Data(out data);
 
             return data;

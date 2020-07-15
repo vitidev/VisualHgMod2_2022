@@ -2,7 +2,7 @@
 {
     public class UpdateRootStatusHgCommand : HgCommand
     {
-        private string _directory;
+        private readonly string _directory;
         
         public UpdateRootStatusHgCommand(string directory)
         {

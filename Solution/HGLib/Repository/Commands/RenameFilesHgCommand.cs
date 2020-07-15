@@ -2,8 +2,8 @@
 {
     public class RenameFilesHgCommand : HgCommand
     {
-        private string[] _fileNames;
-        private string[] _newFileNames;
+        private readonly string[] _fileNames;
+        private readonly string[] _newFileNames;
 
         public RenameFilesHgCommand(string[] fileNames, string[] newFileNames)
         {

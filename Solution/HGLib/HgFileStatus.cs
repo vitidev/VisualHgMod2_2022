@@ -1,5 +1,8 @@
-﻿namespace HgLib
+﻿using System;
+
+namespace HgLib
 {
+    [Flags]
     public enum HgFileStatus
     {
         None = 0x00,
@@ -19,5 +22,5 @@
         Comparable = Modified | Renamed | Copied,
         Deleted = Removed | Missing,
         NotAdded = NotTracked | Ignored,
-    };
+    }
 }

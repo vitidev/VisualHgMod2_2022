@@ -7,21 +7,19 @@ namespace HgLib.Repository
 {
     internal class DirectoryWatcherMap : IDisposable
     {
-        private List<DirectoryWatcher> _watchers;
-        
-        public object SyncRoot { get; private set; }
+        private readonly List<DirectoryWatcher> _watchers;
+
+        public object SyncRoot { get; }
 
         public int Count
         {
             get
             {
                 lock (SyncRoot)
-                {
                     return _watchers.Count;
-                }
             }
         }
-        
+
         public int DirtyFilesCount
         {
             get
@@ -30,16 +28,14 @@ namespace HgLib.Repository
                 {
                     var count = 0;
 
-                    foreach (var watcher in _watchers)
-                    {
+                    foreach (var watcher in _watchers) 
                         count += watcher.DirtyFilesCount;
-                    }
 
                     return count;
                 }
             }
         }
-        
+
         public DateTime LatestChange
         {
             get
@@ -50,10 +46,8 @@ namespace HgLib.Repository
 
                     foreach (var watcher in _watchers)
                     {
-                        if (watcher.LastChange > latestChange)
-                        {
+                        if (watcher.LastChange > latestChange) 
                             latestChange = watcher.LastChange;
-                        }
                     }
 
                     return latestChange;
@@ -71,34 +65,26 @@ namespace HgLib.Repository
 
         public void Dispose()
         {
-            foreach (var watcher in _watchers)
-            {
+            foreach (var watcher in _watchers) 
                 watcher.Dispose();
-            }
         }
 
 
         public bool ContainsDirectory(string directory)
         {
             lock (SyncRoot)
-            {
                 return _watchers.Any(x => x.Directory.Equals(directory, StringComparison.InvariantCultureIgnoreCase));
-            }
         }
 
         public void WatchDirectory(string directory)
         {
             if (!Directory.Exists(directory))
-            {
                 return;
-            }
 
             lock (SyncRoot)
             {
                 if (ContainsDirectory(directory))
-                {
                     return;
-                }
 
                 var addNewWatcher = true;
                 var removeWatcher = new List<DirectoryWatcher>();
@@ -108,19 +94,19 @@ namespace HgLib.Repository
                 {
                     var watcherDirectorySlash = watcher.Directory + "\\";
 
-                    if (watcherDirectorySlash.IndexOf(directorySlash) == 0)
+                    if (watcherDirectorySlash.IndexOf(directorySlash, StringComparison.Ordinal) == 0)
                     {
                         removeWatcher.Add(watcher); // sub-directory of new watcher
                     }
-                    else if (directorySlash.IndexOf(watcherDirectorySlash) == 0)
-                    { 
+                    else if (directorySlash.IndexOf(watcherDirectorySlash, StringComparison.Ordinal) == 0)
+                    {
                         addNewWatcher = false; // directory already watched
                     }
                 }
 
                 if (addNewWatcher)
                 {
-                    for (int pos = 0; pos < removeWatcher.Count; ++pos)
+                    for (var pos = 0; pos < removeWatcher.Count; ++pos)
                     {
                         var watcher = removeWatcher[pos];
                         _watchers.Remove(watcher);
@@ -140,22 +126,18 @@ namespace HgLib.Repository
                 _watchers.Clear();
             }
         }
-        
+
         private void UnsubscribeEvents()
         {
-            foreach (var watcher in _watchers)
-            {
+            foreach (var watcher in _watchers) 
                 watcher.UnsubscribeEvents();
-            }
         }
 
 
         public string[] DumpDirtyFiles()
         {
             lock (SyncRoot)
-            {
                 return _watchers.SelectMany(x => x.DumpDirtyFiles()).ToArray(); // NOTE: DumpDirtyFiles has side effects
-            }
         }
     }
 }

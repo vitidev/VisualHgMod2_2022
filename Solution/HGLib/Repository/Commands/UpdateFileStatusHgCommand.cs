@@ -2,7 +2,7 @@
 {
     public class UpdateFileStatusHgCommand : HgCommand
     {
-        private string[] _fileNames;
+        private readonly string[] _fileNames;
 
         public UpdateFileStatusHgCommand(string[] fileNames)
         {

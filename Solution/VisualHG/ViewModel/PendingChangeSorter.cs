@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows.Controls;
 using System.Windows.Data;
 
@@ -27,14 +26,14 @@ namespace VisualHg.ViewModel
             }
 
             var propertyName = GetBindingPropertyName(columnHeader);
-            
+
             if (sortingColumnHeader != null)
             {
                 sortDescriptions.Clear();
                 AttachedProperty.SetSortDirection(sortingColumnHeader, null);
             }
 
-            if (sortingColumnHeader != columnHeader && !String.IsNullOrEmpty(propertyName))
+            if (sortingColumnHeader != columnHeader && !string.IsNullOrEmpty(propertyName))
             {
                 direction = ListSortDirection.Ascending;
                 sortingColumnHeader = columnHeader;

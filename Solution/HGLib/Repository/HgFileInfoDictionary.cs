@@ -6,9 +6,9 @@ namespace HgLib.Repository
 {
     internal class HgFileInfoDictionary
     {
-        private Dictionary<string, HgFileInfo> items;
+        private readonly Dictionary<string, HgFileInfo> items;
 
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
         public int Count
         {
@@ -40,7 +40,7 @@ namespace HgLib.Repository
             {
                 HgFileInfo fileInfo = null;
 
-                if (!String.IsNullOrEmpty(fileName))
+                if (!string.IsNullOrEmpty(fileName))
                 {
                     lock (SyncRoot)
                     {

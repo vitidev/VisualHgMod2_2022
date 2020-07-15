@@ -10,7 +10,7 @@ namespace VisualHg.ViewModel
 
 
         public string ShortName { get; set; }
-        
+
         public string RootName { get; set; }
 
         public ComparablePath Name { get; set; }
@@ -39,7 +39,9 @@ namespace VisualHg.ViewModel
         public event PropertyChangedEventHandler PropertyChanged = (s, e) => { };
 
 
-        public PendingChange() { }
+        public PendingChange()
+        {
+        }
 
         public PendingChange(HgFileInfo file)
         {

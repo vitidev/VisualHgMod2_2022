@@ -5,60 +5,50 @@ namespace HgLib
 {
     public class HgFileInfo
     {
-        private bool exists;
-        private DateTime lastWriteTime;
-        private HgFileStatus _status;
+        private bool _exists;
+        private DateTime _lastWriteTime;
+        private readonly HgFileStatus _status;
 
 
-        internal HgFileInfo OriginalFile { get; set; }
+        internal HgFileInfo? OriginalFile { get; set; }
 
-        public string Root { get; private set; }
+        public string Root { get; }
 
-        public string RootName { get; private set; }
+        public string RootName { get; }
 
-        public string Name { get; private set; }
-        
-        public string ShortName { get; private set; }
+        public string Name { get; }
 
-        public string FullName { get; private set; }
+        public string ShortName { get; }
+
+        public string FullName { get; }
 
         public HgFileStatus Status
         {
             get
             {
                 if (OriginalFile != null)
-                {
-                    return OriginalFile.exists ? HgFileStatus.Copied : HgFileStatus.Renamed;
-                }
+                    return OriginalFile._exists ? HgFileStatus.Copied : HgFileStatus.Renamed;
 
                 return _status;
             }
         }
 
-        public string OriginalName
-        {
-            get { return OriginalFile != null ? OriginalFile.Name : Name; }
-        }
+        public string OriginalName => OriginalFile != null ? OriginalFile.Name : Name;
 
-        public string OriginalFullName
-        {
-            get { return OriginalFile != null ? OriginalFile.FullName : FullName; }
-        }
+        public string OriginalFullName => OriginalFile != null ? OriginalFile.FullName : FullName;
 
         public bool HasChanged
         {
             get
             {
                 if (StatusMatches(HgFileStatus.NotAdded))
-                {
                     return false;
-                }
 
                 try
                 {
                     var file = new FileInfo(FullName);
 
-                    return exists != file.Exists || file.LastWriteTime != lastWriteTime;
+                    return _exists != file.Exists || file.LastWriteTime != _lastWriteTime;
                 }
                 catch
                 {
@@ -67,7 +57,7 @@ namespace HgLib
             }
         }
 
-        
+
         public HgFileInfo(string root, string name, char status)
         {
             Root = root;
@@ -77,10 +67,8 @@ namespace HgLib
             ShortName = Path.GetFileName(name);
             FullName = Path.Combine(root, name);
 
-            if (Status != HgFileStatus.None && !StatusMatches(HgFileStatus.Deleted))
-            {
+            if (Status != HgFileStatus.None && !StatusMatches(HgFileStatus.Deleted)) 
                 InitializeFileProperties(FullName);
-            }
         }
 
         private void InitializeFileProperties(string fileName)
@@ -91,11 +79,14 @@ namespace HgLib
 
                 if (file.Exists)
                 {
-                    exists = true;
-                    lastWriteTime = file.LastWriteTime;
+                    _exists = true;
+                    _lastWriteTime = file.LastWriteTime;
                 }
             }
-            catch { }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch
+            {
+            }
         }
 
 
@@ -111,7 +102,7 @@ namespace HgLib
 
         public override string ToString()
         {
-            return String.Concat(Status, ' ', Name);
+            return string.Concat(Status, ' ', Name);
         }
     }
 }

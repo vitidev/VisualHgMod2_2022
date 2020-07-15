@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.Win32;
 
 namespace HgLib
@@ -18,7 +17,7 @@ namespace HgLib
         {
             get
             {
-                if (String.IsNullOrEmpty(_tortoiseHgDirectory))
+                if (string.IsNullOrEmpty(_tortoiseHgDirectory))
                 {
                     using (var key = OpenTortoiseHgRegistryKey())
                     {
@@ -34,7 +33,7 @@ namespace HgLib
         {
             get
             {
-                if (String.IsNullOrEmpty(_tortoiseHgExecutablePath))
+                if (string.IsNullOrEmpty(_tortoiseHgExecutablePath))
                 {
                     var hgDir = TortoiseHgDirectory;
 
@@ -52,10 +51,8 @@ namespace HgLib
         {
             get
             {
-                if (String.IsNullOrEmpty(_hgExecutablePath))
-                {
+                if (string.IsNullOrEmpty(_hgExecutablePath))
                     _hgExecutablePath = Path.Combine(TortoiseHgDirectory, "hg.exe");
-                }
 
                 return _hgExecutablePath;
             }
@@ -65,10 +62,8 @@ namespace HgLib
         {
             get
             {
-                if (String.IsNullOrEmpty(_kdiffExecutablePath))
-                {
+                if (string.IsNullOrEmpty(_kdiffExecutablePath))
                     _kdiffExecutablePath = Path.Combine(TortoiseHgDirectory, "kdiff3.exe");
-                }
 
                 return _kdiffExecutablePath;
             }
@@ -76,7 +71,7 @@ namespace HgLib
 
         private static RegistryKey OpenTortoiseHgRegistryKey()
         {
-            return 
+            return
                 Registry.CurrentUser.OpenSubKey(TortoiseHgRegistryKey) ??
                 Registry.LocalMachine.OpenSubKey(TortoiseHgRegistryKey);
         }
@@ -85,21 +80,17 @@ namespace HgLib
         public static bool IsDirectory(string path)
         {
             if (File.Exists(path) || Directory.Exists(path))
-            {
                 return File.GetAttributes(path).HasFlag(FileAttributes.Directory);
-            }
 
             return false;
         }
 
         public static string FindRepositoryRoot(string path)
         {
-            while (!String.IsNullOrEmpty(path))
+            while (!string.IsNullOrEmpty(path))
             {
                 if (Directory.Exists(Path.Combine(path, ".hg")))
-                {
                     break;
-                }
 
                 path = GetParentDirectory(path);
             }
@@ -109,7 +100,7 @@ namespace HgLib
 
         private static string GetParentDirectory(string path)
         {
-            DirectoryInfo parent;
+            DirectoryInfo? parent;
 
             try
             {

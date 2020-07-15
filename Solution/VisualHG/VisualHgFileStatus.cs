@@ -1,4 +1,3 @@
-using System;
 using HgLib;
 using Microsoft.VisualStudio.Shell;
 
@@ -18,17 +17,13 @@ namespace VisualHg
 
         public static bool Matches(string fileName, HgFileStatus pattern)
         {
-            if (String.IsNullOrEmpty(fileName))
-            {
+            if (string.IsNullOrEmpty(fileName))
                 return false;
-            }
 
             if (HgPath.IsDirectory(fileName))
-            {
                 return false;
-            }
 
-            var visualHgService = Package.GetGlobalService(typeof(VisualHgService)) as VisualHgService;
+            var visualHgService = (VisualHgService)Package.GetGlobalService(typeof(VisualHgService));
 
             var status = visualHgService.GetFileStatus(fileName);
 

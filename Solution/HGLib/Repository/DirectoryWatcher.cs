@@ -6,12 +6,12 @@ namespace HgLib.Repository
 {
     internal class DirectoryWatcher : IDisposable
     {
-        private List<string> _dirtyFiles;
-        private FileSystemWatcher _watcher;
+        private readonly List<string> _dirtyFiles;
+        private readonly FileSystemWatcher _watcher;
 
-        public object SyncRoot { get; private set; }
+        public object SyncRoot { get; }
 
-        public string Directory { get; private set; }
+        public string Directory { get; }
 
         public DateTime LastChange { get; private set; }
 
@@ -39,11 +39,11 @@ namespace HgLib.Repository
                 Path = directory,
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.FileName |
-                    NotifyFilters.Attributes |
-                    NotifyFilters.LastWrite |
-                    NotifyFilters.Size |
-                    NotifyFilters.CreationTime |
-                    NotifyFilters.DirectoryName,
+                               NotifyFilters.Attributes |
+                               NotifyFilters.LastWrite |
+                               NotifyFilters.Size |
+                               NotifyFilters.CreationTime |
+                               NotifyFilters.DirectoryName,
             };
 
             _watcher.Changed += OnChanged;
@@ -77,14 +77,14 @@ namespace HgLib.Repository
             lock (SyncRoot)
             {
                 var dump = _dirtyFiles.ToArray();
-                
+
                 _dirtyFiles.Clear();
 
                 return dump;
             }
         }
 
-        
+
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
             if (IsVisualStudioTempFile(e.FullPath))
@@ -97,8 +97,8 @@ namespace HgLib.Repository
 
         private static bool IsVisualStudioTempFile(string path)
         {
-            return path.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase) && 
-                (path.IndexOf("~RF") > -1 || path.IndexOf("\\ve-") > -1);
+            return path.EndsWith(".tmp", StringComparison.InvariantCultureIgnoreCase) &&
+                   (path.IndexOf("~RF", StringComparison.Ordinal) > -1 || path.IndexOf("\\ve-", StringComparison.Ordinal) > -1);
         }
 
         private void OnRenamed(object sender, RenamedEventArgs e)
@@ -114,10 +114,8 @@ namespace HgLib.Repository
         {
             lock (SyncRoot)
             {
-                if (!_dirtyFiles.Contains(path))
-                {
+                if (!_dirtyFiles.Contains(path)) 
                     _dirtyFiles.Add(path);
-                }
 
                 LastChange = DateTime.Now;
             }

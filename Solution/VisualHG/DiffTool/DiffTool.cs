@@ -31,7 +31,7 @@ namespace VisualHg
             catch (Win32Exception e)
             {
                 OnExited();
-                
+
                 throw new InvalidOperationException("Diff tool start failed", e);
             }
         }
@@ -39,10 +39,10 @@ namespace VisualHg
         private string GetArguments(string fileA, string fileB, string nameA, string nameB)
         {
             return Arguments
-                .Replace("%PathA%", String.Concat('"', fileA, '"'))
-                .Replace("%PathB%", String.Concat('"', fileB, '"'))
-                .Replace("%NameA%", String.Concat('"', nameA, '"'))
-                .Replace("%NameB%", String.Concat('"', nameB, '"'));
+                .Replace("%PathA%", string.Concat('"', fileA, '"'))
+                .Replace("%PathB%", string.Concat('"', fileB, '"'))
+                .Replace("%NameA%", string.Concat('"', nameA, '"'))
+                .Replace("%NameB%", string.Concat('"', nameB, '"'));
         }
 
         protected void OnExited()

@@ -11,28 +11,27 @@ namespace HgLib
         private const int UpdateInterval = 2000;
         private const int RequireUpdateAllFileLimit = 200;
 
-        private int ignoreRequireUpdateAll;
-        private bool updateAllRequired;
-        private Timer updateTimer;
-        private HgCommandQueue commands;
-        private DirectoryWatcherMap directoryWatchers;
+        private int _ignoreRequireUpdateAll;
+        private bool _updateAllRequired;
+        private readonly Timer _updateTimer;
+        private readonly HgCommandQueue _commands;
+        private readonly DirectoryWatcherMap _directoryWatchers;
 
 
         public HgRepository()
         {
-            commands = new HgCommandQueue();
-            directoryWatchers = new DirectoryWatcherMap();
+            _commands = new HgCommandQueue();
+            _directoryWatchers = new DirectoryWatcherMap();
 
-            updateTimer = new Timer
-            { 
+            _updateTimer = new Timer
+            {
                 AutoReset = false,
                 Interval = 100,
             };
 
-            updateTimer.Elapsed += OnTimerElapsed;
-            updateTimer.Start();
+            _updateTimer.Elapsed += OnTimerElapsed;
+            _updateTimer.Start();
         }
-
 
         public virtual void AddFiles(params string[] fileNames)
         {
@@ -58,7 +57,6 @@ namespace HgLib
         {
             Enqueue(new UpdateRootStatusHgCommand(path));
         }
-
 
         internal void AddFilesInternal(string[] fileNames)
         {
@@ -96,8 +94,8 @@ namespace HgLib
         {
             if (disposing)
             {
-                updateTimer.Dispose();
-                directoryWatchers.Dispose();
+                _updateTimer.Dispose();
+                _directoryWatchers.Dispose();
             }
         }
 
@@ -105,12 +103,12 @@ namespace HgLib
         {
             base.AddRoot(root);
 
-            directoryWatchers.WatchDirectory(root);
+            _directoryWatchers.WatchDirectory(root);
         }
 
         public override void Clear()
         {
-            directoryWatchers.Clear();
+            _directoryWatchers.Clear();
             base.Clear();
         }
 
@@ -119,7 +117,7 @@ namespace HgLib
         {
             try
             {
-                var commandsToRun = commands.Dump();
+                var commandsToRun = _commands.Dump();
 
                 if (commandsToRun.Length > 0)
                 {
@@ -140,15 +138,17 @@ namespace HgLib
         {
             try
             {
-                updateTimer.Start();
+                _updateTimer.Start();
             }
-            catch (ObjectDisposedException) { }
+            catch (ObjectDisposedException)
+            {
+            }
         }
 
 
         private void Enqueue(HgCommand command)
         {
-            commands.Enqueue(command);
+            _commands.Enqueue(command);
         }
 
         private void RunCommands(HgCommand[] commands)
@@ -157,10 +157,8 @@ namespace HgLib
             {
                 BeginUpdate();
 
-                foreach (var command in commands)
-                {
+                foreach (var command in commands) 
                     command.Run(this);
-                }
             }
             finally
             {
@@ -171,14 +169,10 @@ namespace HgLib
 
         protected virtual void Update()
         {
-            if (updateAllRequired)
-            {
+            if (_updateAllRequired)
                 UpdateAll();
-            }
             else
-            {
                 UpdateDirtyFiles();
-            }
         }
 
         private void UpdateAll()
@@ -188,12 +182,10 @@ namespace HgLib
                 BeginUpdate();
 
                 ClearCache();
-                directoryWatchers.DumpDirtyFiles();
+                _directoryWatchers.DumpDirtyFiles();
 
-                foreach (var root in Roots)
-                {
+                foreach (var root in Roots) 
                     UpdateRootStatusProtected(root);
-                }
             }
             finally
             {
@@ -204,20 +196,14 @@ namespace HgLib
         private void UpdateDirtyFiles()
         {
             if (CanIgnoreDirtyFiles())
-            {
                 return;
-            }
 
-            var dirtyFiles = directoryWatchers.DumpDirtyFiles();
+            var dirtyFiles = _directoryWatchers.DumpDirtyFiles();
 
             if (HgDirstateChanged(dirtyFiles))
-            {
                 RequireUpdateAll();
-            }
             else
-            {
                 UpdateDirtyFiles(dirtyFiles);
-            }
         }
 
         private bool CanIgnoreDirtyFiles()
@@ -225,10 +211,10 @@ namespace HgLib
             int dirtyFilesCount;
             double elapsed;
 
-            lock (directoryWatchers.SyncRoot)
+            lock (_directoryWatchers.SyncRoot)
             {
-                dirtyFilesCount = directoryWatchers.DirtyFilesCount;
-                elapsed = (DateTime.Now - directoryWatchers.LatestChange).TotalMilliseconds;
+                dirtyFilesCount = _directoryWatchers.DirtyFilesCount;
+                elapsed = (DateTime.Now - _directoryWatchers.LatestChange).TotalMilliseconds;
             }
 
             return elapsed < UpdateInterval || dirtyFilesCount == 0;
@@ -236,7 +222,7 @@ namespace HgLib
 
         private bool HgDirstateChanged(string[] dirtyFiles)
         {
-            return dirtyFiles.Any(x => x.IndexOf(@".hg\dirstate") != -1);
+            return dirtyFiles.Any(x => x.IndexOf(@".hg\dirstate", StringComparison.Ordinal) != -1);
         }
 
         private void UpdateDirtyFiles(string[] dirtyFiles)
@@ -244,9 +230,7 @@ namespace HgLib
             var filesToUpdate = dirtyFiles.Where(FileChangeIsOfInterest).ToArray();
 
             if (filesToUpdate.Length > RequireUpdateAllFileLimit)
-            {
                 RequireUpdateAll();
-            }
             else if (filesToUpdate.Length > 0)
             {
                 UpdateFileStatusProtected(dirtyFiles);
@@ -257,15 +241,11 @@ namespace HgLib
         protected virtual bool FileChangeIsOfInterest(string fileName)
         {
             if (HgPath.IsDirectory(fileName))
-            {
                 return false;
-            }
-            
-            if (fileName.IndexOf(@"\.hg") != -1)
-            {
+
+            if (fileName.IndexOf(@"\.hg", StringComparison.Ordinal) != -1)
                 return false;
-            }
-            
+
             return HasChanged(fileName);
         }
 
@@ -275,27 +255,25 @@ namespace HgLib
 
             return fileInfo == null || fileInfo.HasChanged;
         }
-        
+
 
         protected void BeginUpdate()
         {
-            ignoreRequireUpdateAll++;
-            updateAllRequired = false;
+            _ignoreRequireUpdateAll++;
+            _updateAllRequired = false;
         }
 
         protected void EndUpdate()
         {
-            ignoreRequireUpdateAll = Math.Max(0, ignoreRequireUpdateAll - 1);
+            _ignoreRequireUpdateAll = Math.Max(0, _ignoreRequireUpdateAll - 1);
 
-            if (ignoreRequireUpdateAll == 0)
-            {
+            if (_ignoreRequireUpdateAll == 0) 
                 OnStatusChanged();
-            }
         }
 
         private void RequireUpdateAll()
         {
-            updateAllRequired = (ignoreRequireUpdateAll == 0);
+            _updateAllRequired = _ignoreRequireUpdateAll == 0;
         }
     }
 }

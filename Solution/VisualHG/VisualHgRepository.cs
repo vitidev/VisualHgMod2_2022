@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EnvDTE;
 using HgLib;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VisualHg
@@ -12,7 +14,7 @@ namespace VisualHg
         private bool _solutionBuilding;
         private string[] lastAddition;
 
-        public VisualHgFileSet SolutionFiles { get; private set; }
+        public VisualHgFileSet SolutionFiles { get; }
 
         public override HgFileInfo[] PendingFiles
         {
@@ -59,7 +61,7 @@ namespace VisualHg
         public override void RenameFiles(string[] fileNames, string[] newFileNames)
         {
             SolutionFiles.Add(newFileNames);
-         
+
             base.RenameFiles(fileNames, newFileNames);
         }
 
@@ -89,7 +91,7 @@ namespace VisualHg
         {
             return VisualHgSolution.LoadedProjects
                 .SelectMany(x => VisualHgSolution.GetProjectFiles(x))
-                .Concat(new[] { VisualHgSolution.SolutionFileName })
+                .Concat(new[] {VisualHgSolution.SolutionFileName})
                 .ToArray();
         }
 
@@ -102,31 +104,30 @@ namespace VisualHg
         private static string[] GetRoots(IVsSolution solution)
         {
             return GetProjectFiles(solution)
-                .Where(x => !String.IsNullOrEmpty(x))
-                .Select(x => Path.GetDirectoryName(x))
-                .Select(x => HgPath.FindRepositoryRoot(x))
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Select(Path.GetDirectoryName)
+                .Select(HgPath.FindRepositoryRoot)
                 .Distinct()
                 .ToArray();
         }
 
         private static string[] GetProjectFiles(IVsSolution solution)
         {
-            uint numberOfProjects;
-            solution.GetProjectFilesInSolution(0, 0, null, out numberOfProjects);
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            solution.GetProjectFilesInSolution(0, 0, null, out var numberOfProjects);
 
             var projectFiles = new string[numberOfProjects];
             solution.GetProjectFilesInSolution(0, numberOfProjects, projectFiles, out numberOfProjects);
-            
+
             return projectFiles;
         }
 
 
         protected override void Update()
         {
-            if (!_solutionBuilding)
-            {
+            if (!_solutionBuilding) 
                 base.Update();
-            }
         }
 
         protected override bool FileChangeIsOfInterest(string fileName)
@@ -138,9 +139,7 @@ namespace VisualHg
         private static bool FilesMovedBetweenProjects(string[] removedFiles, string[] addedFiles)
         {
             if (removedFiles == null || addedFiles == null || removedFiles.Length != addedFiles.Length)
-            {
                 return false;
-            }
 
             return removedFiles.SequenceEqual(addedFiles, new CrossProjectRenamesComparer());
         }
@@ -150,15 +149,12 @@ namespace VisualHg
         {
             private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
 
-            public bool Equals(string x, string y)
-            {
-                return GetHashCode(x) == GetHashCode(y);
-            }
+            public bool Equals(string x, string y) => GetHashCode(x) == GetHashCode(y);
 
             public int GetHashCode(string s)
             {
-                return 
-                    Comparer.GetHashCode(Path.GetFileName(s)) ^ 
+                return
+                    Comparer.GetHashCode(Path.GetFileName(s)) ^
                     Comparer.GetHashCode(HgPath.FindRepositoryRoot(s));
             }
         }

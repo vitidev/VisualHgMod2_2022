@@ -7,14 +7,16 @@ namespace VisualHg.ViewModel
     {
         public string Value { get; set; }
 
-        
-        public ComparablePath() { }
+
+        public ComparablePath()
+        {
+        }
 
         public ComparablePath(string value)
         {
             Value = value;
         }
-        
+
 
         public override string ToString()
         {
@@ -41,7 +43,7 @@ namespace VisualHg.ViewModel
 
         private static int GetPathDepth(string path)
         {
-            if (String.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 return 0;
             }

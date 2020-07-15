@@ -9,7 +9,8 @@ namespace VisualHg.ViewModel
 {
     public class StatusImageConverter : IValueConverter
     {
-        private static readonly BitmapSource[] images = WpfImageLoader.GetStatusIcons(VisualHgOptions.Global.StatusImageFileName);
+        private static readonly BitmapSource[] images =
+            WpfImageLoader.GetStatusIcons(VisualHgOptions.Global.StatusImageFileName);
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
