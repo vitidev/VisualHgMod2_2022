@@ -95,6 +95,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <CreateVsixContainer>True</CreateVsixContainer>
     <DeployExtension>True</DeployExtension>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -107,6 +108,7 @@
     <CreateVsixContainer>True</CreateVsixContainer>
     <CopyVsixExtensionFiles>True</CopyVsixExtensionFiles>
     <DeployExtension>True</DeployExtension>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- Conditional references. -->
