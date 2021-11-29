@@ -537,8 +537,8 @@ namespace VisualHg
                     bool prjModified = false;
                     foreach (var entry in entries)
                     {
-                        if (!prjModified && entry.Status != HgFileStatus.Clean 
-                            && entry.Status != HgFileStatus.None 
+                        if (!prjModified && entry.Status != HgFileStatus.Clean
+                            && entry.Status != HgFileStatus.None
                             && entry.Status != HgFileStatus.Ignored
                             && entry.Status != HgFileStatus.Missing
                             )
