@@ -488,11 +488,11 @@ namespace VisualHg
         }
 
 
-        int IVsSccGlyphs.GetCustomGlyphList(uint BaseIndex, out uint pdwImageListHandle)
+        int IVsSccGlyphs.GetCustomGlyphList(uint BaseIndex, out IntPtr pdwImageListHandle)
         {
             InitializeStatusImageList(BaseIndex);
 
-            pdwImageListHandle = (uint)statusImageList.Handle;
+            pdwImageListHandle = statusImageList.Handle;
 
             return VSConstants.S_OK;
         }
