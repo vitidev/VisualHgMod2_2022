@@ -1,3 +1,10 @@
+using EnvDTE;
+using HgLib;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Imaging;
+using Microsoft.VisualStudio.Imaging.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,25 +13,20 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using EnvDTE;
-using HgLib;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using VisualHg.Images;
 
 namespace VisualHg
 {
     [Guid(Guids.Service)]
     public sealed class VisualHgService : IDisposable,
-        IVsSccProvider, IVsSccGlyphs, IVsSccManager2, IVsSccManagerTooltip,
+        IVsSccProvider, IVsSccGlyphs2, IVsSccManager2, IVsSccManagerTooltip,
         IVsSolutionEvents, IVsUpdateSolutionEvents, IVsQueryEditQuerySave2, IVsTrackProjectDocumentsEvents2
     {
         private const int UpdateInterval = 100;
 
         private static bool StatusIconsLimited => VisualHgPackage.VsVersion < 11;
 
-        private uint iconBaseIndex;
+        private uint iconBaseIndex = (uint)VsStateIcon.STATEICON_MAXINDEX;
         private ImageList statusImageList;
 
         private bool _active;
@@ -93,7 +95,7 @@ namespace VisualHg
             repository.StatusChanged -= OnRepositoryStatusChanged;
             repository.Dispose();
 
-            statusImageList.Dispose();
+            statusImageList?.Dispose();
 
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -128,7 +130,7 @@ namespace VisualHg
 
         private void OnRepositoryStatusChanged(object sender, EventArgs e)
         {
-            if (EnoughTimePassedSinceLastUpdate()) 
+            if (EnoughTimePassedSinceLastUpdate())
                 worker.RequestDoWork();
         }
 
@@ -171,7 +173,7 @@ namespace VisualHg
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            foreach (var project in VisualHgSolution.LoadedProjects) 
+            foreach (var project in VisualHgSolution.LoadedProjects)
                 UpdateProjectStatusIcons(project);
         }
 
@@ -221,9 +223,9 @@ namespace VisualHg
                 if (projectStatus == HgFileStatus.None && projectUnderControl)
                     projectStatus = HgFileStatus.Clean;
 
-                var rgsiGlyphs = new[] {GetStatusIcon(projectStatus)};
-                var rgdwSccStatus = new[] {(uint)projectStatus};
-                var rguiAffectedNodes = new[] {VSConstants.VSITEMID_ROOT};
+                var rgsiGlyphs = new[] { GetStatusIcon(projectStatus) };
+                var rgdwSccStatus = new[] { (uint)projectStatus };
+                var rguiAffectedNodes = new[] { VSConstants.VSITEMID_ROOT };
                 project.SccGlyphChanged(1, rguiAffectedNodes, rgsiGlyphs, rgdwSccStatus);
             }
         }
@@ -239,7 +241,7 @@ namespace VisualHg
         private void UpdateMainWindowCaption()
         {
             var branches = repository.Branches;
-            var text = branches.Length > 0 
+            var text = branches.Length > 0
                 ? branches.Distinct().Aggregate((x, y) => string.Concat(x, ", ", y))
                 : "";
 
@@ -262,7 +264,7 @@ namespace VisualHg
                 @"^(?<Solution>[^\(]+)(?<AdditionalInfo> \(.+\))? (?<Application>- [^\(]+) (?<User>\(.+\)) ?(?<Instance>- .+)?$",
                 string.Concat("${Solution}", additionalInfo, "${Application} ${User} ${Instance}"));
 
-            if (caption != newCaption) 
+            if (caption != newCaption)
                 SetWindowText((IntPtr)dte.MainWindow.HWnd, newCaption);
         }
 
@@ -324,7 +326,7 @@ namespace VisualHg
 
         private void OnProjectRegister(IVsSccProject2 project)
         {
-            if (project != null) 
+            if (project != null)
                 repository.UpdateProject(project);
         }
 
@@ -430,7 +432,7 @@ namespace VisualHg
 
         private void OnFileSave(params string[] fileNames)
         {
-            if (Active) 
+            if (Active)
                 repository.UpdateFileStatus(fileNames);
         }
 
@@ -467,6 +469,7 @@ namespace VisualHg
         }
 
 
+
         #region Interfaces implementation
 
         int IVsSccProvider.AnyItemsUnderSourceControl(out int pfResult)
@@ -486,17 +489,6 @@ namespace VisualHg
             Active = false;
             return VSConstants.S_OK;
         }
-
-
-        int IVsSccGlyphs.GetCustomGlyphList(uint BaseIndex, out IntPtr pdwImageListHandle)
-        {
-            InitializeStatusImageList(BaseIndex);
-
-            pdwImageListHandle = statusImageList.Handle;
-
-            return VSConstants.S_OK;
-        }
-
 
         int IVsSccManager2.BrowseForProject(out string pbstrDirectory, out int pfOK)
         {
@@ -518,32 +510,52 @@ namespace VisualHg
                 return VSConstants.S_OK;
             }
 
-            if (rgdwSccStatus.Length == 1)
+            if (rgdwSccStatus != null)
             {
-                rgsiGlyphs[0] = GetStatusIcon(rgpszFullPaths[0]);
-            }
-            else
-            {
-                var entries = new List<FileOrDirEntry>();
-                for (var i = 0; i < rgpszFullPaths.Length; i++)
+                if (rgdwSccStatus.Length == 1)
                 {
-                    var fullPath = rgpszFullPaths[i];
-                    var status = repository.GetFileStatus(fullPath);
-                    var entry = new FileOrDirEntry(fullPath, status, i);
-
-                    foreach (var dirEntry in entries.Where(e => e.IsDirectory))
+                    rgsiGlyphs[0] = GetStatusIcon(rgpszFullPaths[0]);
+                }
+                else
+                {
+                    var entries = new List<FileOrDirEntry>();
+                    for (var i = 0; i < rgpszFullPaths.Length; i++)
                     {
-                        if (dirEntry.Contains(entry))
-                            dirEntry.UpdateStatus(entry.Status);
+                        var fullPath = rgpszFullPaths[i];
+                        var status = repository.GetFileStatus(fullPath);
+                        var entry = new FileOrDirEntry(fullPath, status, i);
+
+                        foreach (var dirEntry in entries.Where(e => e.IsDirectory))
+                        {
+                            if (dirEntry.Contains(entry))
+                                dirEntry.UpdateStatus(entry.Status);
+                        }
+
+                        entries.Add(entry);
                     }
 
-                    entries.Add(entry);
-                }
+                    bool prjModified = false;
+                    foreach (var entry in entries)
+                    {
+                        if (!prjModified && entry.Status != HgFileStatus.Clean 
+                            && entry.Status != HgFileStatus.None 
+                            && entry.Status != HgFileStatus.Ignored
+                            && entry.Status != HgFileStatus.Missing
+                            )
+                            prjModified = true;
+                        rgdwSccStatus[entry.Index] = (uint)entry.Status;
+                        rgsiGlyphs[entry.Index] = GetStatusIcon(entry.Status);
+                    }
 
-                foreach (var entry in entries)
-                {
-                    rgdwSccStatus[entry.Index] = (uint)entry.Status;
-                    rgsiGlyphs[entry.Index] = GetStatusIcon(entry.Status);
+                    if (prjModified)
+                    {
+                        var prjFileIndex = Array.FindIndex(rgpszFullPaths, i => i.EndsWith(".csproj"));
+                        if (prjFileIndex != -1)
+                        {
+                            rgdwSccStatus[prjFileIndex] = (uint)HgFileStatus.Modified;
+                            rgsiGlyphs[prjFileIndex] = GetStatusIcon(HgFileStatus.Modified);
+                        }
+                    }
                 }
             }
 
@@ -860,6 +872,64 @@ namespace VisualHg
             }
 
             public bool Contains(FileOrDirEntry fileOrDirEntry) => fileOrDirEntry.Path.StartsWith(Path);
+        }
+
+
+        // Create a new moniker list to contain the new monikers.
+        private readonly IVsImageMonikerImageList monikerList = new MonikerList();
+
+        public IVsImageMonikerImageList GetCustomGlyphMonikerList(uint baseIndex)
+        {
+            return monikerList;
+        }
+
+        /// <summary>
+        /// Define the custom monikers to be displayed in the moniker list. In this case, we are using 
+        /// predefined image monikers from the known moniker list.
+        /// </summary>
+        private class MonikerList : IVsImageMonikerImageList
+        {
+            /// <summary>
+            /// This list of custom monikers will be appended to the standard moniker list
+            /// </summary>
+            List<ImageMoniker> monikers = new List<ImageMoniker>
+            {
+                KnownMonikers.OnlineStatusBusy, //???
+                KnownMonikers.OnlineStatusBusy, //Modified ++
+                KnownMonikers.AddNoColor, //Added +++
+                KnownMonikers.Cancel, //Removed
+                KnownMonikers.OnlineStatusAvailable, //Clean
+                KnownMonikers.OnlineStatusAway, //Missing
+                KnownMonikers.Blank, //NotTracked
+                KnownMonikers.OnlineStatusUnknown, //Ignored
+                KnownMonikers.OnlineStatusOffline, //Renamed
+                KnownMonikers.OnlineStatusOffline, //Copied
+            };
+
+            /// <summary>
+            /// Function required by IVsImageMonikerList
+            /// </summary>
+            public int ImageCount
+            {
+                get
+                {
+                    return monikers.Count;
+                }
+            }
+
+            /// <summary>
+            /// Add custom image monikers to array of monikers.
+            /// </summary>
+            /// <param name="firstImageIndex">Index value of the first custom moniker to add.</param>
+            /// <param name="imageMonikerCount">Number of image monikers to add to array</param>
+            /// <param name="imageMonikers">Array of image monikers. Assign custom monikers to elements of this array</param>
+            public void GetImageMonikers(int firstImageIndex, int imageMonikerCount, ImageMoniker[] imageMonikers)
+            {
+                for (int ii = 0; ii < imageMonikerCount; ii++)
+                {
+                    imageMonikers[ii] = monikers[firstImageIndex + ii];
+                }
+            }
         }
     }
 }
