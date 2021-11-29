@@ -28,6 +28,7 @@ namespace VisualHg
     [ProvideOptionPage(typeof(VisualHgOptionsPage), "Source Control", "VisualHg", 102, 100, false)]
     [ProvideOptionsPageVisibility("Source Control", "VisualHg", Guids.Provider)]
     [Guid(Guids.Package)]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class VisualHgPackage : Package, IOleCommandTarget, IDisposable
     {
         private const int OlecmderrENotsupported = (int)OleInteropConstants.OLECMDERR_E_NOTSUPPORTED;

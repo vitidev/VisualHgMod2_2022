@@ -1,27 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011"
-                 xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
-  <Metadata>
-    <Identity Id="VisualHG..DADADA00-dfd3-4e42-a61c-499121e136f3" Version="1.0" Language="en-US" Publisher="vitidev" />
-    <DisplayName>VisualHG Mod2</DisplayName>
-    <Description xml:space="preserve">Mercurial source control integration (VisualHg Mod2)</Description>
-    <MoreInfo>https://bitbucket.org/vitidev/visualhgmod2/</MoreInfo>
-    <Icon>Resources\Product.ico</Icon>
-    <!--<Tags></Tags>-->
-  </Metadata>
-  <Installation>
-    <InstallationTarget Version="[11.0,17.0)" Id="Microsoft.VisualStudio.Community" />
-    <InstallationTarget Version="[11.0,17.0)" Id="Microsoft.VisualStudio.Pro" />
-  </Installation>
-  <Dependencies>
-  </Dependencies>
-  <Prerequisites>
-    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,)"
-                  DisplayName="Visual Studio core editor" />
-  </Prerequisites>
-  <Assets>
-    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%"
-           Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
-  </Assets>
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="VisualHG..DADADA00-dfd3-4e42-a61c-499121e136f3" Version="1.0" Language="en-US" Publisher="vitidev" />
+        <DisplayName>VisualHg Mod2 (2022)</DisplayName>
+        <Description xml:space="preserve">Mercurial source control integration (VisualHg Mod2)</Description>
+        <Icon>Resources\Package.ico</Icon>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Version="[17.0,18.0)" Id="Microsoft.VisualStudio.Enterprise">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+        <InstallationTarget Version="[17.0,18.0)" Id="Microsoft.VisualStudio.Pro">
+            <ProductArchitecture>amd64</ProductArchitecture>
+        </InstallationTarget>
+    </Installation>
+    <Dependencies>
+        <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+    </Dependencies>
+    <Prerequisites>
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,18.0)" DisplayName="Visual Studio core editor" />
+    </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    </Assets>
 </PackageManifest>
