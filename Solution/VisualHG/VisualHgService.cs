@@ -541,6 +541,7 @@ namespace VisualHg
                             && entry.Status != HgFileStatus.None
                             && entry.Status != HgFileStatus.Ignored
                             && entry.Status != HgFileStatus.Missing
+                            && entry.Status != HgFileStatus.NotTracked
                             )
                             prjModified = true;
                         rgdwSccStatus[entry.Index] = (uint)entry.Status;
