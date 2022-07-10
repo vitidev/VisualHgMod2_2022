@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows;
 using EnvDTE;
 using HgLib;
 using Microsoft.VisualStudio;
@@ -378,6 +379,9 @@ namespace VisualHg
                 item = GetItemFirstChild(hierarchy, item);
 
                 if (item == VSConstants.VSITEMID_NIL)
+                    continue;
+
+                if (item == 1) // What is 1???
                     continue;
 
                 if (ItemHasChildren(hierarchy, item))

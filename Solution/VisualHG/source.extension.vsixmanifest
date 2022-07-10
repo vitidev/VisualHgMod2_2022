@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="VisualHG..DADADA00-dfd3-4e42-a61c-499121e136f3" Version="1.01" Language="en-US" Publisher="vitidev" />
+        <Identity Id="VisualHG..DADADA00-dfd3-4e42-a61c-499121e136f3" Version="1.02" Language="en-US" Publisher="vitidev" />
         <DisplayName>VisualHg Mod2 (2022)</DisplayName>
         <Description xml:space="preserve">Mercurial source control integration (VisualHg Mod2)</Description>
         <Icon>Resources\Package.ico</Icon>
